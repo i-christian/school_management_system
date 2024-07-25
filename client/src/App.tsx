@@ -2,6 +2,7 @@ import { Route, Router } from '@solidjs/router';
 import { Component, lazy, ParentComponent } from 'solid-js';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import Navigation from './components/Navigation';
 
 const Home: Component = lazy(() => import('./pages/home'));
 const Admin: Component = lazy(() => import('./pages/admin'));
@@ -13,6 +14,7 @@ const Layout: ParentComponent = (props) => {
   return (
     <main class="mx-auto">
       <Header />
+      <Navigation />
       {props.children}
       <Footer />
     </main>
