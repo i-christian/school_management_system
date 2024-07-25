@@ -1,5 +1,7 @@
 import { Route, Router } from '@solidjs/router';
 import { Component, lazy, ParentComponent } from 'solid-js';
+import Header from './components/Header';
+import Footer from './components/Footer';
 
 const Home: Component = lazy(() => import('./pages/home'));
 const Admin: Component = lazy(() => import('./pages/admin'));
@@ -9,16 +11,11 @@ const NotFound: Component = lazy(() => import('./pages/not_found'));
 
 const Layout: ParentComponent = (props) => {
   return (
-    <>
-      <header class='text-3xl text-center bg-transparent sticky top-0 p-2'>
-        <h1>School Name</h1>
-      </header>
+    <main class="mx-auto">
+      <Header />
       {props.children}
-      <footer class='text-center absolute inset-x-0 bottom-0 p-2'>
-        <hr></hr>
-        <h1>Footer</h1>
-      </footer>
-    </>
+      <Footer />
+    </main>
   )
 }
 
