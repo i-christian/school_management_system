@@ -4,9 +4,11 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import Navigation from './components/Navigation';
 
+const Login: Component = lazy(() => import('./pages/login'));
 const Home: Component = lazy(() => import('./pages/home'));
 const Admin: Component = lazy(() => import('./pages/admin'));
 const Teachers: Component = lazy(() => import('./pages/teachers'));
+const Grades: Component = lazy(() => import('./pages/grades'));
 const NotFound: Component = lazy(() => import('./pages/not_found'));
 
 
@@ -28,6 +30,8 @@ const App: Component = () => {
       <Route path="/" component={Home} />
       <Route path="/admin" component={Admin} />
       <Route path="/teachers" component={Teachers} />
+      <Route path="/login" component={Login} />
+      <Route path="/grades" component={Grades} />
       <Route path="*404" component={NotFound} />
     </Router>
   )

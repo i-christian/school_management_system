@@ -1,12 +1,14 @@
 import { Component } from "solid-js";
 
-const About: Component = () => {
+const Admin: Component = () => {
   return (
     <main>
-      <p>Admin</p>
+      <section>Manage Students</section>
+      <section>Manage Teachers</section>
+      <section>Settings</section>
     </main>
   )
 }
 
 
-export default About;
+export default Admin;

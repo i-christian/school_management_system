@@ -7,6 +7,7 @@ const Navigation: Component = () => {
       <A class="hover:bg-black px-4" href="/">Home</A>
       <A class="hover:bg-black px-4" href='/admin'>Admin</A>
       <A class="hover:bg-black px-4" href='/teachers'>Teachers</A>
+      <A class="hover:bg-black px-4" href="/grades">Grades</A>
     </nav>
   )
 }
