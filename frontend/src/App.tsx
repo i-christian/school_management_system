@@ -1,40 +1,19 @@
 import { Route, Router } from '@solidjs/router';
-import { Component, lazy, ParentComponent } from 'solid-js';
-import Header from './components/Header';
-import Footer from './components/Footer';
-import Navigation from './components/Navigation';
+import { Component, lazy } from 'solid-js';
+import { Login } from './pages/Login';
+import { Register } from './pages/Register';
 
-const Login: Component = lazy(() => import('./pages/login'));
-const Home: Component = lazy(() => import('./pages/home'));
-const Admin: Component = lazy(() => import('./pages/admin'));
-const Teachers: Component = lazy(() => import('./pages/teachers'));
-const Grades: Component = lazy(() => import('./pages/grades'));
-const NotFound: Component = lazy(() => import('./pages/not_found'));
-
-
-const Layout: ParentComponent = (props) => {
-  return (
-    <main class="mx-auto sm:w-3/4">
-      <Header />
-      <Navigation />
-      {props.children}
-      <Footer />
-    </main>
-  )
-}
+const WrongPage: Component = lazy(() => import('./pages/404'));
+const Dash: Component = lazy(() => import('./pages/Dashboard'))
 
 
 const App: Component = () => {
   return (
-    <Router root={Layout}>
-      <Route path="/" component={Home} />
-      <Route path="/admin" component={Admin}>
-        <Route />
-      </Route>
-      <Route path="/teachers" component={Teachers} />
+    <Router>
+      <Route path="/register" component={Register} />
       <Route path="/login" component={Login} />
-      <Route path="/grades" component={Grades} />
-      <Route path="*404" component={NotFound} />
+      <Route path="/dashboard" component={Dash} />
+      <Route path="*404" component={WrongPage} />
     </Router>
   )
 }
