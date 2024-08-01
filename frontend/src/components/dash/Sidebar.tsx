@@ -1,3 +1,4 @@
+import { A } from "@solidjs/router";
 import { Component, createSignal } from "solid-js";
 
 const Sidebar: Component = () => {
@@ -41,12 +42,12 @@ const Sidebar: Component = () => {
           <h1 class="text-2xl p-2">School Name</h1>
           <ul class="space-y-2 border bg-slate-400 rounded-xl p-2 text-gray-50 my-10">
             <li>
-              <a
-                href="#"
+              <A
+                href="/"
                 class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
               >
                 <span class="ml-3">Home</span>
-              </a>
+              </A>
             </li>
 
             <li>

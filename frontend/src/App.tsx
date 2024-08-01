@@ -3,6 +3,7 @@ import { Component, lazy } from 'solid-js';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import User from './pages/dashboard/User';
+import Dashboard from './pages/Dashboard';
 
 const WrongPage: Component = lazy(() => import('./pages/404'));
 const Dash: Component = lazy(() => import('./pages/Dashboard'));
@@ -16,6 +17,7 @@ const App: Component = () => {
       <Route path="/register" component={Register} />
       <Route path="/login" component={Login} />
       <Route path="/dashboard" component={Dash}>
+        <Route path="/" component={Dashboard} />
         <Route path="/:user" component={User} />
       </Route>
       <Route path="*404" component={WrongPage} />
