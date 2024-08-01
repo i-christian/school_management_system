@@ -40,7 +40,7 @@ const Sidebar: Component = () => {
       >
         <div class="overflow-y-auto py-10 px-3 h-full border-r border-gray-300 flex flex-col justify-between">
           <h1 class="text-2xl p-2">School Name</h1>
-          <ul class="space-y-2 border bg-slate-400 rounded-xl p-2 text-gray-50 my-10">
+          <ul class="space-y-2 border bg-slate-400 dark:bg-slate-700 rounded-xl p-2 text-gray-50 my-10">
             <li>
               <A
                 href="/"
@@ -51,44 +51,30 @@ const Sidebar: Component = () => {
             </li>
 
             <li>
-              <a
-                href="#"
+              <A
+                href="/dashboard"
                 class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
               >
                 <span class="ml-3">Dashboard</span>
-              </a>
+              </A>
             </li>
             <li>
-              <a
-                href="#"
+              <A
+                href="/students"
                 class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
               >
                 <span class="ml-3">Students</span>
-              </a>
-            </li>
-
-            <li>
-              <a
-                href="#"
-                class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-              >
-                <span class="ml-3">User Settings</span>
-              </a>
-            </li>
-            <li>
-              <a
-                href="#"
-                class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-              >
-                <span class="ml-3">User</span>
-              </a>
+              </A>
             </li>
           </ul>
-          <button class="mx-10 bottom-0 left-0">
+          <A
+            class="mx-10 bottom-0 left-0"
+            href="/"
+          >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-10">
               <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
             </svg>
-          </button>
+          </A>
         </div>
       </aside>
     </main>
