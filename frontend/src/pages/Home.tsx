@@ -1,7 +1,7 @@
 import { Component } from 'solid-js';
-import Header from '../components/Header';
-import Hero from '../components/Hero';
-import Footer from '../components/Footer';
+import Header from '../components/home/Header';
+import Hero from '../components/home/Hero';
+import Footer from '../components/home/Footer';
 
 
 const Home: Component = () => {

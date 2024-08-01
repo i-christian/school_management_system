@@ -1,11 +1,13 @@
-import { Component } from "solid-js";
-import Aside from "../components/Aside";
+import { ParentComponent } from "solid-js";
+import Sidebar from "../components/dash/Sidebar";
 
-const Dashboard: Component = () => {
+const Dashboard: ParentComponent = (props) => {
   return (
-    <main>
-      <Aside />
+    <main class="flex flex-row justify-end m-auto">
+      <Sidebar />
+      {props.children}
     </main>
   )
 }
+
 export default Dashboard;
