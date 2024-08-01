@@ -4,12 +4,14 @@ import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 
 const WrongPage: Component = lazy(() => import('./pages/404'));
-const Dash: Component = lazy(() => import('./pages/Dashboard'))
+const Dash: Component = lazy(() => import('./pages/Dashboard'));
+const Home: Component = lazy(() => import('./pages/Home'));
 
 
 const App: Component = () => {
   return (
     <Router>
+      <Route path="/" component={Home} />
       <Route path="/register" component={Register} />
       <Route path="/login" component={Login} />
       <Route path="/dashboard" component={Dash} />
