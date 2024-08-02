@@ -3,11 +3,8 @@ import { Component } from 'solid-js';
 
 const User: Component = () => {
   return (
-    <>
-      <p>User Config information</p>
-    </>
+    <p> User page </p>
   )
 }
-
 
 export default User;

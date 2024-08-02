@@ -1,7 +1,7 @@
 import { ParentComponent } from "solid-js";
 import Sidebar from "../components/dash/Sidebar";
 
-const Dashboard: ParentComponent = (props) => {
+const PageWrapper: ParentComponent = (props) => {
   return (
     <main class="flex flex-row justify-end m-auto">
       <Sidebar />
@@ -10,4 +10,4 @@ const Dashboard: ParentComponent = (props) => {
   )
 }
 
-export default Dashboard;
+export default PageWrapper;
