@@ -10,6 +10,9 @@ const WrongPage: Component = lazy(() => import('./pages/404'));
 const PageWrapper: Component = lazy(() => import('./pages/PageWrapper'));
 const Users: Component = lazy(() => import('./pages/users/Users'));
 const User: Component = lazy(() => import('./pages/users/User'));
+const UserSettings: Component = lazy(() => import('./pages/users/UserSettings'));
+const Students: Component = lazy(() => import('./pages/students/Students'));
+const Student: Component = lazy(() => import('./pages/students/Student'));
 
 
 const App: Component = () => {
@@ -25,8 +28,16 @@ const App: Component = () => {
         <Route path="/" component={Users} />
         <Route path="/:id" component={User} />
       </Route>
+      <Route path="/settings" component={PageWrapper} >
+        <Route path="/" component={UserSettings} />
+      </Route>
+      <Route path="/students" component={PageWrapper}>
+        <Route path="/" component={Students} />
+        <Route path="/:id" component={Student} />
+      </Route>
+
       <Route path="*404" component={WrongPage} />
-    </Router>
+    </Router >
   )
 }
 

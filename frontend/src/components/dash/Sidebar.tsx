@@ -9,7 +9,7 @@ const Sidebar: Component = () => {
   };
 
   return (
-    <main class="bg-inherit">
+    <>
       <button
         onClick={toggleSidebar}
         aria-controls="default-sidebar"
@@ -60,6 +60,13 @@ const Sidebar: Component = () => {
               <span class="ml-3">Users</span>
             </A>
             <A
+              href="/settings"
+              class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+            >
+              <span class="ml-3">User Settings</span>
+            </A>
+
+            <A
               href="/students"
               class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
             >
@@ -77,7 +84,7 @@ const Sidebar: Component = () => {
           </A>
         </div>
       </aside>
-    </main>
+    </>
   );
 };
 
