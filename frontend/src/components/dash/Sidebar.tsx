@@ -40,33 +40,26 @@ const Sidebar: Component = () => {
       >
         <div class="overflow-y-auto py-10 px-3 h-full border-r border-gray-300 flex flex-col justify-between">
           <h1 class="text-2xl p-2">School Name</h1>
-          <ul class="space-y-2 border bg-slate-400 dark:bg-slate-700 rounded-xl p-2 text-gray-50 my-10">
-            <li>
+          <nav class="space-y-2 border bg-slate-400 dark:bg-slate-700 rounded-xl p-2 text-gray-50 my-10">
               <A
                 href="/"
                 class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
               >
                 <span class="ml-3">Home</span>
               </A>
-            </li>
-
-            <li>
               <A
                 href="/dashboard"
                 class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
               >
                 <span class="ml-3">Dashboard</span>
               </A>
-            </li>
-            <li>
               <A
                 href="/students"
                 class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
               >
                 <span class="ml-3">Students</span>
               </A>
-            </li>
-          </ul>
+            </nav>
           <A
             class="mx-10 bottom-0 left-0"
             href="/"
