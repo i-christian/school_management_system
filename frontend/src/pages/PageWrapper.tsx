@@ -52,7 +52,7 @@ const PageWrapper: ParentComponent = (props) => {
           <div class="mt-auto">
             <hr class="my-5" />
             <A
-              href="/signout"
+              href="/logout"
               class="group flex items-center text-sm gap-3.5 font-medium p-2 hover:bg-gray-700 rounded-md"
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">

@@ -1,7 +1,8 @@
 import { Route, Router } from '@solidjs/router';
 import { Component, lazy } from 'solid-js';
 import { Login } from './pages/Login';
-import { Register } from './pages/Register'
+import { Register } from './pages/Register';
+import { Logout } from './pages/Logout';
 
 
 const Admin: Component = lazy(() => import('./pages/users/Admin'));
@@ -21,6 +22,7 @@ const App: Component = () => {
       <Route path="/" component={Home} />
       <Route path="/register" component={Register} />
       <Route path="/login" component={Login} />
+      <Route path="/logout" component={Logout} />
       <Route path="/admin" component={PageWrapper}>
         <Route path="/" component={Admin} />
       </Route>
