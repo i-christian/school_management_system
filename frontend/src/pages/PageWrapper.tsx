@@ -17,7 +17,7 @@ const PageWrapper: ParentComponent = (props) => {
   return (
     <div class="flex">
       <aside
-        class={`bg-slate-400 dark:bg-slate-900 fixed left-0 top-0 shadow-2xl p-5 h-screen ${open() ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 transition-transform duration-500 text-gray-100 px-4 w-64 z-50 flex flex-col`}
+        class={`bg-slate-500 dark:bg-slate-950 fixed left-0 top-0 shadow-3xl p-5 h-screen ${open() ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 transition-transform duration-500 text-gray-100 px-4 w-64 z-50 flex flex-col`}
       >
         <header class="flex justify-end lg:hidden">
           <button
@@ -30,12 +30,13 @@ const PageWrapper: ParentComponent = (props) => {
             </svg>
           </button>
         </header>
-        <nav class="flex-grow flex flex-col mt-10 gap-5">
+        <nav class="flex-grow flex flex-col mt-10 gap-5 text-black dark:text-slate-100">
           <For each={menus}>
             {(menu, i) => (
               <A
                 href={menu.link}
-                class="group flex items-center text-sm gap-3.5 font-medium p-2 hover:bg-gray-700 rounded-md"
+                class="group flex items-center gap-3.5 font-bold p-2 hover:bg-gray-300 rounded-lg"
+
               >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                   <path stroke-linecap="round" stroke-linejoin="round" d={menu.icon} />
@@ -51,18 +52,18 @@ const PageWrapper: ParentComponent = (props) => {
               </A>
             )}
           </For>
-          <div class="mt-auto text-2xl">
+          <section class="mt-auto text-2xl">
             <hr class="my-5" />
             <A
               href="/logout"
-              class="group flex items-center text-sm gap-3.5 font-medium p-2 hover:bg-gray-700 rounded-md"
+              class="group flex items-center text-sm gap-3.5 font-medium p-2 hover:bg-gray-700 hover:text-white rounded-md"
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" />
               </svg>
               <span class="text-xl whitespace-pre duration-500">Sign Out</span>
             </A>
-          </div>
+          </section>
         </nav>
       </aside>
       <main
