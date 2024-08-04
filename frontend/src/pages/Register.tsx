@@ -2,7 +2,7 @@ import { Component } from 'solid-js';
 
 export const Register: Component = () => {
   return (
-    <section class="bg-white dark:bg-slate-800 grid rounded-xl">
+    <section class="bg-inherit grid rounded-xl">
       <div class="flex justify-center min-h-screen">
         <div class="flex items-center w-full max-w-3xl p-8 mx-auto lg:px-12 lg:w-3/5">
           <div class="w-full">
