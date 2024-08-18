@@ -28,7 +28,7 @@ const HamBugerMenuIcon: Component<{}> = () => {
         onClick={handleClick}
       >
         <div
-          class={`relative flex overflow-hidden items-center justify-center rounded-full w-[50px] h-[50px] transform transition-all bg-slate-700 ring-0 ring-gray-300 hover:ring-8 ${
+          class={`relative flex overflow-hidden items-center justify-center rounded-full w-[50px] h-[50px] transform transition-all bg-inherit border ring-0 ring-gray-300 hover:ring-8 ${
             isFocused() ? "ring-4" : ""
           } ring-opacity-30 duration-200 shadow-md`}
         >
