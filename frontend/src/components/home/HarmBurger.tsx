@@ -1,6 +1,6 @@
 import { Component, createSignal, onCleanup } from "solid-js";
 
-const HamBugerMenuIcon: Component<{}> = () => {
+const HamBugerMenuIcon: Component = () => {
   const [isFocused, setIsFocused] = createSignal(false);
 
   const handleClick = () => {
