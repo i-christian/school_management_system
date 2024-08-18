@@ -3,7 +3,7 @@ import { A } from "@solidjs/router";
 import { navbarElements } from "../../context";
 import Button from "./Button";
 import { logo } from "../../assets/icons";
-import HamBugerMenuIcon from "./HarmBurger";
+import HamBugerMenuIcon from "./HamBurger";
 
 const Nav: Component<{}> = () => {
   return (
