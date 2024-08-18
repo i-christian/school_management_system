@@ -1,4 +1,4 @@
-import { Component } from "solid-js";
+import { Component, For } from "solid-js";
 import { A } from "@solidjs/router";
 import { navbarElements } from "../../context";
 import Button from "./Button";
@@ -20,15 +20,16 @@ const Nav: Component<{}> = () => {
             />
           </A>
           <A href="/" class="max-md:hidden">
-            <h1 class="text-3xl">School Name</h1>
+            <h1 class="text-3xl p-5">School Name</h1>
           </A>
         </section>
         <ul class="flex justify-center gap-4 text-xl font-thin max-md:hidden">
-          {navbarElements.map((element) => (
-            <li key={element.title}>
+          <For each={navbarElements}>{(element) =>
+            <li>
               <A href={element.link}>{element.title}</A>
             </li>
-          ))}
+          }
+          </For>
         </ul>
         <section class="flex justify-end items-center pr-4 gap-8">
           <Button name="logInButton" title="Log in" link="/login" />
