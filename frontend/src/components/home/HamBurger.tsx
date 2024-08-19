@@ -19,7 +19,7 @@ const HamBugerMenuIcon: Component = (props) => {
   onCleanup(() => document.removeEventListener("click", handleClickOutside));
 
   return (
-    <div class="md:hidden">
+    <div class="md:hidden pr-4">
       <button
         id="hamburger-button"
         class="relative group"
