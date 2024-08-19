@@ -2,7 +2,7 @@ import { A } from "@solidjs/router";
 import { Component, For } from "solid-js";
 import { navbarElements } from "../../context";
 
-const NavUnOrderedList: Component<{}> = (props) => {
+const NavUnOrderedList: Component<{ isFocused: () => boolean }> = (props) => {
   return (
     <>
       <ul class={`${props.isFocused() ? "sideBar" : "hidden"}`}>

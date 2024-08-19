@@ -1,6 +1,5 @@
-import { Component, createSignal, For } from "solid-js";
-import { A, Navigate } from "@solidjs/router";
-import { navbarElements } from "../../context";
+import { Component, createSignal } from "solid-js";
+import { A } from "@solidjs/router";
 import Button from "./Button";
 import { logo } from "../../assets/icons";
 import HamBugerMenuIcon from "./HamBurger";
@@ -21,7 +20,7 @@ const Nav: Component<{}> = () => {
               class="rounded-full"
             />
           </A>
-          <A href="/" class="max-md:hidden">
+          <A href="/" class="max-w-fit mx-1 max-sm:hidden">
             <h1 class="text-3xl p-5">School Name</h1>
           </A>
         </section>

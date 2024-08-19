@@ -1,15 +1,7 @@
-import { useNavigate } from "@solidjs/router";
-import { Component, createSignal } from "solid-js";
+import { Component } from "solid-js";
 import Nav from "./Nav";
 
 const Header: Component = () => {
-  const navigate = useNavigate();
-  const [isMenuOpen, setIsMenuOpen] = createSignal(false);
-
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen());
-  };
-
   return (
     <>
       <header class="fixed top-0 left-0 w-full shadow-md z-50 bg-inherit backdrop-filter backdrop-blur-3xl backdrop-brightness-100 backdrop-contrast-100 px-5">
