@@ -16,9 +16,8 @@
 }
 
 .sideBar {
-  @apply fixed top-0 right-0 z-50 flex flex-col justify-end gap-16 
-  text-xl md:hidden bg-slate-400 dark:text-white dark:bg-slate-900 
-  mt-16 pl-4 pr-4 pb-1;
+  @apply fixed top-16 right-0 z-40 flex flex-col justify-end gap-5 
+  text-xl md:hidden pl-4 pr-4 pb-1 rounded-b bg-slate-400/90  dark:bg-slate-900/90 backdrop-blur-sm;
 }
 
 .navBarList {

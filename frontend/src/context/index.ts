@@ -1,6 +1,13 @@
+import {
+  aboutIcon,
+  contactIcon,
+  homeIcon,
+  servicesIcon,
+} from "../assets/icons";
+
 export const navbarElements = [
-  { title: "Home", link: "/" },
-  { title: "About", link: "/about" },
-  { title: "Services", link: "/services" },
-  { title: "Contact", link: "#contact" },
+  { title: "Home", link: "/", icon: homeIcon },
+  { title: "About", link: "/about", icon: aboutIcon },
+  { title: "Services", link: "/services", icon: servicesIcon },
+  { title: "Contact", link: "#contact", icon: contactIcon },
 ];
