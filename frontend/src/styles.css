@@ -14,3 +14,13 @@
   justify-center 
   items-center;
 }
+
+.sideBar {
+  @apply fixed top-0 right-0 z-50 flex flex-col justify-end gap-16 
+  text-xl md:hidden bg-slate-400 dark:text-white dark:bg-slate-900 
+  mt-16 pl-4 pb-1;
+}
+
+.navBarList {
+  @apply flex justify-center gap-4 text-xl font-thin max-md:hidden;
+}

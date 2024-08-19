@@ -1,10 +1,12 @@
-import { Component, For } from "solid-js";
-import { A } from "@solidjs/router";
+import { Component, createSignal, For } from "solid-js";
+import { A, Navigate } from "@solidjs/router";
 import { navbarElements } from "../../context";
 import Button from "./Button";
 import { logo } from "../../assets/icons";
 import HamBugerMenuIcon from "./HamBurger";
+import NavUnOrderedList from "./NavUnOrderedList";
 
+const [isFocused, setIsFocused] = createSignal(false);
 const Nav: Component<{}> = () => {
   return (
     <nav class="flex flex-row justify-between items-center w-full h-16">
@@ -23,17 +25,13 @@ const Nav: Component<{}> = () => {
             <h1 class="text-3xl p-5">School Name</h1>
           </A>
         </section>
-        <ul class="flex justify-center gap-4 text-xl font-thin max-md:hidden">
-          <For each={navbarElements}>{(element) =>
-            <li>
-              <A href={element.link}>{element.title}</A>
-            </li>
-          }
-          </For>
-        </ul>
+        <NavUnOrderedList isFocused={isFocused} />
         <section class="flex justify-end items-center pr-4 gap-8">
           <Button name="logInButton" title="Log in" link="/login" />
-          <HamBugerMenuIcon />
+          <HamBugerMenuIcon
+            isFocused={isFocused()}
+            setIsFocused={setIsFocused}
+          />
         </section>
       </section>
     </nav>
