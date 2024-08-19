@@ -11,3 +11,11 @@ export const navbarElements = [
   { title: "Services", link: "/services", icon: servicesIcon },
   { title: "Contact", link: "#contact", icon: contactIcon },
 ];
+
+export const schoolName = [
+  {
+    full: "Ekwendeni Girls' Secondary School",
+    name: "Ekwendeni Girls'",
+    short: "EGSS",
+  },
+];
