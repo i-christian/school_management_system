@@ -6,7 +6,7 @@ import { logo } from "../../assets/icons";
 import HamBugerMenuIcon from "./HamBurger";
 import NavUnOrderedList from "./NavUnOrderedList";
 
-const [isFocused, setIsFocused] = createSignal(false);
+const [isFocused, setIsFocused] = createSignal<boolean>(false);
 const Nav: Component<{}> = () => {
   return (
     <nav class="flex flex-row justify-between items-center w-full h-16">

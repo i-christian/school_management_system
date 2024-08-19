@@ -5,7 +5,7 @@ import { navbarElements } from "../../context";
 const NavUnOrderedList: Component<{}> = (props) => {
   return (
     <>
-      <ul class={`${props.isFocused ? "sideBar" : "hidden"}`}>
+      <ul class={`${props.isFocused() ? "sideBar" : "hidden"}`}>
         <For each={navbarElements}>
           {(element) => (
             <li>
