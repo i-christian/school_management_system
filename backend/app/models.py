@@ -43,7 +43,9 @@ class UpdatePassword(SQLModel):
 class User(UserBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     hashed_password: str
-    items: list["Item"] = Relationship(back_populates="owner", cascade_delete=True)
+    students: list["Student"] = Relationship(
+        back_populates="owner", cascade_delete=True
+    )
 
 
 # Properties to return via API, id is always required
@@ -57,39 +59,45 @@ class UsersPublic(SQLModel):
 
 
 # Shared properties
-class ItemBase(SQLModel):
-    title: str = Field(min_length=1, max_length=255)
-    description: str | None = Field(default=None, max_length=255)
+class StudentBase(SQLModel):
+    first_name: str = Field(min_length=2, max_length=255)
+    last_name: str = Field(min_length=2, max_length=255)
+    form: str | None = Field(default=None, max_length=255)
 
 
-# Properties to receive on item creation
-class ItemCreate(ItemBase):
+# Properties to receive on student creation
+class StudentCreate(StudentBase):
     pass
 
 
-# Properties to receive on item update
-class ItemUpdate(ItemBase):
-    title: str | None = Field(default=None, min_length=1, max_length=255)  # type: ignore
+# Properties to receive on student update
+class StudentUpdate(StudentBase):
+    first_name: str = Field(min_length=2, max_length=255)
+    last_name: str = Field(min_length=2, max_length=255)
+    form: str | None = Field(default=None, max_length=255)
 
 
 # Database model, database table inferred from class name
-class Item(ItemBase, table=True):
+class Student(StudentBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    title: str = Field(max_length=255)
+    first_name: str = Field(max_length=255)
+    last_name: str = Field(max_length=255)
+    form: str = Field(max_length=255)
+
     owner_id: uuid.UUID = Field(
         foreign_key="user.id", nullable=False, ondelete="CASCADE"
     )
-    owner: User | None = Relationship(back_populates="items")
+    owner: User | None = Relationship(back_populates="students")
 
 
 # Properties to return via API, id is always required
-class ItemPublic(ItemBase):
+class StudentPublic(StudentBase):
     id: uuid.UUID
     owner_id: uuid.UUID
 
 
-class ItemsPublic(SQLModel):
-    data: list[ItemPublic]
+class StudentsPublic(SQLModel):
+    data: list[StudentPublic]
     count: int
 
 
