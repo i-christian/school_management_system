@@ -4,6 +4,7 @@ import Button from "./Button";
 import { logo } from "../../assets/icons";
 import HamBugerMenuIcon from "./HamBurger";
 import NavUnOrderedList from "./NavUnOrderedList";
+import { schoolName } from "../../context";
 
 const [isFocused, setIsFocused] = createSignal<boolean>(false);
 const Nav: Component<{}> = () => {
@@ -20,8 +21,10 @@ const Nav: Component<{}> = () => {
               class="rounded-full"
             />
           </A>
-          <A href="/" class="max-w-fit mx-1 max-sm:hidden">
-            <h1 class="text-3xl p-5">School Name</h1>
+          <A href="/" class="max-w-fit mx-1">
+            <h1 class="text-3xl p-3 max-sm:hidden min-[1060px]:hidden">{`${schoolName[0].name}`}</h1>
+            <h1 class="text-3xl p-3 max-[1060px]:hidden">{`${schoolName[0].full}`}</h1>
+            <h1 class="text-3xl p-3 sm:hidden">{`${schoolName[0].short}`}</h1>
           </A>
         </section>
         <NavUnOrderedList isFocused={isFocused} />
