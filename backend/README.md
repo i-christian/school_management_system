@@ -1,4 +1,4 @@
-# FastAPI Project - Backend
+# Backend
 
 ## Requirements
 
@@ -48,6 +48,7 @@ If your Docker is not running in `localhost` (the URLs above wouldn't work) you 
 By default, the dependencies are managed with [Poetry](https://python-poetry.org/), go there and install it.
 
 From `./backend/` you can install all the dependencies with:
+copy the .env file to `./app/.env`
 
 ```console
 $ poetry install
@@ -57,6 +58,15 @@ Then you can start a shell session with the new environment with:
 
 ```console
 $ poetry shell
+```
+
+To run the project on your local machine 
+```
+  cd app 
+```
+Launch the server using
+```
+ uvicorn main:app --reload 
 ```
 
 Make sure your editor is using the correct Python virtual environment.
