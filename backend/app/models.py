@@ -62,7 +62,7 @@ class UsersPublic(SQLModel):
 class StudentBase(SQLModel):
     first_name: str = Field(min_length=2, max_length=255)
     last_name: str = Field(min_length=2, max_length=255)
-    form: str | None = Field(default=None, max_length=255)
+    form: int = Field(min_length=1, max_length=255)
 
 
 # Properties to receive on student creation
@@ -74,7 +74,7 @@ class StudentCreate(StudentBase):
 class StudentUpdate(StudentBase):
     first_name: str = Field(min_length=2, max_length=255)
     last_name: str = Field(min_length=2, max_length=255)
-    form: str | None = Field(default=None, max_length=255)
+    form: int = Field(min_length=1, max_length=255)
 
 
 # Database model, database table inferred from class name
@@ -82,7 +82,7 @@ class Student(StudentBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     first_name: str = Field(max_length=255)
     last_name: str = Field(max_length=255)
-    form: str = Field(max_length=255)
+    form: int = Field(max_length=255)
 
     owner_id: uuid.UUID = Field(
         foreign_key="user.id", nullable=False, ondelete="CASCADE"
