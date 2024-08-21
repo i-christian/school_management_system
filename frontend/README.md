@@ -1,28 +1,33 @@
-## Usage
+# School Manager - Frontend
 
-```bash
-$ npm install # or pnpm install or yarn install
+The frontend is built with [Solid Website](https://solidjs.com), [Vite](https://vitejs.dev/), [TypeScript](https://www.typescriptlang.org/) and [TailwindCSS](https://tailwindcss.com)
+
+## Frontend development
+Ensure that you have Node and node package manager on your system.
+
+- Within the `frontend` directory, install the necessary NPM packages:
+  ```
+    npm install
+  ```
+- And start the live server with the following `npm` script:
+  ```
+    npm run dev
+  ```
+- Then open your browser at `http://localhost:5173/`
+
+## Generate Client 
+- Download the OpenAPI JSON file from `http://127.0.0.1:8000/api/openapi.json` and copy it to a new file `openapi.json` at the root of the `frontend` directory.
+
+- To simplify the names in the generated frontend client code, modify the `openapi.json` file by running the following script:
+```
+  node modify-openapi-operationids.js
 ```
 
-### Learn more on the [Solid Website](https://solidjs.com) and come chat with us on our [Discord](https://discord.com/invite/solidjs)
+- To generate the frontend client, run:
+```
+  npm run generate-client
+```
 
-## Available Scripts
+- Commit the changes.
 
-In the project directory, you can run:
-
-### `npm run dev`
-
-Runs the app in the development mode.<br>
-Open [http://localhost:5173](http://localhost:5173) to view it in the browser.
-
-### `npm run build`
-
-Builds the app for production to the `dist` folder.<br>
-It correctly bundles Solid in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
-
-## Deployment
-
-Learn more about deploying your application with the [documentations](https://vitejs.dev/guide/static-deploy.html)
+`Note: ` that everytime the `backend` changes (changing the OpenAPI schema), you should follow these steps again to update the `frontend` client.
