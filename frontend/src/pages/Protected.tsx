@@ -1,14 +1,25 @@
-import { createSignal, ParentComponent, Show } from "solid-js";
-import { Login } from "./Login";
+import { Component, createSignal, ParentComponent, Show } from "solid-js";
 import Aside from "../components/dashboard/Aside";
+import { useAuth } from "../context/UserContext";
+import { useNavigate } from "@solidjs/router";
+
+const NotAuth: Component = () => {
+  const navigate = useNavigate()
+  return (
+    <>
+      {navigate("/login")}
+    </>
+  )
+}
 
 const Protected: ParentComponent = (props) => {
   const [open, setOpen] = createSignal<boolean>(false);
-  const [signedin, setSignedin] = createSignal<boolean>(true);
+  const { isAuthenticated } = useAuth();
+
 
   return (
     <div class="flex justify-center">
-      <Show when={signedin()} fallback={<Login />}>
+      <Show when={isAuthenticated()} fallback={<NotAuth />}>
         <Aside open={open} setOpen={setOpen} />
         <main class="flex-grow transition-all duration-500 overflow-y-auto lg:ml-64">
           <header class="flex justify-between mx-5 p-2">

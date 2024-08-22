@@ -1,17 +1,23 @@
-import { Component } from "solid-js";
 import { useNavigate } from "@solidjs/router";
+import { Component } from "solid-js";
+import { useAuth } from "../context/UserContext";
 
 export const Logout: Component = () => {
-  const navigate = useNavigate();
+  const { logout } = useAuth();
+  const navigate = useNavigate()
 
   const handleLogout = () => {
-    // Implement the logout logic here (e.g., clear session, API call)
-    // After logout logic, redirect to login page or home page
-    navigate("/");
+    try {
+      logout();
+      navigate("/")
+    } catch (err) {
+      console.error("Logout failed", err)
+    }
+
   };
 
   const handleCancel = () => {
-    navigate(-1);
+    window.history.back();
   };
 
   return (
@@ -25,7 +31,8 @@ export const Logout: Component = () => {
           <div class="flex justify-end p-4 space-x-2">
             <button
               class="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md"
-              onClick={handleCancel}>
+              onClick={handleCancel}
+            >
               Cancel
             </button>
             <button

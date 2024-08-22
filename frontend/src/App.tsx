@@ -1,7 +1,6 @@
 import { Route, Router } from "@solidjs/router";
 import { Component, lazy } from "solid-js";
 import { Login } from "./pages/Login";
-import { Register } from "./pages/Register";
 import { Logout } from "./pages/Logout";
 
 const Admin: Component = lazy(() => import("./pages/users/Admin"));

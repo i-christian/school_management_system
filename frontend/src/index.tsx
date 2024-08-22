@@ -1,6 +1,7 @@
 import { render } from "solid-js/web";
 import App from "./App.tsx";
 import { OpenAPI } from "./client/index.ts";
+import { AuthProvider } from "./context/UserContext.tsx";
 
 OpenAPI.BASE = import.meta.env.VITE_API_URL
 OpenAPI.TOKEN = async () => {
@@ -8,5 +9,10 @@ OpenAPI.TOKEN = async () => {
 }
 
 render(
-  App, document.getElementById("root")!
+  () => (
+    <AuthProvider>
+      <App />
+    </AuthProvider>
+  ),
+  document.getElementById("root") as HTMLElement
 );
