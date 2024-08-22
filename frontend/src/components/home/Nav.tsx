@@ -1,13 +1,16 @@
-import { Component, createSignal } from "solid-js";
+import { Component, Match, Switch, createSignal } from "solid-js";
 import { A } from "@solidjs/router";
 import Button from "./Button";
 import { logo } from "../../assets/icons";
 import HamBugerMenuIcon from "./HamBurger";
 import NavUnOrderedList from "./NavUnOrderedList";
 import { schoolName } from "../../context";
+import { useAuth } from "../../context/UserContext";
 
-const [isFocused, setIsFocused] = createSignal<boolean>(false);
 const Nav: Component<{}> = () => {
+  const [isFocused, setIsFocused] = createSignal<boolean>(false);
+  const { isAuthenticated, user } = useAuth();
+
   return (
     <nav class="flex flex-row justify-between items-center w-full h-16">
       <section class="flex flex-row justify-between items-center w-full">
@@ -29,7 +32,14 @@ const Nav: Component<{}> = () => {
         </section>
         <NavUnOrderedList isFocused={isFocused} />
         <section class="flex justify-end items-center pr-4 gap-8">
-          <Button name="logInButton" title="Log in" link="/login" />
+          <Switch fallback={<Button name="LogInButton" link="/login" title="Sign In" />}>
+            <Match when={isAuthenticated()}>
+              <Button name="Dashboard" link={`/users/${user()?.id}`} title={user()?.full_name || 'User'} />
+            </Match>
+            <Match when={isAuthenticated() && user()?.is_superuser}>
+              <Button name="Dashboard" link="/admin" title="Admin" />
+            </Match>
+          </Switch>
           <HamBugerMenuIcon
             isFocused={isFocused()}
             setIsFocused={setIsFocused}
