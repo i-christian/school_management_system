@@ -33,11 +33,11 @@ const Nav: Component<{}> = () => {
         <NavUnOrderedList isFocused={isFocused} />
         <section class="flex justify-end items-center pr-4 gap-8">
           <Switch fallback={<Button name="LogInButton" link="/login" title="Sign In" />}>
-            <Match when={isAuthenticated()}>
-              <Button name="Dashboard" link={`/users/${user()?.id}`} title={user()?.full_name || 'User'} />
-            </Match>
             <Match when={isAuthenticated() && user()?.is_superuser}>
               <Button name="Dashboard" link="/admin" title="Admin" />
+            </Match>
+            <Match when={isAuthenticated()}>
+              <Button name="Dashboard" link={`/users/${user()?.id}`} title={user()?.full_name || 'User'} />
             </Match>
           </Switch>
           <HamBugerMenuIcon
