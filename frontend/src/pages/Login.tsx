@@ -1,8 +1,10 @@
 import { createStore } from "solid-js/store";
 import { useAuth } from "../context/UserContext";
+import { useNavigate } from "@solidjs/router";
 
 export const Login = () => {
-  const { login, isLoading, error, resetError } = useAuth();
+  const { login, isLoading, error, resetError, user } = useAuth();
+  const navigate = useNavigate();
 
   const [formData, setFormData] = createStore({
     email: "",
@@ -50,6 +52,11 @@ export const Login = () => {
 
     try {
       await login({ username: formData.email, password: formData.password });
+      if (user()?.is_superuser) {
+        navigate("/admin");
+      } else {
+        navigate("/students");
+      }
     } catch (err) {
       console.error("Login error:", err);
       resetError();
