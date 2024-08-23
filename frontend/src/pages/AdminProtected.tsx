@@ -4,22 +4,18 @@ import { useAuth } from "../context/UserContext";
 import { useNavigate } from "@solidjs/router";
 
 const NotAuth: Component = () => {
-  const navigate = useNavigate()
-  return (
-    <>
-      {navigate("/login")}
-    </>
-  )
+  const navigate = useNavigate();
+  return (<>{navigate("/403")}</>)
+
 }
 
-const Protected: ParentComponent = (props) => {
+const AdminProtected: ParentComponent = (props) => {
   const [open, setOpen] = createSignal<boolean>(false);
-  const { isAuthenticated } = useAuth();
-
+  const { isAuthenticated, user } = useAuth();
 
   return (
     <div class="flex justify-center">
-      <Show when={isAuthenticated()} fallback={<NotAuth />}>
+      <Show when={isAuthenticated() && user()?.is_superuser} fallback={<NotAuth />}>
         <Aside open={open} setOpen={setOpen} />
         <main class="flex-grow transition-all duration-500 overflow-y-auto lg:ml-64">
           <header class="flex justify-between mx-5 p-2">
@@ -62,8 +58,8 @@ const Protected: ParentComponent = (props) => {
           <section class="w-full p-5">{props.children}</section>
         </main>
       </Show>
-    </div>
+    </div >
   );
 };
 
-export default Protected;
+export default AdminProtected;

@@ -5,8 +5,10 @@ import { Logout } from "./pages/Logout";
 
 const Admin: Component = lazy(() => import("./pages/users/Admin"));
 const Home: Component = lazy(() => import("./pages/Home"));
+const Forbidden: Component = lazy(() => import("./pages/403"));
 const WrongPage: Component = lazy(() => import("./pages/404"));
-const Protected: Component = lazy(() => import("./pages/Protected"));
+const AdminProtected: Component = lazy(() => import("./pages/AdminProtected"));
+const UserProtected: Component = lazy(() => import("./pages/UserProtected"));
 const Users: Component = lazy(() => import("./pages/users/Users"));
 const User: Component = lazy(() => import("./pages/users/User"));
 const UserSettings: Component = lazy(
@@ -21,21 +23,21 @@ const App: Component = () => {
       <Route path="/" component={Home} />
       <Route path="/login" component={Login} />
       <Route path="/logout" component={Logout} />
-      <Route path="/admin" component={Protected}>
+      <Route path="/admin" component={AdminProtected}>
         <Route path="/" component={Admin} />
       </Route>
-      <Route path="/users" component={Protected}>
+      <Route path="/users" component={AdminProtected}>
         <Route path="/" component={Users} />
         <Route path="/:id" component={User} />
       </Route>
-      <Route path="/settings" component={Protected}>
+      <Route path="/settings" component={UserProtected}>
         <Route path="/" component={UserSettings} />
       </Route>
-      <Route path="/students" component={Protected}>
+      <Route path="/students" component={UserProtected}>
         <Route path="/" component={Students} />
         <Route path="/:id" component={Student} />
       </Route>
-
+      <Route path="/403" component={Forbidden} />
       <Route path="*404" component={WrongPage} />
     </Router>
   );

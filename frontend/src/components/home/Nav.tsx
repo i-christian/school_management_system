@@ -1,5 +1,6 @@
-import { Component, Match, Switch, createSignal } from "solid-js";
+import { Component, createSignal } from "solid-js";
 import { A } from "@solidjs/router";
+import { Dynamic } from "solid-js/web";
 import Button from "./Button";
 import { logo } from "../../assets/icons";
 import HamBugerMenuIcon from "./HamBurger";
@@ -10,6 +11,16 @@ import { useAuth } from "../../context/UserContext";
 const Nav: Component<{}> = () => {
   const [isFocused, setIsFocused] = createSignal<boolean>(false);
   const { isAuthenticated, user } = useAuth();
+
+  const buttonProps = () => {
+    if (!isAuthenticated()) {
+      return { name: "LogInButton", link: "/login", title: "Sign In" };
+    } else if (user()?.is_superuser) {
+      return { name: "Dashboard", link: "/admin", title: "Admin" };
+    } else {
+      return { name: "Dashboard", link: "/students", title: user()?.full_name || "Teacher" };
+    }
+  };
 
   return (
     <nav class="flex flex-row justify-between items-center w-full h-16">
@@ -32,14 +43,7 @@ const Nav: Component<{}> = () => {
         </section>
         <NavUnOrderedList isFocused={isFocused} />
         <section class="flex justify-end items-center pr-4 gap-8">
-          <Switch fallback={<Button name="LogInButton" link="/login" title="Sign In" />}>
-            <Match when={isAuthenticated() && user()?.is_superuser}>
-              <Button name="Dashboard" link="/admin" title="Admin" />
-            </Match>
-            <Match when={isAuthenticated()}>
-              <Button name="Dashboard" link={`/users/${user()?.id}`} title={user()?.full_name || 'Teacher'} />
-            </Match>
-          </Switch>
+          <Dynamic component={Button} {...buttonProps()} />
           <HamBugerMenuIcon
             isFocused={isFocused()}
             setIsFocused={setIsFocused}
