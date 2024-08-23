@@ -37,7 +37,7 @@ const Nav: Component<{}> = () => {
               <Button name="Dashboard" link="/admin" title="Admin" />
             </Match>
             <Match when={isAuthenticated()}>
-              <Button name="Dashboard" link={`/users/${user()?.id}`} title={user()?.full_name || 'User'} />
+              <Button name="Dashboard" link={`/users/${user()?.id}`} title={user()?.full_name || 'Teacher'} />
             </Match>
           </Switch>
           <HamBugerMenuIcon
