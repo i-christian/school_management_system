@@ -2,6 +2,7 @@ import { createSignal, ParentComponent } from "solid-js";
 import Aside from "../components/dashboard/Aside";
 import { useAuth } from "../context/UserContext";
 import { useNavigate } from "@solidjs/router";
+import { schoolName } from "../context";
 
 const UserProtected: ParentComponent = (props) => {
   const [open, setOpen] = createSignal<boolean>(false);
@@ -38,7 +39,7 @@ const UserProtected: ParentComponent = (props) => {
               />
             </svg>
           </button>
-          <h1 class="text-2xl">School Name</h1>
+          <h1 class="text-2xl">{schoolName[0].name}</h1>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
