@@ -1,5 +1,5 @@
 import { A } from "@solidjs/router";
-import { Accessor, Component, For, Setter, createSignal } from "solid-js";
+import { Accessor, Component, For, Setter, Show, createSignal } from "solid-js";
 import { useAuth } from "../../context/UserContext";
 
 const Aside: Component<{ open: Accessor<boolean>, setOpen: Setter<boolean> }> = (props) => {
@@ -71,6 +71,12 @@ const Aside: Component<{ open: Accessor<boolean>, setOpen: Setter<boolean> }> = 
         </For>
         <section class="mt-auto text-2xl">
           <hr class="my-5" />
+          <h4 class="p-1 flex flex-wrap text-sm">
+            Signed in as: <Show when={user()?.is_superuser} fallback={<p class="px-2 text-bold text-normal">Teacher</p>}>
+              <p class="px-2 text-bold text-normal">Admin</p>
+            </Show>
+
+          </h4>
           <A
             href="/logout"
             class="group flex items-center text-sm gap-3.5 font-medium p-2 hover:bg-gray-700 hover:text-white rounded-md"
