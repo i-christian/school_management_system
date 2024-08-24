@@ -8,7 +8,7 @@ import NavUnOrderedList from "./NavUnOrderedList";
 import { schoolName } from "../../context";
 import { useAuth } from "../../context/UserContext";
 
-const Nav: Component<{ navbarElements: any }> = (props) => {
+const Nav: Component<{}> = () => {
   const [isFocused, setIsFocused] = createSignal<boolean>(false);
   const { isAuthenticated, user } = useAuth();
 
@@ -45,10 +45,7 @@ const Nav: Component<{ navbarElements: any }> = (props) => {
             <h1 class="text-3xl p-3 sm:hidden">{`${schoolName[0].short}`}</h1>
           </A>
         </section>
-        <NavUnOrderedList
-          isFocused={isFocused}
-          navbarElements={props.navbarElements}
-        />
+        <NavUnOrderedList isFocused={isFocused} />
         <section class="flex justify-end items-center pr-4 gap-8">
           <Dynamic component={Button} {...buttonProps()} />
           <HamBugerMenuIcon

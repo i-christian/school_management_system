@@ -3,15 +3,14 @@ import Aside from "../components/dashboard/Aside";
 import { useAuth } from "../context/UserContext";
 import { useNavigate } from "@solidjs/router";
 
-
 const UserProtected: ParentComponent = (props) => {
   const [open, setOpen] = createSignal<boolean>(false);
   const { isAuthenticated } = useAuth();
 
   if (!isAuthenticated()) {
     const navigate = useNavigate();
-    navigate("/login")
-    return null
+    navigate("/login");
+    return null;
   }
 
   return (

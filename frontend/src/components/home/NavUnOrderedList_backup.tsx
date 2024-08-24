@@ -1,14 +1,12 @@
 import { A } from "@solidjs/router";
 import { Component, For } from "solid-js";
+import { navbarElements } from "../../context";
 
-const NavUnOrderedList: Component<{
-  isFocused: () => boolean;
-  navbarElements: any;
-}> = (props) => {
+const NavUnOrderedList: Component<{ isFocused: () => boolean }> = (props) => {
   return (
     <>
       <ul class={`${props.isFocused() ? "sideBar" : "hidden"}`}>
-        <For each={props.navbarElements}>
+        <For each={navbarElements}>
           {(element) => (
             <li class="flex flex-col gap-1 items-center justify-center mt-4">
               <div class="flex justify-center">
@@ -25,7 +23,7 @@ const NavUnOrderedList: Component<{
         </For>
       </ul>
       <ul class={`navBarList`}>
-        <For each={props.navbarElements}>
+        <For each={navbarElements}>
           {(element) => (
             <li>
               <A href={element.link}>{element.name}</A>

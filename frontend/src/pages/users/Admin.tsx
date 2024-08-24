@@ -1,10 +1,8 @@
-import { Component } from 'solid-js';
-
+import { Component } from "solid-js";
+import Dashboard from "../../components/dashboard/Dashboard";
 
 const Admin: Component = () => {
-  return (
-    <p> Admin page </p>
-  )
-}
+  return <Dashboard />;
+};
 
 export default Admin;
