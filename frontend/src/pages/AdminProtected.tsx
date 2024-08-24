@@ -56,7 +56,7 @@ const AdminProtected: ParentComponent = (props) => {
         </header>
         <section class="w-full p-5">{props.children}</section>
       </main>
-    </div >
+    </div>
   );
 };
 
