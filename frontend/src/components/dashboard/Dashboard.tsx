@@ -2,11 +2,10 @@ import { Component } from "solid-js";
 
 const Dashboard: Component = () => {
   return (
-    <div class="flex h-screen bg-inherit">
+    <main class="flex h-screen bg-inherit">
       {/* Main Content */}
       <div class="flex-1 p-6">
-        {/* Header */}
-        <div class="flex justify-between items-center mb-6 dark:border-b dark:border-slate-400 border-b border-slate-900">
+        <header class="flex justify-between items-center mb-6 dark:border-b dark:border-slate-400 border-b border-slate-900">
           <input
             type="text"
             class="bg-gray-200 text-slate-800 p-2 rounded-lg dark:border dark:border-slate-400 border border-slate-900"
@@ -20,7 +19,7 @@ const Dashboard: Component = () => {
               class="w-10 h-10 rounded-full"
             />
           </div>
-        </div>
+        </header>
 
         {/* Dashboard Cards */}
         <div class="grid grid-cols-4 gap-6">
@@ -84,7 +83,7 @@ const Dashboard: Component = () => {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 };
 
