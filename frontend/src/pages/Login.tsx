@@ -7,10 +7,10 @@ export const Login = () => {
   const navigate = useNavigate();
 
   const [formData, setFormData] = createStore({
-    email: "",
+    emailOrPhone: "",
     password: "",
     showPassword: false,
-    emailError: "",
+    emailOrPhoneError: "",
     passwordError: "",
   });
 
@@ -18,19 +18,22 @@ export const Login = () => {
     const target = e.currentTarget as HTMLInputElement;
     setFormData({
       [field]: target.value,
-      [`${field}Error`]: ""
+      [`${field}Error`]: "",
     });
   };
 
-  const validateEmail = (email: string) =>
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const validateEmail = (input: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input);
+
+  const validatePhone = (input: string) =>
+    /^0\d{9}$/.test(input);
 
   const validateForm = () => {
     let isValid = true;
     const newErrors: Partial<typeof formData> = {};
 
-    if (!validateEmail(formData.email)) {
-      newErrors.emailError = "Please enter a valid email address.";
+    if (!validateEmail(formData.emailOrPhone) && !validatePhone(formData.emailOrPhone)) {
+      newErrors.emailOrPhoneError = "Please enter a valid email address or phone number.";
       isValid = false;
     }
 
@@ -50,8 +53,13 @@ export const Login = () => {
 
     resetError();
 
+    let username = formData.emailOrPhone;
+    if (validatePhone(username)) {
+      username = `${username}@email.com`;
+    }
+
     try {
-      await login({ username: formData.email, password: formData.password });
+      await login({ username, password: formData.password });
       if (user()?.is_superuser) {
         navigate("/admin");
       } else {
@@ -79,16 +87,16 @@ export const Login = () => {
             <div class="w-full mt-4">
               <input
                 class="block w-full px-4 py-2 mt-2 text-gray-700 dark:text-gray-100 placeholder-gray-500 bg-white border rounded-lg dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 focus:border-blue-400 dark:focus:border-blue-300 focus:ring-opacity-40 focus:outline-none focus:ring focus:ring-blue-300 transition duration-300 ease-in-out"
-                type="email"
-                placeholder="Email Address"
-                aria-label="Email Address"
-                value={formData.email}
-                onInput={handleInputChange("email")}
+                type="text"
+                placeholder="Email Address or Phone Number"
+                aria-label="Email Address or Phone Number"
+                value={formData.emailOrPhone}
+                onInput={handleInputChange("emailOrPhone")}
                 required
               />
-              {formData.emailError && (
+              {formData.emailOrPhoneError && (
                 <div class="mt-2 text-red-600 dark:text-red-400 text-sm animate-bounce">
-                  {formData.emailError}
+                  {formData.emailOrPhoneError}
                 </div>
               )}
             </div>
