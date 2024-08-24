@@ -3,7 +3,10 @@ import { Component } from 'solid-js';
 
 const Users: Component = () => {
   return (
-    <p> Users List page </p>
+    <section class="flex gap-2 flex-wrap">
+      <p>Search and filtering by name, class</p>
+      <p>Details including contact information & assigned classes </p>
+    </section>
   )
 }
 
