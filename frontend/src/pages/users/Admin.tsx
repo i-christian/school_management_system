@@ -63,7 +63,7 @@ const Admin: Component = () => {
                   <strong class="text-gray-800 dark:text-gray-100">Email:</strong> {userItem.email}
                 </div>
                 <div class="mb-2">
-                  <strong class="text-gray-800 dark:text-gray-100">Role:</strong> {userItem.is_superuser ? "Admin" : "User"}
+                  <strong class="text-gray-800 dark:text-gray-100">Role:</strong> {userItem.is_superuser ? "Admin" : "Teacher"}
                 </div>
                 <div class="mb-2">
                   <strong class="text-gray-800 dark:text-gray-100">Status:</strong> {userItem.is_active ? "Active" : "Inactive"}
@@ -78,8 +78,8 @@ const Admin: Component = () => {
                       setModalType("edit");
                     }}
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 9a3.5 3.5 0 1 1-7 0M12 3.75V12M3 12h18M12 3v9m9 6h-4.5a1.5 1.5 0 1 1 0-3h4.5a1.5 1.5 0 1 1 0 3Z" />
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" />
                     </svg>
                   </button>
                 </div>
