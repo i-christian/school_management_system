@@ -1,48 +1,32 @@
-import { createStore } from "solid-js/store";
 import { useAuth } from "../context/UserContext";
 import { useNavigate } from "@solidjs/router";
+import { useValidation } from "../hooks/useValidation";
+import { createStore } from "solid-js/store";
+import { Component } from "solid-js";
 
-export const Login = () => {
+
+export const Login: Component = () => {
   const { login, isLoading, error, resetError, user } = useAuth();
   const navigate = useNavigate();
+  const { errors, setErrors, validateEmailOrPhone, validatePassword } = useValidation();
 
   const [formData, setFormData] = createStore({
     emailOrPhone: "",
     password: "",
     showPassword: false,
-    emailOrPhoneError: "",
-    passwordError: "",
   });
 
   const handleInputChange = (field: keyof typeof formData) => (e: Event) => {
     const target = e.currentTarget as HTMLInputElement;
-    setFormData({
-      [field]: target.value,
-      [`${field}Error`]: "",
-    });
+    setFormData({ [field]: target.value });
+    setErrors((prev) => ({ ...prev, [`${field}Error`]: "" }));
   };
-
-  const validateEmail = (input: string) =>
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input);
-
-  const validatePhone = (input: string) =>
-    /^0\d{9}$/.test(input);
 
   const validateForm = () => {
     let isValid = true;
-    const newErrors: Partial<typeof formData> = {};
+    if (!validateEmailOrPhone(formData.emailOrPhone)) isValid = false;
+    if (!validatePassword(formData.password, formData.password)) isValid = false;
 
-    if (!validateEmail(formData.emailOrPhone) && !validatePhone(formData.emailOrPhone)) {
-      newErrors.emailOrPhoneError = "Please enter a valid email address or phone number.";
-      isValid = false;
-    }
-
-    if (formData.password.length < 8) {
-      newErrors.passwordError = "Password must be at least 8 characters long.";
-      isValid = false;
-    }
-
-    setFormData(newErrors);
     return isValid;
   };
 
@@ -54,7 +38,7 @@ export const Login = () => {
     resetError();
 
     let username = formData.emailOrPhone;
-    if (validatePhone(username)) {
+    if (/^0\d{9}$/.test(username)) {
       username = `${username}@email.com`;
     }
 
@@ -94,9 +78,9 @@ export const Login = () => {
                 onInput={handleInputChange("emailOrPhone")}
                 required
               />
-              {formData.emailOrPhoneError && (
+              {errors().emailOrPhoneError && (
                 <div class="mt-2 text-red-600 dark:text-red-400 text-sm animate-bounce">
-                  {formData.emailOrPhoneError}
+                  {errors().emailOrPhoneError}
                 </div>
               )}
             </div>
@@ -152,9 +136,9 @@ export const Login = () => {
               </button>
             </div>
 
-            {formData.passwordError && (
+            {errors().passwordError && (
               <div class="mt-2 text-red-600 dark:text-red-400 text-sm animate-bounce">
-                {formData.passwordError}
+                {errors().passwordError}
               </div>
             )}
 
