@@ -1,11 +1,13 @@
-import { Component, For, Show, createSignal, onMount } from "solid-js";
+import { Component, For, Switch, Match, createSignal, onMount } from "solid-js";
 import { ReadUsersResponse, readUsers } from "../../client";
 import UserFormModal from "../../components/admin/UserFormModal";
+import UserEditModal from "../../components/admin/UserEditModal";
 import { useAuth } from "../../context/UserContext";
 
 const Admin: Component = () => {
   const [users, setUsers] = createSignal<ReadUsersResponse>({ data: [], count: 0 });
-  const [isModalOpen, setIsModalOpen] = createSignal(false);
+  const [modalType, setModalType] = createSignal<"edit" | "add" | null>(null);
+  const [editUserId, setEditUserId] = createSignal<string | null>(null);
   const { user } = useAuth();
 
   const loadUsers = async () => {
@@ -23,6 +25,13 @@ const Admin: Component = () => {
 
   const handleUserAdded = () => {
     loadUsers();
+    setModalType(null);
+  };
+
+  const handleUserUpdated = () => {
+    loadUsers();
+    setModalType(null);
+    setEditUserId(null);
   };
 
   return (
@@ -32,7 +41,7 @@ const Admin: Component = () => {
         <div class="flex justify-between items-center mb-4">
           <button
             class="p-3 w-fit rounded-md bg-blue-500 hover:bg-blue-700 dark:text-white font-semibold flex items-center"
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => setModalType("add")}
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -64,9 +73,13 @@ const Admin: Component = () => {
                     class={`p-2 rounded-md text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 ${userItem.id === user()?.id ? "cursor-not-allowed" : ""
                       }`}
                     disabled={userItem.id === user()?.id}
+                    onClick={() => {
+                      setEditUserId(userItem.id);
+                      setModalType("edit");
+                    }}
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 9a3.5 3.5 0 1 1-7 0M12 3.75V12M3 12h18M12 3v9m9 6h-4.5a1.5 1.5 0 1 1 0-3h4.5a1.5 1.5 0 1 1 0 3Z" />
                     </svg>
                   </button>
                 </div>
@@ -76,12 +89,21 @@ const Admin: Component = () => {
         </div>
       </section>
 
-      <Show when={isModalOpen()}>
-        <UserFormModal
-          onClose={() => setIsModalOpen(false)}
-          onUserAdded={handleUserAdded}
-        />
-      </Show>
+      <Switch fallback={null}>
+        <Match when={modalType() === "edit"}>
+          <UserEditModal
+            userId={editUserId()!}
+            onClose={() => setModalType(null)}
+            onUserUpdated={handleUserUpdated}
+          />
+        </Match>
+        <Match when={modalType() === "add"}>
+          <UserFormModal
+            onClose={() => setModalType(null)}
+            onUserAdded={handleUserAdded}
+          />
+        </Match>
+      </Switch>
     </main>
   );
 };
