@@ -164,10 +164,10 @@ export const Login = () => {
               </div>
             )}
 
-            <div class="flex items-center justify-between mt-4">
+            <div class="flex items-center justify-center mt-4">
               <a
                 href="#"
-                class="text-sm text-gray-600 dark:text-gray-200 hover:text-gray-500 transition duration-300 ease-in-out"
+                class="hidden text-sm text-gray-600 dark:text-gray-200 hover:text-gray-500 transition duration-300 ease-in-out"
               >
                 Forgot Password?
               </a>
