@@ -26,12 +26,12 @@ const Admin: Component = () => {
   };
 
   return (
-    <main class="mx-auto flex flex-col p-6 max-w-5xl">
-      <section class="flex flex-col p-6 rounded-md shadow-md">
+    <main class="mx-auto flex flex-col p-6 max-w-5xl bg-inherit min-h-screen">
+      <section class="flex flex-col p-6">
         <h2 class="text-2xl font-bold mb-4 text-gray-700 dark:text-gray-200">User Management</h2>
         <div class="flex justify-between items-center mb-4">
           <button
-            class="p-3 w-fit rounded-md bg-blue-500 hover:bg-blue-900 dark:text-white font-semibold flex items-center"
+            class="p-3 w-fit rounded-md bg-blue-500 hover:bg-blue-700 dark:text-white font-semibold flex items-center"
             onClick={() => setIsModalOpen(true)}
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -39,12 +39,12 @@ const Admin: Component = () => {
             </svg>
             Add User
           </button>
-          <p class="text-md text-bold text-gray-600 dark:text-gray-300">Total Users: {users().count}</p>
+          <p class="text-md font-bold text-gray-600 dark:text-gray-300">Total Users: {users().count}</p>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <For each={users().data}>
             {(userItem) => (
-              <div class="p-4 border rounded-md border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+              <div class="p-4 border rounded-md border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 shadow-md">
                 <div class="mb-2">
                   <strong class={`text-lg ${userItem.id === user()?.id ? "text-blue-500 font-semibold" : "text-gray-800 dark:text-gray-100"}`}>
                     {userItem.id === user()?.id ? "You" : userItem.full_name || "Teacher"}
