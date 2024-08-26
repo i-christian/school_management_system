@@ -16,7 +16,6 @@ const Aside: Component<{ open: Accessor<boolean>, setOpen: Setter<boolean> }> = 
       link: "/dashboard",
       icon: "M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25m18 0A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25m18 0V12a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 12V5.25"
     },
-
     ...(isAuthenticated() && user()?.is_superuser ? [
       {
         name: "Admin",
@@ -78,10 +77,14 @@ const Aside: Component<{ open: Accessor<boolean>, setOpen: Setter<boolean> }> = 
         <section class="mt-auto text-2xl">
           <hr class="my-5" />
           <h4 class="p-1 flex flex-wrap text-sm">
-            Signed in as: <Show when={user()?.is_superuser} fallback={<p class="px-2 text-bold text-normal">Teacher</p>}>
-              <p class="px-2 text-bold text-normal">Admin</p>
+            Signed in as:
+            <Show when={user()?.full_name} fallback={
+              <Show when={user()?.is_superuser} fallback={<p class="px-2 text-bold text-normal">Teacher</p>}>
+                <p class="px-2 text-bold text-normal">Admin</p>
+              </Show>
+            }>
+              <p class="px-2 text-bold text-normal">{user()?.full_name}</p>
             </Show>
-
           </h4>
           <A
             href="/logout"

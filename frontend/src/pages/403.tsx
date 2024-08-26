@@ -5,7 +5,7 @@ const Forbidden: Component = () => {
   const navigate = useNavigate();
   return (
     <section class="bg-inherit">
-      <div class="container flex sm:flex-wrap items-center min-h-screen px-6 py-12 mx-auto">
+      <div class="flex sm:flex-wrap items-center min-h-screen px-6 py-12 mx-auto">
         <div>
           <p class="text-sm font-medium text-red-500 dark:text-red-400">403 Forbidden</p>
           <h1 class="mt-3 text-2xl font-semibold text-gray-800 dark:text-white md:text-3xl">Access Denied</h1>

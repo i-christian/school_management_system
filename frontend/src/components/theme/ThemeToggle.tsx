@@ -1,27 +1,9 @@
-import { createSignal, onMount } from 'solid-js';
+import { Component } from 'solid-js';
+import { useTheme } from '../../hooks/useTheme';
 
-const ThemeToggle = () => {
-  const [isDark, setIsDark] = createSignal(false);
 
-  const toggleTheme = () => {
-    setIsDark(!isDark());
-    if (isDark()) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  };
-
-  onMount(() => {
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') {
-      setIsDark(true);
-      document.documentElement.classList.add('dark');
-    } else if (savedTheme === 'light') {
-      setIsDark(false);
-      document.documentElement.classList.remove('dark');
-    }
-  });
+const ThemeToggle: Component = () => {
+  const { isDark, toggleTheme } = useTheme();
 
   return (
     <label class="relative inline-flex items-center cursor-pointer">
@@ -29,10 +11,7 @@ const ThemeToggle = () => {
         type="checkbox"
         checked={isDark()}
         class="sr-only"
-        onChange={() => {
-          toggleTheme();
-          localStorage.setItem('theme', isDark() ? 'dark' : 'light');
-        }}
+        onChange={toggleTheme}
       />
       <div class="w-14 h-8 bg-gray-200 dark:bg-gray-600 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all dark:border-gray-700 peer-checked:bg-blue-600 flex items-center justify-between px-1.5">
         <svg
