@@ -47,7 +47,7 @@ export const Login: Component = () => {
       if (user()?.is_superuser) {
         navigate("/admin");
       } else {
-        navigate("/students");
+        navigate("/teachers");
       }
     } catch (err) {
       console.error("Login error:", err);

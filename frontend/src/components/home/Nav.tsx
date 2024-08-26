@@ -20,7 +20,7 @@ const Nav: Component<{ navbarElements: any }> = (props) => {
     } else {
       return {
         name: "Dashboard",
-        link: "/students",
+        link: "/teachers",
         title: user()?.full_name || "Teacher",
       };
     }

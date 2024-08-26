@@ -1,7 +1,7 @@
 import { Component } from 'solid-js';
 
 
-const Users: Component = () => {
+const Teachers: Component = () => {
   return (
     <section class="flex gap-2 flex-wrap">
       <p>Search and filtering by name, class</p>
@@ -10,4 +10,4 @@ const Users: Component = () => {
   )
 }
 
-export default Users;
+export default Teachers;
