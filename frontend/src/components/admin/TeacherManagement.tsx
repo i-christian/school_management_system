@@ -5,7 +5,7 @@ import UserFormModal from "./UserFormModal";
 import UserEditModal from "./UserEditModal";
 import UserDeleteModal from "./UserDeleteModal";
 
-const UserManagement: Component = () => {
+const TeacherManagement: Component = () => {
   const [users, setUsers] = createSignal<ReadUsersResponse>({ data: [], count: 0 });
   const [modalType, setModalType] = createSignal<"edit" | "add" | "delete" | null>(null);
   const [editUserId, setEditUserId] = createSignal<string | null>(null);
@@ -48,7 +48,7 @@ const UserManagement: Component = () => {
 
   return (
     <section class="flex flex-col p-6">
-      <h2 class="text-2xl font-bold mb-4 text-gray-700 dark:text-gray-200">Teachers Management</h2>
+      <h2 class="text-2xl font-bold mb-4 text-gray-700 dark:text-gray-200">Teachers </h2>
       <div class="flex justify-between items-center mb-4">
         <button
           class="p-3 w-fit rounded-md bg-blue-500 hover:bg-blue-700 dark:text-white font-semibold flex items-center"
@@ -57,7 +57,7 @@ const UserManagement: Component = () => {
           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
           </svg>
-          Add User
+          Add Teacher
         </button>
         <p class="text-md font-bold text-gray-600 dark:text-gray-300">Total Users: {users().count}</p>
       </div>
@@ -139,4 +139,4 @@ const UserManagement: Component = () => {
   );
 };
 
-export default UserManagement;
+export default TeacherManagement;
