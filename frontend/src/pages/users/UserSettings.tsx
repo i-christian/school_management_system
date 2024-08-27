@@ -4,17 +4,20 @@ import ChangePassword from '../../components/settings/ChangePassword';
 import AppearanceSettings from '../../components/settings/AppearanceSettings';
 
 const UserSettings: Component = () => {
-  const [currentSection, setCurrentSection] = createSignal('profile');
   const [message, setMessage] = createSignal<string | null>(null);
+  const [currentSection, setCurrentSection] = createSignal(localStorage.getItem('settingsSection') || 'profile');
 
   const handleSectionChange = (section: string) => {
     setCurrentSection(section);
+    localStorage.setItem('settingsSection', section);
     setMessage(null);
   };
+
 
   return (
     <main class="bg-inherit min-h-screen p-6">
       <h1 class='m-2 text-bold text-xl text-center'> Settings page </h1>
+      <hr class="my-4" />
       <nav class="mb-6">
         <div class="flex justify-center space-x-4">
           <button
