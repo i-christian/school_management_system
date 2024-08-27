@@ -5,7 +5,6 @@ import UserFormModal from "./UserFormModal";
 import UserEditModal from "./UserEditModal";
 import UserDeleteModal from "./UserDeleteModal";
 
-
 const UserManagement: Component = () => {
   const [users, setUsers] = createSignal<ReadUsersResponse>({ data: [], count: 0 });
   const [modalType, setModalType] = createSignal<"edit" | "add" | "delete" | null>(null);
@@ -16,7 +15,10 @@ const UserManagement: Component = () => {
   const loadUsers = async () => {
     try {
       const response = await readUsers();
-      setUsers(response);
+      setUsers({
+        ...response,
+        data: response.data.filter((userItem) => !userItem.is_superuser),
+      });
     } catch (error) {
       console.error("Failed to load users:", error);
     }
@@ -25,6 +27,7 @@ const UserManagement: Component = () => {
   onMount(() => {
     loadUsers();
   });
+
 
   const handleUserAdded = () => {
     loadUsers();
@@ -45,7 +48,7 @@ const UserManagement: Component = () => {
 
   return (
     <section class="flex flex-col p-6">
-      <h2 class="text-2xl font-bold mb-4 text-gray-700 dark:text-gray-200">User Management</h2>
+      <h2 class="text-2xl font-bold mb-4 text-gray-700 dark:text-gray-200">Teachers Management</h2>
       <div class="flex justify-between items-center mb-4">
         <button
           class="p-3 w-fit rounded-md bg-blue-500 hover:bg-blue-700 dark:text-white font-semibold flex items-center"
