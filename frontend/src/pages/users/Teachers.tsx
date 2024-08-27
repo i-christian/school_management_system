@@ -4,11 +4,11 @@ import GradesManagement from '../../components/teachers/GradesManagement';
 
 const Teachers: Component = () => {
   const [message, setMessage] = createSignal<string | null>(null);
-  const [currentSection, setCurrentSection] = createSignal(localStorage.getItem('currentSection') || 'classes');
+  const [currentSection, setCurrentSection] = createSignal(localStorage.getItem('teacherSection') || 'classes');
 
   const handleSectionChange = (section: string) => {
     setCurrentSection(section);
-    localStorage.setItem('currentSection', section);
+    localStorage.setItem('teacherSection', section);
     setMessage(null);
   };
 
