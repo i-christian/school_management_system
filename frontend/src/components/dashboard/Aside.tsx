@@ -43,7 +43,7 @@ const Aside: Component<{ open: Accessor<boolean>, setOpen: Setter<boolean> }> = 
 
   return (
     <aside
-      class={`bg-slate-500 dark:bg-slate-950 fixed left-0 top-0 shadow-3xl p-5 h-screen ${props.open() ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 transition-transform duration-500 text-gray-100 px-4 w-64 z-50 flex flex-col`}
+      class={`bg-gray-500 dark:bg-slate-950 fixed left-0 top-0 shadow-3xl p-5 h-screen ${props.open() ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 transition-transform duration-500 text-gray-100 px-4 w-64 z-50 flex flex-col`}
     >
       <header class="flex justify-end lg:hidden">
         <button
@@ -51,7 +51,8 @@ const Aside: Component<{ open: Accessor<boolean>, setOpen: Setter<boolean> }> = 
           onClick={() => props.setOpen(!props.open())}
           aria-label="Close Sidebar"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 ">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" />
           </svg>
         </button>
