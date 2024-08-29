@@ -1,4 +1,4 @@
-import { createSignal, onCleanup, onMount } from 'solid-js';
+import { createSignal, onMount } from 'solid-js';
 
 export function useTheme() {
   const [isDark, setIsDark] = createSignal(false);
