@@ -4,6 +4,7 @@ from typing import Any
 from fastapi import APIRouter, HTTPException
 from sqlmodel import func, select
 
+from app import crud
 from app.api.deps import CurrentUser, SessionDep
 from app.models import (
     Message,
@@ -24,7 +25,6 @@ def read_students(
     """
     Retrieve students.
     """
-
     if current_user.is_superuser:
         count_statement = select(func.count()).select_from(Student)
         count = session.exec(count_statement).one()
@@ -57,7 +57,7 @@ def read_student(session: SessionDep, current_user: CurrentUser, id: uuid.UUID) 
     if not student:
         raise HTTPException(status_code=404, detail="Student not found")
     if not current_user.is_superuser and (student.owner_id != current_user.id):
-        raise HTTPException(status_code=400, detail="Not enough permissions")
+        raise HTTPException(status_code=403, detail="Not enough permissions")
     return student
 
 
@@ -68,10 +68,9 @@ def create_student(
     """
     Create new student.
     """
-    student = Student.model_validate(student_in, update={"owner_id": current_user.id})
-    session.add(student)
-    session.commit()
-    session.refresh(student)
+    student = crud.create_student(
+        session=session, student_in=student_in, owner_id=current_user.id
+    )
     return student
 
 
@@ -84,33 +83,26 @@ def update_student(
     student_in: StudentUpdate,
 ) -> Any:
     """
-    Update an student.
+    Update a student.
     """
     student = session.get(Student, id)
     if not student:
         raise HTTPException(status_code=404, detail="Student not found")
     if not current_user.is_superuser and (student.owner_id != current_user.id):
-        raise HTTPException(status_code=400, detail="Not enough permissions")
-    update_dict = student_in.model_dump(exclude_unset=True)
-    student.sqlmodel_update(update_dict)
-    session.add(student)
-    session.commit()
-    session.refresh(student)
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+
+    student = crud.update_student(
+        session=session, db_student=student, student_in=student_in
+    )
     return student
 
 
-@router.delete("/{id}")
-def delete_student(
-    session: SessionDep, current_user: CurrentUser, id: uuid.UUID
-) -> Message:
+@router.delete("/{id}", response_model=Message)
+def delete_student(session: SessionDep, id: uuid.UUID) -> Message:
     """
-    Delete an student.
+    Delete a student.
     """
-    student = session.get(Student, id)
+    student = crud.delete_student(session=session, student_id=id)
     if not student:
         raise HTTPException(status_code=404, detail="Student not found")
-    if not current_user.is_superuser and (student.owner_id != current_user.id):
-        raise HTTPException(status_code=400, detail="Not enough permissions")
-    session.delete(student)
-    session.commit()
     return Message(message="Student deleted successfully")
