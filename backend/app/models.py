@@ -1,10 +1,10 @@
 import uuid
+from typing import Optional
 
 from pydantic import EmailStr
 from sqlmodel import Field, Relationship, SQLModel
 
 
-# Shared properties for users
 class UserBase(SQLModel):
     email: EmailStr = Field(unique=True, index=True, max_length=255)
     is_active: bool = True
@@ -108,7 +108,7 @@ class Grade(SQLModel, table=True):
     score: float = Field(ge=0, le=100)  # Assuming score is a percentage
 
     student: Student | None = Relationship(back_populates="grades")
-    subject: "Subject" | None = Relationship(back_populates="grades")
+    subject: Optional["Subject"] = Relationship(back_populates="grades")
 
 
 # Shared properties for grades
@@ -126,6 +126,15 @@ class GradeCreate(GradeBase):
 # Properties to receive via API on grade update
 class GradeUpdate(GradeBase):
     score: float = Field(default=None, ge=0, le=100)
+
+
+class GradePublic(GradeBase):
+    id: uuid.UUID
+
+
+class GradesPublic(SQLModel):
+    data: list[GradePublic]
+    count: int
 
 
 # Shared properties for subjects
@@ -181,6 +190,15 @@ class ClassFormCreate(ClassFormBase):
 # Properties to receive via API on class form update
 class ClassFormUpdate(ClassFormBase):
     name: str = Field(default=None, max_length=255)
+
+
+class ClassFormPublic(ClassFormBase):
+    id: uuid.UUID
+
+
+class ClassFormsPublic(SQLModel):
+    data: list[ClassFormPublic]
+    count: int
 
 
 # Shared properties for assignments

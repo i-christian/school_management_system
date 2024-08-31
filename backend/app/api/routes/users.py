@@ -38,7 +38,6 @@ def read_users(session: SessionDep, skip: int = 0, limit: int = 100) -> Any:
     """
     Retrieve users.
     """
-
     count_statement = select(func.count()).select_from(User)
     count = session.exec(count_statement).one()
 
@@ -82,7 +81,6 @@ def update_user_me(
     """
     Update own user.
     """
-
     if user_in.email:
         existing_user = crud.get_user_by_email(session=session, email=user_in.email)
         if existing_user and existing_user.id != current_user.id:
@@ -152,7 +150,9 @@ def register_user(session: SessionDep, user_in: UserRegister) -> Any:
             status_code=400,
             detail="The user with this email already exists in the system",
         )
-    user_create = UserCreate.model_validate(user_in)
+    user_create = UserCreate(
+        email=user_in.email, password=user_in.password, full_name=user_in.full_name
+    )
     user = crud.create_user(session=session, user_create=user_create)
     return user
 
@@ -189,7 +189,6 @@ def update_user(
     """
     Update a user.
     """
-
     db_user = session.get(User, user_id)
     if not db_user:
         raise HTTPException(
