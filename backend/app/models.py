@@ -87,7 +87,8 @@ class Student(StudentBase, table=True):
     )
     owner: User | None = Relationship(back_populates="students")
     grades: list["Grade"] = Relationship(back_populates="student")
-    form: Optional["ClassForm"] = Relationship(back_populates="students")
+    form_id: uuid.UUID = Field(foreign_key="classform.id", nullable=False)
+    form: "ClassForm" = Relationship(back_populates="students")
 
 
 # Properties to return via API for students
