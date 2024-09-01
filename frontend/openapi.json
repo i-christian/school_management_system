@@ -2266,11 +2266,37 @@
             "minLength": 2,
             "title": "First Name"
           },
+          "middle_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255,
+                "minLength": 2
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Middle Name"
+          },
           "last_name": {
             "type": "string",
             "maxLength": 255,
             "minLength": 2,
             "title": "Last Name"
+          },
+          "contact": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255,
+                "minLength": 10
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contact"
           },
           "form_id": {
             "type": "string",
@@ -2281,7 +2307,9 @@
         "type": "object",
         "required": [
           "first_name",
+          "middle_name",
           "last_name",
+          "contact",
           "form_id"
         ],
         "title": "StudentCreate"
@@ -2294,11 +2322,37 @@
             "minLength": 2,
             "title": "First Name"
           },
+          "middle_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255,
+                "minLength": 2
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Middle Name"
+          },
           "last_name": {
             "type": "string",
             "maxLength": 255,
             "minLength": 2,
             "title": "Last Name"
+          },
+          "contact": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255,
+                "minLength": 10
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contact"
           },
           "form_id": {
             "type": "string",
@@ -2319,7 +2373,9 @@
         "type": "object",
         "required": [
           "first_name",
+          "middle_name",
           "last_name",
+          "contact",
           "form_id",
           "id",
           "owner_id"
@@ -2334,11 +2390,37 @@
             "minLength": 2,
             "title": "First Name"
           },
+          "middle_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255,
+                "minLength": 2
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Middle Name"
+          },
           "last_name": {
             "type": "string",
             "maxLength": 255,
             "minLength": 2,
             "title": "Last Name"
+          },
+          "contact": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255,
+                "minLength": 10
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contact"
           },
           "form_id": {
             "type": "string",
@@ -2347,6 +2429,10 @@
           }
         },
         "type": "object",
+        "required": [
+          "middle_name",
+          "contact"
+        ],
         "title": "StudentUpdate"
       },
       "StudentsPublic": {
