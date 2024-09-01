@@ -1,6 +1,7 @@
 import { Component, createSignal, Switch, Match, lazy } from 'solid-js';
+import Students from '../../components/admin/students/Students';
 
-const TeacherManagement = lazy(() => import('../../components/admin/TeacherManagement'));
+const TeacherManagement: Component = lazy(() => import('../../components/admin/teachers/TeacherManagement'));
 
 const Admin: Component = () => {
   const [currentSection, setCurrentSection] = createSignal(localStorage.getItem('adminSection') || 'teachers');
@@ -29,6 +30,14 @@ const Admin: Component = () => {
             Manage Teachers
           </button>
           <button
+            aria-label="Manage Students"
+            onClick={() => handleSectionChange('students')}
+            class={`py-2 px-4 sm:px-6 rounded-lg text-sm sm:text-base font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${currentSection() === 'students' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100'}`}
+          >
+            Manage Students
+          </button>
+
+          <button
             aria-label="Manage Subjects"
             onClick={() => handleSectionChange('subjects')}
             class={`py-2 px-4 sm:px-6 rounded-lg text-sm sm:text-base font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${currentSection() === 'subjects' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100'}`}
@@ -49,13 +58,6 @@ const Admin: Component = () => {
           >
             Assign Teachers to Classes & Subjects
           </button>
-          <button
-            aria-label="Manage Students"
-            onClick={() => handleSectionChange('students')}
-            class={`py-2 px-4 sm:px-6 rounded-lg text-sm sm:text-base font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${currentSection() === 'students' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100'}`}
-          >
-            Manage Students
-          </button>
         </div>
       </nav>
 
@@ -65,7 +67,7 @@ const Admin: Component = () => {
             <TeacherManagement />
           </Match>
           <Match when={currentSection() === 'subjects' && cachedComponents().has('subjects')}>
-            <p>Subject Management Section</p>
+            <Students />
           </Match>
           <Match when={currentSection() === 'classes' && cachedComponents().has('classes')}>
             <p>Class Management Section</p>
