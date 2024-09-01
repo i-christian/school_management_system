@@ -90,13 +90,17 @@ export type NewPassword = {
 
 export type StudentCreate = {
     first_name: string;
+    middle_name: (string | null);
     last_name: string;
+    contact: (string | null);
     form_id: string;
 };
 
 export type StudentPublic = {
     first_name: string;
+    middle_name: (string | null);
     last_name: string;
+    contact: (string | null);
     form_id: string;
     id: string;
     owner_id: string;
@@ -104,7 +108,9 @@ export type StudentPublic = {
 
 export type StudentUpdate = {
     first_name?: string;
+    middle_name: (string | null);
     last_name?: string;
+    contact: (string | null);
     form_id?: string;
 };
 
@@ -187,248 +193,248 @@ export type ValidationError = {
     type: string;
 };
 
-export type LoginAccessTokenData = {
+export type LoginLoginAccessTokenData = {
     formData: Body_login_login_access_token;
 };
 
-export type LoginAccessTokenResponse = (Token);
+export type LoginLoginAccessTokenResponse = (Token);
 
-export type TestTokenResponse = (UserPublic);
+export type LoginTestTokenResponse = (UserPublic);
 
-export type RecoverPasswordData = {
+export type LoginRecoverPasswordData = {
     email: string;
 };
 
-export type RecoverPasswordResponse = (Message);
+export type LoginRecoverPasswordResponse = (Message);
 
-export type ResetPasswordData = {
+export type LoginResetPasswordData = {
     requestBody: NewPassword;
 };
 
-export type ResetPasswordResponse = (Message);
+export type LoginResetPasswordResponse = (Message);
 
-export type RecoverPasswordHtmlContentData = {
+export type LoginRecoverPasswordHtmlContentData = {
     email: string;
 };
 
-export type RecoverPasswordHtmlContentResponse = (string);
+export type LoginRecoverPasswordHtmlContentResponse = (string);
 
-export type ReadUsersData = {
+export type UsersReadUsersData = {
     limit?: number;
     skip?: number;
 };
 
-export type ReadUsersResponse = (UsersPublic);
+export type UsersReadUsersResponse = (UsersPublic);
 
-export type CreateUserData = {
+export type UsersCreateUserData = {
     requestBody: UserCreate;
 };
 
-export type CreateUserResponse = (UserPublic);
+export type UsersCreateUserResponse = (UserPublic);
 
-export type ReadUserMeResponse = (UserPublic);
+export type UsersReadUserMeResponse = (UserPublic);
 
-export type DeleteUserMeResponse = (Message);
+export type UsersDeleteUserMeResponse = (Message);
 
-export type UpdateUserMeData = {
+export type UsersUpdateUserMeData = {
     requestBody: UserUpdateMe;
 };
 
-export type UpdateUserMeResponse = (UserPublic);
+export type UsersUpdateUserMeResponse = (UserPublic);
 
-export type UpdatePasswordMeData = {
+export type UsersUpdatePasswordMeData = {
     requestBody: UpdatePassword;
 };
 
-export type UpdatePasswordMeResponse = (Message);
+export type UsersUpdatePasswordMeResponse = (Message);
 
-export type RegisterUserData = {
+export type UsersRegisterUserData = {
     requestBody: UserRegister;
 };
 
-export type RegisterUserResponse = (UserPublic);
+export type UsersRegisterUserResponse = (UserPublic);
 
-export type ReadUserByIdData = {
+export type UsersReadUserByIdData = {
     userId: string;
 };
 
-export type ReadUserByIdResponse = (UserPublic);
+export type UsersReadUserByIdResponse = (UserPublic);
 
-export type UpdateUserData = {
+export type UsersUpdateUserData = {
     requestBody: UserUpdate;
     userId: string;
 };
 
-export type UpdateUserResponse = (UserPublic);
+export type UsersUpdateUserResponse = (UserPublic);
 
-export type DeleteUserData = {
+export type UsersDeleteUserData = {
     userId: string;
 };
 
-export type DeleteUserResponse = (Message);
+export type UsersDeleteUserResponse = (Message);
 
-export type TestEmailData = {
+export type UtilsTestEmailData = {
     emailTo: string;
 };
 
-export type TestEmailResponse = (Message);
+export type UtilsTestEmailResponse = (Message);
 
-export type ReadStudentsData = {
+export type StudentsReadStudentsData = {
     limit?: number;
     skip?: number;
 };
 
-export type ReadStudentsResponse = (StudentsPublic);
+export type StudentsReadStudentsResponse = (StudentsPublic);
 
-export type CreateStudentData = {
+export type StudentsCreateStudentData = {
     requestBody: StudentCreate;
 };
 
-export type CreateStudentResponse = (StudentPublic);
+export type StudentsCreateStudentResponse = (StudentPublic);
 
-export type ReadStudentData = {
+export type StudentsReadStudentData = {
     id: string;
 };
 
-export type ReadStudentResponse = (StudentPublic);
+export type StudentsReadStudentResponse = (StudentPublic);
 
-export type UpdateStudentData = {
+export type StudentsUpdateStudentData = {
     id: string;
     requestBody: StudentUpdate;
 };
 
-export type UpdateStudentResponse = (StudentPublic);
+export type StudentsUpdateStudentResponse = (StudentPublic);
 
-export type DeleteStudentData = {
+export type StudentsDeleteStudentData = {
     id: string;
 };
 
-export type DeleteStudentResponse = (Message);
+export type StudentsDeleteStudentResponse = (Message);
 
-export type ReadGradesData = {
+export type GradesReadGradesData = {
     limit?: number;
     skip?: number;
 };
 
-export type ReadGradesResponse = (GradesPublic);
+export type GradesReadGradesResponse = (GradesPublic);
 
-export type CreateGradeData = {
+export type GradesCreateGradeData = {
     requestBody: GradeCreate;
 };
 
-export type CreateGradeResponse = (GradePublic);
+export type GradesCreateGradeResponse = (GradePublic);
 
-export type ReadGradeData = {
+export type GradesReadGradeData = {
     id: string;
 };
 
-export type ReadGradeResponse = (GradePublic);
+export type GradesReadGradeResponse = (GradePublic);
 
-export type UpdateGradeData = {
+export type GradesUpdateGradeData = {
     id: string;
     requestBody: GradeUpdate;
 };
 
-export type UpdateGradeResponse = (GradePublic);
+export type GradesUpdateGradeResponse = (GradePublic);
 
-export type DeleteGradeData = {
+export type GradesDeleteGradeData = {
     id: string;
 };
 
-export type DeleteGradeResponse = (Message);
+export type GradesDeleteGradeResponse = (Message);
 
-export type ReadSubjectsData = {
+export type SubjectsReadSubjectsData = {
     limit?: number;
     skip?: number;
 };
 
-export type ReadSubjectsResponse = (SubjectsPublic);
+export type SubjectsReadSubjectsResponse = (SubjectsPublic);
 
-export type CreateSubjectData = {
+export type SubjectsCreateSubjectData = {
     requestBody: SubjectCreate;
 };
 
-export type CreateSubjectResponse = (SubjectPublic);
+export type SubjectsCreateSubjectResponse = (SubjectPublic);
 
-export type ReadSubjectData = {
+export type SubjectsReadSubjectData = {
     id: string;
 };
 
-export type ReadSubjectResponse = (SubjectPublic);
+export type SubjectsReadSubjectResponse = (SubjectPublic);
 
-export type UpdateSubjectData = {
+export type SubjectsUpdateSubjectData = {
     id: string;
     requestBody: SubjectUpdate;
 };
 
-export type UpdateSubjectResponse = (SubjectPublic);
+export type SubjectsUpdateSubjectResponse = (SubjectPublic);
 
-export type DeleteSubjectData = {
+export type SubjectsDeleteSubjectData = {
     id: string;
 };
 
-export type DeleteSubjectResponse = (Message);
+export type SubjectsDeleteSubjectResponse = (Message);
 
-export type ReadClassFormsData = {
+export type ClassFormsReadClassFormsData = {
     limit?: number;
     skip?: number;
 };
 
-export type ReadClassFormsResponse = (ClassFormsPublic);
+export type ClassFormsReadClassFormsResponse = (ClassFormsPublic);
 
-export type CreateClassFormData = {
+export type ClassFormsCreateClassFormData = {
     requestBody: ClassFormCreate;
 };
 
-export type CreateClassFormResponse = (ClassFormPublic);
+export type ClassFormsCreateClassFormResponse = (ClassFormPublic);
 
-export type ReadClassFormData = {
+export type ClassFormsReadClassFormData = {
     id: string;
 };
 
-export type ReadClassFormResponse = (ClassFormPublic);
+export type ClassFormsReadClassFormResponse = (ClassFormPublic);
 
-export type UpdateClassFormData = {
+export type ClassFormsUpdateClassFormData = {
     id: string;
     requestBody: ClassFormUpdate;
 };
 
-export type UpdateClassFormResponse = (ClassFormPublic);
+export type ClassFormsUpdateClassFormResponse = (ClassFormPublic);
 
-export type DeleteClassFormData = {
+export type ClassFormsDeleteClassFormData = {
     id: string;
 };
 
-export type DeleteClassFormResponse = (Message);
+export type ClassFormsDeleteClassFormResponse = (Message);
 
-export type ReadAssignmentsData = {
+export type AssignmentsReadAssignmentsData = {
     limit?: number;
     skip?: number;
 };
 
-export type ReadAssignmentsResponse = (AssignmentsPublic);
+export type AssignmentsReadAssignmentsResponse = (AssignmentsPublic);
 
-export type CreateAssignmentData = {
+export type AssignmentsCreateAssignmentData = {
     requestBody: AssignmentCreate;
 };
 
-export type CreateAssignmentResponse = (AssignmentPublic);
+export type AssignmentsCreateAssignmentResponse = (AssignmentPublic);
 
-export type ReadAssignmentData = {
+export type AssignmentsReadAssignmentData = {
     id: string;
 };
 
-export type ReadAssignmentResponse = (AssignmentPublic);
+export type AssignmentsReadAssignmentResponse = (AssignmentPublic);
 
-export type UpdateAssignmentData = {
+export type AssignmentsUpdateAssignmentData = {
     id: string;
     requestBody: AssignmentUpdate;
 };
 
-export type UpdateAssignmentResponse = (AssignmentPublic);
+export type AssignmentsUpdateAssignmentResponse = (AssignmentPublic);
 
-export type DeleteAssignmentData = {
+export type AssignmentsDeleteAssignmentData = {
     id: string;
 };
 
-export type DeleteAssignmentResponse = (Message);
+export type AssignmentsDeleteAssignmentResponse = (Message);
