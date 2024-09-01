@@ -1,5 +1,5 @@
 import { Component, createSignal, onMount } from "solid-js";
-import { createClassForm, updateClassForm, readClassForm, ClassFormCreate } from "../../../client";
+import { createClassForm, updateClassForm, readClassForm, readClassForms, ClassFormCreate, ClassFormsPublic } from "../../../client";
 
 interface ClassFormModalProps {
   classId?: string;
@@ -12,6 +12,7 @@ const ClassFormModal: Component<ClassFormModalProps> = (props) => {
   const [classFormData, setClassFormData] = createSignal<ClassFormCreate>({ name: "" });
   const [loading, setLoading] = createSignal(false);
   const [error, setError] = createSignal<string | null>(null);
+  const [existingClassNames, setExistingClassNames] = createSignal<string[]>([]);
 
   onMount(async () => {
     if (props.classId) {
@@ -21,6 +22,13 @@ const ClassFormModal: Component<ClassFormModalProps> = (props) => {
       } catch (error) {
         console.error("Failed to load class form data:", error);
       }
+    }
+
+    try {
+      const response: ClassFormsPublic = await readClassForms();
+      setExistingClassNames(response.data.map(cls => cls.name.toUpperCase().trim()));
+    } catch (error) {
+      console.error("Failed to load existing class forms:", error);
     }
   });
 
@@ -46,15 +54,31 @@ const ClassFormModal: Component<ClassFormModalProps> = (props) => {
 
     try {
       if (props.classId) {
+        const existingClassForm = await readClassForm({ id: props.classId });
+        const existingName = normalizeClassName(existingClassForm.name);
+
+        if (existingClassNames().includes(name) && name !== existingName) {
+          setError("Class name already exists.");
+          setLoading(false);
+          return;
+        }
+
         await updateClassForm({ id: props.classId, requestBody: { ...classFormData(), name } });
         props.onClassUpdated?.();
       } else {
+        if (existingClassNames().includes(name)) {
+          setError("Class name already exists.");
+          setLoading(false);
+          return;
+        }
+
         await createClassForm({ requestBody: { ...classFormData(), name } });
         props.onClassAdded?.();
       }
       props.onClose();
     } catch (error) {
       console.error("Failed to save class form:", error);
+      setError("An error occurred while saving the class form.");
     } finally {
       setLoading(false);
     }
