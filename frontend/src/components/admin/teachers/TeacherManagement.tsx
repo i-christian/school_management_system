@@ -1,6 +1,6 @@
 import { Component, For, Switch, Match, createSignal, onMount } from "solid-js";
-import { ReadUsersResponse, readUsers } from "../../client";
-import { useAuth } from "../../context/UserContext";
+import { ReadUsersResponse, readUsers } from "../../../client";
+import { useAuth } from "../../../context/UserContext";
 import UserFormModal from "./UserFormModal";
 import UserEditModal from "./UserEditModal";
 import UserDeleteModal from "./UserDeleteModal";
@@ -59,7 +59,7 @@ const TeacherManagement: Component = () => {
           </svg>
           Add Teacher
         </button>
-        <p class="text-md font-bold text-gray-600 dark:text-gray-300">Total Users: {users().count}</p>
+        <p class="text-md font-bold text-gray-600 dark:text-gray-300">Number of Teachers: {(users().count) - 1}</p>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <For each={users().data}>

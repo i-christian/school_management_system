@@ -1,6 +1,6 @@
 import { Component, createSignal } from "solid-js";
-import { CreateUserData, createUser } from "../../client";
-import { useValidation } from "../../hooks/useValidation";
+import { CreateUserData, createUser } from "../../../client";
+import { useValidation } from "../../../hooks/useValidation";
 
 type UserFormModalProps = {
   onClose: () => void;

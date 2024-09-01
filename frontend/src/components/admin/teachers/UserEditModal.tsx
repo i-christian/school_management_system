@@ -1,6 +1,6 @@
 import { Component, createSignal, onMount } from "solid-js";
-import { updateUser, ReadUserByIdResponse, readUserById } from "../../client";
-import { useValidation } from "../../hooks/useValidation";
+import { updateUser, ReadUserByIdResponse, readUserById } from "../../../client";
+import { useValidation } from "../../../hooks/useValidation";
 
 interface UserEditModalProps {
   userId: string;

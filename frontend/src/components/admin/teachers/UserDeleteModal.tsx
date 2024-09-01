@@ -1,5 +1,5 @@
 import { Component, createSignal, onMount } from "solid-js";
-import { deleteUser, readUserById, ReadUserByIdResponse } from "../../client";
+import { deleteUser, readUserById, ReadUserByIdResponse } from "../../../client";
 
 interface UserDeleteModalProps {
   userId: string;
