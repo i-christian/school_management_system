@@ -63,7 +63,9 @@ class UsersPublic(SQLModel):
 # Shared properties for students
 class StudentBase(SQLModel):
     first_name: str = Field(min_length=2, max_length=255)
+    middle_name: str | None = Field(min_length=2, max_length=255)
     last_name: str = Field(min_length=2, max_length=255)
+    contact: str | None = Field(min_length=10, max_length=255)
     form_id: uuid.UUID = Field(foreign_key="classform.id")
 
 
@@ -75,7 +77,9 @@ class StudentCreate(StudentBase):
 # Properties to receive via API on student update
 class StudentUpdate(StudentBase):
     first_name: str = Field(default=None, min_length=2, max_length=255)
+    middle_name: str | None = Field(min_length=2, max_length=255)
     last_name: str = Field(default=None, min_length=2, max_length=255)
+    contact: str | None = Field(min_length=10, max_length=255)
     form_id: uuid.UUID = Field(default=None)
 
 

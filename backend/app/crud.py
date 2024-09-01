@@ -83,7 +83,9 @@ def create_student(
 ) -> Student:
     db_student = Student(
         first_name=student_in.first_name,
+        middle_name=student_in.middle_name,
         last_name=student_in.last_name,
+        contact=student_in.contact,
         form_id=student_in.form_id,
         owner_id=owner_id,
     )
@@ -100,6 +102,10 @@ def update_student(
         db_student.first_name = student_in.first_name
     if student_in.last_name:
         db_student.last_name = student_in.last_name
+    if student_in.middle_name:
+        db_student.middle_name = student_in.middle_name
+    if student_in.contact:
+        db_student.contact = student_in.contact
     if student_in.form_id:
         db_student.form_id = student_in.form_id
     session.commit()
