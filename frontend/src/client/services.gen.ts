@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { LoginAccessTokenData, LoginAccessTokenResponse, TestTokenResponse, RecoverPasswordData, RecoverPasswordResponse, ResetPasswordData, ResetPasswordResponse, RecoverPasswordHtmlContentData, RecoverPasswordHtmlContentResponse, ReadUsersData, ReadUsersResponse, CreateUserData, CreateUserResponse, ReadUserMeResponse, DeleteUserMeResponse, UpdateUserMeData, UpdateUserMeResponse, UpdatePasswordMeData, UpdatePasswordMeResponse, RegisterUserData, RegisterUserResponse, ReadUserByIdData, ReadUserByIdResponse, UpdateUserData, UpdateUserResponse, DeleteUserData, DeleteUserResponse, TestEmailData, TestEmailResponse, ReadStudentsData, ReadStudentsResponse, CreateStudentData, CreateStudentResponse, ReadStudentData, ReadStudentResponse, UpdateStudentData, UpdateStudentResponse, DeleteStudentData, DeleteStudentResponse, ReadGradesData, ReadGradesResponse, CreateGradeData, CreateGradeResponse, ReadGradeData, ReadGradeResponse, UpdateGradeData, UpdateGradeResponse, DeleteGradeData, DeleteGradeResponse, ReadSubjectsData, ReadSubjectsResponse, CreateSubjectData, CreateSubjectResponse, ReadSubjectData, ReadSubjectResponse, UpdateSubjectData, UpdateSubjectResponse, DeleteSubjectData, DeleteSubjectResponse, ReadClassFormsData, ReadClassFormsResponse, CreateClassFormData, CreateClassFormResponse, ReadClassFormData, ReadClassFormResponse, UpdateClassFormData, UpdateClassFormResponse, DeleteClassFormData, DeleteClassFormResponse, ReadAssignmentsData, ReadAssignmentsResponse, CreateAssignmentData, CreateAssignmentResponse, ReadAssignmentData, ReadAssignmentResponse, UpdateAssignmentData, UpdateAssignmentResponse, DeleteAssignmentData, DeleteAssignmentResponse } from './types.gen';
+import type { LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, StudentsReadStudentsData, StudentsReadStudentsResponse, StudentsCreateStudentData, StudentsCreateStudentResponse, StudentsReadStudentData, StudentsReadStudentResponse, StudentsUpdateStudentData, StudentsUpdateStudentResponse, StudentsDeleteStudentData, StudentsDeleteStudentResponse, GradesReadGradesData, GradesReadGradesResponse, GradesCreateGradeData, GradesCreateGradeResponse, GradesReadGradeData, GradesReadGradeResponse, GradesUpdateGradeData, GradesUpdateGradeResponse, GradesDeleteGradeData, GradesDeleteGradeResponse, SubjectsReadSubjectsData, SubjectsReadSubjectsResponse, SubjectsCreateSubjectData, SubjectsCreateSubjectResponse, SubjectsReadSubjectData, SubjectsReadSubjectResponse, SubjectsUpdateSubjectData, SubjectsUpdateSubjectResponse, SubjectsDeleteSubjectData, SubjectsDeleteSubjectResponse, ClassFormsReadClassFormsData, ClassFormsReadClassFormsResponse, ClassFormsCreateClassFormData, ClassFormsCreateClassFormResponse, ClassFormsReadClassFormData, ClassFormsReadClassFormResponse, ClassFormsUpdateClassFormData, ClassFormsUpdateClassFormResponse, ClassFormsDeleteClassFormData, ClassFormsDeleteClassFormResponse, AssignmentsReadAssignmentsData, AssignmentsReadAssignmentsResponse, AssignmentsCreateAssignmentData, AssignmentsCreateAssignmentResponse, AssignmentsReadAssignmentData, AssignmentsReadAssignmentResponse, AssignmentsUpdateAssignmentData, AssignmentsUpdateAssignmentResponse, AssignmentsDeleteAssignmentData, AssignmentsDeleteAssignmentResponse } from './types.gen';
 
 /**
  * Login Access Token
@@ -13,7 +13,7 @@ import type { LoginAccessTokenData, LoginAccessTokenResponse, TestTokenResponse,
  * @returns Token Successful Response
  * @throws ApiError
  */
-export const loginAccessToken = (data: LoginAccessTokenData): CancelablePromise<LoginAccessTokenResponse> => { return __request(OpenAPI, {
+export const loginLoginAccessToken = (data: LoginLoginAccessTokenData): CancelablePromise<LoginLoginAccessTokenResponse> => { return __request(OpenAPI, {
     method: 'POST',
     url: '/api/login/access-token',
     formData: data.formData,
@@ -29,7 +29,7 @@ export const loginAccessToken = (data: LoginAccessTokenData): CancelablePromise<
  * @returns UserPublic Successful Response
  * @throws ApiError
  */
-export const testToken = (): CancelablePromise<TestTokenResponse> => { return __request(OpenAPI, {
+export const loginTestToken = (): CancelablePromise<LoginTestTokenResponse> => { return __request(OpenAPI, {
     method: 'POST',
     url: '/api/login/test-token'
 }); };
@@ -42,7 +42,7 @@ export const testToken = (): CancelablePromise<TestTokenResponse> => { return __
  * @returns Message Successful Response
  * @throws ApiError
  */
-export const recoverPassword = (data: RecoverPasswordData): CancelablePromise<RecoverPasswordResponse> => { return __request(OpenAPI, {
+export const loginRecoverPassword = (data: LoginRecoverPasswordData): CancelablePromise<LoginRecoverPasswordResponse> => { return __request(OpenAPI, {
     method: 'POST',
     url: '/api/password-recovery/{email}',
     path: {
@@ -61,7 +61,7 @@ export const recoverPassword = (data: RecoverPasswordData): CancelablePromise<Re
  * @returns Message Successful Response
  * @throws ApiError
  */
-export const resetPassword = (data: ResetPasswordData): CancelablePromise<ResetPasswordResponse> => { return __request(OpenAPI, {
+export const loginResetPassword = (data: LoginResetPasswordData): CancelablePromise<LoginResetPasswordResponse> => { return __request(OpenAPI, {
     method: 'POST',
     url: '/api/reset-password/',
     body: data.requestBody,
@@ -79,7 +79,7 @@ export const resetPassword = (data: ResetPasswordData): CancelablePromise<ResetP
  * @returns string Successful Response
  * @throws ApiError
  */
-export const recoverPasswordHtmlContent = (data: RecoverPasswordHtmlContentData): CancelablePromise<RecoverPasswordHtmlContentResponse> => { return __request(OpenAPI, {
+export const loginRecoverPasswordHtmlContent = (data: LoginRecoverPasswordHtmlContentData): CancelablePromise<LoginRecoverPasswordHtmlContentResponse> => { return __request(OpenAPI, {
     method: 'POST',
     url: '/api/password-recovery-html-content/{email}',
     path: {
@@ -99,7 +99,7 @@ export const recoverPasswordHtmlContent = (data: RecoverPasswordHtmlContentData)
  * @returns UsersPublic Successful Response
  * @throws ApiError
  */
-export const readUsers = (data: ReadUsersData = {}): CancelablePromise<ReadUsersResponse> => { return __request(OpenAPI, {
+export const usersReadUsers = (data: UsersReadUsersData = {}): CancelablePromise<UsersReadUsersResponse> => { return __request(OpenAPI, {
     method: 'GET',
     url: '/api/users/',
     query: {
@@ -119,7 +119,7 @@ export const readUsers = (data: ReadUsersData = {}): CancelablePromise<ReadUsers
  * @returns UserPublic Successful Response
  * @throws ApiError
  */
-export const createUser = (data: CreateUserData): CancelablePromise<CreateUserResponse> => { return __request(OpenAPI, {
+export const usersCreateUser = (data: UsersCreateUserData): CancelablePromise<UsersCreateUserResponse> => { return __request(OpenAPI, {
     method: 'POST',
     url: '/api/users/',
     body: data.requestBody,
@@ -135,7 +135,7 @@ export const createUser = (data: CreateUserData): CancelablePromise<CreateUserRe
  * @returns UserPublic Successful Response
  * @throws ApiError
  */
-export const readUserMe = (): CancelablePromise<ReadUserMeResponse> => { return __request(OpenAPI, {
+export const usersReadUserMe = (): CancelablePromise<UsersReadUserMeResponse> => { return __request(OpenAPI, {
     method: 'GET',
     url: '/api/users/me'
 }); };
@@ -146,7 +146,7 @@ export const readUserMe = (): CancelablePromise<ReadUserMeResponse> => { return 
  * @returns Message Successful Response
  * @throws ApiError
  */
-export const deleteUserMe = (): CancelablePromise<DeleteUserMeResponse> => { return __request(OpenAPI, {
+export const usersDeleteUserMe = (): CancelablePromise<UsersDeleteUserMeResponse> => { return __request(OpenAPI, {
     method: 'DELETE',
     url: '/api/users/me'
 }); };
@@ -159,7 +159,7 @@ export const deleteUserMe = (): CancelablePromise<DeleteUserMeResponse> => { ret
  * @returns UserPublic Successful Response
  * @throws ApiError
  */
-export const updateUserMe = (data: UpdateUserMeData): CancelablePromise<UpdateUserMeResponse> => { return __request(OpenAPI, {
+export const usersUpdateUserMe = (data: UsersUpdateUserMeData): CancelablePromise<UsersUpdateUserMeResponse> => { return __request(OpenAPI, {
     method: 'PATCH',
     url: '/api/users/me',
     body: data.requestBody,
@@ -177,7 +177,7 @@ export const updateUserMe = (data: UpdateUserMeData): CancelablePromise<UpdateUs
  * @returns Message Successful Response
  * @throws ApiError
  */
-export const updatePasswordMe = (data: UpdatePasswordMeData): CancelablePromise<UpdatePasswordMeResponse> => { return __request(OpenAPI, {
+export const usersUpdatePasswordMe = (data: UsersUpdatePasswordMeData): CancelablePromise<UsersUpdatePasswordMeResponse> => { return __request(OpenAPI, {
     method: 'PATCH',
     url: '/api/users/me/password',
     body: data.requestBody,
@@ -195,7 +195,7 @@ export const updatePasswordMe = (data: UpdatePasswordMeData): CancelablePromise<
  * @returns UserPublic Successful Response
  * @throws ApiError
  */
-export const registerUser = (data: RegisterUserData): CancelablePromise<RegisterUserResponse> => { return __request(OpenAPI, {
+export const usersRegisterUser = (data: UsersRegisterUserData): CancelablePromise<UsersRegisterUserResponse> => { return __request(OpenAPI, {
     method: 'POST',
     url: '/api/users/signup',
     body: data.requestBody,
@@ -213,7 +213,7 @@ export const registerUser = (data: RegisterUserData): CancelablePromise<Register
  * @returns UserPublic Successful Response
  * @throws ApiError
  */
-export const readUserById = (data: ReadUserByIdData): CancelablePromise<ReadUserByIdResponse> => { return __request(OpenAPI, {
+export const usersReadUserById = (data: UsersReadUserByIdData): CancelablePromise<UsersReadUserByIdResponse> => { return __request(OpenAPI, {
     method: 'GET',
     url: '/api/users/{user_id}',
     path: {
@@ -233,7 +233,7 @@ export const readUserById = (data: ReadUserByIdData): CancelablePromise<ReadUser
  * @returns UserPublic Successful Response
  * @throws ApiError
  */
-export const updateUser = (data: UpdateUserData): CancelablePromise<UpdateUserResponse> => { return __request(OpenAPI, {
+export const usersUpdateUser = (data: UsersUpdateUserData): CancelablePromise<UsersUpdateUserResponse> => { return __request(OpenAPI, {
     method: 'PATCH',
     url: '/api/users/{user_id}',
     path: {
@@ -254,7 +254,7 @@ export const updateUser = (data: UpdateUserData): CancelablePromise<UpdateUserRe
  * @returns Message Successful Response
  * @throws ApiError
  */
-export const deleteUser = (data: DeleteUserData): CancelablePromise<DeleteUserResponse> => { return __request(OpenAPI, {
+export const usersDeleteUser = (data: UsersDeleteUserData): CancelablePromise<UsersDeleteUserResponse> => { return __request(OpenAPI, {
     method: 'DELETE',
     url: '/api/users/{user_id}',
     path: {
@@ -273,7 +273,7 @@ export const deleteUser = (data: DeleteUserData): CancelablePromise<DeleteUserRe
  * @returns Message Successful Response
  * @throws ApiError
  */
-export const testEmail = (data: TestEmailData): CancelablePromise<TestEmailResponse> => { return __request(OpenAPI, {
+export const utilsTestEmail = (data: UtilsTestEmailData): CancelablePromise<UtilsTestEmailResponse> => { return __request(OpenAPI, {
     method: 'POST',
     url: '/api/utils/test-email/',
     query: {
@@ -293,7 +293,7 @@ export const testEmail = (data: TestEmailData): CancelablePromise<TestEmailRespo
  * @returns StudentsPublic Successful Response
  * @throws ApiError
  */
-export const readStudents = (data: ReadStudentsData = {}): CancelablePromise<ReadStudentsResponse> => { return __request(OpenAPI, {
+export const studentsReadStudents = (data: StudentsReadStudentsData = {}): CancelablePromise<StudentsReadStudentsResponse> => { return __request(OpenAPI, {
     method: 'GET',
     url: '/api/students/',
     query: {
@@ -313,7 +313,7 @@ export const readStudents = (data: ReadStudentsData = {}): CancelablePromise<Rea
  * @returns StudentPublic Successful Response
  * @throws ApiError
  */
-export const createStudent = (data: CreateStudentData): CancelablePromise<CreateStudentResponse> => { return __request(OpenAPI, {
+export const studentsCreateStudent = (data: StudentsCreateStudentData): CancelablePromise<StudentsCreateStudentResponse> => { return __request(OpenAPI, {
     method: 'POST',
     url: '/api/students/',
     body: data.requestBody,
@@ -331,7 +331,7 @@ export const createStudent = (data: CreateStudentData): CancelablePromise<Create
  * @returns StudentPublic Successful Response
  * @throws ApiError
  */
-export const readStudent = (data: ReadStudentData): CancelablePromise<ReadStudentResponse> => { return __request(OpenAPI, {
+export const studentsReadStudent = (data: StudentsReadStudentData): CancelablePromise<StudentsReadStudentResponse> => { return __request(OpenAPI, {
     method: 'GET',
     url: '/api/students/{id}',
     path: {
@@ -351,7 +351,7 @@ export const readStudent = (data: ReadStudentData): CancelablePromise<ReadStuden
  * @returns StudentPublic Successful Response
  * @throws ApiError
  */
-export const updateStudent = (data: UpdateStudentData): CancelablePromise<UpdateStudentResponse> => { return __request(OpenAPI, {
+export const studentsUpdateStudent = (data: StudentsUpdateStudentData): CancelablePromise<StudentsUpdateStudentResponse> => { return __request(OpenAPI, {
     method: 'PUT',
     url: '/api/students/{id}',
     path: {
@@ -372,7 +372,7 @@ export const updateStudent = (data: UpdateStudentData): CancelablePromise<Update
  * @returns Message Successful Response
  * @throws ApiError
  */
-export const deleteStudent = (data: DeleteStudentData): CancelablePromise<DeleteStudentResponse> => { return __request(OpenAPI, {
+export const studentsDeleteStudent = (data: StudentsDeleteStudentData): CancelablePromise<StudentsDeleteStudentResponse> => { return __request(OpenAPI, {
     method: 'DELETE',
     url: '/api/students/{id}',
     path: {
@@ -392,7 +392,7 @@ export const deleteStudent = (data: DeleteStudentData): CancelablePromise<Delete
  * @returns GradesPublic Successful Response
  * @throws ApiError
  */
-export const readGrades = (data: ReadGradesData = {}): CancelablePromise<ReadGradesResponse> => { return __request(OpenAPI, {
+export const gradesReadGrades = (data: GradesReadGradesData = {}): CancelablePromise<GradesReadGradesResponse> => { return __request(OpenAPI, {
     method: 'GET',
     url: '/api/grades/',
     query: {
@@ -412,7 +412,7 @@ export const readGrades = (data: ReadGradesData = {}): CancelablePromise<ReadGra
  * @returns GradePublic Successful Response
  * @throws ApiError
  */
-export const createGrade = (data: CreateGradeData): CancelablePromise<CreateGradeResponse> => { return __request(OpenAPI, {
+export const gradesCreateGrade = (data: GradesCreateGradeData): CancelablePromise<GradesCreateGradeResponse> => { return __request(OpenAPI, {
     method: 'POST',
     url: '/api/grades/',
     body: data.requestBody,
@@ -430,7 +430,7 @@ export const createGrade = (data: CreateGradeData): CancelablePromise<CreateGrad
  * @returns GradePublic Successful Response
  * @throws ApiError
  */
-export const readGrade = (data: ReadGradeData): CancelablePromise<ReadGradeResponse> => { return __request(OpenAPI, {
+export const gradesReadGrade = (data: GradesReadGradeData): CancelablePromise<GradesReadGradeResponse> => { return __request(OpenAPI, {
     method: 'GET',
     url: '/api/grades/{id}',
     path: {
@@ -450,7 +450,7 @@ export const readGrade = (data: ReadGradeData): CancelablePromise<ReadGradeRespo
  * @returns GradePublic Successful Response
  * @throws ApiError
  */
-export const updateGrade = (data: UpdateGradeData): CancelablePromise<UpdateGradeResponse> => { return __request(OpenAPI, {
+export const gradesUpdateGrade = (data: GradesUpdateGradeData): CancelablePromise<GradesUpdateGradeResponse> => { return __request(OpenAPI, {
     method: 'PUT',
     url: '/api/grades/{id}',
     path: {
@@ -471,7 +471,7 @@ export const updateGrade = (data: UpdateGradeData): CancelablePromise<UpdateGrad
  * @returns Message Successful Response
  * @throws ApiError
  */
-export const deleteGrade = (data: DeleteGradeData): CancelablePromise<DeleteGradeResponse> => { return __request(OpenAPI, {
+export const gradesDeleteGrade = (data: GradesDeleteGradeData): CancelablePromise<GradesDeleteGradeResponse> => { return __request(OpenAPI, {
     method: 'DELETE',
     url: '/api/grades/{id}',
     path: {
@@ -491,7 +491,7 @@ export const deleteGrade = (data: DeleteGradeData): CancelablePromise<DeleteGrad
  * @returns SubjectsPublic Successful Response
  * @throws ApiError
  */
-export const readSubjects = (data: ReadSubjectsData = {}): CancelablePromise<ReadSubjectsResponse> => { return __request(OpenAPI, {
+export const subjectsReadSubjects = (data: SubjectsReadSubjectsData = {}): CancelablePromise<SubjectsReadSubjectsResponse> => { return __request(OpenAPI, {
     method: 'GET',
     url: '/api/subjects/',
     query: {
@@ -511,7 +511,7 @@ export const readSubjects = (data: ReadSubjectsData = {}): CancelablePromise<Rea
  * @returns SubjectPublic Successful Response
  * @throws ApiError
  */
-export const createSubject = (data: CreateSubjectData): CancelablePromise<CreateSubjectResponse> => { return __request(OpenAPI, {
+export const subjectsCreateSubject = (data: SubjectsCreateSubjectData): CancelablePromise<SubjectsCreateSubjectResponse> => { return __request(OpenAPI, {
     method: 'POST',
     url: '/api/subjects/',
     body: data.requestBody,
@@ -529,7 +529,7 @@ export const createSubject = (data: CreateSubjectData): CancelablePromise<Create
  * @returns SubjectPublic Successful Response
  * @throws ApiError
  */
-export const readSubject = (data: ReadSubjectData): CancelablePromise<ReadSubjectResponse> => { return __request(OpenAPI, {
+export const subjectsReadSubject = (data: SubjectsReadSubjectData): CancelablePromise<SubjectsReadSubjectResponse> => { return __request(OpenAPI, {
     method: 'GET',
     url: '/api/subjects/{id}',
     path: {
@@ -549,7 +549,7 @@ export const readSubject = (data: ReadSubjectData): CancelablePromise<ReadSubjec
  * @returns SubjectPublic Successful Response
  * @throws ApiError
  */
-export const updateSubject = (data: UpdateSubjectData): CancelablePromise<UpdateSubjectResponse> => { return __request(OpenAPI, {
+export const subjectsUpdateSubject = (data: SubjectsUpdateSubjectData): CancelablePromise<SubjectsUpdateSubjectResponse> => { return __request(OpenAPI, {
     method: 'PUT',
     url: '/api/subjects/{id}',
     path: {
@@ -570,7 +570,7 @@ export const updateSubject = (data: UpdateSubjectData): CancelablePromise<Update
  * @returns Message Successful Response
  * @throws ApiError
  */
-export const deleteSubject = (data: DeleteSubjectData): CancelablePromise<DeleteSubjectResponse> => { return __request(OpenAPI, {
+export const subjectsDeleteSubject = (data: SubjectsDeleteSubjectData): CancelablePromise<SubjectsDeleteSubjectResponse> => { return __request(OpenAPI, {
     method: 'DELETE',
     url: '/api/subjects/{id}',
     path: {
@@ -590,7 +590,7 @@ export const deleteSubject = (data: DeleteSubjectData): CancelablePromise<Delete
  * @returns ClassFormsPublic Successful Response
  * @throws ApiError
  */
-export const readClassForms = (data: ReadClassFormsData = {}): CancelablePromise<ReadClassFormsResponse> => { return __request(OpenAPI, {
+export const classFormsReadClassForms = (data: ClassFormsReadClassFormsData = {}): CancelablePromise<ClassFormsReadClassFormsResponse> => { return __request(OpenAPI, {
     method: 'GET',
     url: '/api/class-forms/',
     query: {
@@ -610,7 +610,7 @@ export const readClassForms = (data: ReadClassFormsData = {}): CancelablePromise
  * @returns ClassFormPublic Successful Response
  * @throws ApiError
  */
-export const createClassForm = (data: CreateClassFormData): CancelablePromise<CreateClassFormResponse> => { return __request(OpenAPI, {
+export const classFormsCreateClassForm = (data: ClassFormsCreateClassFormData): CancelablePromise<ClassFormsCreateClassFormResponse> => { return __request(OpenAPI, {
     method: 'POST',
     url: '/api/class-forms/',
     body: data.requestBody,
@@ -628,7 +628,7 @@ export const createClassForm = (data: CreateClassFormData): CancelablePromise<Cr
  * @returns ClassFormPublic Successful Response
  * @throws ApiError
  */
-export const readClassForm = (data: ReadClassFormData): CancelablePromise<ReadClassFormResponse> => { return __request(OpenAPI, {
+export const classFormsReadClassForm = (data: ClassFormsReadClassFormData): CancelablePromise<ClassFormsReadClassFormResponse> => { return __request(OpenAPI, {
     method: 'GET',
     url: '/api/class-forms/{id}',
     path: {
@@ -648,7 +648,7 @@ export const readClassForm = (data: ReadClassFormData): CancelablePromise<ReadCl
  * @returns ClassFormPublic Successful Response
  * @throws ApiError
  */
-export const updateClassForm = (data: UpdateClassFormData): CancelablePromise<UpdateClassFormResponse> => { return __request(OpenAPI, {
+export const classFormsUpdateClassForm = (data: ClassFormsUpdateClassFormData): CancelablePromise<ClassFormsUpdateClassFormResponse> => { return __request(OpenAPI, {
     method: 'PUT',
     url: '/api/class-forms/{id}',
     path: {
@@ -669,7 +669,7 @@ export const updateClassForm = (data: UpdateClassFormData): CancelablePromise<Up
  * @returns Message Successful Response
  * @throws ApiError
  */
-export const deleteClassForm = (data: DeleteClassFormData): CancelablePromise<DeleteClassFormResponse> => { return __request(OpenAPI, {
+export const classFormsDeleteClassForm = (data: ClassFormsDeleteClassFormData): CancelablePromise<ClassFormsDeleteClassFormResponse> => { return __request(OpenAPI, {
     method: 'DELETE',
     url: '/api/class-forms/{id}',
     path: {
@@ -689,7 +689,7 @@ export const deleteClassForm = (data: DeleteClassFormData): CancelablePromise<De
  * @returns AssignmentsPublic Successful Response
  * @throws ApiError
  */
-export const readAssignments = (data: ReadAssignmentsData = {}): CancelablePromise<ReadAssignmentsResponse> => { return __request(OpenAPI, {
+export const assignmentsReadAssignments = (data: AssignmentsReadAssignmentsData = {}): CancelablePromise<AssignmentsReadAssignmentsResponse> => { return __request(OpenAPI, {
     method: 'GET',
     url: '/api/assignments/',
     query: {
@@ -709,7 +709,7 @@ export const readAssignments = (data: ReadAssignmentsData = {}): CancelablePromi
  * @returns AssignmentPublic Successful Response
  * @throws ApiError
  */
-export const createAssignment = (data: CreateAssignmentData): CancelablePromise<CreateAssignmentResponse> => { return __request(OpenAPI, {
+export const assignmentsCreateAssignment = (data: AssignmentsCreateAssignmentData): CancelablePromise<AssignmentsCreateAssignmentResponse> => { return __request(OpenAPI, {
     method: 'POST',
     url: '/api/assignments/',
     body: data.requestBody,
@@ -727,7 +727,7 @@ export const createAssignment = (data: CreateAssignmentData): CancelablePromise<
  * @returns AssignmentPublic Successful Response
  * @throws ApiError
  */
-export const readAssignment = (data: ReadAssignmentData): CancelablePromise<ReadAssignmentResponse> => { return __request(OpenAPI, {
+export const assignmentsReadAssignment = (data: AssignmentsReadAssignmentData): CancelablePromise<AssignmentsReadAssignmentResponse> => { return __request(OpenAPI, {
     method: 'GET',
     url: '/api/assignments/{id}',
     path: {
@@ -747,7 +747,7 @@ export const readAssignment = (data: ReadAssignmentData): CancelablePromise<Read
  * @returns AssignmentPublic Successful Response
  * @throws ApiError
  */
-export const updateAssignment = (data: UpdateAssignmentData): CancelablePromise<UpdateAssignmentResponse> => { return __request(OpenAPI, {
+export const assignmentsUpdateAssignment = (data: AssignmentsUpdateAssignmentData): CancelablePromise<AssignmentsUpdateAssignmentResponse> => { return __request(OpenAPI, {
     method: 'PUT',
     url: '/api/assignments/{id}',
     path: {
@@ -768,7 +768,7 @@ export const updateAssignment = (data: UpdateAssignmentData): CancelablePromise<
  * @returns Message Successful Response
  * @throws ApiError
  */
-export const deleteAssignment = (data: DeleteAssignmentData): CancelablePromise<DeleteAssignmentResponse> => { return __request(OpenAPI, {
+export const assignmentsDeleteAssignment = (data: AssignmentsDeleteAssignmentData): CancelablePromise<AssignmentsDeleteAssignmentResponse> => { return __request(OpenAPI, {
     method: 'DELETE',
     url: '/api/assignments/{id}',
     path: {

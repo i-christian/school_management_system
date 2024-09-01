@@ -357,11 +357,37 @@ export const $StudentCreate = {
             minLength: 2,
             title: 'First Name'
         },
+        middle_name: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 255,
+                    minLength: 2
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Middle Name'
+        },
         last_name: {
             type: 'string',
             maxLength: 255,
             minLength: 2,
             title: 'Last Name'
+        },
+        contact: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 255,
+                    minLength: 10
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Contact'
         },
         form_id: {
             type: 'string',
@@ -370,7 +396,7 @@ export const $StudentCreate = {
         }
     },
     type: 'object',
-    required: ['first_name', 'last_name', 'form_id'],
+    required: ['first_name', 'middle_name', 'last_name', 'contact', 'form_id'],
     title: 'StudentCreate'
 } as const;
 
@@ -382,11 +408,37 @@ export const $StudentPublic = {
             minLength: 2,
             title: 'First Name'
         },
+        middle_name: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 255,
+                    minLength: 2
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Middle Name'
+        },
         last_name: {
             type: 'string',
             maxLength: 255,
             minLength: 2,
             title: 'Last Name'
+        },
+        contact: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 255,
+                    minLength: 10
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Contact'
         },
         form_id: {
             type: 'string',
@@ -405,7 +457,7 @@ export const $StudentPublic = {
         }
     },
     type: 'object',
-    required: ['first_name', 'last_name', 'form_id', 'id', 'owner_id'],
+    required: ['first_name', 'middle_name', 'last_name', 'contact', 'form_id', 'id', 'owner_id'],
     title: 'StudentPublic'
 } as const;
 
@@ -417,11 +469,37 @@ export const $StudentUpdate = {
             minLength: 2,
             title: 'First Name'
         },
+        middle_name: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 255,
+                    minLength: 2
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Middle Name'
+        },
         last_name: {
             type: 'string',
             maxLength: 255,
             minLength: 2,
             title: 'Last Name'
+        },
+        contact: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 255,
+                    minLength: 10
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Contact'
         },
         form_id: {
             type: 'string',
@@ -430,6 +508,7 @@ export const $StudentUpdate = {
         }
     },
     type: 'object',
+    required: ['middle_name', 'contact'],
     title: 'StudentUpdate'
 } as const;
 
