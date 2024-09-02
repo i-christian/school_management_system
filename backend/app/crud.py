@@ -34,6 +34,8 @@ def create_user(*, session: Session, user_create: UserCreate) -> User:
         hashed_password=get_password_hash(user_create.password),
         is_active=user_create.is_active,
         is_superuser=user_create.is_superuser,
+        is_class_teacher=user_create.is_class_teacher,
+        is_accountant=user_create.is_accountant,
     )
     session.add(db_user)
     session.commit()
@@ -87,6 +89,7 @@ def create_student(
         last_name=student_in.last_name,
         contact=student_in.contact,
         form_id=student_in.form_id,
+        fees=student_in.fees,
         owner_id=owner_id,
     )
     session.add(db_student)
@@ -108,6 +111,9 @@ def update_student(
         db_student.contact = student_in.contact
     if student_in.form_id:
         db_student.form_id = student_in.form_id
+    if student_in.fees:
+        db_student.fees = student_in.fees
+
     session.commit()
     session.refresh(db_student)
     return db_student

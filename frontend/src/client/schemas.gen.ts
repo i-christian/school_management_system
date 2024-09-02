@@ -393,6 +393,11 @@ export const $StudentCreate = {
             type: 'string',
             format: 'uuid',
             title: 'Form Id'
+        },
+        fees: {
+            type: 'number',
+            title: 'Fees',
+            default: 0
         }
     },
     type: 'object',
@@ -444,6 +449,11 @@ export const $StudentPublic = {
             type: 'string',
             format: 'uuid',
             title: 'Form Id'
+        },
+        fees: {
+            type: 'number',
+            title: 'Fees',
+            default: 0
         },
         id: {
             type: 'string',
@@ -505,6 +515,11 @@ export const $StudentUpdate = {
             type: 'string',
             format: 'uuid',
             title: 'Form Id'
+        },
+        fees: {
+            type: 'number',
+            title: 'Fees',
+            default: 0
         }
     },
     type: 'object',
@@ -644,20 +659,18 @@ export const $UserCreate = {
             default: true
         },
         is_class_teacher: {
-            anyOf: [
-                {
-                    type: 'boolean'
-                },
-                {
-                    type: 'null'
-                }
-            ],
+            type: 'boolean',
             title: 'Is Class Teacher',
             default: false
         },
         is_superuser: {
             type: 'boolean',
             title: 'Is Superuser',
+            default: false
+        },
+        is_accountant: {
+            type: 'boolean',
+            title: 'Is Accountant',
             default: false
         },
         full_name: {
@@ -698,20 +711,18 @@ export const $UserPublic = {
             default: true
         },
         is_class_teacher: {
-            anyOf: [
-                {
-                    type: 'boolean'
-                },
-                {
-                    type: 'null'
-                }
-            ],
+            type: 'boolean',
             title: 'Is Class Teacher',
             default: false
         },
         is_superuser: {
             type: 'boolean',
             title: 'Is Superuser',
+            default: false
+        },
+        is_accountant: {
+            type: 'boolean',
+            title: 'Is Accountant',
             default: false
         },
         full_name: {
@@ -783,20 +794,18 @@ export const $UserUpdate = {
             default: true
         },
         is_class_teacher: {
-            anyOf: [
-                {
-                    type: 'boolean'
-                },
-                {
-                    type: 'null'
-                }
-            ],
+            type: 'boolean',
             title: 'Is Class Teacher',
             default: false
         },
         is_superuser: {
             type: 'boolean',
             title: 'Is Superuser',
+            default: false
+        },
+        is_accountant: {
+            type: 'boolean',
+            title: 'Is Accountant',
             default: false
         },
         full_name: {
