@@ -74,7 +74,7 @@ const TeacherManagement: Component = () => {
                 <strong class="text-gray-800 dark:text-gray-100">Email:</strong> {userItem.email}
               </div>
               <div class="mb-2">
-                <strong class="text-gray-800 dark:text-gray-100">Role:</strong> {userItem.is_superuser ? "Admin" : "Teacher"}
+                <strong class="text-gray-800 dark:text-gray-100">Role:</strong> {userItem.is_class_teacher ? "Class Teacher" : "Teacher"}
               </div>
               <div class="mb-2">
                 <strong class="text-gray-800 dark:text-gray-100">Status:</strong> {userItem.is_active ? "Active" : "Inactive"}
