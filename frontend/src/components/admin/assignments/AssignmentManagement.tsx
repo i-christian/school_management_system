@@ -1,4 +1,3 @@
-
 import { createSignal, createEffect, Switch, Match, For } from "solid-js";
 import { readUsers, readClassForms, readSubjects, readAssignments } from "../../../client";
 import type { UserPublic, ClassFormPublic, SubjectPublic, AssignmentPublic } from "../../../client";
@@ -6,6 +5,7 @@ import AssignmentModal from "./AssignmentModal";
 import EditAssignmentModal from "./EditAssignmentModal";
 import DeleteAssignmentModal from "./DeleteAssignmentModal";
 import { useAuth } from "../../../context/UserContext";
+
 
 const AssignmentManagement = () => {
   const [teachers, setTeachers] = createSignal<UserPublic[]>([]);
