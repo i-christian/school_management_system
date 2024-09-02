@@ -1,6 +1,7 @@
 import { Component, createSignal, Switch, Match, lazy } from 'solid-js';
 import ClassManagement from '../../components/admin/classes/ClassManagement';
 import SubjectManagement from '../../components/admin/subjects/SubjectManagement';
+import AssignmentManagement from '../../components/admin/assignments/AssignmentManagement';
 
 const Students: Component = lazy(() => import('../../components/admin/students/Students'));
 const TeacherManagement: Component = lazy(() => import('../../components/admin/teachers/TeacherManagement'));
@@ -74,8 +75,7 @@ const Admin: Component = () => {
           <Match when={currentSection() === 'classes' && cachedComponents().has('classes')}>
             <ClassManagement />
           </Match>
-          <Match when={currentSection() === 'assignments' && cachedComponents().has('assignments')}>
-            <p>Assignment Management Section</p>
+          <Match when={currentSection() === 'assignments' && cachedComponents().has('assignments')}> <AssignmentManagement />
           </Match>
           <Match when={currentSection() === 'students' && cachedComponents().has('students')}>
             <Students />
