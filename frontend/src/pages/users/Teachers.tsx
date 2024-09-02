@@ -1,6 +1,9 @@
 import { Component, createSignal, Show } from 'solid-js';
 import MyClasses from '../../components/teachers/MyClasses';
 import GradesManagement from '../../components/teachers/GradesManagement';
+import TeachersAssignments from '../../components/teachers/TeachersAssignments';
+
+
 
 const Teachers: Component = () => {
   const [message, setMessage] = createSignal<string | null>(null);
@@ -11,7 +14,6 @@ const Teachers: Component = () => {
     localStorage.setItem('teacherSection', section);
     setMessage(null);
   };
-
 
   return (
     <main class="bg-inherit min-h-screen p-6">
@@ -33,7 +35,15 @@ const Teachers: Component = () => {
             onClick={() => handleSectionChange('grades')}
             class={`py-2 px-4 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${currentSection() === 'grades' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100'}`}
           >
-            Grades Management
+            My Students
+          </button>
+          <button
+            aria-label="View Teachers and Assignments"
+            aria-current={currentSection() === 'assignments' ? 'page' : undefined}
+            onClick={() => handleSectionChange('assignments')}
+            class={`py-2 px-4 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${currentSection() === 'assignments' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100'}`}
+          >
+            Teachers and Classes
           </button>
         </div>
       </nav>
@@ -50,6 +60,9 @@ const Teachers: Component = () => {
         </Show>
         <Show when={currentSection() === 'grades'}>
           <GradesManagement onUpdateSuccess={setMessage} />
+        </Show>
+        <Show when={currentSection() === 'assignments'}>
+          <TeachersAssignments />
         </Show>
       </div>
     </main>
