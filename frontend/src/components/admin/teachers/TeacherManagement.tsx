@@ -57,7 +57,7 @@ const TeacherManagement: Component = () => {
           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
           </svg>
-          <span class="hidden lg:block">Add Teacher</span>
+          <span class="hidden lg:block">Add Users</span>
         </button>
         <p class="text-md font-bold text-gray-600 dark:text-gray-300">Number of Teachers: {(users().count) - 1}</p>
       </div>
