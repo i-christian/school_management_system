@@ -12,7 +12,7 @@ const AddStudentModal: Component<{ onClose: () => void }> = (props) => {
   const [error, setError] = createSignal<string | null>(null);
 
   const validatePhone = (input: string): boolean => {
-    return /^(\+265|0)\d{9}$/.test(input);
+    return /^(\+\d{1,3}|\d{1,4})\d{6,14}$/.test(input);
   };
 
   const handleSubmit = async () => {

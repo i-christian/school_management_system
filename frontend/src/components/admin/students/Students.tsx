@@ -136,7 +136,11 @@ const Students: Component = () => {
           <EditStudentModal studentId={selectedStudentId()!} onClose={handleStudentAction} />
         </Match>
         <Match when={modalType() === "delete" && selectedStudentId()}>
-          <DeleteStudentModal studentId={selectedStudentId()!} onClose={handleStudentAction} />
+          <DeleteStudentModal
+            studentId={selectedStudentId()!}
+            onClose={handleStudentAction}
+            onStudentDeleted={handleStudentAction}
+          />
         </Match>
       </Switch>
     </section>
