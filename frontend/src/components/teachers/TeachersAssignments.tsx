@@ -1,15 +1,83 @@
-import { Component } from 'solid-js';
+import { createSignal, createEffect } from "solid-js";
+import { readUsers, readClassForms, readSubjects, readAssignments } from "../../client";
+import type { UserPublic, ClassFormPublic, SubjectPublic, AssignmentPublic } from "../../client";
 
-const TeachersAssignments: Component = () => {
+const TeachersAssignments = () => {
+  const [teachers, setTeachers] = createSignal<UserPublic[]>([]);
+  const [classes, setClasses] = createSignal<ClassFormPublic[]>([]);
+  const [subjects, setSubjects] = createSignal<SubjectPublic[]>([]);
+  const [assignments, setAssignments] = createSignal<AssignmentPublic[]>([]);
+  const [loading, setLoading] = createSignal<boolean>(true);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const [teachersData, classesData, subjectsData, assignmentsData] = await Promise.all([
+        readUsers(),
+        readClassForms(),
+        readSubjects(),
+        readAssignments(),
+      ]);
+
+      setTeachers(teachersData.data);
+      setClasses(classesData.data);
+      setSubjects(subjectsData.data);
+      setAssignments(assignmentsData.data);
+    } catch (error) {
+      console.log("Error loading data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  createEffect(() => {
+    fetchData();
+  });
+
   return (
-    <section>
-      <h2 class="text-xl font-bold mb-4">Teachers and Assignments</h2>
-      {/* Add the logic to display the list of teachers and their assigned classes here */}
-      <ul>
-        <li>Teacher 1 - Assignment A</li>
-        <li>Teacher 2 - Assignment B</li>
-        {/* Continue with more teacher and assignment items */}
-      </ul>
+    <section class="p-6">
+      <h2 class="text-2xl font-bold mb-4 text-gray-700 dark:text-gray-200">Teachers and Assignments</h2>
+
+      {loading() ? (
+        <p class="text-center">Loading assignments...</p>
+      ) : (
+        <div class="overflow-x-auto">
+          <table class="min-w-full bg-white dark:bg-gray-800">
+            <thead>
+              <tr>
+                <th class="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">Class</th>
+                <th class="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">Subject</th>
+                <th class="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">Teacher</th>
+              </tr>
+            </thead>
+            <tbody>
+              {classes().map((classForm) => (
+                <>
+                  {assignments()
+                    .filter((assignment) => assignment.class_form_id === classForm.id)
+                    .map((assignment) => {
+                      const subject = subjects().find((s) => s.id === assignment.subject_id);
+                      const teacher = teachers().find((t) => t.id === assignment.teacher_id);
+                      return (
+                        <tr>
+                          <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
+                            {classForm.name}
+                          </td>
+                          <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
+                            {subject ? subject.name : "Unknown Subject"}
+                          </td>
+                          <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
+                            {teacher ? teacher.full_name : "Unknown Teacher"}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                </>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </section>
   );
 };
