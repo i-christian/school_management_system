@@ -15,6 +15,7 @@ const UserEditModal: Component<UserEditModalProps> = (props) => {
   const [password, setPassword] = createSignal<string | null>(null);
   const [showPassword, setShowPassword] = createSignal<boolean>(false);
   const [isActive, setIsActive] = createSignal<boolean>(true);
+  const [isClassTeacher, setIsClassTeacher] = createSignal<boolean>(false);
   const { errors, setErrors, validateEmailOrPhone } = useValidation();
   const [loading, setLoading] = createSignal<boolean>(false);
   const [error, setError] = createSignal<string | null>(null);
@@ -26,6 +27,7 @@ const UserEditModal: Component<UserEditModalProps> = (props) => {
       setEmailOrPhone(response.email);
       setFullName(response.full_name || "");
       setIsActive(response.is_active as boolean);
+      setIsClassTeacher(response.is_class_teacher as boolean); // Set is_class_teacher value
     } catch (err) {
       console.error("Failed to load user:", err);
       setError("Failed to load user data.");
@@ -82,6 +84,7 @@ const UserEditModal: Component<UserEditModalProps> = (props) => {
             full_name: fullName(),
             password: password() || undefined,
             is_active: isActive(),
+            is_class_teacher: isClassTeacher(),
           },
         });
 
@@ -185,6 +188,20 @@ const UserEditModal: Component<UserEditModalProps> = (props) => {
           </p>
         </div>
 
+        <div class="my-4 flex gap-2">
+          <label class="block text-sm font-medium text-gray-600 dark:text-gray-200" for="isClassTeacher">Class Teacher Status: </label>
+          <p class="flex gap-1 items-center">
+            <input
+              id="isClassTeacher"
+              type="checkbox"
+              checked={isClassTeacher()}
+              onChange={(e) => setIsClassTeacher(e.currentTarget.checked)}
+              class="form-checkbox h-4 w-4 text-blue-600 dark:text-blue-400"
+            />
+            <label class="text-gray-600 dark:text-gray-200" for="isClassTeacher">Is Class Teacher</label>
+          </p>
+        </div>
+
         {error() && (
           <div class="mt-4 text-red-600 dark:text-red-400 text-sm">
             {error()}
@@ -212,4 +229,3 @@ const UserEditModal: Component<UserEditModalProps> = (props) => {
 };
 
 export default UserEditModal;
-
