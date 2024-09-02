@@ -1,4 +1,5 @@
-import { createSignal, createEffect, For } from "solid-js";
+
+import { createSignal, createEffect, createMemo, For } from "solid-js";
 import { readUsers, readClassForms, readSubjects, readAssignments } from "../../client";
 import type { UserPublic, ClassFormPublic, SubjectPublic, AssignmentPublic } from "../../client";
 
@@ -8,10 +9,18 @@ const TeachersAssignments = () => {
   const [subjects, setSubjects] = createSignal<SubjectPublic[]>([]);
   const [assignments, setAssignments] = createSignal<AssignmentPublic[]>([]);
   const [loading, setLoading] = createSignal<boolean>(true);
+  const [error, setError] = createSignal<string | null>(null);
+
+  // Filter states
+  const [classFilter, setClassFilter] = createSignal<string>("");
+  const [subjectFilter, setSubjectFilter] = createSignal<string>("");
+  const [teacherFilter, setTeacherFilter] = createSignal<string>("");
 
   const fetchData = async () => {
     try {
       setLoading(true);
+      setError(null);
+
       const [teachersData, classesData, subjectsData, assignmentsData] = await Promise.all([
         readUsers(),
         readClassForms(),
@@ -24,26 +33,40 @@ const TeachersAssignments = () => {
       setSubjects(subjectsData.data);
       setAssignments(assignmentsData.data);
     } catch (error) {
-      console.log("Error loading data:", error);
+      console.error("Error loading data:", error);
+      setError("Failed to load data. Please try again later.");
     } finally {
       setLoading(false);
     }
   };
 
-  const groupedAssignments = () => {
-    return classes().map((classForm) => {
-      const classAssignments = assignments().filter(
-        (assignment) => assignment.class_form_id === classForm.id
-      );
-      return {
-        classForm,
-        assignments: classAssignments.map((assignment) => ({
-          subject: subjects().find((s) => s.id === assignment.subject_id),
-          teacher: teachers().find((t) => t.id === assignment.teacher_id),
-        })),
-      };
-    });
-  };
+  const groupedAssignments = createMemo(() => {
+    const subjectsMap = new Map(subjects().map((s) => [s.id, s.name]));
+    const teachersMap = new Map(teachers().map((t) => [t.id, t.full_name]));
+
+    return classes()
+      .filter((classForm) => classForm.name.toLowerCase().includes(classFilter().toLowerCase()))
+      .map((classForm) => {
+        const classAssignments = assignments()
+          .filter(
+            (assignment) =>
+              assignment.class_form_id === classForm.id &&
+              (!subjectFilter() || subjectsMap.get(assignment.subject_id)?.toLowerCase().includes(subjectFilter().toLowerCase())) &&
+              (!teacherFilter() || teachersMap.get(assignment.teacher_id)?.toLowerCase().includes(teacherFilter().toLowerCase()))
+          );
+
+        const formattedAssignments = classAssignments.map((assignment) => ({
+          subject: subjectsMap.get(assignment.subject_id) || "Unknown Subject",
+          teacher: teachersMap.get(assignment.teacher_id) || "Unknown Teacher",
+        }));
+
+        return {
+          className: classForm.name,
+          assignments: formattedAssignments,
+        };
+      })
+      .filter((group) => group.assignments.length > 0);
+  });
 
   createEffect(() => {
     fetchData();
@@ -53,21 +76,51 @@ const TeachersAssignments = () => {
     <section class="p-6">
       <h2 class="text-2xl font-bold mb-4 text-gray-700 dark:text-gray-200">Teachers and Assignments</h2>
 
+      {error() && (
+        <p class="text-red-500 text-center mb-4" role="alert">
+          {error()}
+        </p>
+      )}
+
+      <div class="mb-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <input
+          type="text"
+          placeholder="Filter by class"
+          value={classFilter()}
+          onInput={(e) => setClassFilter(e.currentTarget.value)}
+          class="p-2 border rounded-md"
+        />
+        <input
+          type="text"
+          placeholder="Filter by subject"
+          value={subjectFilter()}
+          onInput={(e) => setSubjectFilter(e.currentTarget.value)}
+          class="p-2 border rounded-md"
+        />
+        <input
+          type="text"
+          placeholder="Filter by teacher"
+          value={teacherFilter()}
+          onInput={(e) => setTeacherFilter(e.currentTarget.value)}
+          class="p-2 border rounded-md"
+        />
+      </div>
+
       {loading() ? (
         <p class="text-center">Loading assignments...</p>
       ) : (
         <div class="overflow-x-auto">
           <For each={groupedAssignments()}>
-            {({ classForm, assignments }) => (
+            {({ className, assignments }) => (
               <div class="mb-6">
                 <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                  {classForm.name}
+                  {className}
                 </h3>
                 <table class="min-w-full bg-white dark:bg-gray-800">
                   <thead>
                     <tr>
-                      <th class="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">Subject</th>
-                      <th class="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">Teacher</th>
+                      <th scope="col" class="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">Subject</th>
+                      <th scope="col" class="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">Teacher</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -75,10 +128,10 @@ const TeachersAssignments = () => {
                       {({ subject, teacher }, index) => (
                         <tr class={index() % 2 === 0 ? "bg-gray-100 dark:bg-gray-700" : ""}>
                           <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
-                            {subject ? subject.name : "Unknown Subject"}
+                            {subject}
                           </td>
                           <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
-                            {teacher ? teacher.full_name : "Unknown Teacher"}
+                            {teacher}
                           </td>
                         </tr>
                       )}
