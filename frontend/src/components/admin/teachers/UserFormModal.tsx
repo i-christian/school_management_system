@@ -15,6 +15,7 @@ const UserFormModal: Component<UserFormModalProps> = (props) => {
   const [showConfirmPassword, setShowConfirmPassword] = createSignal(false);
   const [fullName, setFullName] = createSignal("");
   const [isActive, setIsActive] = createSignal(true);
+  const [isClassTeacher, setIsClassTeacher] = createSignal(false);
   const [loading, setLoading] = createSignal(false);
 
   const { validateEmailOrPhone, validatePassword } = useValidation();
@@ -33,6 +34,7 @@ const UserFormModal: Component<UserFormModalProps> = (props) => {
         password: password(),
         full_name: fullName(),
         is_active: isActive(),
+        is_class_teacher: isClassTeacher(),
         is_superuser: false,
       },
     };
@@ -181,6 +183,18 @@ const UserFormModal: Component<UserFormModalProps> = (props) => {
               onChange={(e) => setIsActive(e.currentTarget.checked)}
             />
             <label class="text-gray-600 dark:text-gray-200" for="isActive">Is Active</label>
+          </p>
+        </div>
+        <div class="my-4 flex gap-2">
+          <label class="block text-sm font-medium text-gray-600 dark:text-gray-200" for="isClassTeacher">Class Teacher Status: </label>
+          <p class="flex gap-1">
+            <input
+              id="isClassTeacher"
+              type="checkbox"
+              checked={isClassTeacher()}
+              onChange={(e) => setIsClassTeacher(e.currentTarget.checked)}
+            />
+            <label class="text-gray-600 dark:text-gray-200" for="isClassTeacher">Is Class Teacher</label>
           </p>
         </div>
         <div class="flex justify-end">
