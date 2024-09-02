@@ -643,6 +643,18 @@ export const $UserCreate = {
             title: 'Is Active',
             default: true
         },
+        is_class_teacher: {
+            anyOf: [
+                {
+                    type: 'boolean'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Is Class Teacher',
+            default: false
+        },
         is_superuser: {
             type: 'boolean',
             title: 'Is Superuser',
@@ -684,6 +696,18 @@ export const $UserPublic = {
             type: 'boolean',
             title: 'Is Active',
             default: true
+        },
+        is_class_teacher: {
+            anyOf: [
+                {
+                    type: 'boolean'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Is Class Teacher',
+            default: false
         },
         is_superuser: {
             type: 'boolean',
@@ -757,6 +781,18 @@ export const $UserUpdate = {
             type: 'boolean',
             title: 'Is Active',
             default: true
+        },
+        is_class_teacher: {
+            anyOf: [
+                {
+                    type: 'boolean'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Is Class Teacher',
+            default: false
         },
         is_superuser: {
             type: 'boolean',

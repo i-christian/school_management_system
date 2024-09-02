@@ -150,6 +150,7 @@ export type UpdatePassword = {
 export type UserCreate = {
     email: string;
     is_active?: boolean;
+    is_class_teacher?: (boolean | null);
     is_superuser?: boolean;
     full_name?: (string | null);
     password: string;
@@ -158,6 +159,7 @@ export type UserCreate = {
 export type UserPublic = {
     email: string;
     is_active?: boolean;
+    is_class_teacher?: (boolean | null);
     is_superuser?: boolean;
     full_name?: (string | null);
     id: string;
@@ -172,6 +174,7 @@ export type UserRegister = {
 export type UserUpdate = {
     email?: string;
     is_active?: boolean;
+    is_class_teacher?: (boolean | null);
     is_superuser?: boolean;
     full_name?: (string | null);
     password?: (string | null);
