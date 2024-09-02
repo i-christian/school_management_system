@@ -10,6 +10,7 @@ class UserBase(SQLModel):
     is_active: bool = True
     is_class_teacher: bool = False
     is_superuser: bool = False
+    is_accountant: bool = False
     full_name: str | None = Field(default=None, max_length=255)
 
 
@@ -68,6 +69,7 @@ class StudentBase(SQLModel):
     last_name: str = Field(min_length=2, max_length=255)
     contact: str | None = Field(min_length=10, max_length=255)
     form_id: uuid.UUID = Field(foreign_key="classform.id")
+    fees: float = Field(default=0.0)
 
 
 # Properties to receive via API on student creation
@@ -82,6 +84,7 @@ class StudentUpdate(StudentBase):
     last_name: str = Field(default=None, min_length=2, max_length=255)
     contact: str | None = Field(min_length=10, max_length=255)
     form_id: uuid.UUID = Field(default=None)
+    fees: float = Field(default=0.0)
 
 
 # Database model for students
