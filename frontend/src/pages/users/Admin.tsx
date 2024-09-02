@@ -1,5 +1,6 @@
 import { Component, createSignal, Switch, Match, lazy } from 'solid-js';
 import ClassManagement from '../../components/admin/classes/ClassManagement';
+import SubjectManagement from '../../components/admin/subjects/SubjectManagement';
 
 const Students: Component = lazy(() => import('../../components/admin/students/Students'));
 const TeacherManagement: Component = lazy(() => import('../../components/admin/teachers/TeacherManagement'));
@@ -68,7 +69,7 @@ const Admin: Component = () => {
             <TeacherManagement />
           </Match>
           <Match when={currentSection() === 'subjects' && cachedComponents().has('subjects')}>
-            <p>Subjects </p>
+            <SubjectManagement />
           </Match>
           <Match when={currentSection() === 'classes' && cachedComponents().has('classes')}>
             <ClassManagement />
