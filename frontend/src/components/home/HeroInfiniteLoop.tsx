@@ -51,7 +51,7 @@ const HeroInfiniteLoop = () => {
               <div
                 class={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
                   index() === currentIndex() ? "opacity-100" : "opacity-0"
-                } flex items-start justify-center left-full`}
+                } flex items-start justify-center `}
                 style="background: transparent;"
               >
                 <div class="flex-none w-full h-full flex justify-center ">
