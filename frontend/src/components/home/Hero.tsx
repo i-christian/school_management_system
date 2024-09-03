@@ -1,10 +1,11 @@
 import { Component } from "solid-js";
 import { schoolName } from "../../context";
+import HeroInfiniteLoop from "./HeroInfiniteLoop";
 
 const Hero: Component = () => {
   return (
-    <section class="bg-[url('/src/assets/homeImages/library.png')] bg-cover bg-no-repeat relative z-10 h-full w-[calc(var(--vh)*0.5625)]">
-      <div class="bg-slate-300/90 dark:bg-slate-900/90 backdrop-blur-sm py-20 px-4 mx-auto max-w-screen-xl text-center lg:py-20 lg:px-16 w-full">
+    <section class="bg-[url('/src/assets/homeImages/library.png')] bg-cover bg-no-repeat relative z-10 w-full h-auto">
+      <div class="bg-slate-300/90 dark:bg-slate-900/70 backdrop-blur-sm py-20 px-4 mx-auto max-w-screen-xl text-center lg:py-20 lg:px-16 w-full">
         <h1 class="mb-4 text-4xl font-extrabold tracking-tight leading-none  md:text-5xl lg:text-6xl dark:text-white">
           Welcome to {`${schoolName[0].full}`}
         </h1>
@@ -13,6 +14,7 @@ const Hero: Component = () => {
           enhances learning experiences, and connects all stakeholders in the
           educational ecosystem.
         </p>
+        <HeroInfiniteLoop />
         <div class="flex flex-col mb-8 lg:mb-16 space-y-4 sm:flex-row sm:justify-center sm:space-y-0 sm:space-x-4">
           <a
             href="#"
