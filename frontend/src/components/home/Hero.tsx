@@ -3,8 +3,8 @@ import { schoolName } from "../../context";
 
 const Hero: Component = () => {
   return (
-    <section class="bg-inherit relative z-10">
-      <div class="py-10 px-4 mx-auto max-w-screen-xl text-center lg:py-16 lg:px-12">
+    <section class="bg-[url('/src/assets/homeImages/library.png')] bg-cover bg-no-repeat relative z-10 h-full w-[calc(var(--vh)*0.5625)]">
+      <div class="bg-slate-300/90 dark:bg-slate-900/90 backdrop-blur-sm py-20 px-4 mx-auto max-w-screen-xl text-center lg:py-20 lg:px-16 w-full">
         <h1 class="mb-4 text-4xl font-extrabold tracking-tight leading-none  md:text-5xl lg:text-6xl dark:text-white">
           Welcome to {`${schoolName[0].full}`}
         </h1>
