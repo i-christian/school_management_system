@@ -1,5 +1,6 @@
 import { A } from "@solidjs/router";
 import { Component, For } from "solid-js";
+import ThemeToggle from "../theme/ThemeToggle";
 
 const NavUnOrderedList: Component<{
   isFocused: () => boolean;
@@ -23,6 +24,9 @@ const NavUnOrderedList: Component<{
             </li>
           )}
         </For>
+        <li class="flex flex-col gap-1 items-center justify-center mt-4">
+          <ThemeToggle />
+        </li>
       </ul>
       <ul class={`navBarList`}>
         <For each={props.navbarElements}>
