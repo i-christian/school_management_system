@@ -4,8 +4,8 @@ import HeroInfiniteLoop from "./HeroInfiniteLoop";
 
 const Hero: Component = () => {
   return (
-    <section class="bg-[url('/src/assets/homeImages/library.png')] bg-cover bg-no-repeat relative z-10 w-full h-auto">
-      <div class="bg-slate-300/90 dark:bg-slate-900/70 backdrop-blur-sm py-20 px-4 mx-auto max-w-screen-xl text-center lg:py-20 lg:px-16 w-full">
+    <section class="bg-[url('/src/assets/homeImages/library.png')] bg-cover bg-no-repeat relative z-10 w-full h-auto max-w-full">
+      <div class=" bg-slate-300/90 dark:bg-slate-900/70 backdrop-blur-sm pt-20 px-4 mx-auto max-w-screen text-center lg:pt-28 lg:px-16 w-full pb-5">
         <h1 class="mb-4 text-4xl font-extrabold tracking-tight leading-none  md:text-5xl lg:text-6xl dark:text-white">
           Welcome to {`${schoolName[0].full}`}
         </h1>
@@ -15,7 +15,7 @@ const Hero: Component = () => {
           educational ecosystem.
         </p>
         <HeroInfiniteLoop />
-        <div class="flex flex-col mb-8 lg:mb-16 space-y-4 sm:flex-row sm:justify-center sm:space-y-0 sm:space-x-4">
+        <div class="flex flex-col mb-8 lg:mb-16 space-y-4 sm:flex-row sm:justify-center sm:space-y-0 sm:space-x-4 mt-8">
           <a
             href="#"
             class="inline-flex justify-center items-center py-3 px-5 text-base font-medium text-center rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:focus:ring-primary-900"
@@ -45,7 +45,7 @@ const Hero: Component = () => {
           <span class="font-semibold text-gray-400 uppercase">
             Trusted by Schools Worldwide
           </span>
-          <div class="flex flex-wrap justify-center items-center mt-8 text-gray-500 sm:justify-between">
+          {/*<div class="flex flex-wrap justify-center items-center mt-8 text-gray-500 sm:justify-between">
             <a
               href="#"
               class="mr-5 mb-5 lg:mb-0 hover:text-gray-800 dark:hover:text-gray-400"
@@ -56,7 +56,7 @@ const Hero: Component = () => {
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
               >
-                {/* SVG content */}
+                {/* SVG content *}
               </svg>
             </a>
             <a
@@ -69,11 +69,11 @@ const Hero: Component = () => {
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
               >
-                {/* SVG content */}
+                {/* SVG content /}
               </svg>
             </a>
-            {/* Add more logos as needed */}
-          </div>
+            {/* Add more logos as needed /}
+          </div>*/}
         </div>
       </div>
     </section>
