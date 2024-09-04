@@ -59,7 +59,7 @@ const Teachers: Component = () => {
           <MyClasses />
         </Show>
         <Show when={currentSection() === 'grades'}>
-          <GradesManagement onUpdateSuccess={setMessage} />
+          <GradesManagement onUpdateMessage={setMessage} />
         </Show>
         <Show when={currentSection() === 'assignments'}>
           <TeachersAssignments />
