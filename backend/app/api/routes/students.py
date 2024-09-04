@@ -19,45 +19,26 @@ router = APIRouter()
 
 
 @router.get("/", response_model=StudentsPublic)
-def read_students(
-    session: SessionDep, current_user: CurrentUser, skip: int = 0, limit: int = 100
-) -> Any:
+def read_students(session: SessionDep, skip: int = 0, limit: int = 100) -> Any:
     """
     Retrieve students.
     """
-    if current_user.is_superuser:
-        count_statement = select(func.count()).select_from(Student)
-        count = session.exec(count_statement).one()
-        statement = select(Student).offset(skip).limit(limit)
-        students = session.exec(statement).all()
-    else:
-        count_statement = (
-            select(func.count())
-            .select_from(Student)
-            .where(Student.owner_id == current_user.id)
-        )
-        count = session.exec(count_statement).one()
-        statement = (
-            select(Student)
-            .where(Student.owner_id == current_user.id)
-            .offset(skip)
-            .limit(limit)
-        )
-        students = session.exec(statement).all()
+    count_statement = select(func.count()).select_from(Student)
+    count = session.exec(count_statement).one()
+    statement = select(Student).offset(skip).limit(limit)
+    students = session.exec(statement).all()
 
     return StudentsPublic(data=students, count=count)
 
 
 @router.get("/{id}", response_model=StudentPublic)
-def read_student(session: SessionDep, current_user: CurrentUser, id: uuid.UUID) -> Any:
+def read_student(session: SessionDep, id: uuid.UUID) -> Any:
     """
     Get student by ID.
     """
     student = session.get(Student, id)
     if not student:
         raise HTTPException(status_code=404, detail="Student not found")
-    if not current_user.is_superuser and (student.owner_id != current_user.id):
-        raise HTTPException(status_code=403, detail="Not enough permissions")
     return student
 
 

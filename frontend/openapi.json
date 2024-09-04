@@ -702,11 +702,6 @@
         "summary": "Read Students",
         "description": "Retrieve students.",
         "operationId": "read_students",
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ],
         "parameters": [
           {
             "name": "skip",
@@ -806,11 +801,6 @@
         "summary": "Read Student",
         "description": "Get student by ID.",
         "operationId": "read_student",
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ],
         "parameters": [
           {
             "name": "id",
