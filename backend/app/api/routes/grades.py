@@ -44,8 +44,22 @@ def read_grade(id: uuid.UUID, session: SessionDep) -> Any:
 @router.post("/", response_model=GradePublic)
 def create_grade(*, session: SessionDep, grade_in: GradeCreate) -> Any:
     """
-    Create new grade.
+    Create new grade. Prevent duplicate grades for the same student and subject.
     """
+    existing_grade = session.exec(
+        select(Grade).where(
+            Grade.student_id == grade_in.student_id,
+            Grade.subject_id == grade_in.subject_id,
+        )
+    ).first()
+
+    if existing_grade:
+        existing_grade.score = grade_in.score
+        session.add(existing_grade)
+        session.commit()
+        session.refresh(existing_grade)
+        return existing_grade
+
     grade = crud.create_grade(session=session, grade_in=grade_in)
     return grade
 
