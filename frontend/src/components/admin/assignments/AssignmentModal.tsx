@@ -36,6 +36,17 @@ const AssignmentModal = (props: AssignmentModalProps) => {
         return;
       }
 
+      const isConflict = props.existingAssignments.some(
+        (assignment) =>
+          assignment.class_form_id === selectedClass() &&
+          assignment.subject_id === selectedSubject()
+      );
+
+      if (isConflict) {
+        setErrorMessage("Another teacher is already assigned to this class and subject.");
+        return;
+      }
+
       const assignmentData: AssignmentCreate = {
         teacher_id: selectedTeacher(),
         class_form_id: selectedClass(),
@@ -53,6 +64,7 @@ const AssignmentModal = (props: AssignmentModalProps) => {
       setErrorMessage("Failed to create assignment.");
     }
   };
+
 
   return (
     <>
