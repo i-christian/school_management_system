@@ -1,4 +1,3 @@
-
 import { createSignal, createEffect, createMemo, For } from "solid-js";
 import { readUsers, readClassForms, readSubjects, readAssignments } from "../../client";
 import type { UserPublic, ClassFormPublic, SubjectPublic, AssignmentPublic } from "../../client";
