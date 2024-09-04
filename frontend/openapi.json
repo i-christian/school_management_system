@@ -994,7 +994,7 @@
           "grades"
         ],
         "summary": "Create Grade",
-        "description": "Create new grade.",
+        "description": "Create new grade. Prevent duplicate grades for the same student and subject.",
         "operationId": "create_grade",
         "requestBody": {
           "required": true,
