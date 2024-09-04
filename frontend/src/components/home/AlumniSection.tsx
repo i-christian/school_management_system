@@ -3,21 +3,21 @@ import { For } from "solid-js";
 const AlumniSection = () => {
   const alumni = [
     {
-      name: "John Doe",
-      year: "Class of 2005",
-      bio: "John is now a successful entrepreneur, having founded a tech startup that has revolutionized the industry.",
+      name: "Mary Entrepreneur",
+      year: "Class of 2018",
+      bio: "Mary is now a successful entrepreneur, having founded a tech startup that has revolutionized the industry.",
       photo: "https://via.placeholder.com/150x150?text=John+Doe",
     },
     {
-      name: "Jane Smith",
-      year: "Class of 2010",
+      name: "Jane Scientist",
+      year: "Class of 2019",
       bio: "Jane is a renowned scientist, contributing to groundbreaking research in environmental sustainability.",
       photo: "https://via.placeholder.com/150x150?text=Jane+Smith",
     },
     {
-      name: "Michael Brown",
-      year: "Class of 2015",
-      bio: "Michael is an award-winning author, inspiring readers with his impactful stories.",
+      name: "Juliet Author",
+      year: "Class of 2020",
+      bio: "Juliet is an award-winning author, inspiring readers with his impactful stories.",
       photo: "https://via.placeholder.com/150x150?text=Michael+Brown",
     },
     // Add more alumni here
