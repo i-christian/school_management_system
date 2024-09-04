@@ -4,21 +4,21 @@ import {
   readSubjects,
   readGrades,
   createGrade,
-  updateGrade,
   deleteGrade,
   StudentPublic,
   SubjectPublic,
   GradePublic,
-  GradeUpdate,
   GradeCreate
 } from '../../client';
 
-const GradesManagement: Component<{ onUpdateSuccess: (message: string) => void }> = (props) => {
+const GradesManagement: Component<{ onUpdateMessage: (message: string) => void }> = (props) => {
   const [students, setStudents] = createSignal<StudentPublic[]>([]);
   const [subjects, setSubjects] = createSignal<SubjectPublic[]>([]);
   const [grades, setGrades] = createSignal<Map<string, Map<string, GradePublic>>>(new Map());
+  const [loading, setLoading] = createSignal(false);
 
   const fetchData = async () => {
+    setLoading(true);
     try {
       const studentResponse = await readStudents();
       const subjectResponse = await readSubjects();
@@ -42,6 +42,8 @@ const GradesManagement: Component<{ onUpdateSuccess: (message: string) => void }
       }
     } catch (error) {
       console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -70,53 +72,56 @@ const GradesManagement: Component<{ onUpdateSuccess: (message: string) => void }
   };
 
   const handleSubmit = async () => {
+    setLoading(true);
     try {
       const gradesMap = grades();
+      const promises = [];
+
       for (const student of students()) {
         for (const subject of subjects()) {
           const grade = gradesMap.get(student.id)?.get(subject.id);
           if (grade) {
-            if (grade.id) {
-              await updateGrade({
-                id: grade.id,
-                requestBody: {
-                  student_id: student.id,
-                  subject_id: subject.id,
-                  score: grade.score
-                } as GradeUpdate
-              });
-            } else {
-              await createGrade({
-                requestBody: {
-                  student_id: student.id,
-                  subject_id: subject.id,
-                  score: grade.score
-                } as GradeCreate
-              });
-            }
+            promises.push(createGrade({
+              requestBody: {
+                student_id: student.id,
+                subject_id: subject.id,
+                score: grade.score
+              } as GradeCreate
+            }));
           }
         }
       }
-      props.onUpdateSuccess('Grades updated successfully!');
+
+      await Promise.all(promises);
+      props.onUpdateMessage('Grades updated successfully!');
     } catch (error) {
       console.error('Error saving grades:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleDeleteAllGrades = async () => {
+    setLoading(true);
     try {
       const gradesMap = grades();
+      const deletePromises = [];
+
       for (const studentGrades of gradesMap.values()) {
         for (const grade of studentGrades.values()) {
           if (grade.id) {
-            await deleteGrade({ id: grade.id });
+            deletePromises.push(deleteGrade({ id: grade.id }));
           }
         }
       }
+
+      await Promise.all(deletePromises);
       setGrades(new Map());
-      props.onUpdateSuccess('All grades deleted successfully!');
+      props.onUpdateMessage('All grades deleted successfully!');
     } catch (error) {
       console.error('Error deleting all grades:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -161,14 +166,16 @@ const GradesManagement: Component<{ onUpdateSuccess: (message: string) => void }
       <button
         onClick={handleSubmit}
         class="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+        disabled={loading()}
       >
-        Save Grades
+        {loading() ? 'Saving...' : 'Save Grades'}
       </button>
       <button
         onClick={handleDeleteAllGrades}
         class="mt-4 ml-4 px-4 py-2 bg-red-500 text-white rounded"
+        disabled={loading()}
       >
-        Delete All Grades
+        {loading() ? 'Deleting...' : 'Delete All Grades'}
       </button>
     </div>
   );
