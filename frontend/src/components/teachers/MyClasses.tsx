@@ -1,41 +1,53 @@
 import { Component, For } from 'solid-js';
+import { useFetchSchoolData } from '../../hooks/useFetchSchoolData';
+import { useAuth } from '../../context/UserContext';
+
 
 const MyClasses: Component = () => {
-  // mock data to be deleted once backend functionality is implemented
-  const classes = [
-    {
-      className: 'Form 1A',
-      subjects: ['Math', 'Science', 'English'],
-    },
-    {
-      className: 'Form 2B',
-      subjects: ['History', 'Geography'],
-    },
-    {
-      className: 'Form 3A',
-      subjects: ['Physics', 'Chemistry', 'Biology'],
-    },
-  ];
+  const { classes, subjects, assignments, loading, error } = useFetchSchoolData();
+  const { user } = useAuth();
+
+  const filteredClasses = () => {
+    const subjectsMap = new Map(subjects().map((s) => [s.id, s.name]));
+    const userAssignments = assignments().filter((assignment) => assignment.teacher_id === user()?.id);
+
+    return classes().map((classForm) => {
+      const classSubjects = userAssignments
+        .filter((assignment) => assignment.class_form_id === classForm.id)
+        .map((assignment) => subjectsMap.get(assignment.subject_id) || 'Unknown Subject');
+
+      return {
+        className: classForm.name,
+        subjects: classSubjects,
+      };
+    }).filter((classItem) => classItem.subjects.length > 0);
+  };
 
   return (
     <div>
       <h2 class="text-lg font-bold mb-4">My Classes</h2>
-      <div class="space-y-4">
-        <For each={classes}>
-          {(classItem) => (
-            <div class="border rounded-lg p-4 bg-white dark:bg-gray-800">
-              <h3 class="text-md font-semibold mb-2">{classItem.className}</h3>
-              <ul class="list-disc list-inside">
-                <For each={classItem.subjects}>
-                  {(subject) => (
-                    <li class="text-gray-700 dark:text-gray-300">{subject}</li>
-                  )}
-                </For>
-              </ul>
-            </div>
-          )}
-        </For>
-      </div>
+      {loading() ? (
+        <p>Loading classes...</p>
+      ) : error() ? (
+        <p class="text-red-500">{error()}</p>
+      ) : (
+        <div class="space-y-4">
+          <For each={filteredClasses()}>
+            {(classItem) => (
+              <div class="border rounded-lg p-4 bg-white dark:bg-gray-800">
+                <h3 class="text-md font-semibold mb-2">{classItem.className}</h3>
+                <ul class="list-disc list-inside">
+                  <For each={classItem.subjects}>
+                    {(subject) => (
+                      <li class="text-gray-700 dark:text-gray-300">{subject}</li>
+                    )}
+                  </For>
+                </ul>
+              </div>
+            )}
+          </For>
+        </div>
+      )}
     </div>
   );
 };
