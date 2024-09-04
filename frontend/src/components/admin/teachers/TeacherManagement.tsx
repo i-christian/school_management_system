@@ -58,7 +58,7 @@ const TeacherManagement: Component = () => {
           </svg>
           <span class="hidden lg:block">Add Users</span>
         </button>
-        <p class="text-md font-bold text-gray-600 dark:text-gray-300">Number of Teachers: {users().count}</p>
+        <p class="text-md font-bold text-gray-600 dark:text-gray-300">Number of Teachers: {users().count - 1}</p>
       </div>
 
       <div class="overflow-x-auto">
