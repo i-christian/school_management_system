@@ -406,7 +406,7 @@ export const readGrades = (data: ReadGradesData = {}): CancelablePromise<ReadGra
 
 /**
  * Create Grade
- * Create new grade.
+ * Create new grade. Prevent duplicate grades for the same student and subject.
  * @param data The data for the request.
  * @param data.requestBody
  * @returns GradePublic Successful Response
