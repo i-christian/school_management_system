@@ -215,11 +215,6 @@
         "summary": "Read Users",
         "description": "Retrieve users.",
         "operationId": "read_users",
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ],
         "parameters": [
           {
             "name": "skip",
