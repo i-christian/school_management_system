@@ -57,12 +57,11 @@ const GradesManagement: Component<{ onUpdateSuccess: (message: string) => void }
         }
         const currentGrades = updatedGrades.get(studentId);
         if (currentGrades) {
-          currentGrades.set(subjectId, {
-            student_id: studentId,
-            subject_id: subjectId,
-            score: numericGrade,
-            id: currentGrades.get(subjectId)?.id || '' // Use existing ID or default to empty
-          });
+          const existingGrade = currentGrades.get(subjectId);
+          const gradeToUpdate = existingGrade ? existingGrade : { student_id: studentId, subject_id: subjectId, score: numericGrade, id: '' };
+
+          gradeToUpdate.score = numericGrade;
+          currentGrades.set(subjectId, gradeToUpdate);
           updatedGrades.set(studentId, currentGrades);
         }
         return updatedGrades;
@@ -72,9 +71,10 @@ const GradesManagement: Component<{ onUpdateSuccess: (message: string) => void }
 
   const handleSubmit = async () => {
     try {
+      const gradesMap = grades();
       for (const student of students()) {
         for (const subject of subjects()) {
-          const grade = grades().get(student.id)?.get(subject.id);
+          const grade = gradesMap.get(student.id)?.get(subject.id);
           if (grade) {
             if (grade.id) {
               await updateGrade({
@@ -108,10 +108,11 @@ const GradesManagement: Component<{ onUpdateSuccess: (message: string) => void }
       const gradesMap = grades();
       for (const studentGrades of gradesMap.values()) {
         for (const grade of studentGrades.values()) {
-          await deleteGrade({ id: grade.id });
+          if (grade.id) {
+            await deleteGrade({ id: grade.id });
+          }
         }
       }
-      // Clear the grades state after successful deletion
       setGrades(new Map());
       props.onUpdateSuccess('All grades deleted successfully!');
     } catch (error) {
