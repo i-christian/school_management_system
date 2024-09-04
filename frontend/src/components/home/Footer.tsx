@@ -17,11 +17,10 @@ const Footer: Component = () => {
         </span>
 
         <p class="mt-5 text-center text-gray-700 dark:text-gray-400">
-          ©
           <span>
-            <span class=" p-3 max-sm:hidden min-[1060px]:hidden">{`${schoolName[0].name}`}</span>
-            <span class=" p-3 max-[1060px]:hidden">{`${schoolName[0].full}`}</span>
-            <span class=" p-3 sm:hidden">{`${schoolName[0].short}`}</span>
+            <span class=" p-3 max-sm:hidden min-[1060px]:hidden">{`©${schoolName[0].name}`}</span>
+            <span class=" p-3 max-[1060px]:hidden">{`©${schoolName[0].full}`}</span>
+            <span class=" p-3 sm:hidden">{`©${schoolName[0].short}`}</span>
           </span>{" "}
           {currentYear} - All rights reserved
         </p>
