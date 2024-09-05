@@ -1,9 +1,34 @@
 import { Component, For, Show } from 'solid-js';
 import { useGrades } from '../../hooks/useGrades';
+import { useFetchSchoolData } from '../../hooks/useFetchSchoolData';
+import { useAuth } from '../../context/UserContext';
 import { StudentPublic } from '../../client';
 
 const GradesManagement: Component<{ onUpdateMessage: (message: string) => void }> = (props) => {
-  const { studentsByClass, subjects, grades, classForms, loading, handleGradeChange, handleSubmitClassGrades, handleDeleteClassGrades } = useGrades(props.onUpdateMessage);
+  const { studentsByClass, grades, loading, handleGradeChange, handleSubmitClassGrades, handleDeleteClassGrades } = useGrades(props.onUpdateMessage);
+  const { classes, subjects, assignments } = useFetchSchoolData();
+  const { user } = useAuth();
+
+  const filteredClasses = () => {
+    const subjectsMap = new Map(subjects().map((s) => [s.id, s.name]));
+    const userAssignments = assignments().filter((assignment) => assignment.teacher_id === user()?.id);
+
+    return classes()
+      .map((classForm) => {
+        const classSubjects = userAssignments
+          .filter((assignment) => assignment.class_form_id === classForm.id)
+          .map((assignment) => ({
+            subjectId: assignment.subject_id,
+            subjectName: subjectsMap.get(assignment.subject_id) || 'Unknown Subject',
+          }));
+
+        return {
+          ...classForm,
+          subjects: classSubjects,
+        };
+      })
+      .filter((classItem) => classItem.subjects.length > 0);
+  };
 
   const validateAndFormatGrade = (value: string): number => {
     const floatValue = parseFloat(value);
@@ -17,7 +42,8 @@ const GradesManagement: Component<{ onUpdateMessage: (message: string) => void }
   return (
     <section class="p-6">
       <h2 class="text-2xl font-bold mb-6 text-gray-700 dark:text-gray-200 text-center">Grades by Class</h2>
-      <For each={classForms()}>
+
+      <For each={filteredClasses()}>
         {(classForm) => (
           <div class="mb-8">
             <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-4">{classForm.name}</h3>
@@ -28,9 +54,9 @@ const GradesManagement: Component<{ onUpdateMessage: (message: string) => void }
                     <tr>
                       <th class="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">#</th>
                       <th class="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">Student</th>
-                      <For each={subjects()}>
+                      <For each={classForm.subjects}>
                         {(subject) => (
-                          <th class="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">{subject.name}</th>
+                          <th class="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">{subject.subjectName}</th>
                         )}
                       </For>
                     </tr>
@@ -41,29 +67,30 @@ const GradesManagement: Component<{ onUpdateMessage: (message: string) => void }
                         <tr class={index() % 2 === 0 ? "bg-gray-100 dark:bg-gray-700" : ""}>
                           <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500 text-center">{index() + 1}</td>
                           <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
-                            {student.last_name}
-                            {student.middle_name ? ` ${student.middle_name} ` : ' '}
-                            {student.first_name}
+                            {student.last_name} {student.middle_name ? `${student.middle_name} ` : ' '} {student.first_name}
                           </td>
-                          <For each={subjects()}>
-                            {(subject) => (
-                              <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
-                                <input
-                                  type="number"
-                                  min="0"
-                                  max="100"
-                                  step="0.1"
-                                  value={grades().get(student.id)?.get(subject.id)?.score ?? ''}
-                                  onInput={(e) => {
-                                    const value = e.currentTarget.value;
-                                    const formattedGrade = validateAndFormatGrade(value);
-                                    handleGradeChange(student.id, subject.id, formattedGrade.toString());
-                                  }}
-                                  class="w-full py-2 px-4 border border-gray-300 rounded-md text-center"
-                                  placeholder="grade (%)"
-                                />
-                              </td>
-                            )}
+                          <For each={classForm.subjects}>
+                            {(subject) => {
+                              const grade = grades().get(student.id)?.get(subject.subjectId);
+                              return (
+                                <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                    step="0.1"
+                                    value={grade?.score ?? ''}
+                                    onInput={(e) => {
+                                      const value = e.currentTarget.value;
+                                      const formattedGrade = validateAndFormatGrade(value);
+                                      handleGradeChange(student.id, subject.subjectId, formattedGrade.toString());
+                                    }}
+                                    class="w-full py-2 px-4 border border-gray-300 rounded-md text-center"
+                                    placeholder="grade (%)"
+                                  />
+                                </td>
+                              );
+                            }}
                           </For>
                         </tr>
                       )}
