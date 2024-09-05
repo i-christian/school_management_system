@@ -188,6 +188,7 @@ export const useGrades = (onUpdateMessage: (message: string) => void) => {
     grades,
     classForms,
     loading,
+    fetchData,
     handleGradeChange,
     handleSubmitClassGrades,
     handleDeleteClassGrades,

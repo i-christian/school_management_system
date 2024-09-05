@@ -1,13 +1,19 @@
-import { Component, For, Show } from 'solid-js';
+import { Component, createSignal, For, Show } from 'solid-js';
 import { useGrades } from '../../hooks/useGrades';
 import { useFetchSchoolData } from '../../hooks/useFetchSchoolData';
 import { useAuth } from '../../context/UserContext';
 import { StudentPublic } from '../../client';
+import ConfirmationModal from './ConfirmationModal';
+
 
 const GradesManagement: Component<{ onUpdateMessage: (message: string) => void }> = (props) => {
-  const { studentsByClass, grades, loading, handleGradeChange, handleSubmitClassGrades, handleDeleteClassGrades } = useGrades(props.onUpdateMessage);
+  const { studentsByClass, grades, loading, handleGradeChange, handleSubmitClassGrades, handleDeleteClassGrades, fetchData } = useGrades(props.onUpdateMessage);
   const { classes, subjects, assignments } = useFetchSchoolData();
   const { user } = useAuth();
+
+  const [showSaveModal, setShowSaveModal] = createSignal(false);
+  const [showDeleteModal, setShowDeleteModal] = createSignal(false);
+  const [selectedClass, setSelectedClass] = createSignal<string | null>(null);
 
   const filteredClasses = () => {
     const subjectsMap = new Map(subjects().map((s) => [s.id, s.name]));
@@ -37,6 +43,32 @@ const GradesManagement: Component<{ onUpdateMessage: (message: string) => void }
 
   const sortStudentsBySurname = (students: StudentPublic[]) => {
     return [...students].sort((a, b) => a.last_name.localeCompare(b.last_name));
+  };
+
+  const handleSaveClick = (classFormId: string) => {
+    setSelectedClass(classFormId);
+    setShowSaveModal(true);
+  };
+
+  const handleDeleteClick = (classFormId: string) => {
+    setSelectedClass(classFormId);
+    setShowDeleteModal(true);
+  };
+
+  const confirmSave = async () => {
+    if (selectedClass()) {
+      await handleSubmitClassGrades(selectedClass()!);
+      setShowSaveModal(false);
+      fetchData();
+    }
+  };
+
+  const confirmDelete = async () => {
+    if (selectedClass()) {
+      await handleDeleteClassGrades(selectedClass()!);
+      setShowDeleteModal(false);
+      fetchData();
+    }
   };
 
   return (
@@ -101,14 +133,14 @@ const GradesManagement: Component<{ onUpdateMessage: (message: string) => void }
             </Show>
             <div class="mt-4 flex items-center space-x-4">
               <button
-                onClick={() => handleSubmitClassGrades(classForm.id)}
+                onClick={() => handleSaveClick(classForm.id)}
                 class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
                 disabled={loading()}
               >
                 {loading() ? 'Saving...' : `Save Grades for ${classForm.name}`}
               </button>
               <button
-                onClick={() => handleDeleteClassGrades(classForm.id)}
+                onClick={() => handleDeleteClick(classForm.id)}
                 class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition"
                 disabled={loading()}
               >
@@ -118,6 +150,24 @@ const GradesManagement: Component<{ onUpdateMessage: (message: string) => void }
           </div>
         )}
       </For>
+
+      <Show when={showSaveModal()}>
+        <ConfirmationModal
+          title="Save Grades"
+          message="Are you sure you want to save the grades for this class?"
+          onConfirm={confirmSave}
+          onCancel={() => setShowSaveModal(false)}
+        />
+      </Show>
+
+      <Show when={showDeleteModal()}>
+        <ConfirmationModal
+          title="Delete Grades"
+          message="Are you sure you want to delete all grades for this class?"
+          onConfirm={confirmDelete}
+          onCancel={() => setShowDeleteModal(false)}
+        />
+      </Show>
     </section>
   );
 };
