@@ -56,7 +56,7 @@ export const useGrades = (onUpdateMessage: (message: string) => void) => {
           }
           studentsGroupedByClass.get(formId)?.push(student);
         }
-        setStudentsByClass(studentsGroupedByClass)
+        setStudentsByClass(studentsGroupedByClass);
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -89,13 +89,14 @@ export const useGrades = (onUpdateMessage: (message: string) => void) => {
     }
   };
 
-  const handleSubmit = async () => {
+  const handleSubmitClassGrades = async (classFormId: string) => {
     setLoading(true);
     try {
       const gradesMap = grades();
       const promises = [];
+      const studentsInClass = studentsByClass().get(classFormId) || [];
 
-      for (const student of students()) {
+      for (const student of studentsInClass) {
         for (const subject of subjects()) {
           const grade = gradesMap.get(student.id)?.get(subject.id);
           if (grade) {
@@ -113,7 +114,7 @@ export const useGrades = (onUpdateMessage: (message: string) => void) => {
       }
 
       await Promise.all(promises);
-      onUpdateMessage('Grades updated successfully!');
+      onUpdateMessage(`Grades updated successfully!`);
     } catch (error) {
       console.error('Error saving grades:', error);
     } finally {
@@ -121,25 +122,37 @@ export const useGrades = (onUpdateMessage: (message: string) => void) => {
     }
   };
 
-  const handleDeleteAllGrades = async () => {
+  const handleDeleteClassGrades = async (classFormId: string) => {
     setLoading(true);
     try {
       const gradesMap = grades();
+      const studentsInClass = studentsByClass().get(classFormId) || [];
       const deletePromises = [];
 
-      for (const studentGrades of gradesMap.values()) {
-        for (const grade of studentGrades.values()) {
-          if (grade.id) {
-            deletePromises.push(deleteGrade({ id: grade.id }));
+      for (const student of studentsInClass) {
+        const studentGrades = gradesMap.get(student.id);
+        if (studentGrades) {
+          for (const grade of studentGrades.values()) {
+            if (grade.id) {
+              deletePromises.push(deleteGrade({ id: grade.id }));
+            }
           }
         }
       }
 
       await Promise.all(deletePromises);
-      setGrades(new Map());
-      onUpdateMessage('All grades deleted successfully!');
+
+      setGrades((prevGrades) => {
+        const updatedGrades = new Map(prevGrades);
+        for (const student of studentsInClass) {
+          updatedGrades.delete(student.id);
+        }
+        return updatedGrades;
+      });
+
+      onUpdateMessage(`Grades deleted successfully!`);
     } catch (error) {
-      console.error('Error deleting all grades:', error);
+      console.error('Error deleting class grades:', error);
     } finally {
       setLoading(false);
     }
@@ -150,11 +163,12 @@ export const useGrades = (onUpdateMessage: (message: string) => void) => {
   return {
     studentsByClass,
     subjects,
+    students,
     grades,
     classForms,
     loading,
     handleGradeChange,
-    handleSubmit,
-    handleDeleteAllGrades,
+    handleSubmitClassGrades,
+    handleDeleteClassGrades,
   };
 };
