@@ -39,7 +39,6 @@ export const useGrades = (onUpdateMessage: (message: string) => void) => {
 
       if (studentResponse && subjectResponse && gradeResponse && classFormResponse && assignmentResponse) {
         setStudents(studentResponse.data);
-        setSubjects(subjectResponse.data);
 
         const currentUserId = user()?.id;
         if (currentUserId) {
@@ -50,6 +49,9 @@ export const useGrades = (onUpdateMessage: (message: string) => void) => {
 
           const filteredClassForms = classFormResponse.data.filter((classForm: ClassFormPublic) => classIds.has(classForm.id));
           setClassForms(filteredClassForms);
+
+          const filteredSubjects = subjectResponse.data.filter((subject: SubjectPublic) => subjectIds.has(subject.id));
+          setSubjects(filteredSubjects);
 
           const existingGrades = new Map<string, Map<string, GradePublic>>();
           for (const grade of gradeResponse.data) {

@@ -2,7 +2,6 @@ import { Component, For, Show } from 'solid-js';
 import { useGrades } from '../../hooks/useGrades';
 import { StudentPublic } from '../../client';
 
-
 const GradesManagement: Component<{ onUpdateMessage: (message: string) => void }> = (props) => {
   const { studentsByClass, subjects, grades, classForms, loading, handleGradeChange, handleSubmitClassGrades, handleDeleteClassGrades } = useGrades(props.onUpdateMessage);
 
@@ -43,7 +42,7 @@ const GradesManagement: Component<{ onUpdateMessage: (message: string) => void }
                           <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500 text-center">{index() + 1}</td>
                           <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
                             {student.last_name}
-                            {student.middle_name ? ` ${student.middle_name}` : ''}
+                            {student.middle_name ? ` ${student.middle_name} ` : ' '}
                             {student.first_name}
                           </td>
                           <For each={subjects()}>
