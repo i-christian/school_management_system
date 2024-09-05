@@ -16,9 +16,11 @@ const MyClasses: Component = () => {
           .filter((assignment) => assignment.class_form_id === classForm.id)
           .map((assignment) => subjectsMap.get(assignment.subject_id) || 'Unknown Subject');
 
+        const sortedSubjects = classSubjects.sort((a, b) => a.localeCompare(b));
+
         return {
           className: classForm.name,
-          subjects: classSubjects,
+          subjects: sortedSubjects,
         };
       })
       .filter((classItem) => classItem.subjects.length > 0);
@@ -40,15 +42,15 @@ const MyClasses: Component = () => {
         <div class="space-y-4">
           <For each={filteredClasses()}>
             {(classItem) => (
-              <div class="border rounded-lg p-4 bg-white dark:bg-gray-800">
+              <div class="border rounded-lg p-4 bg-white dark:bg-gray-800 shadow-md">
                 <h3 class="text-md font-semibold mb-2">{classItem.className}</h3>
-                <ul class="list-disc list-inside">
+                <ol class="list-decimal list-inside pl-5 space-y-1">
                   <For each={classItem.subjects}>
                     {(subject) => (
                       <li class="text-gray-700 dark:text-gray-300">{subject}</li>
                     )}
                   </For>
-                </ul>
+                </ol>
               </div>
             )}
           </For>
