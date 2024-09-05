@@ -1,5 +1,6 @@
 import { createSignal, createMemo, For } from "solid-js";
 import { useFetchSchoolData } from "../../hooks/useFetchSchoolData";
+import Spinner from "../util/Spinner";
 
 
 const TeachersAssignments = () => {
@@ -72,7 +73,7 @@ const TeachersAssignments = () => {
       </div>
 
       {loading() ? (
-        <p class="text-center">Loading assignments...</p>
+        <p class="text-center"><Spinner /></p>
       ) : (
         <div class="overflow-x-auto">
           <For each={groupedAssignments()}>

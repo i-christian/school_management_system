@@ -2,9 +2,19 @@ import { Component, createSignal, Show, Suspense } from 'solid-js';
 import ListGrades from '../../components/grades/ListGrades';
 import CalculateGrades from '../../components/grades/CalculateGrades';
 import Spinner from '../../components/util/Spinner';
+// import { useAuth } from '../../context/UserContext';
+// import { useNavigate } from '@solidjs/router';
 
 
 const Grades: Component = () => {
+  // const { isAuthenticated, user } = useAuth();
+  // const navigate = useNavigate();
+
+  // if (!isAuthenticated() || !(user()?.is_superuser || user()?.is_class_teacher)) {
+  //   navigate("/403");
+  //   return null;
+  // }
+
   const [message, setMessage] = createSignal<string | null>(null);
   const [currentSection, setCurrentSection] = createSignal(localStorage.getItem('gradesSection') || 'list');
 
