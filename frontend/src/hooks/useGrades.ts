@@ -16,11 +16,10 @@ import {
 } from '../client';
 import { useAuth } from '../context/UserContext';
 
-
 export const useGrades = (onUpdateMessage: (message: string) => void) => {
   const [students, setStudents] = createSignal<StudentPublic[]>([]);
   const [subjects, setSubjects] = createSignal<SubjectPublic[]>([]);
-  const [grades, setGrades] = createSignal<Map<string, Map<string, GradePublic>>>(new Map());
+  const [grades, setGrades] = createSignal<Map<string, Map<string, GradePublic>>>(new Map()); // Map of studentId -> subjectId -> GradePublic
   const [classForms, setClassForms] = createSignal<ClassFormPublic[]>([]);
   const [studentsByClass, setStudentsByClass] = createSignal<Map<string, StudentPublic[]>>(new Map());
   const [loading, setLoading] = createSignal(false);
@@ -44,29 +43,33 @@ export const useGrades = (onUpdateMessage: (message: string) => void) => {
         if (currentUserId) {
           const teacherAssignments = assignmentResponse.data.filter((assignment: AssignmentPublic) => assignment.teacher_id === currentUserId);
 
+          // Extract class and subject IDs assigned to the current teacher
           const classIds = new Set<string>(teacherAssignments.map((assignment: AssignmentPublic) => assignment.class_form_id));
           const subjectIds = new Set<string>(teacherAssignments.map((assignment: AssignmentPublic) => assignment.subject_id));
 
+          // Filter class forms and subjects based on assignments
           const filteredClassForms = classFormResponse.data.filter((classForm: ClassFormPublic) => classIds.has(classForm.id));
           setClassForms(filteredClassForms);
 
           const filteredSubjects = subjectResponse.data.filter((subject: SubjectPublic) => subjectIds.has(subject.id));
           setSubjects(filteredSubjects);
 
-          const existingGrades = new Map<string, Map<string, GradePublic>>();
+          // Filter grades based on subject IDs
+          const filteredGrades = new Map<string, Map<string, GradePublic>>();
           for (const grade of gradeResponse.data) {
             const studentId = grade.student_id;
             const subjectId = grade.subject_id;
 
             if (subjectIds.has(subjectId)) {
-              if (!existingGrades.has(studentId)) {
-                existingGrades.set(studentId, new Map());
+              if (!filteredGrades.has(studentId)) {
+                filteredGrades.set(studentId, new Map());
               }
-              existingGrades.get(studentId)?.set(subjectId, grade);
+              filteredGrades.get(studentId)?.set(subjectId, grade);
             }
           }
-          setGrades(existingGrades);
+          setGrades(filteredGrades);
 
+          // Group students by class form
           const studentsGroupedByClass = new Map<string, StudentPublic[]>();
           for (const student of studentResponse.data) {
             const formId = student.form_id;
@@ -95,14 +98,14 @@ export const useGrades = (onUpdateMessage: (message: string) => void) => {
         if (!updatedGrades.has(studentId)) {
           updatedGrades.set(studentId, new Map());
         }
-        const currentGrades = updatedGrades.get(studentId);
-        if (currentGrades) {
-          const gradeToUpdate = currentGrades.get(subjectId) || { student_id: studentId, subject_id: subjectId, score: numericGrade, id: '' };
+        const studentGrades = updatedGrades.get(studentId);
+        if (studentGrades) {
+          const gradeToUpdate = studentGrades.get(subjectId) || { student_id: studentId, subject_id: subjectId, score: numericGrade, id: '' };
           gradeToUpdate.score = numericGrade;
-          currentGrades.set(subjectId, gradeToUpdate);
-          updatedGrades.set(studentId, currentGrades);
+          studentGrades.set(subjectId, gradeToUpdate);
+          return updatedGrades;
         }
-        return updatedGrades;
+        return prevGrades;
       });
     }
   };
@@ -148,9 +151,9 @@ export const useGrades = (onUpdateMessage: (message: string) => void) => {
       const deletePromises = [];
 
       for (const student of studentsInClass) {
-        const studentGrades = gradesMap.get(student.id);
-        if (studentGrades) {
-          for (const grade of studentGrades.values()) {
+        const subjectGrades = gradesMap.get(student.id);
+        if (subjectGrades) {
+          for (const grade of subjectGrades.values()) {
             if (grade.id) {
               deletePromises.push(deleteGrade({ id: grade.id }));
             }
