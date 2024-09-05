@@ -1,7 +1,8 @@
-import { Component, createMemo, createSignal, For, Show } from 'solid-js';
+import { Component, createMemo, createSignal, For, Show, onMount } from 'solid-js';
 import { GradePublic, StudentPublic, SubjectPublic } from '../../client';
-import { readStudents, readSubjects, readGrades, readClassForms } from '../../client';
+import { readStudents, readSubjects, readGrades } from '../../client';
 import { useFetchSchoolData } from '../../hooks/useFetchSchoolData';
+import Spinner from '../util/Spinner';
 
 
 const ListGrades: Component = () => {
@@ -17,7 +18,6 @@ const ListGrades: Component = () => {
   });
   const { classes } = useFetchSchoolData();
 
-
   const fetchUnfilteredData = async () => {
     setIsLoading(true);
     try {
@@ -25,7 +25,6 @@ const ListGrades: Component = () => {
         readStudents(),
         readSubjects(),
         readGrades(),
-        readClassForms(),
       ]);
 
       const studentsGroupedByClass = new Map<string, StudentPublic[]>();
@@ -57,10 +56,12 @@ const ListGrades: Component = () => {
     }
   };
 
-  fetchUnfilteredData();
+  onMount(() => {
+    fetchUnfilteredData();
+  });
 
-  const sortedStudents = (students: StudentPublic[]) =>
-    students.slice().sort((a, b) => a.last_name.localeCompare(b.last_name));
+  const subjectsMemo = createMemo(() => unfilteredData().subjects);
+  const gradesMemo = createMemo(() => unfilteredData().grades);
 
   const classData = createMemo(() => {
     const classMap = new Map();
@@ -70,21 +71,24 @@ const ListGrades: Component = () => {
     return classMap;
   });
 
+  const sortedStudents = (students: StudentPublic[]) =>
+    createMemo(() => students.slice().sort((a, b) => a.last_name.localeCompare(b.last_name)));
+
   const renderSubjectHeader = (subject: SubjectPublic) => (
     <th class="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
       {subject.name}
     </th>
   );
 
-  const renderStudentRow = (student: StudentPublic, index: () => number) => (
-    <tr class={index() % 2 === 0 ? "bg-gray-100 dark:bg-gray-700" : ""}>
-      <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500 text-center">{index() + 1}</td>
+  const renderStudentRow = (student: StudentPublic, index: number) => (
+    <tr class={index % 2 === 0 ? "bg-gray-100 dark:bg-gray-700" : ""}>
+      <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500 text-center">{index + 1}</td>
       <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
         {student.last_name} {student.middle_name ? `${student.middle_name} ` : ' '} {student.first_name}
       </td>
-      <For each={unfilteredData().subjects}>
+      <For each={subjectsMemo()}>
         {(subject) => {
-          const grade = unfilteredData().grades.get(student.id)?.get(subject.id);
+          const grade = gradesMemo().get(student.id)?.get(subject.id);
           return (
             <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
               {grade ? grade.score : 'N/A'}
@@ -100,9 +104,7 @@ const ListGrades: Component = () => {
       <h2 class="text-2xl font-bold mb-6 text-gray-700 dark:text-gray-200 text-center">Student's Overall Grades</h2>
 
       <Show when={isLoading()}>
-        <div class="flex items-center justify-center h-64">
-          <div class="w-16 h-16 border-4 border-t-4 border-gray-200 dark:border-gray-700 border-t-blue-500 rounded-full animate-spin"></div>
-        </div>
+        <Spinner />
       </Show>
 
       <Show when={!isLoading()}>
@@ -118,13 +120,15 @@ const ListGrades: Component = () => {
                     <tr>
                       <th class="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">#</th>
                       <th class="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">Student</th>
-                      <For each={unfilteredData().subjects}>
+                      <For each={subjectsMemo()}>
                         {renderSubjectHeader}
                       </For>
                     </tr>
                   </thead>
                   <tbody>
-                    <For each={sortedStudents(students)}>{renderStudentRow}</For>
+                    <For each={sortedStudents(students)()}>
+                      {(student, index) => renderStudentRow(student, index())}
+                    </For>
                   </tbody>
                 </table>
               </div>
