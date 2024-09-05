@@ -1,6 +1,7 @@
 import { Component, For } from 'solid-js';
 import { useFetchSchoolData } from '../../hooks/useFetchSchoolData';
 import { useAuth } from '../../context/UserContext';
+import Spinner from '../util/Spinner';
 
 const MyClasses: Component = () => {
   const { classes, subjects, assignments, loading, error } = useFetchSchoolData();
@@ -30,7 +31,7 @@ const MyClasses: Component = () => {
     <div>
       <h2 class="text-lg font-bold mb-4">My Classes</h2>
       {loading() ? (
-        <p>Loading classes...</p>
+        <Spinner />
       ) : error() ? (
         <p class="text-red-500">{error()}</p>
       ) : filteredClasses().length === 0 ? (
