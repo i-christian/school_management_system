@@ -5,6 +5,11 @@ import { useGrades } from '../../hooks/useGrades';
 const GradesManagement: Component<{ onUpdateMessage: (message: string) => void }> = (props) => {
   const { studentsByClass, subjects, grades, classForms, loading, handleGradeChange, handleSubmitClassGrades, handleDeleteClassGrades } = useGrades(props.onUpdateMessage);
 
+  const validateAndFormatGrade = (value: string): number => {
+    const floatValue = parseFloat(value);
+    return isNaN(floatValue) ? 0 : Math.max(0, Math.min(100, floatValue));
+  };
+
   return (
     <section class="p-6">
       <h2 class="text-2xl font-bold mb-6 text-gray-700 dark:text-gray-200 text-center">Grades by Class</h2>
@@ -39,9 +44,15 @@ const GradesManagement: Component<{ onUpdateMessage: (message: string) => void }
                                   type="number"
                                   min="0"
                                   max="100"
+                                  step="0.1"
                                   value={grades().get(student.id)?.get(subject.id)?.score ?? ''}
-                                  onInput={(e) => handleGradeChange(student.id, subject.id, e.currentTarget.value)}
-                                  class="w-full p-2 border border-gray-300 rounded-md"
+                                  onInput={(e) => {
+                                    const value = e.currentTarget.value;
+                                    const formattedGrade = validateAndFormatGrade(value);
+                                    handleGradeChange(student.id, subject.id, formattedGrade.toString());
+                                  }}
+                                  class="w-full py-2 px-4 border border-gray-300 rounded-md text-center"
+                                  placeholder="grade (%)"
                                 />
                               </td>
                             )}
@@ -53,7 +64,7 @@ const GradesManagement: Component<{ onUpdateMessage: (message: string) => void }
                 </table>
               </div>
             </Show>
-            <div class="mt-4">
+            <div class="mt-4 flex items-center space-x-4">
               <button
                 onClick={() => handleSubmitClassGrades(classForm.id)}
                 class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
@@ -63,7 +74,7 @@ const GradesManagement: Component<{ onUpdateMessage: (message: string) => void }
               </button>
               <button
                 onClick={() => handleDeleteClassGrades(classForm.id)}
-                class="ml-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition"
+                class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition"
                 disabled={loading()}
               >
                 {loading() ? 'Deleting...' : `Delete Grades for ${classForm.name}`}
