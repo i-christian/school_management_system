@@ -1,9 +1,10 @@
-import { Component, createSignal, For, Show } from 'solid-js';
+import { Component, createMemo, createSignal, For, lazy, Show } from 'solid-js';
 import { useGrades } from '../../hooks/useGrades';
 import { useFetchSchoolData } from '../../hooks/useFetchSchoolData';
 import { useAuth } from '../../context/UserContext';
 import { StudentPublic } from '../../client';
-import ConfirmationModal from './ConfirmationModal';
+const ConfirmationModal = lazy(() => import('./ConfirmationModal'));
+
 
 
 const GradesManagement: Component<{ onUpdateMessage: (message: string) => void }> = (props) => {
@@ -15,7 +16,7 @@ const GradesManagement: Component<{ onUpdateMessage: (message: string) => void }
   const [showDeleteModal, setShowDeleteModal] = createSignal(false);
   const [selectedClass, setSelectedClass] = createSignal<string | null>(null);
 
-  const filteredClasses = () => {
+  const filteredClasses = createMemo(() => {
     const subjectsMap = new Map(subjects().map((s) => [s.id, s.name]));
     const userAssignments = assignments().filter((assignment) => assignment.teacher_id === user()?.id);
 
@@ -34,7 +35,7 @@ const GradesManagement: Component<{ onUpdateMessage: (message: string) => void }
         };
       })
       .filter((classItem) => classItem.subjects.length > 0);
-  };
+  });
 
   const validateAndFormatGrade = (value: string): number => {
     const floatValue = parseFloat(value);
@@ -112,7 +113,7 @@ const GradesManagement: Component<{ onUpdateMessage: (message: string) => void }
                                     max="100"
                                     step="0.1"
                                     value={grade?.score ?? ''}
-                                    onInput={(e) => {
+                                    onBlur={(e) => {
                                       const value = e.currentTarget.value;
                                       const formattedGrade = validateAndFormatGrade(value);
                                       handleGradeChange(student.id, subject.subjectId, formattedGrade.toString());

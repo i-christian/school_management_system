@@ -1,4 +1,4 @@
-import { createSignal } from 'solid-js';
+import { batch, createSignal } from 'solid-js';
 import {
   readStudents,
   readSubjects,
@@ -19,7 +19,7 @@ import { useAuth } from '../context/UserContext';
 export const useGrades = (onUpdateMessage: (message: string) => void) => {
   const [students, setStudents] = createSignal<StudentPublic[]>([]);
   const [subjects, setSubjects] = createSignal<SubjectPublic[]>([]);
-  const [grades, setGrades] = createSignal<Map<string, Map<string, GradePublic>>>(new Map()); // Map of studentId -> subjectId -> GradePublic
+  const [grades, setGrades] = createSignal<Map<string, Map<string, GradePublic>>>(new Map());
   const [classForms, setClassForms] = createSignal<ClassFormPublic[]>([]);
   const [studentsByClass, setStudentsByClass] = createSignal<Map<string, StudentPublic[]>>(new Map());
   const [loading, setLoading] = createSignal(false);
@@ -37,51 +37,55 @@ export const useGrades = (onUpdateMessage: (message: string) => void) => {
       ]);
 
       if (studentResponse && subjectResponse && gradeResponse && classFormResponse && assignmentResponse) {
-        setStudents(studentResponse.data);
+        batch(() => {
+          setStudents(studentResponse.data);
 
-        const currentUserId = user()?.id;
-        if (currentUserId) {
-          const teacherAssignments = assignmentResponse.data.filter((assignment: AssignmentPublic) => assignment.teacher_id === currentUserId);
+          const currentUserId = user()?.id;
+          if (currentUserId) {
+            const teacherAssignments = assignmentResponse.data.filter(
+              (assignment: AssignmentPublic) => assignment.teacher_id === currentUserId
+            );
 
-          // Extract class and subject IDs assigned to the current teacher
-          const classIds = new Set<string>(teacherAssignments.map((assignment: AssignmentPublic) => assignment.class_form_id));
-          const subjectIds = new Set<string>(teacherAssignments.map((assignment: AssignmentPublic) => assignment.subject_id));
+            const classIds = new Set<string>(teacherAssignments.map((assignment: AssignmentPublic) => assignment.class_form_id));
+            const subjectIds = new Set<string>(teacherAssignments.map((assignment: AssignmentPublic) => assignment.subject_id));
 
-          // Filter class forms and subjects based on assignments
-          const filteredClassForms = classFormResponse.data.filter((classForm: ClassFormPublic) => classIds.has(classForm.id));
-          setClassForms(filteredClassForms);
+            const filteredClassForms = classFormResponse.data.filter(
+              (classForm: ClassFormPublic) => classIds.has(classForm.id)
+            );
+            setClassForms(filteredClassForms);
 
-          const filteredSubjects = subjectResponse.data.filter((subject: SubjectPublic) => subjectIds.has(subject.id));
-          setSubjects(filteredSubjects);
+            const filteredSubjects = subjectResponse.data.filter(
+              (subject: SubjectPublic) => subjectIds.has(subject.id)
+            );
+            setSubjects(filteredSubjects);
 
-          // Filter grades based on subject IDs
-          const filteredGrades = new Map<string, Map<string, GradePublic>>();
-          for (const grade of gradeResponse.data) {
-            const studentId = grade.student_id;
-            const subjectId = grade.subject_id;
+            const filteredGrades = new Map<string, Map<string, GradePublic>>();
+            for (const grade of gradeResponse.data) {
+              const studentId = grade.student_id;
+              const subjectId = grade.subject_id;
 
-            if (subjectIds.has(subjectId)) {
-              if (!filteredGrades.has(studentId)) {
-                filteredGrades.set(studentId, new Map());
+              if (subjectIds.has(subjectId)) {
+                if (!filteredGrades.has(studentId)) {
+                  filteredGrades.set(studentId, new Map());
+                }
+                filteredGrades.get(studentId)?.set(subjectId, grade);
               }
-              filteredGrades.get(studentId)?.set(subjectId, grade);
             }
-          }
-          setGrades(filteredGrades);
+            setGrades(filteredGrades);
 
-          // Group students by class form
-          const studentsGroupedByClass = new Map<string, StudentPublic[]>();
-          for (const student of studentResponse.data) {
-            const formId = student.form_id;
-            if (classIds.has(formId)) {
-              if (!studentsGroupedByClass.has(formId)) {
-                studentsGroupedByClass.set(formId, []);
+            const studentsGroupedByClass = new Map<string, StudentPublic[]>();
+            for (const student of studentResponse.data) {
+              const formId = student.form_id;
+              if (classIds.has(formId)) {
+                if (!studentsGroupedByClass.has(formId)) {
+                  studentsGroupedByClass.set(formId, []);
+                }
+                studentsGroupedByClass.get(formId)?.push(student);
               }
-              studentsGroupedByClass.get(formId)?.push(student);
             }
+            setStudentsByClass(studentsGroupedByClass);
           }
-          setStudentsByClass(studentsGroupedByClass);
-        }
+        });
       }
     } catch (error) {
       console.error('Error fetching data:', error);

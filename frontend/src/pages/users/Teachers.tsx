@@ -1,4 +1,4 @@
-import { Component, createSignal, Show } from 'solid-js';
+import { Component, createSignal, Show, Suspense } from 'solid-js';
 import MyClasses from '../../components/teachers/MyClasses';
 import GradesManagement from '../../components/teachers/GradesManagement';
 import TeachersAssignments from '../../components/teachers/TeachersAssignments';
@@ -59,7 +59,9 @@ const Teachers: Component = () => {
           <MyClasses />
         </Show>
         <Show when={currentSection() === 'grades'}>
-          <GradesManagement onUpdateMessage={setMessage} />
+          <Suspense fallback={<div>Loading...</div>}>
+            <GradesManagement onUpdateMessage={setMessage} />
+          </Suspense>
         </Show>
         <Show when={currentSection() === 'assignments'}>
           <TeachersAssignments />
