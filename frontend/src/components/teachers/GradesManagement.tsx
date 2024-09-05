@@ -1,5 +1,6 @@
 import { Component, For, Show } from 'solid-js';
 import { useGrades } from '../../hooks/useGrades';
+import { StudentPublic } from '../../client';
 
 
 const GradesManagement: Component<{ onUpdateMessage: (message: string) => void }> = (props) => {
@@ -8,6 +9,10 @@ const GradesManagement: Component<{ onUpdateMessage: (message: string) => void }
   const validateAndFormatGrade = (value: string): number => {
     const floatValue = parseFloat(value);
     return isNaN(floatValue) ? 0 : Math.max(0, Math.min(100, floatValue));
+  };
+
+  const sortStudentsBySurname = (students: StudentPublic[]) => {
+    return [...students].sort((a, b) => a.last_name.localeCompare(b.last_name));
   };
 
   return (
@@ -22,6 +27,7 @@ const GradesManagement: Component<{ onUpdateMessage: (message: string) => void }
                 <table class="min-w-full bg-white dark:bg-gray-800 border rounded-lg shadow-md">
                   <thead>
                     <tr>
+                      <th class="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">#</th>
                       <th class="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">Student</th>
                       <For each={subjects()}>
                         {(subject) => (
@@ -31,11 +37,14 @@ const GradesManagement: Component<{ onUpdateMessage: (message: string) => void }
                     </tr>
                   </thead>
                   <tbody>
-                    <For each={studentsByClass().get(classForm.id)}>
+                    <For each={sortStudentsBySurname(studentsByClass().get(classForm.id) || [])}>
                       {(student, index) => (
                         <tr class={index() % 2 === 0 ? "bg-gray-100 dark:bg-gray-700" : ""}>
+                          <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500 text-center">{index() + 1}</td>
                           <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
-                            {student.first_name} {student.last_name}
+                            {student.last_name}
+                            {student.middle_name ? ` ${student.middle_name}` : ''}
+                            {student.first_name}
                           </td>
                           <For each={subjects()}>
                             {(subject) => (
