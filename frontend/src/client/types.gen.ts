@@ -55,12 +55,14 @@ export type GradeCreate = {
     student_id: string;
     subject_id: string;
     score: number;
+    remark: (string | null);
 };
 
 export type GradePublic = {
     student_id: string;
     subject_id: string;
     score: number;
+    remark: (string | null);
     id: string;
 };
 
@@ -68,6 +70,7 @@ export type GradeUpdate = {
     student_id: string;
     subject_id: string;
     score?: number;
+    remark?: (string | null);
 };
 
 export type GradesPublic = {
@@ -95,6 +98,8 @@ export type StudentCreate = {
     contact: (string | null);
     form_id: string;
     fees?: number;
+    class_teacher_remark: (string | null);
+    head_teacher_remark: (string | null);
 };
 
 export type StudentPublic = {
@@ -104,6 +109,8 @@ export type StudentPublic = {
     contact: (string | null);
     form_id: string;
     fees?: number;
+    class_teacher_remark: (string | null);
+    head_teacher_remark: (string | null);
     id: string;
     owner_id: string;
 };
@@ -115,6 +122,8 @@ export type StudentUpdate = {
     contact: (string | null);
     form_id?: string;
     fees?: number;
+    class_teacher_remark: (string | null);
+    head_teacher_remark: (string | null);
 };
 
 export type StudentsPublic = {
