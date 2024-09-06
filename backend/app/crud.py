@@ -91,6 +91,8 @@ def create_student(
         form_id=student_in.form_id,
         fees=student_in.fees,
         owner_id=owner_id,
+        class_teacher_remark=student_in.class_teacher_remark,
+        head_teacher_remark=student_in.head_teacher_remark,
     )
     session.add(db_student)
     session.commit()
@@ -113,6 +115,10 @@ def update_student(
         db_student.form_id = student_in.form_id
     if student_in.fees:
         db_student.fees = student_in.fees
+    if student_in.class_teacher_remark is not None:
+        db_student.class_teacher_remark = student_in.class_teacher_remark
+    if student_in.head_teacher_remark is not None:
+        db_student.head_teacher_remark = student_in.head_teacher_remark
 
     session.commit()
     session.refresh(db_student)
@@ -132,6 +138,7 @@ def create_grade(session: Session, grade_in: GradeCreate) -> Grade:
         student_id=grade_in.student_id,
         subject_id=grade_in.subject_id,
         score=grade_in.score,
+        remark=grade_in.remark,
     )
     session.add(db_grade)
     session.commit()
@@ -142,6 +149,8 @@ def create_grade(session: Session, grade_in: GradeCreate) -> Grade:
 def update_grade(session: Session, db_grade: Grade, grade_in: GradeUpdate) -> Grade:
     if grade_in.score is not None:
         db_grade.score = grade_in.score
+    if grade_in.remark is not None:
+        db_grade.remark = grade_in.remark
     session.commit()
     session.refresh(db_grade)
     return db_grade

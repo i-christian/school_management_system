@@ -70,6 +70,8 @@ class StudentBase(SQLModel):
     contact: str | None = Field(min_length=10, max_length=255)
     form_id: uuid.UUID = Field(foreign_key="classform.id")
     fees: float = Field(default=0.0)
+    class_teacher_remark: str | None = Field(max_length=500)
+    head_teacher_remark: str | None = Field(max_length=500)
 
 
 # Properties to receive via API on student creation
@@ -85,6 +87,8 @@ class StudentUpdate(StudentBase):
     contact: str | None = Field(min_length=10, max_length=255)
     form_id: uuid.UUID = Field(default=None)
     fees: float = Field(default=0.0)
+    class_teacher_remark: str | None = Field(max_length=500)
+    head_teacher_remark: str | None = Field(max_length=500)
 
 
 # Database model for students
@@ -97,6 +101,8 @@ class Student(StudentBase, table=True):
     grades: list["Grade"] = Relationship(back_populates="student")
     form_id: uuid.UUID = Field(foreign_key="classform.id", nullable=False)
     form: "ClassForm" = Relationship(back_populates="students")
+    class_teacher_remark: str | None = Field(max_length=500)
+    head_teacher_remark: str | None = Field(max_length=500)
 
 
 # Properties to return via API for students
@@ -115,7 +121,8 @@ class Grade(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     student_id: uuid.UUID = Field(foreign_key="student.id", nullable=False)
     subject_id: uuid.UUID = Field(foreign_key="subject.id", nullable=False)
-    score: float = Field(ge=0, le=100)  # Assuming score is a percentage
+    score: float = Field(ge=0, le=100)
+    remark: str | None = Field(max_length=500)
 
     student: Student | None = Relationship(back_populates="grades")
     subject: Optional["Subject"] = Relationship(back_populates="grades")
@@ -126,6 +133,7 @@ class GradeBase(SQLModel):
     student_id: uuid.UUID
     subject_id: uuid.UUID
     score: float = Field(ge=0, le=100)
+    remark: str | None = Field(max_length=500)
 
 
 # Properties to receive via API on grade creation
@@ -136,6 +144,7 @@ class GradeCreate(GradeBase):
 # Properties to receive via API on grade update
 class GradeUpdate(GradeBase):
     score: float = Field(default=None, ge=0, le=100)
+    remark: str | None = Field(default=None, max_length=500)
 
 
 class GradePublic(GradeBase):
