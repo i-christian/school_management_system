@@ -226,10 +226,22 @@ export const $GradeCreate = {
             maximum: 100,
             minimum: 0,
             title: 'Score'
+        },
+        remark: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 500
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Remark'
         }
     },
     type: 'object',
-    required: ['student_id', 'subject_id', 'score'],
+    required: ['student_id', 'subject_id', 'score', 'remark'],
     title: 'GradeCreate'
 } as const;
 
@@ -251,6 +263,18 @@ export const $GradePublic = {
             minimum: 0,
             title: 'Score'
         },
+        remark: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 500
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Remark'
+        },
         id: {
             type: 'string',
             format: 'uuid',
@@ -258,7 +282,7 @@ export const $GradePublic = {
         }
     },
     type: 'object',
-    required: ['student_id', 'subject_id', 'score', 'id'],
+    required: ['student_id', 'subject_id', 'score', 'remark', 'id'],
     title: 'GradePublic'
 } as const;
 
@@ -279,6 +303,18 @@ export const $GradeUpdate = {
             maximum: 100,
             minimum: 0,
             title: 'Score'
+        },
+        remark: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 500
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Remark'
         }
     },
     type: 'object',
@@ -398,10 +434,34 @@ export const $StudentCreate = {
             type: 'number',
             title: 'Fees',
             default: 0
+        },
+        class_teacher_remark: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 500
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Class Teacher Remark'
+        },
+        head_teacher_remark: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 500
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Head Teacher Remark'
         }
     },
     type: 'object',
-    required: ['first_name', 'middle_name', 'last_name', 'contact', 'form_id'],
+    required: ['first_name', 'middle_name', 'last_name', 'contact', 'form_id', 'class_teacher_remark', 'head_teacher_remark'],
     title: 'StudentCreate'
 } as const;
 
@@ -455,6 +515,30 @@ export const $StudentPublic = {
             title: 'Fees',
             default: 0
         },
+        class_teacher_remark: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 500
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Class Teacher Remark'
+        },
+        head_teacher_remark: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 500
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Head Teacher Remark'
+        },
         id: {
             type: 'string',
             format: 'uuid',
@@ -467,7 +551,7 @@ export const $StudentPublic = {
         }
     },
     type: 'object',
-    required: ['first_name', 'middle_name', 'last_name', 'contact', 'form_id', 'id', 'owner_id'],
+    required: ['first_name', 'middle_name', 'last_name', 'contact', 'form_id', 'class_teacher_remark', 'head_teacher_remark', 'id', 'owner_id'],
     title: 'StudentPublic'
 } as const;
 
@@ -520,10 +604,34 @@ export const $StudentUpdate = {
             type: 'number',
             title: 'Fees',
             default: 0
+        },
+        class_teacher_remark: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 500
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Class Teacher Remark'
+        },
+        head_teacher_remark: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 500
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Head Teacher Remark'
         }
     },
     type: 'object',
-    required: ['middle_name', 'contact'],
+    required: ['middle_name', 'contact', 'class_teacher_remark', 'head_teacher_remark'],
     title: 'StudentUpdate'
 } as const;
 
