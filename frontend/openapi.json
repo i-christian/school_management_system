@@ -843,11 +843,6 @@
         "summary": "Update Student",
         "description": "Update a student.",
         "operationId": "update_student",
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ],
         "parameters": [
           {
             "name": "id",
@@ -2107,13 +2102,26 @@
             "maximum": 100,
             "minimum": 0,
             "title": "Score"
+          },
+          "remark": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Remark"
           }
         },
         "type": "object",
         "required": [
           "student_id",
           "subject_id",
-          "score"
+          "score",
+          "remark"
         ],
         "title": "GradeCreate"
       },
@@ -2135,6 +2143,18 @@
             "minimum": 0,
             "title": "Score"
           },
+          "remark": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Remark"
+          },
           "id": {
             "type": "string",
             "format": "uuid",
@@ -2146,6 +2166,7 @@
           "student_id",
           "subject_id",
           "score",
+          "remark",
           "id"
         ],
         "title": "GradePublic"
@@ -2167,6 +2188,18 @@
             "maximum": 100,
             "minimum": 0,
             "title": "Score"
+          },
+          "remark": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Remark"
           }
         },
         "type": "object",
@@ -2292,6 +2325,30 @@
             "type": "number",
             "title": "Fees",
             "default": 0
+          },
+          "class_teacher_remark": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Class Teacher Remark"
+          },
+          "head_teacher_remark": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Head Teacher Remark"
           }
         },
         "type": "object",
@@ -2300,7 +2357,9 @@
           "middle_name",
           "last_name",
           "contact",
-          "form_id"
+          "form_id",
+          "class_teacher_remark",
+          "head_teacher_remark"
         ],
         "title": "StudentCreate"
       },
@@ -2354,6 +2413,30 @@
             "title": "Fees",
             "default": 0
           },
+          "class_teacher_remark": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Class Teacher Remark"
+          },
+          "head_teacher_remark": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Head Teacher Remark"
+          },
           "id": {
             "type": "string",
             "format": "uuid",
@@ -2372,6 +2455,8 @@
           "last_name",
           "contact",
           "form_id",
+          "class_teacher_remark",
+          "head_teacher_remark",
           "id",
           "owner_id"
         ],
@@ -2426,12 +2511,38 @@
             "type": "number",
             "title": "Fees",
             "default": 0
+          },
+          "class_teacher_remark": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Class Teacher Remark"
+          },
+          "head_teacher_remark": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Head Teacher Remark"
           }
         },
         "type": "object",
         "required": [
           "middle_name",
-          "contact"
+          "contact",
+          "class_teacher_remark",
+          "head_teacher_remark"
         ],
         "title": "StudentUpdate"
       },
