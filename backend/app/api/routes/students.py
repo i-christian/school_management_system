@@ -59,7 +59,6 @@ def create_student(
 def update_student(
     *,
     session: SessionDep,
-    current_user: CurrentUser,
     id: uuid.UUID,
     student_in: StudentUpdate,
 ) -> Any:
@@ -69,9 +68,6 @@ def update_student(
     student = session.get(Student, id)
     if not student:
         raise HTTPException(status_code=404, detail="Student not found")
-    if not current_user.is_superuser and (student.owner_id != current_user.id):
-        raise HTTPException(status_code=403, detail="Not enough permissions")
-
     student = crud.update_student(
         session=session, db_student=student, student_in=student_in
     )
