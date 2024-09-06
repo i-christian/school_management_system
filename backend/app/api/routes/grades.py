@@ -55,6 +55,7 @@ def create_grade(*, session: SessionDep, grade_in: GradeCreate) -> Any:
 
     if existing_grade:
         existing_grade.score = grade_in.score
+        existing_grade.remark = grade_in.remark
         session.add(existing_grade)
         session.commit()
         session.refresh(existing_grade)
