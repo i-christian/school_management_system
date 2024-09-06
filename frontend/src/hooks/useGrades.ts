@@ -12,7 +12,7 @@ import {
   ClassFormPublic,
   GradeCreate,
   readAssignments,
-  AssignmentPublic
+  AssignmentPublic,
 } from '../client';
 import { useAuth } from '../context/UserContext';
 
@@ -94,7 +94,7 @@ export const useGrades = (onUpdateMessage: (message: string) => void) => {
     }
   };
 
-  const handleGradeChange = (studentId: string, subjectId: string, newGrade: string) => {
+  const handleGradeChange = (studentId: string, subjectId: string, newGrade: string, newRemark: string) => {
     const numericGrade = parseFloat(newGrade);
     if (!isNaN(numericGrade) && numericGrade >= 0 && numericGrade <= 100) {
       setGrades((prevGrades) => {
@@ -104,8 +104,9 @@ export const useGrades = (onUpdateMessage: (message: string) => void) => {
         }
         const studentGrades = updatedGrades.get(studentId);
         if (studentGrades) {
-          const gradeToUpdate = studentGrades.get(subjectId) || { student_id: studentId, subject_id: subjectId, score: numericGrade, id: '' };
+          const gradeToUpdate = studentGrades.get(subjectId) || { student_id: studentId, subject_id: subjectId, score: numericGrade, remark: '', id: '' };
           gradeToUpdate.score = numericGrade;
+          gradeToUpdate.remark = newRemark;
           studentGrades.set(subjectId, gradeToUpdate);
           return updatedGrades;
         }
@@ -131,6 +132,7 @@ export const useGrades = (onUpdateMessage: (message: string) => void) => {
                   student_id: student.id,
                   subject_id: subject.id,
                   score: grade.score,
+                  remark: grade.remark,
                 } as GradeCreate,
               })
             );
