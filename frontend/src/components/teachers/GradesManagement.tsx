@@ -3,9 +3,8 @@ import { useGrades } from '../../hooks/useGrades';
 import { useFetchSchoolData } from '../../hooks/useFetchSchoolData';
 import { useAuth } from '../../context/UserContext';
 import { StudentPublic } from '../../client';
+
 const ConfirmationModal = lazy(() => import('./ConfirmationModal'));
-
-
 
 const GradesManagement: Component<{ onUpdateMessage: (message: string) => void }> = (props) => {
   const { studentsByClass, grades, loading, handleGradeChange, handleSubmitClassGrades, handleDeleteClassGrades, fetchData } = useGrades(props.onUpdateMessage);
@@ -89,7 +88,10 @@ const GradesManagement: Component<{ onUpdateMessage: (message: string) => void }
                       <th class="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">Student</th>
                       <For each={classForm.subjects}>
                         {(subject) => (
-                          <th class="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">{subject.subjectName}</th>
+                          <>
+                            <th class="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">{subject.subjectName} Score</th>
+                            <th class="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">{subject.subjectName} Remark</th>
+                          </>
                         )}
                       </For>
                     </tr>
@@ -106,22 +108,40 @@ const GradesManagement: Component<{ onUpdateMessage: (message: string) => void }
                             {(subject) => {
                               const grade = grades().get(student.id)?.get(subject.subjectId);
                               return (
-                                <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
-                                  <input
-                                    type="number"
-                                    min="0"
-                                    max="100"
-                                    step="0.1"
-                                    value={grade?.score ?? ''}
-                                    onBlur={(e) => {
-                                      const value = e.currentTarget.value;
-                                      const formattedGrade = validateAndFormatGrade(value);
-                                      handleGradeChange(student.id, subject.subjectId, formattedGrade.toString());
-                                    }}
-                                    class="w-full py-2 px-4 border border-gray-300 rounded-md text-center"
-                                    placeholder="grade (%)"
-                                  />
-                                </td>
+                                <>
+                                  <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
+                                    <input
+                                      type="number"
+                                      min="0"
+                                      max="100"
+                                      step="0.1"
+                                      value={grade?.score ?? ''}
+                                      onBlur={(e) => {
+                                        const value = e.currentTarget.value;
+                                        const formattedGrade = validateAndFormatGrade(value);
+                                        handleGradeChange(student.id, subject.subjectId, formattedGrade.toString(), grade?.remark ?? '');
+                                      }}
+                                      class="w-full py-2 px-4 border border-gray-300 rounded-md text-center"
+                                      placeholder="Grade (%)"
+                                    />
+                                  </td>
+                                  <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
+                                    <textarea
+                                      value={grade?.remark ?? ''}
+                                      onBlur={(e) => {
+                                        const remark = e.currentTarget.value;
+                                        handleGradeChange(student.id, subject.subjectId, grade?.score.toString() ?? '', remark);
+                                      }}
+                                      class="w-full py-2 px-4 border border-gray-300 rounded-md"
+                                      placeholder="Teachers remark"
+                                      maxLength={200}
+                                      rows={2}
+                                    />
+                                    <div class="text-right text-gray-500 text-sm mt-1">
+                                      {`${(grade?.remark ?? '').length}/200`}
+                                    </div>
+                                  </td>
+                                </>
                               );
                             }}
                           </For>
