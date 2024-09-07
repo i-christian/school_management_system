@@ -7,13 +7,14 @@ import { StudentPublic } from '../../client';
 const ConfirmationModal = lazy(() => import('./ConfirmationModal'));
 
 const GradesManagement: Component<{ onUpdateMessage: (message: string) => void }> = (props) => {
-  const { studentsByClass, grades, loading, handleGradeChange, handleSubmitClassGrades, handleDeleteClassGrades, fetchData } = useGrades(props.onUpdateMessage);
+  const { studentsByClass, grades, loading, createOrUpdateGrade, handleDeleteClassGrades, fetchData } = useGrades(props.onUpdateMessage);
   const { classes, subjects, assignments } = useFetchSchoolData();
   const { user } = useAuth();
 
   const [showSaveModal, setShowSaveModal] = createSignal(false);
   const [showDeleteModal, setShowDeleteModal] = createSignal(false);
   const [selectedClass, setSelectedClass] = createSignal<string | null>(null);
+  const [editingGrades, setEditingGrades] = createSignal<Map<string, Map<string, { score: number, remark: string }>>>(new Map());
 
   const filteredClasses = createMemo(() => {
     const subjectsMap = new Map(subjects().map((s) => [s.id, s.name]));
@@ -41,6 +42,10 @@ const GradesManagement: Component<{ onUpdateMessage: (message: string) => void }
     return isNaN(floatValue) ? 0 : Math.max(0, Math.min(100, floatValue));
   };
 
+  const validateRemark = (remark: string): string => {
+    return typeof remark === 'string' ? remark.substring(0, 200) : '';
+  };
+
   const sortStudentsBySurname = (students: StudentPublic[]) => {
     return [...students].sort((a, b) => a.last_name.localeCompare(b.last_name));
   };
@@ -57,7 +62,12 @@ const GradesManagement: Component<{ onUpdateMessage: (message: string) => void }
 
   const confirmSave = async () => {
     if (selectedClass()) {
-      await handleSubmitClassGrades(selectedClass()!);
+      const gradesToUpdate = editingGrades();
+      for (const [studentId, subjectGrades] of gradesToUpdate) {
+        for (const [subjectId, gradeData] of subjectGrades) {
+          await createOrUpdateGrade(studentId, subjectId, gradeData.score, gradeData.remark);
+        }
+      }
       setShowSaveModal(false);
       fetchData();
     }
@@ -107,6 +117,17 @@ const GradesManagement: Component<{ onUpdateMessage: (message: string) => void }
                           <For each={classForm.subjects}>
                             {(subject) => {
                               const grade = grades().get(student.id)?.get(subject.subjectId);
+                              const editingGradesMap = editingGrades();
+                              if (!editingGradesMap.has(student.id)) {
+                                editingGradesMap.set(student.id, new Map());
+                              }
+                              if (!editingGradesMap.get(student.id)?.has(subject.subjectId)) {
+                                editingGradesMap.get(student.id)?.set(subject.subjectId, {
+                                  score: grade?.score ?? 0,
+                                  remark: grade?.remark ?? '',
+                                });
+                              }
+
                               return (
                                 <>
                                   <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
@@ -115,31 +136,42 @@ const GradesManagement: Component<{ onUpdateMessage: (message: string) => void }
                                       min="0"
                                       max="100"
                                       step="0.1"
-                                      value={grade?.score ?? ''}
-                                      onBlur={(e) => {
+                                      value={editingGradesMap.get(student.id)?.get(subject.subjectId)?.score ?? ''}
+                                      onInput={(e) => {
                                         const value = e.currentTarget.value;
                                         const formattedGrade = validateAndFormatGrade(value);
-                                        handleGradeChange(student.id, subject.subjectId, formattedGrade.toString(), grade?.remark ?? '');
+                                        setEditingGrades((prev) => {
+                                          const updated = new Map(prev);
+                                          updated.get(student.id)?.set(subject.subjectId, {
+                                            ...updated.get(student.id)?.get(subject.subjectId)!,
+                                            score: formattedGrade
+                                          });
+                                          return updated;
+                                        });
                                       }}
                                       class="w-full py-2 px-4 border border-gray-300 rounded-md text-center"
                                       placeholder="Grade (%)"
                                     />
                                   </td>
                                   <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
-                                    <textarea
-                                      value={grade?.remark ?? ''}
-                                      onBlur={(e) => {
-                                        const remark = e.currentTarget.value;
-                                        handleGradeChange(student.id, subject.subjectId, grade?.score.toString() ?? '', remark);
+                                    <input
+                                      type="text"
+                                      value={editingGradesMap.get(student.id)?.get(subject.subjectId)?.remark ?? ''}
+                                      onInput={(e) => {
+                                        const remark = validateRemark(e.currentTarget.value);
+                                        setEditingGrades((prev) => {
+                                          const updated = new Map(prev);
+                                          updated.get(student.id)?.set(subject.subjectId, {
+                                            ...updated.get(student.id)?.get(subject.subjectId)!,
+                                            remark
+                                          });
+                                          return updated;
+                                        });
                                       }}
                                       class="w-full py-2 px-4 border border-gray-300 rounded-md"
-                                      placeholder="Teachers remark"
+                                      placeholder="Teacher's remark"
                                       maxLength={200}
-                                      rows={2}
                                     />
-                                    <div class="text-right text-gray-500 text-sm mt-1">
-                                      {`${(grade?.remark ?? '').length}/200`}
-                                    </div>
                                   </td>
                                 </>
                               );
