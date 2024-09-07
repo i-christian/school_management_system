@@ -1,20 +1,23 @@
-import { batch, createSignal } from 'solid-js';
+import { createSignal } from 'solid-js';
 import {
   readStudents,
   readSubjects,
   readGrades,
   readClassForms,
   createGrade,
+  updateGrade,
   deleteGrade,
   StudentPublic,
   SubjectPublic,
   GradePublic,
   ClassFormPublic,
   GradeCreate,
+  GradeUpdate,
   readAssignments,
   AssignmentPublic,
 } from '../client';
 import { useAuth } from '../context/UserContext';
+
 
 export const useGrades = (onUpdateMessage: (message: string) => void) => {
   const [students, setStudents] = createSignal<StudentPublic[]>([]);
@@ -37,55 +40,53 @@ export const useGrades = (onUpdateMessage: (message: string) => void) => {
       ]);
 
       if (studentResponse && subjectResponse && gradeResponse && classFormResponse && assignmentResponse) {
-        batch(() => {
-          setStudents(studentResponse.data);
+        setStudents(studentResponse.data);
 
-          const currentUserId = user()?.id;
-          if (currentUserId) {
-            const teacherAssignments = assignmentResponse.data.filter(
-              (assignment: AssignmentPublic) => assignment.teacher_id === currentUserId
-            );
+        const currentUserId = user()?.id;
+        if (currentUserId) {
+          const teacherAssignments = assignmentResponse.data.filter(
+            (assignment: AssignmentPublic) => assignment.teacher_id === currentUserId
+          );
 
-            const classIds = new Set<string>(teacherAssignments.map((assignment: AssignmentPublic) => assignment.class_form_id));
-            const subjectIds = new Set<string>(teacherAssignments.map((assignment: AssignmentPublic) => assignment.subject_id));
+          const classIds = new Set<string>(teacherAssignments.map((assignment: AssignmentPublic) => assignment.class_form_id));
+          const subjectIds = new Set<string>(teacherAssignments.map((assignment: AssignmentPublic) => assignment.subject_id));
 
-            const filteredClassForms = classFormResponse.data.filter(
-              (classForm: ClassFormPublic) => classIds.has(classForm.id)
-            );
-            setClassForms(filteredClassForms);
+          const filteredClassForms = classFormResponse.data.filter(
+            (classForm: ClassFormPublic) => classIds.has(classForm.id)
+          );
+          setClassForms(filteredClassForms);
 
-            const filteredSubjects = subjectResponse.data.filter(
-              (subject: SubjectPublic) => subjectIds.has(subject.id)
-            );
-            setSubjects(filteredSubjects);
+          const filteredSubjects = subjectResponse.data.filter(
+            (subject: SubjectPublic) => subjectIds.has(subject.id)
+          );
+          setSubjects(filteredSubjects);
 
-            const filteredGrades = new Map<string, Map<string, GradePublic>>();
-            for (const grade of gradeResponse.data) {
-              const studentId = grade.student_id;
-              const subjectId = grade.subject_id;
+          const filteredGrades = new Map<string, Map<string, GradePublic>>();
+          for (const grade of gradeResponse.data) {
+            const studentId = grade.student_id;
+            const subjectId = grade.subject_id;
 
-              if (subjectIds.has(subjectId)) {
-                if (!filteredGrades.has(studentId)) {
-                  filteredGrades.set(studentId, new Map());
-                }
-                filteredGrades.get(studentId)?.set(subjectId, grade);
+            if (subjectIds.has(subjectId)) {
+              if (!filteredGrades.has(studentId)) {
+                filteredGrades.set(studentId, new Map());
               }
+              filteredGrades.get(studentId)?.set(subjectId, grade);
             }
-            setGrades(filteredGrades);
-
-            const studentsGroupedByClass = new Map<string, StudentPublic[]>();
-            for (const student of studentResponse.data) {
-              const formId = student.form_id;
-              if (classIds.has(formId)) {
-                if (!studentsGroupedByClass.has(formId)) {
-                  studentsGroupedByClass.set(formId, []);
-                }
-                studentsGroupedByClass.get(formId)?.push(student);
-              }
-            }
-            setStudentsByClass(studentsGroupedByClass);
           }
-        });
+          setGrades(filteredGrades);
+
+          const studentsGroupedByClass = new Map<string, StudentPublic[]>();
+          for (const student of studentResponse.data) {
+            const formId = student.form_id;
+            if (classIds.has(formId)) {
+              if (!studentsGroupedByClass.has(formId)) {
+                studentsGroupedByClass.set(formId, []);
+              }
+              studentsGroupedByClass.get(formId)?.push(student);
+            }
+          }
+          setStudentsByClass(studentsGroupedByClass);
+        }
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -94,24 +95,28 @@ export const useGrades = (onUpdateMessage: (message: string) => void) => {
     }
   };
 
-  const handleGradeChange = (studentId: string, subjectId: string, newGrade: string, newRemark: string) => {
-    const numericGrade = parseFloat(newGrade);
-    if (!isNaN(numericGrade) && numericGrade >= 0 && numericGrade <= 100) {
-      setGrades((prevGrades) => {
-        const updatedGrades = new Map(prevGrades);
-        if (!updatedGrades.has(studentId)) {
-          updatedGrades.set(studentId, new Map());
-        }
-        const studentGrades = updatedGrades.get(studentId);
-        if (studentGrades) {
-          const gradeToUpdate = studentGrades.get(subjectId) || { student_id: studentId, subject_id: subjectId, score: numericGrade, remark: '', id: '' };
-          gradeToUpdate.score = numericGrade;
-          gradeToUpdate.remark = newRemark;
-          studentGrades.set(subjectId, gradeToUpdate);
-          return updatedGrades;
-        }
-        return prevGrades;
-      });
+  const createOrUpdateGrade = async (studentId: string, subjectId: string, score: number, remark: string) => {
+    try {
+      const gradesMap = grades();
+      const existingGrade = gradesMap.get(studentId)?.get(subjectId);
+
+      const gradeData: GradeCreate | GradeUpdate = {
+        student_id: studentId,
+        subject_id: subjectId,
+        score: score,
+        remark: remark,
+      };
+
+      if (existingGrade) {
+        await updateGrade({ id: existingGrade.id, requestBody: gradeData as GradeUpdate });
+      } else {
+        await createGrade({ requestBody: gradeData as GradeCreate });
+      }
+
+      await fetchData();
+      onUpdateMessage('Grade updated successfully!');
+    } catch (error) {
+      console.error('Error creating/updating grade:', error);
     }
   };
 
@@ -119,31 +124,22 @@ export const useGrades = (onUpdateMessage: (message: string) => void) => {
     setLoading(true);
     try {
       const gradesMap = grades();
-      const promises = [];
       const studentsInClass = studentsByClass().get(classFormId) || [];
 
-      for (const student of studentsInClass) {
-        for (const subject of subjects()) {
+      const promises = studentsInClass.flatMap(student =>
+        subjects().map(subject => {
           const grade = gradesMap.get(student.id)?.get(subject.id);
           if (grade) {
-            promises.push(
-              createGrade({
-                requestBody: {
-                  student_id: student.id,
-                  subject_id: subject.id,
-                  score: grade.score,
-                  remark: grade.remark,
-                } as GradeCreate,
-              })
-            );
+            return createOrUpdateGrade(student.id, subject.id, grade.score, grade.remark ?? '');
           }
-        }
-      }
+          return Promise.resolve();
+        })
+      );
 
       await Promise.all(promises);
-      onUpdateMessage(`Grades updated successfully!`);
+      onUpdateMessage('Grades submitted successfully!');
     } catch (error) {
-      console.error('Error saving grades:', error);
+      console.error('Error submitting class grades:', error);
     } finally {
       setLoading(false);
     }
@@ -177,7 +173,7 @@ export const useGrades = (onUpdateMessage: (message: string) => void) => {
         return updatedGrades;
       });
 
-      onUpdateMessage(`Grades deleted successfully!`);
+      onUpdateMessage('Grades deleted successfully!');
     } catch (error) {
       console.error('Error deleting class grades:', error);
     } finally {
@@ -195,7 +191,7 @@ export const useGrades = (onUpdateMessage: (message: string) => void) => {
     classForms,
     loading,
     fetchData,
-    handleGradeChange,
+    createOrUpdateGrade,
     handleSubmitClassGrades,
     handleDeleteClassGrades,
   };
