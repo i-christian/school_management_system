@@ -89,18 +89,18 @@ const GradesManagement: Component<{ onUpdateMessage: (message: string) => void }
         {(classForm) => (
           <div class="mb-8">
             <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-4">{classForm.name}</h3>
-            <Show when={studentsByClass().get(classForm.id)} fallback={<p class="text-gray-500">No students in this class</p>}>
+            <Show when={studentsByClass().get(classForm.id)} fallback={<p class="text-gray-500 dark:text-gray-400">No students in this class</p>}>
               <div class="overflow-x-auto">
                 <table class="min-w-full bg-white dark:bg-gray-800 border rounded-lg shadow-md">
                   <thead>
                     <tr>
-                      <th class="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">#</th>
-                      <th class="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">Student</th>
+                      <th class="px-6 py-3 border-b-2 border-gray-300 dark:border-gray-600 text-left leading-4 text-blue-500 dark:text-blue-400 tracking-wider">#</th>
+                      <th class="px-6 py-3 border-b-2 border-gray-300 dark:border-gray-600 text-left leading-4 text-blue-500 dark:text-blue-400 tracking-wider">Student</th>
                       <For each={classForm.subjects}>
                         {(subject) => (
                           <>
-                            <th class="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">{subject.subjectName} Score</th>
-                            <th class="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">{subject.subjectName} Remark</th>
+                            <th class="px-6 py-3 border-b-2 border-gray-300 dark:border-gray-600 text-left leading-4 text-blue-500 dark:text-blue-400 tracking-wider">{subject.subjectName} Score</th>
+                            <th class="px-6 py-3 border-b-2 border-gray-300 dark:border-gray-600 text-left leading-4 text-blue-500 dark:text-blue-400 tracking-wider">{subject.subjectName} Remark</th>
                           </>
                         )}
                       </For>
@@ -110,8 +110,8 @@ const GradesManagement: Component<{ onUpdateMessage: (message: string) => void }
                     <For each={sortStudentsBySurname(studentsByClass().get(classForm.id) || [])}>
                       {(student, index) => (
                         <tr class={index() % 2 === 0 ? "bg-gray-100 dark:bg-gray-700" : ""}>
-                          <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500 text-center">{index() + 1}</td>
-                          <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
+                          <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500 dark:border-gray-600 text-center">{index() + 1}</td>
+                          <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500 dark:border-gray-600">
                             {student.last_name} {student.middle_name ? `${student.middle_name} ` : ' '} {student.first_name}
                           </td>
                           <For each={classForm.subjects}>
@@ -130,7 +130,7 @@ const GradesManagement: Component<{ onUpdateMessage: (message: string) => void }
 
                               return (
                                 <>
-                                  <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
+                                  <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500 dark:border-gray-600">
                                     <input
                                       type="number"
                                       min="0"
@@ -149,11 +149,11 @@ const GradesManagement: Component<{ onUpdateMessage: (message: string) => void }
                                           return updated;
                                         });
                                       }}
-                                      class="w-full py-2 px-4 border border-gray-300 rounded-md text-center"
+                                      class="w-full py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-md text-center text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-800"
                                       placeholder="Grade (%)"
                                     />
                                   </td>
-                                  <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
+                                  <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500 dark:border-gray-600">
                                     <input
                                       type="text"
                                       value={editingGradesMap.get(student.id)?.get(subject.subjectId)?.remark ?? ''}
@@ -168,7 +168,7 @@ const GradesManagement: Component<{ onUpdateMessage: (message: string) => void }
                                           return updated;
                                         });
                                       }}
-                                      class="w-full py-2 px-4 border border-gray-300 rounded-md"
+                                      class="w-full py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-800"
                                       placeholder="Teacher's remark"
                                       maxLength={200}
                                     />
