@@ -42,29 +42,29 @@ export const useGrades = (onUpdateMessage: (message: string) => void) => {
       if (studentResponse && subjectResponse && gradeResponse && classFormResponse && assignmentResponse) {
         setStudents(studentResponse.data);
 
-        const currentUserId = user()?.id;
+        const currentUserId: string | undefined = user()?.id;
         if (currentUserId) {
-          const teacherAssignments = assignmentResponse.data.filter(
+          const teacherAssignments: AssignmentPublic[] = assignmentResponse.data.filter(
             (assignment: AssignmentPublic) => assignment.teacher_id === currentUserId
           );
 
           const classIds = new Set<string>(teacherAssignments.map((assignment: AssignmentPublic) => assignment.class_form_id));
           const subjectIds = new Set<string>(teacherAssignments.map((assignment: AssignmentPublic) => assignment.subject_id));
 
-          const filteredClassForms = classFormResponse.data.filter(
+          const filteredClassForms: ClassFormPublic[] = classFormResponse.data.filter(
             (classForm: ClassFormPublic) => classIds.has(classForm.id)
           );
           setClassForms(filteredClassForms);
 
-          const filteredSubjects = subjectResponse.data.filter(
+          const filteredSubjects: SubjectPublic[] = subjectResponse.data.filter(
             (subject: SubjectPublic) => subjectIds.has(subject.id)
           );
           setSubjects(filteredSubjects);
 
           const filteredGrades = new Map<string, Map<string, GradePublic>>();
           for (const grade of gradeResponse.data) {
-            const studentId = grade.student_id;
-            const subjectId = grade.subject_id;
+            const studentId: string = grade.student_id;
+            const subjectId: string = grade.subject_id;
 
             if (subjectIds.has(subjectId)) {
               if (!filteredGrades.has(studentId)) {
@@ -98,7 +98,7 @@ export const useGrades = (onUpdateMessage: (message: string) => void) => {
   const createOrUpdateGrade = async (studentId: string, subjectId: string, score: number, remark: string) => {
     try {
       const gradesMap = grades();
-      const existingGrade = gradesMap.get(studentId)?.get(subjectId);
+      const existingGrade: GradePublic | undefined = gradesMap.get(studentId)?.get(subjectId);
 
       const gradeData: GradeCreate | GradeUpdate = {
         student_id: studentId,
@@ -116,7 +116,7 @@ export const useGrades = (onUpdateMessage: (message: string) => void) => {
       await fetchData();
       onUpdateMessage('Grade updated successfully!');
     } catch (error) {
-      console.error('Error creating/updating grade:', error);
+      onUpdateMessage('Failed to create/update grade');
     }
   };
 
@@ -139,7 +139,7 @@ export const useGrades = (onUpdateMessage: (message: string) => void) => {
       await Promise.all(promises);
       onUpdateMessage('Grades submitted successfully!');
     } catch (error) {
-      console.error('Error submitting class grades:', error);
+      onUpdateMessage('Grades submittion failed, try again!');
     } finally {
       setLoading(false);
     }
