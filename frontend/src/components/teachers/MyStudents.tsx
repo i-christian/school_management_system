@@ -6,9 +6,8 @@ import { StudentPublic } from '../../client';
 
 const ConfirmationModal = lazy(() => import('./ConfirmationModal'));
 
-
 const MyStudents: Component<{ onUpdateMessage: (message: string) => void }> = (props) => {
-  const { studentsByClass, grades, loading, createOrUpdateGrade, handleDeleteClassGrades, fetchData } = useGrades(props.onUpdateMessage);
+  const { studentsByClass, grades, createOrUpdateGrade, handleDeleteClassGrades, fetchData } = useGrades(props.onUpdateMessage);
   const { classes, subjects, assignments } = useFetchSchoolData();
   const { user } = useAuth();
 
@@ -16,6 +15,9 @@ const MyStudents: Component<{ onUpdateMessage: (message: string) => void }> = (p
   const [showDeleteModal, setShowDeleteModal] = createSignal(false);
   const [selectedClass, setSelectedClass] = createSignal<string | null>(null);
   const [editingGrades, setEditingGrades] = createSignal<Map<string, Map<string, { score: number, remark: string }>>>(new Map());
+  const [isSaving, setIsSaving] = createSignal(false);
+  const [isDeleting, setIsDeleting] = createSignal(false);
+
 
   const filteredClasses = createMemo(() => {
     const subjectsMap = new Map(subjects().map((s) => [s.id, s.name]));
@@ -62,24 +64,114 @@ const MyStudents: Component<{ onUpdateMessage: (message: string) => void }> = (p
   };
 
   const confirmSave = async () => {
-    if (selectedClass()) {
+    if (!selectedClass()) return;
+
+    setIsSaving(true);
+    try {
       const gradesToUpdate = editingGrades();
       for (const [studentId, subjectGrades] of gradesToUpdate) {
         for (const [subjectId, gradeData] of subjectGrades) {
           await createOrUpdateGrade(studentId, subjectId, gradeData.score, gradeData.remark);
         }
       }
+      await fetchData();
+    } finally {
+      setIsSaving(false);
       setShowSaveModal(false);
-      fetchData();
     }
   };
 
   const confirmDelete = async () => {
-    if (selectedClass()) {
+    if (!selectedClass()) return;
+
+    setIsDeleting(true);
+    try {
       await handleDeleteClassGrades(selectedClass()!);
+      window.location.reload();
+    } finally {
+      setIsDeleting(false);
       setShowDeleteModal(false);
-      fetchData();
     }
+  };
+
+  const renderStudentRows = (students: StudentPublic[], classForm: any) => (
+    <For each={sortStudentsBySurname(students)}>
+      {(student, index) => (
+        <tr class={index() % 2 === 0 ? "bg-gray-100 dark:bg-gray-700" : ""}>
+          <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500 dark:border-gray-600 text-center">{index() + 1}</td>
+          <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500 dark:border-gray-600">
+            {student.last_name} {student.middle_name ? `${student.middle_name} ` : ' '} {student.first_name}
+          </td>
+          <For each={classForm.subjects}>
+            {(subject) => {
+              const grade = grades().get(student.id)?.get(subject.subjectId);
+              const editingGradesMap = editingGrades();
+              if (!editingGradesMap.has(student.id)) {
+                editingGradesMap.set(student.id, new Map());
+              }
+              if (!editingGradesMap.get(student.id)?.has(subject.subjectId)) {
+                editingGradesMap.get(student.id)?.set(subject.subjectId, {
+                  score: grade?.score ?? 0,
+                  remark: grade?.remark ?? '',
+                });
+              }
+
+              return (
+                <>
+                  <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500 dark:border-gray-600">
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="0.1"
+                      value={editingGradesMap.get(student.id)?.get(subject.subjectId)?.score ?? ''}
+                      onInput={(e) => updateGrade(e, student.id, subject.subjectId)}
+                      class="w-full py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-md text-center text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-800"
+                      placeholder="Grade (%)"
+                    />
+                  </td>
+                  <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500 dark:border-gray-600">
+                    <input
+                      type="text"
+                      value={editingGradesMap.get(student.id)?.get(subject.subjectId)?.remark ?? ''}
+                      onInput={(e) => updateRemark(e, student.id, subject.subjectId)}
+                      class="w-full py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-800"
+                      placeholder="Teacher's remark"
+                      maxLength={200}
+                    />
+                  </td>
+                </>
+              );
+            }}
+          </For>
+        </tr>
+      )}
+    </For>
+  );
+
+  const updateGrade = (e: Event, studentId: string, subjectId: string) => {
+    const value = (e.currentTarget as HTMLInputElement).value;
+    const formattedGrade = validateAndFormatGrade(value);
+    setEditingGrades((prev) => {
+      const updated = new Map(prev);
+      updated.get(studentId)?.set(subjectId, {
+        ...updated.get(studentId)?.get(subjectId)!,
+        score: formattedGrade
+      });
+      return updated;
+    });
+  };
+
+  const updateRemark = (e: Event, studentId: string, subjectId: string) => {
+    const remark = validateRemark((e.currentTarget as HTMLInputElement).value);
+    setEditingGrades((prev) => {
+      const updated = new Map(prev);
+      updated.get(studentId)?.set(subjectId, {
+        ...updated.get(studentId)?.get(subjectId)!,
+        remark
+      });
+      return updated;
+    });
   };
 
   return (
@@ -108,79 +200,7 @@ const MyStudents: Component<{ onUpdateMessage: (message: string) => void }> = (p
                     </tr>
                   </thead>
                   <tbody>
-                    <For each={sortStudentsBySurname(studentsByClass().get(classForm.id) || [])}>
-                      {(student, index) => (
-                        <tr class={index() % 2 === 0 ? "bg-gray-100 dark:bg-gray-700" : ""}>
-                          <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500 dark:border-gray-600 text-center">{index() + 1}</td>
-                          <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500 dark:border-gray-600">
-                            {student.last_name} {student.middle_name ? `${student.middle_name} ` : ' '} {student.first_name}
-                          </td>
-                          <For each={classForm.subjects}>
-                            {(subject) => {
-                              const grade = grades().get(student.id)?.get(subject.subjectId);
-                              const editingGradesMap = editingGrades();
-                              if (!editingGradesMap.has(student.id)) {
-                                editingGradesMap.set(student.id, new Map());
-                              }
-                              if (!editingGradesMap.get(student.id)?.has(subject.subjectId)) {
-                                editingGradesMap.get(student.id)?.set(subject.subjectId, {
-                                  score: grade?.score ?? 0,
-                                  remark: grade?.remark ?? '',
-                                });
-                              }
-
-                              return (
-                                <>
-                                  <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500 dark:border-gray-600">
-                                    <input
-                                      type="number"
-                                      min="0"
-                                      max="100"
-                                      step="0.1"
-                                      value={editingGradesMap.get(student.id)?.get(subject.subjectId)?.score ?? ''}
-                                      onInput={(e) => {
-                                        const value = e.currentTarget.value;
-                                        const formattedGrade = validateAndFormatGrade(value);
-                                        setEditingGrades((prev) => {
-                                          const updated = new Map(prev);
-                                          updated.get(student.id)?.set(subject.subjectId, {
-                                            ...updated.get(student.id)?.get(subject.subjectId)!,
-                                            score: formattedGrade
-                                          });
-                                          return updated;
-                                        });
-                                      }}
-                                      class="w-full py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-md text-center text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-800"
-                                      placeholder="Grade (%)"
-                                    />
-                                  </td>
-                                  <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500 dark:border-gray-600">
-                                    <input
-                                      type="text"
-                                      value={editingGradesMap.get(student.id)?.get(subject.subjectId)?.remark ?? ''}
-                                      onInput={(e) => {
-                                        const remark = validateRemark(e.currentTarget.value);
-                                        setEditingGrades((prev) => {
-                                          const updated = new Map(prev);
-                                          updated.get(student.id)?.set(subject.subjectId, {
-                                            ...updated.get(student.id)?.get(subject.subjectId)!,
-                                            remark
-                                          });
-                                          return updated;
-                                        });
-                                      }}
-                                      class="w-full py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-800"
-                                      placeholder="Teacher's remark"
-                                      maxLength={200}
-                                    />
-                                  </td>
-                                </>
-                              );
-                            }}
-                          </For>
-                        </tr>
-                      )}
-                    </For>
+                    {renderStudentRows(studentsByClass().get(classForm.id) || [], classForm)}
                   </tbody>
                 </table>
               </div>
@@ -189,16 +209,16 @@ const MyStudents: Component<{ onUpdateMessage: (message: string) => void }> = (p
               <button
                 onClick={() => handleSaveClick(classForm.id)}
                 class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-                disabled={loading()}
+                disabled={isSaving() || isDeleting()}
               >
-                {loading() ? 'Saving...' : `Save Grades for ${classForm.name}`}
+                {isSaving() ? 'Saving...' : `Save Grades for ${classForm.name}`}
               </button>
               <button
                 onClick={() => handleDeleteClick(classForm.id)}
                 class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition"
-                disabled={loading()}
+                disabled={isSaving() || isDeleting()}
               >
-                {loading() ? 'Deleting...' : `Delete Grades for ${classForm.name}`}
+                {isDeleting() ? 'Deleting...' : `Delete Grades for ${classForm.name}`}
               </button>
             </div>
           </div>
