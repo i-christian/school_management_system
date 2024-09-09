@@ -1,4 +1,3 @@
-import { createSignal } from 'solid-js';
 import {
   readStudents,
   readSubjects,
@@ -17,19 +16,23 @@ import {
   AssignmentPublic,
 } from '../client';
 import { useAuth } from '../context/UserContext';
+import { createStore } from 'solid-js/store';
 
 
 export const useGrades = (onUpdateMessage: (message: string) => void) => {
-  const [students, setStudents] = createSignal<StudentPublic[]>([]);
-  const [subjects, setSubjects] = createSignal<SubjectPublic[]>([]);
-  const [grades, setGrades] = createSignal<Map<string, Map<string, GradePublic>>>(new Map());
-  const [classForms, setClassForms] = createSignal<ClassFormPublic[]>([]);
-  const [studentsByClass, setStudentsByClass] = createSignal<Map<string, StudentPublic[]>>(new Map());
-  const [loading, setLoading] = createSignal(false);
+  const [state, setState] = createStore({
+    students: [] as StudentPublic[],
+    subjects: [] as SubjectPublic[],
+    grades: new Map<string, Map<string, GradePublic>>(),
+    classForms: [] as ClassFormPublic[],
+    studentsByClass: new Map<string, StudentPublic[]>(),
+    loading: false
+  });
+
   const { user } = useAuth();
 
   const fetchData = async () => {
-    setLoading(true);
+    setState("loading", true);
     try {
       const [studentResponse, subjectResponse, gradeResponse, classFormResponse, assignmentResponse] = await Promise.all([
         readStudents(),
@@ -40,72 +43,52 @@ export const useGrades = (onUpdateMessage: (message: string) => void) => {
       ]);
 
       if (studentResponse && subjectResponse && gradeResponse && classFormResponse && assignmentResponse) {
-        setStudents(studentResponse.data);
+        setState("students", studentResponse.data);
 
         const currentUserId: string | undefined = user()?.id;
         if (currentUserId) {
           const teacherAssignments: AssignmentPublic[] = assignmentResponse.data.filter(
-            (assignment: AssignmentPublic) => assignment.teacher_id === currentUserId
+            (assignment) => assignment.teacher_id === currentUserId
           );
 
-          const classIds = new Set<string>(teacherAssignments.map((assignment: AssignmentPublic) => assignment.class_form_id));
-          const subjectIds = new Set<string>(teacherAssignments.map((assignment: AssignmentPublic) => assignment.subject_id));
+          const classIds = new Set<string>(teacherAssignments.map(assignment => assignment.class_form_id));
+          const subjectIds = new Set<string>(teacherAssignments.map(assignment => assignment.subject_id));
 
-          const filteredClassForms: ClassFormPublic[] = classFormResponse.data.filter(
-            (classForm: ClassFormPublic) => classIds.has(classForm.id)
-          );
-          setClassForms(filteredClassForms);
-
-          const filteredSubjects: SubjectPublic[] = subjectResponse.data.filter(
-            (subject: SubjectPublic) => subjectIds.has(subject.id)
-          );
-          setSubjects(filteredSubjects);
+          setState("classForms", classFormResponse.data.filter(classForm => classIds.has(classForm.id)));
+          setState("subjects", subjectResponse.data.filter(subject => subjectIds.has(subject.id)));
 
           const filteredGrades = new Map<string, Map<string, GradePublic>>();
           for (const grade of gradeResponse.data) {
-            const studentId: string = grade.student_id;
-            const subjectId: string = grade.subject_id;
-
-            if (subjectIds.has(subjectId)) {
-              if (!filteredGrades.has(studentId)) {
-                filteredGrades.set(studentId, new Map());
-              }
-              filteredGrades.get(studentId)?.set(subjectId, grade);
+            if (subjectIds.has(grade.subject_id)) {
+              const studentGrades = filteredGrades.get(grade.student_id) || new Map<string, GradePublic>();
+              studentGrades.set(grade.subject_id, grade);
+              filteredGrades.set(grade.student_id, studentGrades);
             }
           }
-          setGrades(filteredGrades);
+          setState("grades", filteredGrades);
 
           const studentsGroupedByClass = new Map<string, StudentPublic[]>();
-          for (const student of studentResponse.data) {
-            const formId = student.form_id;
-            if (classIds.has(formId)) {
-              if (!studentsGroupedByClass.has(formId)) {
-                studentsGroupedByClass.set(formId, []);
-              }
-              studentsGroupedByClass.get(formId)?.push(student);
+          studentResponse.data.forEach(student => {
+            if (classIds.has(student.form_id)) {
+              const group = studentsGroupedByClass.get(student.form_id) || [];
+              group.push(student);
+              studentsGroupedByClass.set(student.form_id, group);
             }
-          }
-          setStudentsByClass(studentsGroupedByClass);
+          });
+          setState("studentsByClass", studentsGroupedByClass);
         }
       }
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
-      setLoading(false);
+      setState("loading", false);
     }
   };
 
   const createOrUpdateGrade = async (studentId: string, subjectId: string, score: number, remark: string) => {
     try {
-      const gradesMap = grades();
-      const existingGrade: GradePublic | undefined = gradesMap.get(studentId)?.get(subjectId);
-
-      const gradeData: GradeCreate | GradeUpdate = {
-        student_id: studentId,
-        subject_id: subjectId,
-        score: score,
-        remark: remark,
-      };
+      const existingGrade = state.grades.get(studentId)?.get(subjectId);
+      const gradeData: GradeCreate | GradeUpdate = { student_id: studentId, subject_id: subjectId, score, remark };
 
       if (existingGrade) {
         await updateGrade({ id: existingGrade.id, requestBody: gradeData as GradeUpdate });
@@ -121,75 +104,62 @@ export const useGrades = (onUpdateMessage: (message: string) => void) => {
   };
 
   const handleSubmitClassGrades = async (classFormId: string) => {
-    setLoading(true);
+    setState("loading", true);
     try {
-      const gradesMap = grades();
-      const studentsInClass = studentsByClass().get(classFormId) || [];
-
-      const promises = studentsInClass.flatMap(student =>
-        subjects().map(subject => {
-          const grade = gradesMap.get(student.id)?.get(subject.id);
-          if (grade) {
-            return createOrUpdateGrade(student.id, subject.id, grade.score, grade.remark ?? '');
-          }
-          return Promise.resolve();
-        })
+      const studentsInClass = state.studentsByClass.get(classFormId) || [];
+      await Promise.all(
+        studentsInClass.flatMap(student =>
+          state.subjects.map(subject => {
+            const grade = state.grades.get(student.id)?.get(subject.id);
+            if (grade) {
+              return createOrUpdateGrade(student.id, subject.id, grade.score, grade.remark ?? '');
+            }
+            return Promise.resolve();
+          })
+        )
       );
-
-      await Promise.all(promises);
       onUpdateMessage('Grades submitted successfully!');
     } catch (error) {
-      onUpdateMessage('Grades submittion failed, try again!');
+      onUpdateMessage('Grades submission failed, try again!');
     } finally {
-      setLoading(false);
+      setState("loading", false);
     }
   };
 
   const handleDeleteClassGrades = async (classFormId: string) => {
-    setLoading(true);
+    setState("loading", true);
     try {
-      const gradesMap = grades();
-      const studentsInClass = studentsByClass().get(classFormId) || [];
-      const deletePromises = [];
+      const studentsInClass = state.studentsByClass.get(classFormId) || [];
 
       for (const student of studentsInClass) {
-        const subjectGrades = gradesMap.get(student.id);
-        if (subjectGrades) {
-          for (const grade of subjectGrades.values()) {
+        const studentGrades = state.grades.get(student.id);
+        if (studentGrades) {
+          for (const grade of studentGrades.values()) {
             if (grade.id) {
-              deletePromises.push(deleteGrade({ id: grade.id }));
+              await deleteGrade({ id: grade.id });
             }
           }
         }
       }
 
-      await Promise.all(deletePromises);
-
-      setGrades((prevGrades) => {
-        const updatedGrades = new Map(prevGrades);
-        for (const student of studentsInClass) {
-          updatedGrades.delete(student.id);
-        }
-        return updatedGrades;
-      });
-
+      await fetchData();
       onUpdateMessage('Grades deleted successfully!');
     } catch (error) {
-      console.error('Error deleting class grades:', error);
+      onUpdateMessage('Error deleting class grades, please try again.');
     } finally {
-      setLoading(false);
+      setState("loading", false);
     }
   };
 
   fetchData();
 
   return {
-    studentsByClass,
-    subjects,
-    students,
-    grades,
-    classForms,
-    loading,
+    studentsByClass: () => state.studentsByClass,
+    subjects: () => state.subjects,
+    students: () => state.students,
+    grades: () => state.grades,
+    classForms: () => state.classForms,
+    loading: () => state.loading,
     fetchData,
     createOrUpdateGrade,
     handleSubmitClassGrades,
