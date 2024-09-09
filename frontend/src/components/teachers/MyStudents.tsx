@@ -6,7 +6,8 @@ import { StudentPublic } from '../../client';
 
 const ConfirmationModal = lazy(() => import('./ConfirmationModal'));
 
-const GradesManagement: Component<{ onUpdateMessage: (message: string) => void }> = (props) => {
+
+const MyStudents: Component<{ onUpdateMessage: (message: string) => void }> = (props) => {
   const { studentsByClass, grades, loading, createOrUpdateGrade, handleDeleteClassGrades, fetchData } = useGrades(props.onUpdateMessage);
   const { classes, subjects, assignments } = useFetchSchoolData();
   const { user } = useAuth();
@@ -225,4 +226,4 @@ const GradesManagement: Component<{ onUpdateMessage: (message: string) => void }
   );
 };
 
-export default GradesManagement;
+export default MyStudents;
