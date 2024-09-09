@@ -1,6 +1,6 @@
 import { Component, createSignal, Show, Suspense } from 'solid-js';
 import MyClasses from '../../components/teachers/MyClasses';
-import GradesManagement from '../../components/teachers/GradesManagement';
+import MyStudents from '../../components/teachers/MyStudents';
 import TeachersAssignments from '../../components/teachers/TeachersAssignments';
 import Spinner from '../../components/util/Spinner';
 
@@ -61,7 +61,7 @@ const Teachers: Component = () => {
         </Show>
         <Show when={currentSection() === 'grades'}>
           <Suspense fallback={<Spinner />}>
-            <GradesManagement onUpdateMessage={setMessage} />
+            <MyStudents onUpdateMessage={setMessage} />
           </Suspense>
         </Show>
         <Show when={currentSection() === 'assignments'}>
