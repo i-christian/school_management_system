@@ -2,6 +2,7 @@ import { Component, createSignal, onMount } from "solid-js";
 import { createStudent, readClassForms, ClassFormsPublic, ClassFormPublic } from "../../../client";
 import { For } from "solid-js";
 
+
 const AddStudentModal: Component<{ onClose: () => void }> = (props) => {
   const [firstName, setFirstName] = createSignal("");
   const [middleName, setMiddleName] = createSignal("");
@@ -35,12 +36,13 @@ const AddStudentModal: Component<{ onClose: () => void }> = (props) => {
           middle_name: middleName() || null,
           last_name: lastName(),
           contact: contact() || null,
-          form_id: formId()
+          form_id: formId(),
+          class_teacher_remark: null,
+          head_teacher_remark: null
         },
       });
       props.onClose();
     } catch (error) {
-      console.error("Failed to create student:", error);
       setError("An error occurred while creating the student.");
     }
   };
