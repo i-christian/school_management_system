@@ -34,5 +34,5 @@ Ensure that you have Node and node package manager on your system.
 
 ## Tests
 ```
-  npx playwright test
+  npm run test
 ```

@@ -8,6 +8,7 @@
     "build": "tsc && vite build",
     "lint": "biome check --apply-unsafe --no-errors-on-unmatched --files-ignore-unknown=true ./",
     "preview": "vite preview",
+    "test": "playwright test",
     "generate-client": "openapi-ts --input ./openapi.json --output ./src/client --client axios && biome format --write ./src/client"
   },
   "dependencies": {
