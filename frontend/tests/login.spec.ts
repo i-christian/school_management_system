@@ -46,6 +46,17 @@ test("Sign in with valid email and password ", async ({ page }) => {
   await page.waitForURL(`/admin`)
 })
 
+test("Sign Out", async ({ page }) => {
+  await page.goto("/logout")
+  await expect(page.locator('section')).toContainText('Confirm');
+  await expect(page.locator('section')).toContainText('Cancel');
+  await expect(page.getByRole('button', { name: 'Confirm' })).toBeVisible();
+  await page.getByRole('button', { name: 'Cancel' }).click();
+  await page.goto("/logout")
+  await page.getByRole('button', { name: 'Confirm' }).click();
+  await expect(page.getByRole('button', { name: 'Sign In' })).toBeVisible();
+})
+
 test("Sign in with invalid email", async ({ page }) => {
   await page.goto("/login")
 
