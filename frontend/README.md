@@ -31,3 +31,8 @@ Ensure that you have Node and node package manager on your system.
 - Commit the changes.
 
 `Note: ` that everytime the `backend` changes (changing the OpenAPI schema), you should follow these steps again to update the `frontend` client.
+
+## Tests
+```
+  npx playwright test
+```
