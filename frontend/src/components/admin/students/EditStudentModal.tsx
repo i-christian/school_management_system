@@ -53,6 +53,8 @@ const EditStudentModal: Component<{ studentId: string; onClose: () => void }> = 
           last_name: lastName() || undefined,
           contact: contact() || null,
           form_id: formId() || undefined,
+          class_teacher_remark: null,
+          head_teacher_remark: null
         },
       });
       props.onClose();
