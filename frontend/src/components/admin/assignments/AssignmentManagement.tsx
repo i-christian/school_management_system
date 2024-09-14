@@ -5,6 +5,7 @@ import AssignmentModal from "./AssignmentModal";
 import EditAssignmentModal from "./EditAssignmentModal";
 import DeleteAssignmentModal from "./DeleteAssignmentModal";
 import { useAuth } from "../../../context/UserContext";
+import Spinner from "../../util/Spinner";
 
 
 const AssignmentManagement = () => {
@@ -70,7 +71,7 @@ const AssignmentManagement = () => {
             <p class="text-center col-span-full">Loading assignments...</p>
           </Match>
           <Match when={formattedAssignments().length === 0 && !loading()}>
-            <p class="text-center col-span-full">No assignments available.</p>
+            <p class="text-center col-span-full"><Spinner /></p>
           </Match>
           <Match when={formattedAssignments().length > 0}>
             <For each={formattedAssignments()}>
