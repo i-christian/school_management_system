@@ -1,4 +1,4 @@
-import { Component, createSignal, lazy, createMemo } from "solid-js";
+import { Component, createSignal, lazy, createMemo, onMount } from "solid-js";
 import { Dynamic } from "solid-js/web";
 import ClassManagement from "../../components/admin/classes/ClassManagement";
 import SubjectManagement from "../../components/admin/subjects/SubjectManagement";
@@ -18,6 +18,11 @@ const Admin: Component = () => {
   );
 
   const [cachedComponents, setCachedComponents] = createSignal<Record<string, Component>>({});
+
+  onMount(() => {
+    cacheComponent(currentSection());
+  });
+
 
   const handleSectionChange = (section: string) => {
     setCurrentSection(section);

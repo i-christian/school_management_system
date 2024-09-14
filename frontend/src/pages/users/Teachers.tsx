@@ -1,4 +1,4 @@
-import { Component, createSignal, Suspense, Show } from 'solid-js';
+import { Component, createSignal, Suspense, Show, onMount } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import MyClasses from '../../components/teachers/MyClasses';
 import MyStudents from '../../components/teachers/MyStudents';
@@ -10,6 +10,10 @@ const Teachers: Component = () => {
   const [message, setMessage] = createSignal<string | null>(null);
   const [currentSection, setCurrentSection] = createSignal(localStorage.getItem('teacherSection') || 'classes');
   const [cachedComponents, setCachedComponents] = createSignal<Record<string, Component>>({});
+
+  onMount(() => {
+    cacheComponent(currentSection());
+  });
 
   const handleSectionChange = (section: string) => {
     setCurrentSection(section);
