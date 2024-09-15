@@ -89,3 +89,34 @@ def test_update_user(db: Session) -> None:
     assert user_2
     assert user.email == user_2.email
     assert verify_password(new_password, user_2.hashed_password)
+
+
+def test_update_user_fields(db: Session) -> None:
+    email = random_email()
+    password = random_lower_string()
+    user_in = UserCreate(email=email, password=password, is_superuser=True)
+    user = crud.create_user(session=db, user_create=user_in)
+
+    new_email = random_email()
+    user_in_update = UserUpdate(email=new_email, is_active=False)
+
+    if user.id is not None:
+        crud.update_user(session=db, db_user=user, user_in=user_in_update)
+
+    updated_user = db.get(User, user.id)
+    assert updated_user
+    assert updated_user.email == new_email
+    assert updated_user.is_active is False
+
+
+def test_delete_user(db: Session) -> None:
+    email = random_email()
+    password = random_lower_string()
+    user_in = UserCreate(email=email, password=password)
+    user = crud.create_user(session=db, user_create=user_in)
+
+    deleted_user = crud.delete_user(session=db, user_id=user.id)
+    assert deleted_user
+    assert deleted_user.id == user.id
+    user_2 = db.get(User, user.id)
+    assert user_2 is None
