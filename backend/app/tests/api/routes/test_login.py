@@ -102,3 +102,26 @@ def test_reset_password_invalid_token(
     assert "detail" in response
     assert r.status_code == 400
     assert response["detail"] == "Invalid token"
+
+
+def test_recover_password_html_content(
+    client: TestClient, superuser_token_headers: dict[str, str]
+) -> None:
+    email = "test@example.com"
+    r = client.post(
+        f"{settings.API_V1_STR}/password-recovery-html-content/{email}",
+        headers=superuser_token_headers,
+    )
+    assert r.status_code == 200
+    assert "html" in r.text
+
+
+def test_recover_password_html_content_user_not_exists(
+    client: TestClient, superuser_token_headers: dict[str, str]
+) -> None:
+    email = "nonexistent@example.com"
+    r = client.post(
+        f"{settings.API_V1_STR}/password-recovery-html-content/{email}",
+        headers=superuser_token_headers,
+    )
+    assert r.status_code == 404
