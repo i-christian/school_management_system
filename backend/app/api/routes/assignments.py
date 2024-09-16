@@ -45,7 +45,21 @@ def read_assignment(id: uuid.UUID, session: SessionDep) -> Any:
 def create_assignment(*, session: SessionDep, assignment_in: AssignmentCreate) -> Any:
     """
     Create new assignment.
+    Check for duplicate (same teacher, subject, and class form) before creation.
     """
+    existing_assignment = session.exec(
+        select(Assignment)
+        .where(Assignment.teacher_id == assignment_in.teacher_id)
+        .where(Assignment.subject_id == assignment_in.subject_id)
+        .where(Assignment.class_form_id == assignment_in.class_form_id)
+    ).first()
+
+    if existing_assignment:
+        raise HTTPException(
+            status_code=409,
+            detail="Assignment with the same teacher, subject, and class form already exists",
+        )
+
     assignment = crud.create_assignment(session=session, assignment_in=assignment_in)
     return assignment
 
