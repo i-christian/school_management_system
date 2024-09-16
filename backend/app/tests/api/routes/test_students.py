@@ -193,3 +193,18 @@ def test_update_non_existent_student(
     ), f"Unexpected status code: {response.status_code}"
     content = response.json()
     assert content["detail"] == "Student not found"
+
+
+def test_delete_invalid_student(
+    client: TestClient, superuser_token_headers: dict[str, str]
+) -> None:
+    invalid_uuid = uuid.uuid4()
+
+    response = client.delete(
+        f"{settings.API_V1_STR}/students/{invalid_uuid}",
+        headers=superuser_token_headers,
+    )
+
+    assert (
+        response.status_code == 404
+    ), f"Unexpected status code: {response.status_code}"
