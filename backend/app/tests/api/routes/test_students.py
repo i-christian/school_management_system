@@ -15,8 +15,13 @@ def test_create_student(
 
     data = {
         "first_name": "Boruto",
+        "middle_name": "nng",
         "last_name": "Uzumaki",
+        "contact": "0123456789",
         "form_id": str(class_form.id),
+        "fees": 600000.00,
+        "class_teacher_remark": "Good",
+        "head_teacher_remark": "Needs Improvement",
     }
 
     response = client.post(
