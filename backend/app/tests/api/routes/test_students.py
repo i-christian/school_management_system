@@ -24,7 +24,9 @@ def test_create_student(
     )
 
     response = client.post(
-        f"{settings.API_V1_STR}/students", headers=superuser_token_headers, json=data
+        f"{settings.API_V1_STR}/students",
+        headers=superuser_token_headers,
+        json=data.dict(),
     )
 
     assert response.status_code == 200
