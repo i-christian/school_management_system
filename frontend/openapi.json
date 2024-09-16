@@ -1685,7 +1685,7 @@
           "assignments"
         ],
         "summary": "Create Assignment",
-        "description": "Create new assignment.",
+        "description": "Create new assignment.\nCheck for duplicate (same teacher, subject, and class form) before creation.",
         "operationId": "create_assignment",
         "requestBody": {
           "required": true,
