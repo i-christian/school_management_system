@@ -704,6 +704,7 @@ export const readAssignments = (data: ReadAssignmentsData = {}): CancelablePromi
 /**
  * Create Assignment
  * Create new assignment.
+ * Check for duplicate (same teacher, subject, and class form) before creation.
  * @param data The data for the request.
  * @param data.requestBody
  * @returns AssignmentPublic Successful Response
