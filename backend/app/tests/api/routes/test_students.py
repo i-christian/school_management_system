@@ -1,3 +1,5 @@
+import uuid
+
 from fastapi.testclient import TestClient
 from sqlmodel import Session
 
@@ -166,6 +168,7 @@ def test_update_non_existent_student(
 ) -> None:
     class_form = create_test_class_form(db)
     assert class_form.id is not None
+    invalid_uuid = uuid.UUID()
 
     update_data = {
         "first_name": "Naruto",
@@ -179,7 +182,7 @@ def test_update_non_existent_student(
     }
 
     response = client.put(
-        f"{settings.API_V1_STR}/students/invalid-uuid",
+        f"{settings.API_V1_STR}/students/{invalid_uuid}",
         headers=superuser_token_headers,
         json=update_data,
     )
