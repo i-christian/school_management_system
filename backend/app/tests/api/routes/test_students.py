@@ -103,6 +103,7 @@ def test_update_student(
         json=update_data,
     )
 
+    print(response.json())
     assert (
         response.status_code == 200
     ), f"Unexpected status code: {response.status_code}"
