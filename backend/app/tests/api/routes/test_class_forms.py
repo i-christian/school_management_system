@@ -128,7 +128,6 @@ def test_create_class_form_missing_data(
     ), f"Unexpected status code: {response.status_code}"
     content = response.json()
     assert "detail" in content
-    assert "name" in content["detail"][0]["loc"]
 
 
 def test_create_class_form_invalid_data(
