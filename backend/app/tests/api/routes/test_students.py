@@ -16,7 +16,7 @@ def test_create_student(
         first_name="Test",
         middle_name="Middle",
         last_name="Student",
-        contact="123456789",
+        contact="0123456789",
         form_id=uuid.uuid4(),
         fees=500.0,
         class_teacher_remark="Good",
