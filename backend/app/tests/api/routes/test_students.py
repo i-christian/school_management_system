@@ -7,7 +7,7 @@ from app.tests.utils.class_form import create_test_class_form
 # from app.tests.utils.student import create_test_student
 
 
-def test_create_student_with_mocked_uuid(
+def test_create_student(
     client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
     class_form = create_test_class_form(db)
@@ -25,6 +25,7 @@ def test_create_student_with_mocked_uuid(
         json=data,
     )
 
+    print(response.json())
     assert (
         response.status_code == 200
     ), f"Unexpected status code: {response.status_code}"
