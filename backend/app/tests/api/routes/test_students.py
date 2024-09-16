@@ -1,4 +1,3 @@
-import uuid
 from unittest.mock import patch
 
 from fastapi.testclient import TestClient
@@ -15,7 +14,7 @@ def test_create_student_with_mocked_uuid(
 ) -> None:
     mock_uuid = "123e4567-e89b-12d3-a456-426614174000"
 
-    with patch("uuid.uuid4", return_value=uuid.UUID(mock_uuid)):
+    with patch("uuid.uuid4", return_value=mock_uuid):
         data = StudentCreate(
             first_name="Test",
             middle_name="Middle",
