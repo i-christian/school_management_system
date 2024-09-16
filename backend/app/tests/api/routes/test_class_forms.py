@@ -118,7 +118,6 @@ def test_delete_class_form(
 def test_create_class_form_missing_data(
     client: TestClient, superuser_token_headers: dict[str, str]
 ) -> None:
-
     response = client.post(
         f"{settings.API_V1_STR}/class-forms",
         headers=superuser_token_headers,
