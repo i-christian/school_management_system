@@ -184,6 +184,7 @@ def test_update_non_existent_student(
         json=update_data,
     )
 
+    print(response.json())
     assert (
         response.status_code == 404
     ), f"Unexpected status code: {response.status_code}"
