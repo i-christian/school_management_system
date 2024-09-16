@@ -162,13 +162,17 @@ def test_create_student_with_invalid_data(
 
 
 def test_update_non_existent_student(
-    client: TestClient, superuser_token_headers: dict[str, str]
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
+    class_form = create_test_class_form(db)
+    assert class_form.id is not None
+
     update_data = {
         "first_name": "Naruto",
         "last_name": "Uzumaki",
         "middle_name": "nns",
         "contact": "0987654321",
+        "form_id": str(class_form.id),
         "fees": 500000.00,
         "class_teacher_remark": "Excellent",
         "head_teacher_remark": "Needs Improvement",
