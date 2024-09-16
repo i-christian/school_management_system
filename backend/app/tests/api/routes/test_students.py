@@ -135,3 +135,53 @@ def test_delete_student(
     assert (
         response.status_code == 404
     ), f"Unexpected status code: {response.status_code}"
+
+
+def test_create_student_with_invalid_data(
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+) -> None:
+    class_form = create_test_class_form(db)
+    assert class_form.id is not None
+
+    invalid_data = {
+        "first_name": "Boruto",
+        "form_id": str(class_form.id),
+    }
+
+    response = client.post(
+        f"{settings.API_V1_STR}/students",
+        headers=superuser_token_headers,
+        json=invalid_data,
+    )
+
+    assert (
+        response.status_code == 422
+    ), f"Unexpected status code: {response.status_code}"
+    content = response.json()
+    assert "detail" in content
+
+
+def test_update_non_existent_student(
+    client: TestClient, superuser_token_headers: dict[str, str]
+) -> None:
+    update_data = {
+        "first_name": "Naruto",
+        "last_name": "Uzumaki",
+        "middle_name": "nns",
+        "contact": "0987654321",
+        "fees": 500000.00,
+        "class_teacher_remark": "Excellent",
+        "head_teacher_remark": "Needs Improvement",
+    }
+
+    response = client.put(
+        f"{settings.API_V1_STR}/students/invalid-uuid",
+        headers=superuser_token_headers,
+        json=update_data,
+    )
+
+    assert (
+        response.status_code == 404
+    ), f"Unexpected status code: {response.status_code}"
+    content = response.json()
+    assert content["detail"] == "Student not found"
