@@ -90,7 +90,12 @@ def test_update_grade(
 ) -> None:
     grade = create_test_grade(db)
 
-    update_data = {"score": 95, "remark": "Updated remark"}
+    update_data = {
+        "student_id": str(grade.student_id),
+        "subject_id": str(grade.subject_id),
+        "score": 95,
+        "remark": "Updated remark",
+    }
 
     response = client.put(
         f"{settings.API_V1_STR}/grades/{grade.id}",
