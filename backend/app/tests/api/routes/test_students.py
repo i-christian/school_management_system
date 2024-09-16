@@ -168,7 +168,7 @@ def test_update_non_existent_student(
 ) -> None:
     class_form = create_test_class_form(db)
     assert class_form.id is not None
-    invalid_uuid = uuid.UUID()
+    invalid_uuid = uuid.uuid4()
 
     update_data = {
         "first_name": "Naruto",
