@@ -17,7 +17,7 @@ def test_create_student(
         middle_name="Middle",
         last_name="Student",
         contact="0123456789",
-        form_id=uuid.uuid4(),
+        form_id=str(uuid.uuid4()),
         fees=500.0,
         class_teacher_remark="Good",
         head_teacher_remark="Needs Improvement",
@@ -26,7 +26,7 @@ def test_create_student(
     response = client.post(
         f"{settings.API_V1_STR}/students",
         headers=superuser_token_headers,
-        json=data.dict(),
+        json=data.model_dump(),
     )
 
     assert response.status_code == 200
