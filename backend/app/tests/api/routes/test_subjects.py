@@ -117,7 +117,6 @@ def test_delete_subject(
 def test_create_subject_missing_data(
     client: TestClient, superuser_token_headers: dict[str, str]
 ) -> None:
-
     response = client.post(
         f"{settings.API_V1_STR}/subjects",
         headers=superuser_token_headers,
