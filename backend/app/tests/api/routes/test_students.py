@@ -89,7 +89,7 @@ def test_update_student(
     update_data = {
         "first_name": "Naruto",
         "last_name": "Uzumaki",
-        "middle_name": "N",
+        "middle_name": "nns",
         "contact": "0987654321",
         "form_id": str(class_form.id),
         "fees": 500000.00,
