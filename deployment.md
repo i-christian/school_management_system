@@ -1,4 +1,4 @@
-# FastAPI Project - Deployment
+# Project Deployment
 
 You can deploy the project using Docker Compose to a remote server.
 
@@ -12,7 +12,8 @@ But you have to configure a couple things first. 🤓
 
 * Have a remote server ready and available.
 * Configure the DNS records of your domain to point to the IP of the server you just created.
-* Configure a wildcard subdomain for your domain, so that you can have multiple subdomains for different services, e.g. `*.fastapi-project.example.com`. This will be useful for accessing different components, like `traefik.fastapi-project.example.com`, `adminer.fastapi-project.example.com`, etc. And also for `staging`, like `staging.fastapi-project.example.com`, `staging.adminer.fastapi-project.example.com`, etc.
+* Configure a wildcard subdomain for your domain, so that you can have multiple subdomains for different services, e.g. `*.domain-name`. This will be useful for accessing different components, like `traefik.domain-name`, `adminer.domain-name`, etc.
+
 * Install and configure [Docker](https://docs.docker.com/engine/install/) on the remote server (Docker Engine, not Docker Desktop).
 
 ## Public Traefik
@@ -32,7 +33,7 @@ mkdir -p /root/code/traefik-public/
 Copy the Traefik Docker Compose file to your server. You could do it by running the command `rsync` in your local terminal:
 
 ```bash
-rsync -a docker-compose.traefik.yml root@your-server.example.com:/root/code/traefik-public/
+rsync -a docker-compose.traefik.yml root@your-server-ip-address:/root/code/traefik-public/
 ```
 
 ### Traefik Public Network
@@ -78,7 +79,7 @@ echo $HASHED_PASSWORD
 * Create an environment variable with the domain name for your server, e.g.:
 
 ```bash
-export DOMAIN=fastapi-project.example.com
+export DOMAIN=example.com
 ```
 
 * Create an environment variable with the email for Let's Encrypt, e.g.:
@@ -103,7 +104,7 @@ Now with the environment variables set and the `docker-compose.traefik.yml` in p
 docker compose -f docker-compose.traefik.yml up -d
 ```
 
-## Deploy the FastAPI Project
+## Deploy the Project
 
 Now that you have Traefik in place you can deploy your FastAPI project with Docker Compose.
 
@@ -113,7 +114,7 @@ Now that you have Traefik in place you can deploy your FastAPI project with Dock
 
 You need to set some environment variables first.
 
-Set the `ENVIRONMENT`, by default `local` (for development), but when deploying to a server you would put something like `staging` or `production`:
+Set the `ENVIRONMENT`, by default `local` (for development), but when deploying to a server you would put something like `production`:
 
 ```bash
 export ENVIRONMENT=production
@@ -122,13 +123,13 @@ export ENVIRONMENT=production
 Set the `DOMAIN`, by default `localhost` (for development), but when deploying you would use your own domain, for example:
 
 ```bash
-export DOMAIN=fastapi-project.example.com
+export DOMAIN=example.com
 ```
 
 You can set several variables, like:
 
 * `PROJECT_NAME`: The name of the project, used in the API for the docs and emails.
-* `STACK_NAME`: The name of the stack used for Docker Compose labels and project name, this should be different for `staging`, `production`, etc. You could use the same domain replacing dots with dashes, e.g. `fastapi-project-example-com` and `staging-fastapi-project-example-com`.
+* `STACK_NAME`: The name of the stack used for Docker Compose labels and project name, this should be different for `staging`, `production`, etc. You could use the same domain replacing dots with dashes, e.g. `project-example-com`.
 * `BACKEND_CORS_ORIGINS`: A list of allowed CORS origins separated by commas.
 * `SECRET_KEY`: The secret key for the FastAPI project, used to sign tokens.
 * `FIRST_SUPERUSER`: The email of the first superuser, this superuser will be the one that can create new users.
@@ -148,7 +149,6 @@ You can set several variables, like:
 
 There are some environment variables only used by GitHub Actions that you can configure:
 
-* `LATEST_CHANGES`: Used by the GitHub Action [latest-changes](https://github.com/tiangolo/latest-changes) to automatically add release notes based on the PRs merged. It's a personal access token, read the docs for details.
 * `SMOKESHOW_AUTH_KEY`: Used to handle and publish the code coverage using [Smokeshow](https://github.com/samuelcolvin/smokeshow), follow their instructions to create a (free) Smokeshow key.
 
 ### Generate secret keys
@@ -177,16 +177,14 @@ For production you wouldn't want to have the overrides in `docker-compose.overri
 
 You can use GitHub Actions to deploy your project automatically. 😎
 
-You can have multiple environment deployments.
-
-There are already two environments configured, `staging` and `production`. 🚀
+There is a `production`. workflow 🚀
 
 ### Install GitHub Actions Runner
 
 * On your remote server, if you are running as the `root` user, create a user for your GitHub Actions:
 
 ```bash
-adduser github
+ adduser github
 ```
 
 * Add Docker permissions to the `github` user:
@@ -269,35 +267,24 @@ The current Github Actions workflows expect these secrets:
 
 There are GitHub Action workflows in the `.github/workflows` directory already configured for deploying to the environments (GitHub Actions runners with the labels):
 
-* `staging`: after pushing (or merging) to the branch `master`.
 * `production`: after publishing a release.
 
 If you need to add extra environments you could use those as a starting point.
 
 ## URLs
 
-Replace `fastapi-project.example.com` with your domain.
+Replace `example.com` with your domain.
 
 ### Main Traefik Dashboard
 
-Traefik UI: `https://traefik.fastapi-project.example.com`
+Traefik UI: `https://traefik.example.com`
 
 ### Production
 
-Frontend: `https://fastapi-project.example.com`
+Frontend: `https://example.com`
 
-Backend API docs: `https://fastapi-project.example.com/docs`
+Backend API docs: `https://example.com/docs`
 
-Backend API base URL: `https://fastapi-project.example.com/api/`
+Backend API base URL: `https://example.com/api/`
 
-Adminer: `https://adminer.fastapi-project.example.com`
-
-### Staging
-
-Frontend: `https://staging.fastapi-project.example.com`
-
-Backend API docs: `https://staging.fastapi-project.example.com/docs`
-
-Backend API base URL: `https://staging.fastapi-project.example.com/api/`
-
-Adminer: `https://adminer.staging.fastapi-project.example.com`
+Adminer: `https://adminer.example.com`
