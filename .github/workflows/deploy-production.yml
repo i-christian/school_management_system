@@ -7,7 +7,6 @@ on:
 
 jobs:
   deploy:
-    if: github.repository_owner != 'fastapi'
     runs-on:
       - self-hosted
       - production
@@ -29,3 +28,12 @@ jobs:
         uses: actions/checkout@v4
       - run: docker compose -f docker-compose.yml --project-name ${{ secrets.STACK_NAME_PRODUCTION }} build
       - run: docker compose -f docker-compose.yml --project-name ${{ secrets.STACK_NAME_PRODUCTION }} up -d
+
+      - name: Notify on success
+        if: success()
+        run: |
+          echo "Deployment to production was successful."
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "Deployment to production failed!"
