@@ -1,7 +1,7 @@
 import { Component } from "solid-js";
 import { useAuth } from "../context/UserContext";
 import { useNavigate } from "@solidjs/router";
-import Dashboard from "../components/dashboard/Dashboard";
+// import Dashboard from "../components/dashboard/Dashboard";
 
 const DashboardPage: Component = () => {
   const { isAuthenticated } = useAuth();
@@ -14,7 +14,7 @@ const DashboardPage: Component = () => {
 
   return (
     <>
-      <Dashboard />
+      <p>a dashboard will be here </p>
     </>
   );
 };
