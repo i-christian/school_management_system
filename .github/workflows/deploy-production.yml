@@ -13,7 +13,7 @@ jobs:
     env:
       ENVIRONMENT: production
       DOMAIN: ${{ secrets.DOMAIN_PRODUCTION }}
-      STACK_NAME: ${{ secrets.STACK_NAME_PRODUCTION }}
+      STACK_NAME: ${{ secrets.STACK_NAME }}
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
       FIRST_SUPERUSER: ${{ secrets.FIRST_SUPERUSER }}
       FIRST_SUPERUSER_PASSWORD: ${{ secrets.FIRST_SUPERUSER_PASSWORD }}
@@ -27,7 +27,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - run: docker compose -f docker-compose.yml --project-name ${{ secrets.STACK_NAME }} build
-      - run: docker compose -f docker-compose.yml -p ${{ secrets.STACK_NAME }} up --detach
+      - run: docker compose -f docker-compose.yml --project-name ${{ secrets.STACK_NAME }} up -d
 
       - name: Notify on success
         if: success()
