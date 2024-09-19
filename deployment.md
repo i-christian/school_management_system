@@ -149,8 +149,6 @@ You can set several variables, like:
 
 There are some environment variables only used by GitHub Actions that you can configure:
 
-* `SMOKESHOW_AUTH_KEY`: Used to handle and publish the code coverage using [Smokeshow](https://github.com/samuelcolvin/smokeshow), follow their instructions to create a (free) Smokeshow key.
-
 ### Generate secret keys
 
 Some environment variables in the `.env` file have a default value of `changethis`.
@@ -162,16 +160,6 @@ python -c "import secrets; print(secrets.token_urlsafe(32))"
 ```
 
 Copy the content and use that as password / secret key. And run that again to generate another secure key.
-
-### Deploy with Docker Compose
-
-With the environment variables in place, you can deploy with Docker Compose:
-
-```bash
-docker compose -f docker-compose.yml up -d
-```
-
-For production you wouldn't want to have the overrides in `docker-compose.override.yml`, that's why we explicitly specify `docker-compose.yml` as the file to use.
 
 ## Continuous Deployment (CD)
 
@@ -260,16 +248,10 @@ The current Github Actions workflows expect these secrets:
 * `FIRST_SUPERUSER_PASSWORD`
 * `POSTGRES_PASSWORD`
 * `SECRET_KEY`
-* `LATEST_CHANGES`
-* `SMOKESHOW_AUTH_KEY`
 
 ## GitHub Action Deployment Workflows
 
-There are GitHub Action workflows in the `.github/workflows` directory already configured for deploying to the environments (GitHub Actions runners with the labels):
-
-* `production`: after publishing a release.
-
-If you need to add extra environments you could use those as a starting point.
+There are GitHub Action workflows in the `.github/workflows` directory already configured for deploying to the environments (GitHub Actions runners with the labels: `self-hosted` and `production`):
 
 ## URLs
 
