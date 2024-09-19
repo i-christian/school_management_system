@@ -27,7 +27,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - run: docker compose -f docker-compose.yml --project-name ${{ secrets.STACK_NAME }} build
-      - run: docker compose -f docker-compose.yml --project-name ${{ secrets.STACK_NAME }} up -d
+      - run: docker compose -f docker-compose.yml -p ${{ secrets.STACK_NAME }} up -d
 
       - name: Notify on success
         if: success()
