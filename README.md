@@ -1,7 +1,12 @@
 # School Management System
 
+
 [![License](https://img.shields.io/github/license/i-christian/school_management_system)](./LICENSE)
-[![Test](https://github.com/i-christian/school_management_system/actions/workflows/test.yml/badge.svg)](https://github.com/i-christian/school_management_system/actions/workflows/test.yml)
+[![Build Status](https://github.com/i-christian/school_management_system/actions/workflows/test.yml/badge.svg)](https://github.com/i-christian/school_management_system/actions/workflows/test.yml)
+[![Test Coverage](https://github.com/i-christian/school_management_system/actions/workflows/smokeshow.yml/badge.svg)](https://github.com/i-christian/school_management_system/actions/workflows/smokeshow.yml)
+[![GitHub Issues](https://img.shields.io/github/issues/i-christian/school_management_system)](https://github.com/i-christian/school_management_system/issues)
+[![GitHub Contributors](https://img.shields.io/github/contributors/i-christian/school_management_system)](https://github.com/i-christian/school_management_system/graphs/contributors)
+[![Last Commit](https://img.shields.io/github/last-commit/i-christian/school_management_system)](https://github.com/i-christian/school_management_system/commits/main)
 
 ## Project Overview
 
