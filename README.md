@@ -1,6 +1,5 @@
 # School Management System
 
-[![GitHub](https://img.shields.io/github/license/i-christian/school_management_system)](https://github.com/i-christian/school_management_system.git)
 [![License](https://img.shields.io/github/license/i-christian/school_management_system)](./LICENSE)
 [![Test](https://github.com/i-christian/school_management_system/actions/workflows/test.yml/badge.svg)](https://github.com/i-christian/school_management_system/actions/workflows/test.yml)
 
