@@ -7,6 +7,7 @@
 [![GitHub Issues](https://img.shields.io/github/issues/i-christian/school_management_system)](https://github.com/i-christian/school_management_system/issues)
 [![GitHub Contributors](https://img.shields.io/github/contributors/i-christian/school_management_system)](https://github.com/i-christian/school_management_system/graphs/contributors)
 [![Last Commit](https://img.shields.io/github/last-commit/i-christian/school_management_system)](https://github.com/i-christian/school_management_system/commits/main)
+[![GitHub Release](https://img.shields.io/github/v/release/i-christian/school_management_system?include_prereleases)](https://github.com/i-christian/school_management_system/releases)
 
 ## Project Overview
 
