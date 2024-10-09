@@ -5,7 +5,7 @@ const Footer: Component = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer class="bg-white dark:bg-gray-900" id="contact">
+    <footer class="bg-white dark:bg-slate-900" id="contact">
       <hr class="h-px my-6 bg-gray-200 border-0 dark:bg-gray-700" />
       <div class="container p-6 mx-auto text-center">
         <h3 class="text-gray-800 uppercase dark:text-white">Contact</h3>

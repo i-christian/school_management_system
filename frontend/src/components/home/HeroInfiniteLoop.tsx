@@ -18,21 +18,17 @@ const HeroInfiniteLoop = () => {
       src: "https://via.placeholder.com/320x240?text=3",
       context: "Context for Image 3",
     },
-  ]; // Replace with your image URLs and corresponding context
+  ];
   const intervalTime = 9000; // 9 seconds
 
-  // Function to cycle through items automatically
   const cycleItems = () => {
     setCurrentIndex((index) => (index + 1) % items.length);
   };
 
-  // Set up the interval
   const interval = setInterval(cycleItems, intervalTime);
 
-  // Clean up interval on component unmount
   onCleanup(() => clearInterval(interval));
 
-  // Handle manual navigation
   const prevItem = () => {
     setCurrentIndex((index) => (index - 1 + items.length) % items.length);
   };
@@ -42,13 +38,12 @@ const HeroInfiniteLoop = () => {
   };
 
   return (
-    <div class="relative w-full max-w-screen h-60 sm:h-72 md:h-80 lg:h-96 xl:h-112">
+    <div class="relative w-full my-5 max-w-screen h-60 sm:h-72 md:h-80 lg:h-96 xl:h-112">
       <For each={items}>
         {(item, index) => (
           <div
-            class={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-              index() === currentIndex() ? "opacity-100" : "opacity-0"
-            } flex items-center justify-center`}
+            class={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index() === currentIndex() ? "opacity-100" : "opacity-0"
+              } flex items-center justify-center`}
           >
             <div class="flex flex-col items-center justify-center gap-4">
               <h1 class="text-2xl md:text-3xl lg:text-4xl">{item.title}</h1>
