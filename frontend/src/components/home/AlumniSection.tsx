@@ -24,7 +24,7 @@ const AlumniSection = () => {
   ];
 
   return (
-    <section class="mx-auto py-12">
+    <section class="bg-inherit mx-auto py-12">
       <div class="mx-auto">
         <h2 class="text-3xl font-bold text-center my-4">Alumni</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 bg-inherit">
