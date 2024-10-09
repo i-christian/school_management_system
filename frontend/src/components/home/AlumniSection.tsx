@@ -24,10 +24,10 @@ const AlumniSection = () => {
   ];
 
   return (
-    <section class="bg-slate-200/90 dark:bg-slate-900/90 py-12">
-      <div class="container mx-auto">
-        <h2 class="text-3xl font-bold text-center mb-8">Alumni</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+    <section class="mx-auto py-12">
+      <div class="mx-auto">
+        <h2 class="text-3xl font-bold text-center my-4">Alumni</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 bg-inherit">
           <For each={alumni}>
             {(alum) => (
               <div class="p-6 rounded-lg shadow-lg text-center">
