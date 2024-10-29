@@ -13,9 +13,10 @@
 
 The **School Management System** is a full-stack web application designed to streamline and automate the management of school operations, including student information, teacher management, class assignments, grades, and fees. Built using modern web technologies, the application ensures a secure, scalable, and user-friendly experience tailored for educational institutions.
 
-- **Backend**: FastAPI, SQLAlchemy ORM, PostgreSQL
+- **Backend**: FastAPI, SQLModel ORM, PostgreSQL
 - **Frontend**: SolidJS (TypeScript), TailwindCSS
-- **Deployment**: Continuous Integration/Continuous Deployment (CI/CD) via GitHub
+- **Development**: Docker and Docker compose
+- **Deployment**: Continuous Integration/Continuous Deployment (CI/CD) via GitHub actions
 
 ## Objectives
 
@@ -27,7 +28,7 @@ The **School Management System** is a full-stack web application designed to str
 ## Technologies
 
 - **Frontend**: SolidJS (TypeScript), TailwindCSS for responsive design.
-- **Backend**: FastAPI for handling server-side logic, SQLAlchemy ORM for database operations.
+- **Backend**: FastAPI for handling server-side logic, SQLModel ORM for database operations.
 - **Database**: PostgreSQL for data storage.
 - **CI/CD**: GitHub Actions for automated testing and deployment.
 
