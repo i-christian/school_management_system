@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"log/slog"
 	"net/http"
 	"os/signal"
@@ -46,7 +45,7 @@ func main() {
 	// Run graceful shutdown in a separate goroutine
 	go gracefulShutdown(server, done)
 
-	log.Println("The server is starting on: http://localhost:8080")
+	slog.Info("The server is starting on: http://localhost:8080")
 
 	err := server.ListenAndServe()
 	if err != nil && err != http.ErrServerClosed {
