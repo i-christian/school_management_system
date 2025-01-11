@@ -1,48 +1,40 @@
 package server
 
 import (
-	"log/slog"
 	"net/http"
 	"os"
 
 	"school_management_system/cmd/web"
 
 	"github.com/a-h/templ"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 )
 
 func (s *Server) RegisterRoutes() http.Handler {
-	mux := http.NewServeMux()
+	r := chi.NewRouter()
+	r.Use(middleware.CleanPath)
+	r.Use(middleware.RequestID)
+	r.Use(middleware.Recoverer)
+	r.Use(middleware.Logger)
 
-	// Register routes
-	// mux.HandleFunc("/", )
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{os.Getenv("DOMAIN")},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type"},
+		AllowCredentials: true,
+		MaxAge:           300,
+	}))
+
+	r.Get("/", s.HelloWorldHandler)
 
 	fileServer := http.FileServer(http.FS(web.Files))
-	mux.Handle("GET /assets/", fileServer)
-	mux.Handle("GET /web", templ.Handler(web.HelloForm()))
+	r.Handle("/assets/*", fileServer)
 
-	// Wrap the mux with CORS middleware
-	return s.corsMiddleware(mux)
-}
+	r.Get("/web", templ.Handler(web.HelloForm()).ServeHTTP)
+	r.Post("/hello", HelloWebHandler)
+	r.Handle("/404", templ.Handler(web.NotFoundComponent(), templ.WithStatus(http.StatusNotFound)))
 
-func (s *Server) corsMiddleware(next http.Handler) http.Handler {
-	domain := os.Getenv("DOMAIN")
-	if domain == "" {
-		slog.Error("Domain is not set in .env")
-	}
-
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", domain)
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH")
-		w.Header().Set("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type, X-CSRF-Token")
-		w.Header().Set("Access-Control-Allow-Credentials", "true")
-
-		// Handle preflight OPTIONS requests
-		if r.Method == http.MethodOptions {
-			w.WriteHeader(http.StatusNoContent)
-			return
-		}
-
-		// Proceed with the next handler
-		next.ServeHTTP(w, r)
-	})
+	return r
 }
