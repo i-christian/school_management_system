@@ -12,15 +12,17 @@ import (
 )
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO users(last_name, first_name, phone_number, password) 
-VALUES ($1, $2, $3, $4)
-RETURNING id, last_name, first_name, email, phone_number, password, created_at, updated_at, role
+INSERT INTO users(last_name, first_name, phone_number, email, gender, password) 
+VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING user_id, last_name, first_name, gender, email, phone_number, password, created_at, updated_at, role
 `
 
 type CreateUserParams struct {
 	LastName    string
 	FirstName   string
 	PhoneNumber pgtype.Text
+	Email       pgtype.Text
+	Gender      string
 	Password    string
 }
 
@@ -29,13 +31,16 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		arg.LastName,
 		arg.FirstName,
 		arg.PhoneNumber,
+		arg.Email,
+		arg.Gender,
 		arg.Password,
 	)
 	var i User
 	err := row.Scan(
-		&i.ID,
+		&i.UserID,
 		&i.LastName,
 		&i.FirstName,
+		&i.Gender,
 		&i.Email,
 		&i.PhoneNumber,
 		&i.Password,

@@ -8,10 +8,112 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type AcademicYear struct {
+	AcademicYearID pgtype.UUID
+	Name           string
+	StartDate      pgtype.Date
+	EndDate        pgtype.Date
+}
+
+type Assignment struct {
+	ID        pgtype.UUID
+	ClassID   pgtype.UUID
+	SubjectID pgtype.UUID
+	TeacherID pgtype.UUID
+}
+
+type Class struct {
+	ClassID pgtype.UUID
+	Name    string
+}
+
+type DisciplineRecord struct {
+	DisciplineID pgtype.UUID
+	StudentID    pgtype.UUID
+	TermID       pgtype.UUID
+	Date         pgtype.Date
+	Description  string
+	ActionTaken  pgtype.Text
+	ReportedBy   pgtype.UUID
+	Notes        pgtype.Text
+}
+
+type Fee struct {
+	FeesID         pgtype.UUID
+	StudentID      pgtype.UUID
+	AcademicYearID pgtype.UUID
+	Required       pgtype.Numeric
+	Paid           pgtype.Numeric
+}
+
+type Grade struct {
+	GradeID   pgtype.UUID
+	StudentID pgtype.UUID
+	SubjectID pgtype.UUID
+	TermID    pgtype.UUID
+	Score     pgtype.Numeric
+	Remark    pgtype.Text
+}
+
+type Guardian struct {
+	GuardianID   pgtype.UUID
+	StudentID    pgtype.UUID
+	Name         string
+	PhoneNumber1 pgtype.Text
+	PhoneNumber2 pgtype.Text
+	Gender       pgtype.Text
+	Profession   pgtype.Text
+}
+
+type Remark struct {
+	RemarksID           pgtype.UUID
+	StudentID           pgtype.UUID
+	TermID              pgtype.UUID
+	ContentClassTeacher pgtype.Text
+	ContentHeadTeacher  pgtype.Text
+}
+
+type Session struct {
+	ID        pgtype.UUID
+	SessionID pgtype.UUID
+	UserID    pgtype.UUID
+	Expires   pgtype.Timestamptz
+}
+
+type Student struct {
+	StudentID      pgtype.UUID
+	AcademicYearID pgtype.UUID
+	LastName       string
+	FirstName      string
+	Gender         string
+	DateOfBirth    pgtype.Date
+}
+
+type StudentClass struct {
+	StudentClassID pgtype.UUID
+	StudentID      pgtype.UUID
+	ClassID        pgtype.UUID
+}
+
+type Subject struct {
+	SubjectID pgtype.UUID
+	ClassID   pgtype.UUID
+	Name      string
+}
+
+type Term struct {
+	TermID         pgtype.UUID
+	AcademicYearID pgtype.UUID
+	Name           string
+	StartDate      pgtype.Date
+	EndDate        pgtype.Date
+}
+
 type User struct {
-	ID          pgtype.UUID
+	UserID      pgtype.UUID
 	LastName    string
 	FirstName   string
+	Gender      string
 	Email       pgtype.Text
 	PhoneNumber pgtype.Text
 	Password    string
