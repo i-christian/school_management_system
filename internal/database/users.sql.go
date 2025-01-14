@@ -50,3 +50,137 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	)
 	return i, err
 }
+
+const deleteUser = `-- name: DeleteUser :exec
+DELETE FROM users
+WHERE user_id = $1
+`
+
+func (q *Queries) DeleteUser(ctx context.Context, userID pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, deleteUser, userID)
+	return err
+}
+
+const editUser = `-- name: EditUser :exec
+UPDATE users
+    set first_name = COALESCE($2, first_name),
+    last_name = COALESCE($3, last_name),
+    gender = COALESCE($4, gender),
+    phone_number = COALESCE($5, phone_number),
+    email = COALESCE($6, email),
+    password = COALESCE($7, password),
+    role = COALESCE($8, role)
+WHERE user_id = $1
+`
+
+type EditUserParams struct {
+	UserID      pgtype.UUID
+	FirstName   string
+	LastName    string
+	Gender      string
+	PhoneNumber pgtype.Text
+	Email       pgtype.Text
+	Password    string
+	Role        string
+}
+
+func (q *Queries) EditUser(ctx context.Context, arg EditUserParams) error {
+	_, err := q.db.Exec(ctx, editUser,
+		arg.UserID,
+		arg.FirstName,
+		arg.LastName,
+		arg.Gender,
+		arg.PhoneNumber,
+		arg.Email,
+		arg.Password,
+		arg.Role,
+	)
+	return err
+}
+
+const getUser = `-- name: GetUser :one
+SELECT users.role, users.user_id FROM users INNER JOIN sessions ON users.user_id = sessions.user_id WHERE session_id = $1
+`
+
+type GetUserRow struct {
+	Role   string
+	UserID pgtype.UUID
+}
+
+func (q *Queries) GetUser(ctx context.Context, sessionID pgtype.UUID) (GetUserRow, error) {
+	row := q.db.QueryRow(ctx, getUser, sessionID)
+	var i GetUserRow
+	err := row.Scan(&i.Role, &i.UserID)
+	return i, err
+}
+
+const getUserDetails = `-- name: GetUserDetails :one
+SELECT last_name, first_name, gender, email, phone_number, role 
+FROM users WHERE user_id = $1
+`
+
+type GetUserDetailsRow struct {
+	LastName    string
+	FirstName   string
+	Gender      string
+	Email       pgtype.Text
+	PhoneNumber pgtype.Text
+	Role        string
+}
+
+func (q *Queries) GetUserDetails(ctx context.Context, userID pgtype.UUID) (GetUserDetailsRow, error) {
+	row := q.db.QueryRow(ctx, getUserDetails, userID)
+	var i GetUserDetailsRow
+	err := row.Scan(
+		&i.LastName,
+		&i.FirstName,
+		&i.Gender,
+		&i.Email,
+		&i.PhoneNumber,
+		&i.Role,
+	)
+	return i, err
+}
+
+const listUsers = `-- name: ListUsers :many
+SELECT user_id, last_name, first_name, gender, email, phone_number, role
+FROM users ORDER BY last_name
+`
+
+type ListUsersRow struct {
+	UserID      pgtype.UUID
+	LastName    string
+	FirstName   string
+	Gender      string
+	Email       pgtype.Text
+	PhoneNumber pgtype.Text
+	Role        string
+}
+
+func (q *Queries) ListUsers(ctx context.Context) ([]ListUsersRow, error) {
+	rows, err := q.db.Query(ctx, listUsers)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListUsersRow
+	for rows.Next() {
+		var i ListUsersRow
+		if err := rows.Scan(
+			&i.UserID,
+			&i.LastName,
+			&i.FirstName,
+			&i.Gender,
+			&i.Email,
+			&i.PhoneNumber,
+			&i.Role,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
