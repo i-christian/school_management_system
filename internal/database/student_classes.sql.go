@@ -69,39 +69,82 @@ func (q *Queries) EditStudentClasses(ctx context.Context, arg EditStudentClasses
 }
 
 const getStudentClasses = `-- name: GetStudentClasses :one
-SELECT student_class_id, student_id, class_id, term_id FROM student_classes WHERE student_class_id = $1
+SELECT
+    student_classes.student_class_id,
+    students.last_name,
+    students.first_name,
+    classes.name AS className,
+    term.term_id AS AcademicTerm 
+FROM student_classes
+INNER JOIN students
+    ON student_classes.student_id = students.student_id
+INNER JOIN classes
+    ON student_classes.class_id = classes.class_id
+INNER JOIN term
+    ON student_classes.term_id = term.term_id
+WHERE students.student_id = $1
 `
 
-func (q *Queries) GetStudentClasses(ctx context.Context, studentClassID pgtype.UUID) (StudentClass, error) {
-	row := q.db.QueryRow(ctx, getStudentClasses, studentClassID)
-	var i StudentClass
+type GetStudentClassesRow struct {
+	StudentClassID pgtype.UUID
+	LastName       string
+	FirstName      string
+	Classname      string
+	Academicterm   pgtype.UUID
+}
+
+func (q *Queries) GetStudentClasses(ctx context.Context, studentID pgtype.UUID) (GetStudentClassesRow, error) {
+	row := q.db.QueryRow(ctx, getStudentClasses, studentID)
+	var i GetStudentClassesRow
 	err := row.Scan(
 		&i.StudentClassID,
-		&i.StudentID,
-		&i.ClassID,
-		&i.TermID,
+		&i.LastName,
+		&i.FirstName,
+		&i.Classname,
+		&i.Academicterm,
 	)
 	return i, err
 }
 
 const listStudentClasses = `-- name: ListStudentClasses :many
-SELECT student_class_id, student_id, class_id, term_id FROM student_classes
+SELECT
+    student_classes.student_class_id,
+    students.last_name,
+    students.first_name,
+    classes.name AS className,
+    term.term_id AS AcademicTerm 
+FROM student_classes
+INNER JOIN students
+    ON student_classes.student_id = students.student_id
+INNER JOIN classes
+    ON student_classes.class_id = classes.class_id
+INNER JOIN term
+    ON student_classes.term_id = term.term_id
 `
 
-func (q *Queries) ListStudentClasses(ctx context.Context) ([]StudentClass, error) {
+type ListStudentClassesRow struct {
+	StudentClassID pgtype.UUID
+	LastName       string
+	FirstName      string
+	Classname      string
+	Academicterm   pgtype.UUID
+}
+
+func (q *Queries) ListStudentClasses(ctx context.Context) ([]ListStudentClassesRow, error) {
 	rows, err := q.db.Query(ctx, listStudentClasses)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []StudentClass
+	var items []ListStudentClassesRow
 	for rows.Next() {
-		var i StudentClass
+		var i ListStudentClassesRow
 		if err := rows.Scan(
 			&i.StudentClassID,
-			&i.StudentID,
-			&i.ClassID,
-			&i.TermID,
+			&i.LastName,
+			&i.FirstName,
+			&i.Classname,
+			&i.Academicterm,
 		); err != nil {
 			return nil, err
 		}
