@@ -1,3 +1,10 @@
+-- name: CreateClassPromotions :one
+INSERT INTO class_promotions (class_id, next_class_id)
+VALUES ($1, $2) RETURNING *;
+
+-- name: ListClassPromotions :many
+SELECT * FROM class_promotions;
+
 -- name: UpdateStudentTerm :exec
 INSERT INTO student_classes (student_id, class_id, term_id)
 SELECT
