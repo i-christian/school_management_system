@@ -84,45 +84,99 @@ func (q *Queries) EditFeesRecord(ctx context.Context, arg EditFeesRecordParams) 
 }
 
 const getStudentFeesRecord = `-- name: GetStudentFeesRecord :one
-SELECT fees_id, student_id, term_id, class_id, required, paid, status FROM fees
-WHERE student_id = $1
+SELECT
+    fees.fees_id,
+    students.last_name AS LastName,
+    students.first_name AS FirstName,
+    term.name AS AcademicTerm,
+    classes.name AS ClassName,
+    fees.required AS TutionAmount,
+    fees.paid AS PaidAmount,
+    fees.status
+FROM fees
+INNER JOIN students
+    ON fees.student_id = students.student_id
+INNER JOIN term
+    ON fees.term_id = term.term_id
+INNER JOIN classes
+    ON fees.class_id = classes.class_id
+WHERE students.student_id = $1
 `
 
-func (q *Queries) GetStudentFeesRecord(ctx context.Context, studentID pgtype.UUID) (Fee, error) {
+type GetStudentFeesRecordRow struct {
+	FeesID       pgtype.UUID
+	Lastname     string
+	Firstname    string
+	Academicterm string
+	Classname    string
+	Tutionamount pgtype.Numeric
+	Paidamount   pgtype.Numeric
+	Status       pgtype.Text
+}
+
+func (q *Queries) GetStudentFeesRecord(ctx context.Context, studentID pgtype.UUID) (GetStudentFeesRecordRow, error) {
 	row := q.db.QueryRow(ctx, getStudentFeesRecord, studentID)
-	var i Fee
+	var i GetStudentFeesRecordRow
 	err := row.Scan(
 		&i.FeesID,
-		&i.StudentID,
-		&i.TermID,
-		&i.ClassID,
-		&i.Required,
-		&i.Paid,
+		&i.Lastname,
+		&i.Firstname,
+		&i.Academicterm,
+		&i.Classname,
+		&i.Tutionamount,
+		&i.Paidamount,
 		&i.Status,
 	)
 	return i, err
 }
 
 const listStudentFeesRecords = `-- name: ListStudentFeesRecords :many
-SELECT fees_id, student_id, term_id, class_id, required, paid, status FROM fees
+SELECT
+    fees.fees_id,
+    students.last_name AS LastName,
+    students.first_name AS FirstName,
+    term.name AS AcademicTerm,
+    classes.name AS ClassName,
+    fees.required AS TutionAmount,
+    fees.paid AS PaidAmount,
+    fees.status
+FROM fees
+INNER JOIN students
+    ON fees.student_id = students.student_id
+INNER JOIN term
+    ON fees.term_id = term.term_id
+INNER JOIN classes
+    ON fees.class_id = classes.class_id
 `
 
-func (q *Queries) ListStudentFeesRecords(ctx context.Context) ([]Fee, error) {
+type ListStudentFeesRecordsRow struct {
+	FeesID       pgtype.UUID
+	Lastname     string
+	Firstname    string
+	Academicterm string
+	Classname    string
+	Tutionamount pgtype.Numeric
+	Paidamount   pgtype.Numeric
+	Status       pgtype.Text
+}
+
+func (q *Queries) ListStudentFeesRecords(ctx context.Context) ([]ListStudentFeesRecordsRow, error) {
 	rows, err := q.db.Query(ctx, listStudentFeesRecords)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Fee
+	var items []ListStudentFeesRecordsRow
 	for rows.Next() {
-		var i Fee
+		var i ListStudentFeesRecordsRow
 		if err := rows.Scan(
 			&i.FeesID,
-			&i.StudentID,
-			&i.TermID,
-			&i.ClassID,
-			&i.Required,
-			&i.Paid,
+			&i.Lastname,
+			&i.Firstname,
+			&i.Academicterm,
+			&i.Classname,
+			&i.Tutionamount,
+			&i.Paidamount,
 			&i.Status,
 		); err != nil {
 			return nil, err
