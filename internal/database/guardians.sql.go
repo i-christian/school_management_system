@@ -11,121 +11,135 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const createGuardian = `-- name: CreateGuardian :one
-INSERT INTO guardians (student_id, name, phone_number_1, phone_number_2, gender, profession)
-VALUES ($1, $2, $3, $4, $5, $6) 
-RETURNING guardian_id, student_id, name, phone_number_1, phone_number_2, gender, profession
+const createAndLinkGuardian = `-- name: CreateAndLinkGuardian :one
+WITH new_guardian AS (
+    INSERT INTO guardians (name, phone_number_1, phone_number_2, gender, profession)
+    VALUES ($1, $2, $3, $4, $5)
+    RETURNING guardian_id
+)
+INSERT INTO student_guardians (student_id, guardian_id)
+VALUES ($6, (SELECT guardian_id FROM new_guardian))
+RETURNING student_id, guardian_id
 `
 
-type CreateGuardianParams struct {
-	StudentID    pgtype.UUID
+type CreateAndLinkGuardianParams struct {
 	Name         string
 	PhoneNumber1 pgtype.Text
 	PhoneNumber2 pgtype.Text
-	Gender       pgtype.Text
+	Gender       string
 	Profession   pgtype.Text
+	StudentID    pgtype.UUID
 }
 
-func (q *Queries) CreateGuardian(ctx context.Context, arg CreateGuardianParams) (Guardian, error) {
-	row := q.db.QueryRow(ctx, createGuardian,
-		arg.StudentID,
+func (q *Queries) CreateAndLinkGuardian(ctx context.Context, arg CreateAndLinkGuardianParams) (StudentGuardian, error) {
+	row := q.db.QueryRow(ctx, createAndLinkGuardian,
 		arg.Name,
 		arg.PhoneNumber1,
 		arg.PhoneNumber2,
 		arg.Gender,
 		arg.Profession,
-	)
-	var i Guardian
-	err := row.Scan(
-		&i.GuardianID,
-		&i.StudentID,
-		&i.Name,
-		&i.PhoneNumber1,
-		&i.PhoneNumber2,
-		&i.Gender,
-		&i.Profession,
-	)
-	return i, err
-}
-
-const deleteGuardian = `-- name: DeleteGuardian :exec
-DELETE FROM guardians WHERE guardian_id = $1
-`
-
-func (q *Queries) DeleteGuardian(ctx context.Context, guardianID pgtype.UUID) error {
-	_, err := q.db.Exec(ctx, deleteGuardian, guardianID)
-	return err
-}
-
-const editGuardian = `-- name: EditGuardian :exec
-UPDATE guardians
-SET student_id = COALESCE($2, student_id),
-name = COALESCE($3, name),
-phone_number_1 = COALESCE($4, phone_number_1),
-phone_number_2 = COALESCE($5, phone_number_2),
-gender = COALESCE($6, gender),
-profession = COALESCE($7, profession)
-WHERE guardian_id = $1
-`
-
-type EditGuardianParams struct {
-	GuardianID   pgtype.UUID
-	StudentID    pgtype.UUID
-	Name         string
-	PhoneNumber1 pgtype.Text
-	PhoneNumber2 pgtype.Text
-	Gender       pgtype.Text
-	Profession   pgtype.Text
-}
-
-func (q *Queries) EditGuardian(ctx context.Context, arg EditGuardianParams) error {
-	_, err := q.db.Exec(ctx, editGuardian,
-		arg.GuardianID,
 		arg.StudentID,
-		arg.Name,
-		arg.PhoneNumber1,
-		arg.PhoneNumber2,
-		arg.Gender,
-		arg.Profession,
 	)
-	return err
-}
-
-const getGuardian = `-- name: GetGuardian :one
-SELECT guardian_id, student_id, name, phone_number_1, phone_number_2, gender, profession FROM guardians WHERE guardian_id = $1
-`
-
-func (q *Queries) GetGuardian(ctx context.Context, guardianID pgtype.UUID) (Guardian, error) {
-	row := q.db.QueryRow(ctx, getGuardian, guardianID)
-	var i Guardian
-	err := row.Scan(
-		&i.GuardianID,
-		&i.StudentID,
-		&i.Name,
-		&i.PhoneNumber1,
-		&i.PhoneNumber2,
-		&i.Gender,
-		&i.Profession,
-	)
+	var i StudentGuardian
+	err := row.Scan(&i.StudentID, &i.GuardianID)
 	return i, err
 }
 
-const listGuardians = `-- name: ListGuardians :many
-SELECT guardian_id, student_id, name, phone_number_1, phone_number_2, gender, profession FROM guardians
+const deleteGuardianAndUnlink = `-- name: DeleteGuardianAndUnlink :exec
+WITH deleted_guardian AS (
+    DELETE FROM guardians
+    WHERE guardians.guardian_id = $1
+    RETURNING guardians.guardian_id
+)
+DELETE FROM student_guardians
+WHERE student_guardians.guardian_id = (SELECT deleted_guardian.guardian_id FROM deleted_guardian)
 `
 
-func (q *Queries) ListGuardians(ctx context.Context) ([]Guardian, error) {
-	rows, err := q.db.Query(ctx, listGuardians)
+func (q *Queries) DeleteGuardianAndUnlink(ctx context.Context, guardianID pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, deleteGuardianAndUnlink, guardianID)
+	return err
+}
+
+const getAllStudentGuardianLinks = `-- name: GetAllStudentGuardianLinks :many
+SELECT s.last_name AS student_first_name, s.first_name AS student_last_name, g.name AS guardian_name, g.phone_number_1, g.phone_number_2, g.gender AS guardian_gender, g.profession AS guardian_profession
+FROM students s
+INNER JOIN student_guardians sg ON s.student_id = sg.student_id
+INNER JOIN guardians g ON sg.guardian_id = g.guardian_id
+ORDER BY s.last_name
+`
+
+type GetAllStudentGuardianLinksRow struct {
+	StudentFirstName   string
+	StudentLastName    string
+	GuardianName       string
+	PhoneNumber1       pgtype.Text
+	PhoneNumber2       pgtype.Text
+	GuardianGender     string
+	GuardianProfession pgtype.Text
+}
+
+func (q *Queries) GetAllStudentGuardianLinks(ctx context.Context) ([]GetAllStudentGuardianLinksRow, error) {
+	rows, err := q.db.Query(ctx, getAllStudentGuardianLinks)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Guardian
+	var items []GetAllStudentGuardianLinksRow
 	for rows.Next() {
-		var i Guardian
+		var i GetAllStudentGuardianLinksRow
 		if err := rows.Scan(
+			&i.StudentFirstName,
+			&i.StudentLastName,
+			&i.GuardianName,
+			&i.PhoneNumber1,
+			&i.PhoneNumber2,
+			&i.GuardianGender,
+			&i.GuardianProfession,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getStudentAndLinkedGuardians = `-- name: GetStudentAndLinkedGuardians :many
+SELECT s.last_name AS student_first_name, s.first_name AS student_last_name, s.gender AS student_gender, g.guardian_id, g.name, g.phone_number_1, g.phone_number_2, g.gender, g.profession
+FROM students s
+LEFT JOIN student_guardians sg ON s.student_id = sg.student_id
+LEFT JOIN guardians g ON sg.guardian_id = g.guardian_id
+WHERE s.student_id = $1
+`
+
+type GetStudentAndLinkedGuardiansRow struct {
+	StudentFirstName string
+	StudentLastName  string
+	StudentGender    string
+	GuardianID       pgtype.UUID
+	Name             pgtype.Text
+	PhoneNumber1     pgtype.Text
+	PhoneNumber2     pgtype.Text
+	Gender           pgtype.Text
+	Profession       pgtype.Text
+}
+
+func (q *Queries) GetStudentAndLinkedGuardians(ctx context.Context, studentID pgtype.UUID) ([]GetStudentAndLinkedGuardiansRow, error) {
+	rows, err := q.db.Query(ctx, getStudentAndLinkedGuardians, studentID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetStudentAndLinkedGuardiansRow
+	for rows.Next() {
+		var i GetStudentAndLinkedGuardiansRow
+		if err := rows.Scan(
+			&i.StudentFirstName,
+			&i.StudentLastName,
+			&i.StudentGender,
 			&i.GuardianID,
-			&i.StudentID,
 			&i.Name,
 			&i.PhoneNumber1,
 			&i.PhoneNumber2,
@@ -140,4 +154,35 @@ func (q *Queries) ListGuardians(ctx context.Context) ([]Guardian, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateGuardianAndLink = `-- name: UpdateGuardianAndLink :exec
+UPDATE guardians
+SET name = COALESCE($2, name),
+    phone_number_1 = COALESCE($3, phone_number_1),
+    phone_number_2 = COALESCE($4, phone_number_2),
+    gender = COALESCE($5, gender),
+    profession = COALESCE($6, profession)
+WHERE guardian_id = $1
+`
+
+type UpdateGuardianAndLinkParams struct {
+	GuardianID   pgtype.UUID
+	Name         string
+	PhoneNumber1 pgtype.Text
+	PhoneNumber2 pgtype.Text
+	Gender       string
+	Profession   pgtype.Text
+}
+
+func (q *Queries) UpdateGuardianAndLink(ctx context.Context, arg UpdateGuardianAndLinkParams) error {
+	_, err := q.db.Exec(ctx, updateGuardianAndLink,
+		arg.GuardianID,
+		arg.Name,
+		arg.PhoneNumber1,
+		arg.PhoneNumber2,
+		arg.Gender,
+		arg.Profession,
+	)
+	return err
 }

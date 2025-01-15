@@ -11,6 +11,47 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const createClassPromotions = `-- name: CreateClassPromotions :one
+INSERT INTO class_promotions (class_id, next_class_id)
+VALUES ($1, $2) RETURNING class_id, next_class_id
+`
+
+type CreateClassPromotionsParams struct {
+	ClassID     pgtype.UUID
+	NextClassID pgtype.UUID
+}
+
+func (q *Queries) CreateClassPromotions(ctx context.Context, arg CreateClassPromotionsParams) (ClassPromotion, error) {
+	row := q.db.QueryRow(ctx, createClassPromotions, arg.ClassID, arg.NextClassID)
+	var i ClassPromotion
+	err := row.Scan(&i.ClassID, &i.NextClassID)
+	return i, err
+}
+
+const listClassPromotions = `-- name: ListClassPromotions :many
+SELECT class_id, next_class_id FROM class_promotions
+`
+
+func (q *Queries) ListClassPromotions(ctx context.Context) ([]ClassPromotion, error) {
+	rows, err := q.db.Query(ctx, listClassPromotions)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ClassPromotion
+	for rows.Next() {
+		var i ClassPromotion
+		if err := rows.Scan(&i.ClassID, &i.NextClassID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateStudentTerm = `-- name: UpdateStudentTerm :exec
 INSERT INTO student_classes (student_id, class_id, term_id)
 SELECT
