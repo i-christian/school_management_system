@@ -4,10 +4,39 @@ VALUES ($1, $2, $3, $4, $5)
 RETURNING *;
 
 -- name: GetGrade :one
-SELECT * FROM grades WHERE grade_id = $1;
+SELECT
+    grades.grade_id,
+    students.last_name,
+    students.first_name,
+    subjects.name AS Subject,
+    term.name AS AcademicTerm,
+    grades.score,
+    grades.remark
+FROM grades
+INNER JOIN students
+    ON grades.student_id = students.student_id
+INNER JOIN subjects
+    ON grades.subject_id =  students.student_id
+INNER JOIN term
+    ON grades.term_id = term.term_id
+WHERE students.student_id = $1;
 
 -- name: ListGrades :many
-SELECT * FROM grades;
+SELECT
+    grades.grade_id,
+    students.last_name,
+    students.first_name,
+    subjects.name AS Subject,
+    term.name AS AcademicTerm,
+    grades.score,
+    grades.remark
+FROM grades
+INNER JOIN students
+    ON grades.student_id = students.student_id
+INNER JOIN subjects
+    ON grades.subject_id =  students.student_id
+INNER JOIN term
+    ON grades.term_id = term.term_id;
 
 -- name: EditGrade :exec
 UPDATE grades

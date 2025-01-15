@@ -86,17 +86,43 @@ func (q *Queries) EditGrade(ctx context.Context, arg EditGradeParams) error {
 }
 
 const getGrade = `-- name: GetGrade :one
-SELECT grade_id, student_id, subject_id, term_id, score, remark FROM grades WHERE grade_id = $1
+SELECT
+    grades.grade_id,
+    students.last_name,
+    students.first_name,
+    subjects.name AS Subject,
+    term.name AS AcademicTerm,
+    grades.score,
+    grades.remark
+FROM grades
+INNER JOIN students
+    ON grades.student_id = students.student_id
+INNER JOIN subjects
+    ON grades.subject_id =  students.student_id
+INNER JOIN term
+    ON grades.term_id = term.term_id
+WHERE students.student_id = $1
 `
 
-func (q *Queries) GetGrade(ctx context.Context, gradeID pgtype.UUID) (Grade, error) {
-	row := q.db.QueryRow(ctx, getGrade, gradeID)
-	var i Grade
+type GetGradeRow struct {
+	GradeID      pgtype.UUID
+	LastName     string
+	FirstName    string
+	Subject      string
+	Academicterm string
+	Score        pgtype.Numeric
+	Remark       pgtype.Text
+}
+
+func (q *Queries) GetGrade(ctx context.Context, studentID pgtype.UUID) (GetGradeRow, error) {
+	row := q.db.QueryRow(ctx, getGrade, studentID)
+	var i GetGradeRow
 	err := row.Scan(
 		&i.GradeID,
-		&i.StudentID,
-		&i.SubjectID,
-		&i.TermID,
+		&i.LastName,
+		&i.FirstName,
+		&i.Subject,
+		&i.Academicterm,
 		&i.Score,
 		&i.Remark,
 	)
@@ -104,23 +130,48 @@ func (q *Queries) GetGrade(ctx context.Context, gradeID pgtype.UUID) (Grade, err
 }
 
 const listGrades = `-- name: ListGrades :many
-SELECT grade_id, student_id, subject_id, term_id, score, remark FROM grades
+SELECT
+    grades.grade_id,
+    students.last_name,
+    students.first_name,
+    subjects.name AS Subject,
+    term.name AS AcademicTerm,
+    grades.score,
+    grades.remark
+FROM grades
+INNER JOIN students
+    ON grades.student_id = students.student_id
+INNER JOIN subjects
+    ON grades.subject_id =  students.student_id
+INNER JOIN term
+    ON grades.term_id = term.term_id
 `
 
-func (q *Queries) ListGrades(ctx context.Context) ([]Grade, error) {
+type ListGradesRow struct {
+	GradeID      pgtype.UUID
+	LastName     string
+	FirstName    string
+	Subject      string
+	Academicterm string
+	Score        pgtype.Numeric
+	Remark       pgtype.Text
+}
+
+func (q *Queries) ListGrades(ctx context.Context) ([]ListGradesRow, error) {
 	rows, err := q.db.Query(ctx, listGrades)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Grade
+	var items []ListGradesRow
 	for rows.Next() {
-		var i Grade
+		var i ListGradesRow
 		if err := rows.Scan(
 			&i.GradeID,
-			&i.StudentID,
-			&i.SubjectID,
-			&i.TermID,
+			&i.LastName,
+			&i.FirstName,
+			&i.Subject,
+			&i.Academicterm,
 			&i.Score,
 			&i.Remark,
 		); err != nil {
