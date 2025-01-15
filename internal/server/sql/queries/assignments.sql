@@ -4,28 +4,34 @@ VALUES($1, $2, $3) RETURNING *;
 
 -- name: ListAssignments :many
 SELECT
-assignments.id,
-classes.name AS ClassRoom,
-subjects.name AS Subject,
-users.last_name AS Teacher_LastName,
-users.first_name AS Teacher_FirstName
+    assignments.id,
+    classes.name AS ClassRoom,
+    subjects.name AS Subject,
+    users.last_name AS Teacher_LastName,
+    users.first_name AS Teacher_FirstName
 FROM assignments
-INNER JOIN classes ON assignments.class_id = classes.class_id
-INNER JOIN subjects ON assignments.subject_id = subjects.subject_id
-INNER JOIN users ON assignments.teacher_id = users.user_id;
+INNER JOIN classes
+    ON assignments.class_id = classes.class_id
+INNER JOIN subjects
+    ON assignments.subject_id = subjects.subject_id
+INNER JOIN users
+    ON assignments.teacher_id = users.user_id;
 
 -- name: GetAssignment :one
 SELECT
-assignments.id,
-classes.name AS ClassRoom,
-subjects.name AS Subject,
-users.last_name AS Teacher_LastName,
-users.first_name AS Teacher_FirstName
+    assignments.id,
+    classes.name AS ClassRoom,
+    subjects.name AS Subject,
+    users.last_name AS Teacher_LastName,
+    users.first_name AS Teacher_FirstName
 FROM assignments
-INNER JOIN classes ON assignments.class_id = classes.class_id
-INNER JOIN subjects ON assignments.subject_id = subjects.subject_id
-INNER JOIN users ON assignments.teacher_id = users.user_id
-WHERE teacher_id = $1;
+INNER JOIN classes
+    ON assignments.class_id = classes.class_id
+INNER JOIN subjects
+    ON assignments.subject_id = subjects.subject_id
+INNER JOIN users
+    ON assignments.teacher_id = users.user_id
+WHERE users.user_id = $1;
 
 -- name: EditAssignments :exec
 UPDATE assignments

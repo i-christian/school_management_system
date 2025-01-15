@@ -70,16 +70,19 @@ func (q *Queries) EditAssignments(ctx context.Context, arg EditAssignmentsParams
 
 const getAssignment = `-- name: GetAssignment :one
 SELECT
-assignments.id,
-classes.name AS ClassRoom,
-subjects.name AS Subject,
-users.last_name AS Teacher_LastName,
-users.first_name AS Teacher_FirstName
+    assignments.id,
+    classes.name AS ClassRoom,
+    subjects.name AS Subject,
+    users.last_name AS Teacher_LastName,
+    users.first_name AS Teacher_FirstName
 FROM assignments
-INNER JOIN classes ON assignments.class_id = classes.class_id
-INNER JOIN subjects ON assignments.subject_id = subjects.subject_id
-INNER JOIN users ON assignments.teacher_id = users.user_id
-WHERE teacher_id = $1
+INNER JOIN classes
+    ON assignments.class_id = classes.class_id
+INNER JOIN subjects
+    ON assignments.subject_id = subjects.subject_id
+INNER JOIN users
+    ON assignments.teacher_id = users.user_id
+WHERE users.user_id = $1
 `
 
 type GetAssignmentRow struct {
@@ -90,8 +93,8 @@ type GetAssignmentRow struct {
 	TeacherFirstname string
 }
 
-func (q *Queries) GetAssignment(ctx context.Context, teacherID pgtype.UUID) (GetAssignmentRow, error) {
-	row := q.db.QueryRow(ctx, getAssignment, teacherID)
+func (q *Queries) GetAssignment(ctx context.Context, userID pgtype.UUID) (GetAssignmentRow, error) {
+	row := q.db.QueryRow(ctx, getAssignment, userID)
 	var i GetAssignmentRow
 	err := row.Scan(
 		&i.ID,
@@ -105,15 +108,18 @@ func (q *Queries) GetAssignment(ctx context.Context, teacherID pgtype.UUID) (Get
 
 const listAssignments = `-- name: ListAssignments :many
 SELECT
-assignments.id,
-classes.name AS ClassRoom,
-subjects.name AS Subject,
-users.last_name AS Teacher_LastName,
-users.first_name AS Teacher_FirstName
+    assignments.id,
+    classes.name AS ClassRoom,
+    subjects.name AS Subject,
+    users.last_name AS Teacher_LastName,
+    users.first_name AS Teacher_FirstName
 FROM assignments
-INNER JOIN classes ON assignments.class_id = classes.class_id
-INNER JOIN subjects ON assignments.subject_id = subjects.subject_id
-INNER JOIN users ON assignments.teacher_id = users.user_id
+INNER JOIN classes
+    ON assignments.class_id = classes.class_id
+INNER JOIN subjects
+    ON assignments.subject_id = subjects.subject_id
+INNER JOIN users
+    ON assignments.teacher_id = users.user_id
 `
 
 type ListAssignmentsRow struct {
