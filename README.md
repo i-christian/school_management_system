@@ -13,8 +13,8 @@ The `School Management System` is a full-stack web application designed to strea
 
 - **Backend**: Golang, PostgreSQL
 - **Frontend**: Templ, HTMX, TailwindCSS
-- **Development**: Docker and Docker compose
-- **Deployment**: Continuous Integration/Continuous Deployment (CI/CD) via GitHub actions
+- **Development**: Docker and Docker Compose
+- **Deployment**: Continuous Integration/Continuous Deployment (CI/CD) via GitHub Actions
 
 ## Objectives
 
@@ -22,3 +22,15 @@ The `School Management System` is a full-stack web application designed to strea
 - Ensure **security** by implementing role-based access control.
 - Deliver a **user-friendly** interface with responsive design across all devices.
 - Implement an automated **CI/CD pipeline** for continuous integration and deployment.
+
+## Database Design
+
+For a detailed overview of the database schema, including table relationships and descriptions, please refer to the [Database Design Documentation](/database_design.md).
+
+This documentation provides insights into the structure and relationships of the database, making it easier to understand how different entities in the system interact.
+
+## Development Workflow
+
+For instructions on how to get started with this application, please refer to the [Development Documentation](/development.md).
+
+This documentation provides instructions on how to set up your environment and develop the application.
