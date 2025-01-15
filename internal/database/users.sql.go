@@ -12,28 +12,38 @@ import (
 )
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO users(last_name, first_name, phone_number, email, gender, password) 
-VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING user_id, last_name, first_name, gender, email, phone_number, password, created_at, updated_at, role
+INSERT INTO users (first_name, last_name, phone_number, email, gender, password, role_id)
+VALUES (
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    (SELECT role_id FROM roles WHERE name = $7)
+)
+RETURNING user_id, last_name, first_name, gender, email, phone_number, password, created_at, updated_at, role_id
 `
 
 type CreateUserParams struct {
-	LastName    string
 	FirstName   string
+	LastName    string
 	PhoneNumber pgtype.Text
 	Email       pgtype.Text
 	Gender      string
 	Password    string
+	Name        string
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
 	row := q.db.QueryRow(ctx, createUser,
-		arg.LastName,
 		arg.FirstName,
+		arg.LastName,
 		arg.PhoneNumber,
 		arg.Email,
 		arg.Gender,
 		arg.Password,
+		arg.Name,
 	)
 	var i User
 	err := row.Scan(
@@ -46,7 +56,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.Password,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.Role,
+		&i.RoleID,
 	)
 	return i, err
 }
@@ -69,7 +79,7 @@ UPDATE users
     phone_number = COALESCE($5, phone_number),
     email = COALESCE($6, email),
     password = COALESCE($7, password),
-    role = COALESCE($8, role)
+    role_id = COALESCE((SELECT role_id FROM roles WHERE name = $8), role_id)
 WHERE user_id = $1
 `
 
@@ -81,7 +91,7 @@ type EditUserParams struct {
 	PhoneNumber pgtype.Text
 	Email       pgtype.Text
 	Password    string
-	Role        string
+	Name        string
 }
 
 func (q *Queries) EditUser(ctx context.Context, arg EditUserParams) error {
@@ -93,31 +103,34 @@ func (q *Queries) EditUser(ctx context.Context, arg EditUserParams) error {
 		arg.PhoneNumber,
 		arg.Email,
 		arg.Password,
-		arg.Role,
+		arg.Name,
 	)
 	return err
 }
 
-const getUser = `-- name: GetUser :one
-SELECT users.role, users.user_id FROM users INNER JOIN sessions ON users.user_id = sessions.user_id WHERE session_id = $1
-`
-
-type GetUserRow struct {
-	Role   string
-	UserID pgtype.UUID
-}
-
-func (q *Queries) GetUser(ctx context.Context, sessionID pgtype.UUID) (GetUserRow, error) {
-	row := q.db.QueryRow(ctx, getUser, sessionID)
-	var i GetUserRow
-	err := row.Scan(&i.Role, &i.UserID)
-	return i, err
-}
-
 const getUserDetails = `-- name: GetUserDetails :one
-SELECT last_name, first_name, gender, email, phone_number, role 
-FROM users WHERE user_id = $1
+SELECT 
+    users.last_name, 
+    users.first_name, 
+    users.gender, 
+    users.email, 
+    users.phone_number, 
+    roles.name AS role
+FROM 
+    users
+INNER JOIN 
+    roles 
+ON 
+    users.role_id = roles.role_id
+WHERE 
+    roles.name = $2
+    AND users.user_id = $1
 `
+
+type GetUserDetailsParams struct {
+	UserID pgtype.UUID
+	Name   string
+}
 
 type GetUserDetailsRow struct {
 	LastName    string
@@ -128,8 +141,8 @@ type GetUserDetailsRow struct {
 	Role        string
 }
 
-func (q *Queries) GetUserDetails(ctx context.Context, userID pgtype.UUID) (GetUserDetailsRow, error) {
-	row := q.db.QueryRow(ctx, getUserDetails, userID)
+func (q *Queries) GetUserDetails(ctx context.Context, arg GetUserDetailsParams) (GetUserDetailsRow, error) {
+	row := q.db.QueryRow(ctx, getUserDetails, arg.UserID, arg.Name)
 	var i GetUserDetailsRow
 	err := row.Scan(
 		&i.LastName,
@@ -142,9 +155,40 @@ func (q *Queries) GetUserDetails(ctx context.Context, userID pgtype.UUID) (GetUs
 	return i, err
 }
 
+const getUserRole = `-- name: GetUserRole :one
+SELECT roles.name AS role, users.user_id
+FROM users
+INNER JOIN sessions 
+ON users.user_id = sessions.user_id
+INNER JOIN roles 
+ON users.role_id = roles.role_id
+WHERE session_id = $1
+`
+
+type GetUserRoleRow struct {
+	Role   string
+	UserID pgtype.UUID
+}
+
+func (q *Queries) GetUserRole(ctx context.Context, sessionID pgtype.UUID) (GetUserRoleRow, error) {
+	row := q.db.QueryRow(ctx, getUserRole, sessionID)
+	var i GetUserRoleRow
+	err := row.Scan(&i.Role, &i.UserID)
+	return i, err
+}
+
 const listUsers = `-- name: ListUsers :many
-SELECT user_id, last_name, first_name, gender, email, phone_number, role
-FROM users ORDER BY last_name
+SELECT
+    users.user_id,
+    users.last_name,
+    users.first_name,
+    users.gender,
+    users.email,
+    users.phone_number,
+    roles.name AS role
+FROM users
+INNER JOIN roles ON users.role_id = roles.role_id
+ORDER BY last_name
 `
 
 type ListUsersRow struct {

@@ -39,11 +39,12 @@ type DisciplineRecord struct {
 }
 
 type Fee struct {
-	FeesID         pgtype.UUID
-	StudentID      pgtype.UUID
-	AcademicYearID pgtype.UUID
-	Required       pgtype.Numeric
-	Paid           pgtype.Numeric
+	FeesID    pgtype.UUID
+	StudentID pgtype.UUID
+	TermID    pgtype.UUID
+	Required  pgtype.Numeric
+	Paid      pgtype.Numeric
+	Status    string
 }
 
 type Grade struct {
@@ -73,6 +74,12 @@ type Remark struct {
 	ContentHeadTeacher  pgtype.Text
 }
 
+type Role struct {
+	RoleID      pgtype.UUID
+	Name        string
+	Description pgtype.Text
+}
+
 type Session struct {
 	ID        pgtype.UUID
 	SessionID pgtype.UUID
@@ -87,12 +94,17 @@ type Student struct {
 	FirstName      string
 	Gender         string
 	DateOfBirth    pgtype.Date
+	Status         string
+	Promoted       bool
+	Graduated      bool
+	Suspended      bool
 }
 
 type StudentClass struct {
 	StudentClassID pgtype.UUID
 	StudentID      pgtype.UUID
 	ClassID        pgtype.UUID
+	TermID         pgtype.UUID
 }
 
 type Subject struct {
@@ -119,5 +131,5 @@ type User struct {
 	Password    string
 	CreatedAt   pgtype.Timestamptz
 	UpdatedAt   pgtype.Timestamptz
-	Role        string
+	RoleID      pgtype.UUID
 }

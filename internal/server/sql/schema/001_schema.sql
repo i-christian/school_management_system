@@ -1,7 +1,14 @@
 -- +goose Up
 
+-- ROLES TABLE
+CREATE TABLE roles (
+    role_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(50) NOT NULL UNIQUE,
+    description TEXT
+);
+
 -- USERS TABLE
-CREATE TABLE IF NOT EXISTS users (
+CREATE TABLE users (
     user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     last_name VARCHAR(50) NOT NULL,
     first_name VARCHAR(50) NOT NULL,
@@ -11,12 +18,13 @@ CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(255) NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    role VARCHAR(20) NOT NULL DEFAULT 'teacher',
+    role_id UUID NOT NULL,
+    CONSTRAINT fk_role FOREIGN KEY (role_id) REFERENCES roles(role_id) ON DELETE SET NULL,
     CONSTRAINT chk_email_or_phone CHECK (email IS NOT NULL OR phone_number IS NOT NULL)
 );
 
 -- Index for quick searching/filtering by role (e.g., finding all teachers or admins)
-CREATE INDEX idx_users_role ON users(role);
+CREATE INDEX idx_users_role_id ON users(role_id);
 
 -- SESSIONS TABLE
 CREATE TABLE IF NOT EXISTS sessions (
@@ -58,11 +66,12 @@ CREATE TABLE IF NOT EXISTS classes (
 );
 
 -- SUBJECTS TABLE
-CREATE TABLE IF NOT EXISTS subjects (
+CREATE TABLE subjects (
     subject_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     class_id UUID NOT NULL,
     name VARCHAR(50) NOT NULL,
-    CONSTRAINT fk_class FOREIGN KEY (class_id) REFERENCES classes(class_id) ON DELETE CASCADE
+    CONSTRAINT fk_class FOREIGN KEY (class_id) REFERENCES classes(class_id) ON DELETE CASCADE,
+    CONSTRAINT unique_subject_name_per_class UNIQUE (class_id, name)
 );
 
 -- Index for filtering subjects by class
@@ -93,6 +102,11 @@ CREATE TABLE IF NOT EXISTS students (
     first_name VARCHAR(50) NOT NULL,
     gender CHAR(1) NOT NULL CHECK (gender IN ('M', 'F')),
     date_of_birth DATE NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'active', -- Tracks the student's current state
+    promoted BOOLEAN NOT NULL DEFAULT FALSE, -- Indicates if the student was promoted this year
+    graduated BOOLEAN NOT NULL DEFAULT FALSE, -- Indicates if the student has graduated
+    suspended BOOLEAN NOT NULL DEFAULT FALSE -- Indicates if the student got suspended
+    CONSTRAINT chk_student_status CHECK (status IN ('active', 'repeating', 'withdrawn', 'graduated')),
     CONSTRAINT fk_academic_year FOREIGN KEY (academic_year_id) REFERENCES academic_year(academic_year_id) ON DELETE CASCADE
 );
 
@@ -119,8 +133,10 @@ CREATE TABLE IF NOT EXISTS student_classes (
     student_class_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     student_id UUID NOT NULL,
     class_id UUID NOT NULL,
+    term_id UUID NOT NULL,
     CONSTRAINT fk_student FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE,
-    CONSTRAINT fk_class FOREIGN KEY (class_id) REFERENCES classes(class_id) ON DELETE CASCADE
+    CONSTRAINT fk_class FOREIGN KEY (class_id) REFERENCES classes(class_id) ON DELETE CASCADE,
+    CONSTRAINT fk_term FOREIGN KEY (term_id) REFERENCES term(term_id) ON DELETE CASCADE
 );
 
 -- Index for filtering by student or class
@@ -146,19 +162,21 @@ CREATE INDEX idx_grades_subject_id ON grades(subject_id);
 CREATE INDEX idx_grades_term_id ON grades(term_id);
 
 -- FEES TABLE
-CREATE TABLE IF NOT EXISTS fees (
+CREATE TABLE fees (
     fees_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     student_id UUID NOT NULL,
-    academic_year_id UUID NOT NULL,
+    term_id UUID NOT NULL,
     required NUMERIC(10, 2) NOT NULL CHECK (required >= 0),
     paid NUMERIC(10, 2) NOT NULL CHECK (paid >= 0),
+    status VARCHAR(20) NOT NULL DEFAULT 'PARTIAL',
+    CONSTRAINT chk_fees_status CHECK (status IN ('PAID', 'PARTIAL', 'OVERDUE')),
     CONSTRAINT fk_student FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE,
-    CONSTRAINT fk_academic_year FOREIGN KEY (academic_year_id) REFERENCES academic_year(academic_year_id) ON DELETE CASCADE
+    CONSTRAINT fk_term FOREIGN KEY (term_id) REFERENCES term(term_id) ON DELETE CASCADE
 );
 
 -- Index for filtering fees by student or academic year
 CREATE INDEX idx_fees_student_id ON fees(student_id);
-CREATE INDEX idx_fees_academic_year_id ON fees(academic_year_id);
+CREATE INDEX idx_term_id ON fees(term_id);
 
 -- REMARKS TABLE
 CREATE TABLE IF NOT EXISTS remarks (

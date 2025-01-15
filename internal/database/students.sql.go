@@ -14,7 +14,7 @@ import (
 const createStudent = `-- name: CreateStudent :one
 INSERT INTO students (academic_year_id, last_name, first_name, gender, date_of_birth) 
 VALUES ($1, $2, $3, $4, $5) 
-RETURNING student_id, academic_year_id, last_name, first_name, gender, date_of_birth
+RETURNING student_id, academic_year_id, last_name, first_name, gender, date_of_birth, status, promoted, graduated, suspended
 `
 
 type CreateStudentParams struct {
@@ -41,6 +41,10 @@ func (q *Queries) CreateStudent(ctx context.Context, arg CreateStudentParams) (S
 		&i.FirstName,
 		&i.Gender,
 		&i.DateOfBirth,
+		&i.Status,
+		&i.Promoted,
+		&i.Graduated,
+		&i.Suspended,
 	)
 	return i, err
 }
@@ -84,7 +88,7 @@ func (q *Queries) EditStudent(ctx context.Context, arg EditStudentParams) error 
 }
 
 const getStudent = `-- name: GetStudent :one
-SELECT student_id, academic_year_id, last_name, first_name, gender, date_of_birth FROM students WHERE student_id = $1
+SELECT student_id, academic_year_id, last_name, first_name, gender, date_of_birth, status, promoted, graduated, suspended FROM students WHERE student_id = $1
 `
 
 func (q *Queries) GetStudent(ctx context.Context, studentID pgtype.UUID) (Student, error) {
@@ -97,12 +101,16 @@ func (q *Queries) GetStudent(ctx context.Context, studentID pgtype.UUID) (Studen
 		&i.FirstName,
 		&i.Gender,
 		&i.DateOfBirth,
+		&i.Status,
+		&i.Promoted,
+		&i.Graduated,
+		&i.Suspended,
 	)
 	return i, err
 }
 
 const listStudents = `-- name: ListStudents :many
-SELECT student_id, academic_year_id, last_name, first_name, gender, date_of_birth FROM students
+SELECT student_id, academic_year_id, last_name, first_name, gender, date_of_birth, status, promoted, graduated, suspended FROM students
 `
 
 func (q *Queries) ListStudents(ctx context.Context) ([]Student, error) {
@@ -121,6 +129,10 @@ func (q *Queries) ListStudents(ctx context.Context) ([]Student, error) {
 			&i.FirstName,
 			&i.Gender,
 			&i.DateOfBirth,
+			&i.Status,
+			&i.Promoted,
+			&i.Graduated,
+			&i.Suspended,
 		); err != nil {
 			return nil, err
 		}
