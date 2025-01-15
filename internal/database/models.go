@@ -27,6 +27,11 @@ type Class struct {
 	Name    string
 }
 
+type ClassPromotion struct {
+	ClassID     pgtype.UUID
+	NextClassID pgtype.UUID
+}
+
 type DisciplineRecord struct {
 	DisciplineID pgtype.UUID
 	StudentID    pgtype.UUID
@@ -42,6 +47,7 @@ type Fee struct {
 	FeesID    pgtype.UUID
 	StudentID pgtype.UUID
 	TermID    pgtype.UUID
+	ClassID   pgtype.UUID
 	Required  pgtype.Numeric
 	Paid      pgtype.Numeric
 	Status    string

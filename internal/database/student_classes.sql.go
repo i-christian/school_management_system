@@ -12,17 +12,18 @@ import (
 )
 
 const createStudentClasses = `-- name: CreateStudentClasses :one
-INSERT INTO student_classes (student_id, class_id)
-VALUES ($1, $2) RETURNING student_class_id, student_id, class_id, term_id
+INSERT INTO student_classes (student_id, class_id, term_id)
+VALUES ($1, $2, $3) RETURNING student_class_id, student_id, class_id, term_id
 `
 
 type CreateStudentClassesParams struct {
 	StudentID pgtype.UUID
 	ClassID   pgtype.UUID
+	TermID    pgtype.UUID
 }
 
 func (q *Queries) CreateStudentClasses(ctx context.Context, arg CreateStudentClassesParams) (StudentClass, error) {
-	row := q.db.QueryRow(ctx, createStudentClasses, arg.StudentID, arg.ClassID)
+	row := q.db.QueryRow(ctx, createStudentClasses, arg.StudentID, arg.ClassID, arg.TermID)
 	var i StudentClass
 	err := row.Scan(
 		&i.StudentClassID,
@@ -45,7 +46,8 @@ func (q *Queries) DeleteStudentClasses(ctx context.Context, studentClassID pgtyp
 const editStudentClasses = `-- name: EditStudentClasses :exec
 UPDATE student_classes
 SET student_id = COALESCE($2, student_id),
-class_id = COALESCE($3, class_id)
+class_id = COALESCE($3, class_id),
+term_id = COALESCE($4, term_id)
 WHERE student_class_id = $1
 `
 
@@ -53,10 +55,16 @@ type EditStudentClassesParams struct {
 	StudentClassID pgtype.UUID
 	StudentID      pgtype.UUID
 	ClassID        pgtype.UUID
+	TermID         pgtype.UUID
 }
 
 func (q *Queries) EditStudentClasses(ctx context.Context, arg EditStudentClassesParams) error {
-	_, err := q.db.Exec(ctx, editStudentClasses, arg.StudentClassID, arg.StudentID, arg.ClassID)
+	_, err := q.db.Exec(ctx, editStudentClasses,
+		arg.StudentClassID,
+		arg.StudentID,
+		arg.ClassID,
+		arg.TermID,
+	)
 	return err
 }
 

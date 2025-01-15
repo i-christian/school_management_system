@@ -190,10 +190,6 @@ CREATE INDEX idx_fees_student_id ON fees(student_id);
 CREATE INDEX idx_fees_term_id ON fees(term_id);
 CREATE INDEX idx_fees_class_id ON fees(class_id);
 
--- Index for filtering fees by student or academic year
-CREATE INDEX idx_fees_student_id ON fees(student_id);
-CREATE INDEX idx_term_id ON fees(term_id);
-
 -- REMARKS TABLE
 CREATE TABLE IF NOT EXISTS remarks (
     remarks_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
