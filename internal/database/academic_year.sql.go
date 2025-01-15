@@ -144,19 +144,85 @@ func (q *Queries) GetAcademicYear(ctx context.Context, academicYearID pgtype.UUI
 	return i, err
 }
 
-const getTerm = `-- name: GetTerm :one
-SELECT term_id, academic_year_id, name, start_date, end_date FROM term WHERE term_id = $1
+const getAcademicYearTerms = `-- name: GetAcademicYearTerms :many
+SELECT
+term.term_id,
+academic_year.name AS Academic_Year,
+term.name AS Academic_Term,
+term.start_date AS Opening_date,
+term.end_date AS Closing_date
+FROM term
+INNER JOIN academic_year
+ON
+term.academic_year_id = academic_year.academic_year_id
+WHERE academic_year.academic_year_id = $1
 `
 
-func (q *Queries) GetTerm(ctx context.Context, termID pgtype.UUID) (Term, error) {
+type GetAcademicYearTermsRow struct {
+	TermID       pgtype.UUID
+	AcademicYear string
+	AcademicTerm string
+	OpeningDate  pgtype.Date
+	ClosingDate  pgtype.Date
+}
+
+func (q *Queries) GetAcademicYearTerms(ctx context.Context, academicYearID pgtype.UUID) ([]GetAcademicYearTermsRow, error) {
+	rows, err := q.db.Query(ctx, getAcademicYearTerms, academicYearID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetAcademicYearTermsRow
+	for rows.Next() {
+		var i GetAcademicYearTermsRow
+		if err := rows.Scan(
+			&i.TermID,
+			&i.AcademicYear,
+			&i.AcademicTerm,
+			&i.OpeningDate,
+			&i.ClosingDate,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getTerm = `-- name: GetTerm :one
+SELECT
+term.term_id,
+academic_year.name AS Academic_Year,
+term.name AS Academic_Term,
+term.start_date AS Opening_date,
+term.end_date AS Closing_date
+FROM term
+INNER JOIN academic_year
+ON
+term.academic_year_id = academic_year.academic_year_id
+WHERE term_id = $1
+`
+
+type GetTermRow struct {
+	TermID       pgtype.UUID
+	AcademicYear string
+	AcademicTerm string
+	OpeningDate  pgtype.Date
+	ClosingDate  pgtype.Date
+}
+
+func (q *Queries) GetTerm(ctx context.Context, termID pgtype.UUID) (GetTermRow, error) {
 	row := q.db.QueryRow(ctx, getTerm, termID)
-	var i Term
+	var i GetTermRow
 	err := row.Scan(
 		&i.TermID,
-		&i.AcademicYearID,
-		&i.Name,
-		&i.StartDate,
-		&i.EndDate,
+		&i.AcademicYear,
+		&i.AcademicTerm,
+		&i.OpeningDate,
+		&i.ClosingDate,
 	)
 	return i, err
 }
@@ -191,24 +257,41 @@ func (q *Queries) ListAcademicYear(ctx context.Context) ([]AcademicYear, error) 
 }
 
 const listTerms = `-- name: ListTerms :many
-SELECT term_id, academic_year_id, name, start_date, end_date FROM term
+SELECT
+term.term_id,
+academic_year.name AS Academic_Year,
+term.name AS Academic_Term,
+term.start_date AS Opening_date,
+term.end_date AS Closing_date
+FROM term
+INNER JOIN academic_year
+ON
+term.academic_year_id = academic_year.academic_year_id
 `
 
-func (q *Queries) ListTerms(ctx context.Context) ([]Term, error) {
+type ListTermsRow struct {
+	TermID       pgtype.UUID
+	AcademicYear string
+	AcademicTerm string
+	OpeningDate  pgtype.Date
+	ClosingDate  pgtype.Date
+}
+
+func (q *Queries) ListTerms(ctx context.Context) ([]ListTermsRow, error) {
 	rows, err := q.db.Query(ctx, listTerms)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Term
+	var items []ListTermsRow
 	for rows.Next() {
-		var i Term
+		var i ListTermsRow
 		if err := rows.Scan(
 			&i.TermID,
-			&i.AcademicYearID,
-			&i.Name,
-			&i.StartDate,
-			&i.EndDate,
+			&i.AcademicYear,
+			&i.AcademicTerm,
+			&i.OpeningDate,
+			&i.ClosingDate,
 		); err != nil {
 			return nil, err
 		}

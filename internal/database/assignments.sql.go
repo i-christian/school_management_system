@@ -105,7 +105,7 @@ func (q *Queries) GetAssignment(ctx context.Context, teacherID pgtype.UUID) (Get
 
 const listAssignments = `-- name: ListAssignments :many
 SELECT
-assignments.id AS assignment_id,
+assignments.id,
 classes.name AS ClassRoom,
 subjects.name AS Subject,
 users.last_name AS Teacher_LastName,
@@ -117,7 +117,7 @@ INNER JOIN users ON assignments.teacher_id = users.user_id
 `
 
 type ListAssignmentsRow struct {
-	AssignmentID     pgtype.UUID
+	ID               pgtype.UUID
 	Classroom        string
 	Subject          string
 	TeacherLastname  string
@@ -134,7 +134,7 @@ func (q *Queries) ListAssignments(ctx context.Context) ([]ListAssignmentsRow, er
 	for rows.Next() {
 		var i ListAssignmentsRow
 		if err := rows.Scan(
-			&i.AssignmentID,
+			&i.ID,
 			&i.Classroom,
 			&i.Subject,
 			&i.TeacherLastname,
