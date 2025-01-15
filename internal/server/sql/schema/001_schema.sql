@@ -131,7 +131,8 @@ CREATE TABLE IF NOT EXISTS student_guardians (
     student_id UUID NOT NULL,
     guardian_id UUID NOT NULL,
     CONSTRAINT fk_student FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE,
-    CONSTRAINT fk_guardian FOREIGN KEY (guardian_id) REFERENCES guardians(guardian_id) ON DELETE CASCADE
+    CONSTRAINT fk_guardian FOREIGN KEY (guardian_id) REFERENCES guardians(guardian_id) ON DELETE CASCADE,
+    UNIQUE(student_id, guardian_id)
 );
 
 -- STUDENT_CLASSES TABLE
@@ -199,6 +200,7 @@ CREATE TABLE IF NOT EXISTS remarks (
     term_id UUID NOT NULL,
     content_class_teacher TEXT,
     content_head_teacher TEXT,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_student FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE,
     CONSTRAINT fk_term FOREIGN KEY (term_id) REFERENCES term(term_id) ON DELETE CASCADE
 );

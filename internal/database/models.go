@@ -50,7 +50,7 @@ type Fee struct {
 	ClassID   pgtype.UUID
 	Required  pgtype.Numeric
 	Paid      pgtype.Numeric
-	Status    string
+	Status    pgtype.Text
 }
 
 type Grade struct {
@@ -64,11 +64,10 @@ type Grade struct {
 
 type Guardian struct {
 	GuardianID   pgtype.UUID
-	StudentID    pgtype.UUID
 	Name         string
 	PhoneNumber1 pgtype.Text
 	PhoneNumber2 pgtype.Text
-	Gender       pgtype.Text
+	Gender       string
 	Profession   pgtype.Text
 }
 
@@ -78,6 +77,7 @@ type Remark struct {
 	TermID              pgtype.UUID
 	ContentClassTeacher pgtype.Text
 	ContentHeadTeacher  pgtype.Text
+	UpdatedAt           pgtype.Timestamptz
 }
 
 type Role struct {
@@ -111,6 +111,11 @@ type StudentClass struct {
 	StudentID      pgtype.UUID
 	ClassID        pgtype.UUID
 	TermID         pgtype.UUID
+}
+
+type StudentGuardian struct {
+	StudentID  pgtype.UUID
+	GuardianID pgtype.UUID
 }
 
 type Subject struct {
