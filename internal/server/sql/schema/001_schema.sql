@@ -126,9 +126,6 @@ CREATE TABLE IF NOT EXISTS guardians (
     profession VARCHAR(50)
 );
 
--- Index for filtering guardians by student
-CREATE INDEX idx_guardians_student_id ON guardians(student_id);
-
 -- A linking table between students and their guardians
 CREATE TABLE IF NOT EXISTS student_guardians (
     student_id UUID NOT NULL,
