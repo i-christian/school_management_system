@@ -26,10 +26,42 @@ VALUES ($1, $2, $3, $4)
 RETURNING term_id;
 
 -- name: ListTerms :many
-SELECT * FROM term;
+SELECT
+term.term_id,
+academic_year.name AS Academic_Year,
+term.name AS Academic_Term,
+term.start_date AS Opening_date,
+term.end_date AS Closing_date
+FROM term
+INNER JOIN academic_year
+ON
+term.academic_year_id = academic_year.academic_year_id;
 
 -- name: GetTerm :one
-SELECT * FROM term WHERE term_id = $1;
+SELECT
+term.term_id,
+academic_year.name AS Academic_Year,
+term.name AS Academic_Term,
+term.start_date AS Opening_date,
+term.end_date AS Closing_date
+FROM term
+INNER JOIN academic_year
+ON
+term.academic_year_id = academic_year.academic_year_id
+WHERE term_id = $1;
+
+-- name: GetAcademicYearTerms :many
+SELECT
+term.term_id,
+academic_year.name AS Academic_Year,
+term.name AS Academic_Term,
+term.start_date AS Opening_date,
+term.end_date AS Closing_date
+FROM term
+INNER JOIN academic_year
+ON
+term.academic_year_id = academic_year.academic_year_id
+WHERE academic_year.academic_year_id = $1;
 
 -- name: EditTerm :exec
 UPDATE term 
