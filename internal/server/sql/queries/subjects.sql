@@ -9,9 +9,9 @@ SELECT * FROM subjects WHERE name = $1;
 
 -- name: EditSubject :exec
 UPDATE subjects
-SET class_id = COALESCE($1, class_id),
-name = COALESCE($2, name)
-WHERE subject_id = $3;
+SET class_id = COALESCE($2, class_id),
+name = COALESCE($3, name)
+WHERE subject_id = $1;
 
 -- name: DeleteSubject :exec
 DELETE FROM subjects WHERE subject_id = $1;

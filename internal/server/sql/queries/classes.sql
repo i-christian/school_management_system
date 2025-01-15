@@ -9,8 +9,8 @@ SELECT * FROM classes WHERE name = $1;
 
 -- name: EditClass :exec
 UPDATE classes
-SET name = COALESCE($1, name)
-WHERE class_id = $2;
+SET name = COALESCE($2, name)
+WHERE class_id = $1;
 
 -- name: DeleteClass :exec
 DELETE FROM classes WHERE class_id = $1;

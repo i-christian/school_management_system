@@ -33,17 +33,17 @@ func (q *Queries) DeleteClass(ctx context.Context, classID pgtype.UUID) error {
 
 const editClass = `-- name: EditClass :exec
 UPDATE classes
-SET name = COALESCE($1, name)
-WHERE class_id = $2
+SET name = COALESCE($2, name)
+WHERE class_id = $1
 `
 
 type EditClassParams struct {
-	Name    string
 	ClassID pgtype.UUID
+	Name    string
 }
 
 func (q *Queries) EditClass(ctx context.Context, arg EditClassParams) error {
-	_, err := q.db.Exec(ctx, editClass, arg.Name, arg.ClassID)
+	_, err := q.db.Exec(ctx, editClass, arg.ClassID, arg.Name)
 	return err
 }
 
