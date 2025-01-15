@@ -54,31 +54,71 @@ func (q *Queries) EditSubject(ctx context.Context, arg EditSubjectParams) error 
 	return err
 }
 
-const getSubject = `-- name: GetSubject :one
-SELECT subject_id, class_id, name FROM subjects WHERE name = $1
+const getSubjectsByClassName = `-- name: GetSubjectsByClassName :many
+SELECT
+    subjects.subject_id,
+    subjects.name AS SubjectName,
+    classes.name AS ClassName
+FROM subjects
+INNER JOIN classes
+    ON subjects.class_id = classes.class_id
+WHERE classes.name = $1
+ORDER BY subjects.name
 `
 
-func (q *Queries) GetSubject(ctx context.Context, name string) (Subject, error) {
-	row := q.db.QueryRow(ctx, getSubject, name)
-	var i Subject
-	err := row.Scan(&i.SubjectID, &i.ClassID, &i.Name)
-	return i, err
+type GetSubjectsByClassNameRow struct {
+	SubjectID   pgtype.UUID
+	Subjectname string
+	Classname   string
+}
+
+func (q *Queries) GetSubjectsByClassName(ctx context.Context, name string) ([]GetSubjectsByClassNameRow, error) {
+	rows, err := q.db.Query(ctx, getSubjectsByClassName, name)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetSubjectsByClassNameRow
+	for rows.Next() {
+		var i GetSubjectsByClassNameRow
+		if err := rows.Scan(&i.SubjectID, &i.Subjectname, &i.Classname); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const listSubjects = `-- name: ListSubjects :many
-SELECT subject_id, class_id, name FROM subjects ORDER BY name
+SELECT
+    subjects.subject_id,
+    subjects.name AS SubjectName,
+    classes.name AS ClassName
+FROM subjects
+INNER JOIN classes
+    ON subjects.class_id = classes.class_id
+ORDER BY subjects.name
 `
 
-func (q *Queries) ListSubjects(ctx context.Context) ([]Subject, error) {
+type ListSubjectsRow struct {
+	SubjectID   pgtype.UUID
+	Subjectname string
+	Classname   string
+}
+
+func (q *Queries) ListSubjects(ctx context.Context) ([]ListSubjectsRow, error) {
 	rows, err := q.db.Query(ctx, listSubjects)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Subject
+	var items []ListSubjectsRow
 	for rows.Next() {
-		var i Subject
-		if err := rows.Scan(&i.SubjectID, &i.ClassID, &i.Name); err != nil {
+		var i ListSubjectsRow
+		if err := rows.Scan(&i.SubjectID, &i.Subjectname, &i.Classname); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
