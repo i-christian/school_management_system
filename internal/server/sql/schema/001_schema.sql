@@ -23,9 +23,6 @@ CREATE TABLE users (
     CONSTRAINT chk_email_or_phone CHECK (email IS NOT NULL OR phone_number IS NOT NULL)
 );
 
--- Index for quick searching/filtering by role (e.g., finding all teachers or admins)
-CREATE INDEX idx_users_role_id ON users(role_id);
-
 -- SESSIONS TABLE
 CREATE TABLE IF NOT EXISTS sessions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -34,9 +31,6 @@ CREATE TABLE IF NOT EXISTS sessions (
     expires TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP + INTERVAL '2 week',
     CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
-
--- Index for filtering sessions by user
-CREATE INDEX idx_sessions_user_id ON sessions(user_id);
 
 -- ACADEMIC_YEAR TABLE
 CREATE TABLE IF NOT EXISTS academic_year (
@@ -114,7 +108,7 @@ CREATE TABLE IF NOT EXISTS students (
     status VARCHAR(20) NOT NULL DEFAULT 'active', -- Tracks the student's current state
     promoted BOOLEAN NOT NULL DEFAULT FALSE, -- Indicates if the student was promoted this year
     graduated BOOLEAN NOT NULL DEFAULT FALSE, -- Indicates if the student has graduated
-    suspended BOOLEAN NOT NULL DEFAULT FALSE -- Indicates if the student got suspended
+    suspended BOOLEAN NOT NULL DEFAULT FALSE, -- Indicates if the student got suspended
     CONSTRAINT chk_student_status CHECK (status IN ('active', 'repeating', 'withdrawn', 'graduated')),
     CONSTRAINT fk_academic_year FOREIGN KEY (academic_year_id) REFERENCES academic_year(academic_year_id) ON DELETE CASCADE
 );
@@ -125,17 +119,23 @@ CREATE INDEX idx_students_academic_year_id ON students(academic_year_id);
 -- GUARDIANS TABLE
 CREATE TABLE IF NOT EXISTS guardians (
     guardian_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    student_id UUID NOT NULL,
     name VARCHAR(50) NOT NULL,
     phone_number_1 VARCHAR(15),
     phone_number_2 VARCHAR(15),
-    gender VARCHAR(10),
-    profession VARCHAR(50),
-    CONSTRAINT fk_student FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE
+    gender CHAR(1) NOT NULL CHECK (gender IN ('M', 'F')),
+    profession VARCHAR(50)
 );
 
 -- Index for filtering guardians by student
 CREATE INDEX idx_guardians_student_id ON guardians(student_id);
+
+-- A linking table between students and their guardians
+CREATE TABLE IF NOT EXISTS student_guardians (
+    student_id UUID NOT NULL,
+    guardian_id UUID NOT NULL,
+    CONSTRAINT fk_student FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE,
+    CONSTRAINT fk_guardian FOREIGN KEY (guardian_id) REFERENCES guardians(guardian_id) ON DELETE CASCADE
+);
 
 -- STUDENT_CLASSES TABLE
 CREATE TABLE IF NOT EXISTS student_classes (
@@ -175,11 +175,16 @@ CREATE TABLE IF NOT EXISTS fees (
     fees_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     student_id UUID NOT NULL,
     term_id UUID NOT NULL,
-    class_id UUID NOT NULL, 
+    class_id UUID NOT NULL,
     required NUMERIC(10, 2) NOT NULL CHECK (required >= 0),
     paid NUMERIC(10, 2) NOT NULL CHECK (paid >= 0),
-    status VARCHAR(20) NOT NULL DEFAULT 'PARTIAL',
-    CONSTRAINT chk_fees_status CHECK (status IN ('PAID', 'PARTIAL', 'OVERDUE')),
+    status VARCHAR(20) GENERATED ALWAYS AS (
+        CASE
+            WHEN paid >= required THEN 'PAID'
+            WHEN paid > 0 AND paid < required THEN 'PARTIAL'
+            ELSE 'OVERDUE'
+        END
+    ) STORED,
     CONSTRAINT fk_student FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE,
     CONSTRAINT fk_term FOREIGN KEY (term_id) REFERENCES term(term_id) ON DELETE CASCADE,
     CONSTRAINT fk_class FOREIGN KEY (class_id) REFERENCES classes(class_id) ON DELETE CASCADE
