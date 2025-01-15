@@ -4,10 +4,42 @@ VALUES ($1, $2, $3, $4, $5)
 RETURNING *;
 
 -- name: GetStudent :one
-SELECT * FROM students WHERE student_id = $1;
+SELECT
+    students.student_id,
+    students.last_name,
+    students.first_name,
+    students.gender,
+    students.date_of_birth,
+    students.status,
+    academic_year.name AS AcademicYear,
+    classes.name AS ClassName
+FROM students
+INNER JOIN academic_year
+    ON students.academic_year_id = academic_year.academic_year_id
+LEFT OUTER JOIN student_classes
+    ON students.student_id = student_classes.student_id
+LEFT OUTER JOIN classes
+    ON student_classes.class_id = classes.class_id
+WHERE students.student_id = $1;
 
 -- name: ListStudents :many
-SELECT * FROM students;
+SELECT
+    students.student_id,
+    students.last_name,
+    students.first_name,
+    students.gender,
+    students.date_of_birth,
+    students.status,
+    academic_year.name AS AcademicYear,
+    classes.name AS ClassName
+FROM students
+INNER JOIN academic_year
+    ON students.academic_year_id = academic_year.academic_year_id
+LEFT OUTER JOIN student_classes
+    ON students.student_id = student_classes.student_id
+LEFT OUTER JOIN classes
+    ON student_classes.class_id = classes.class_id
+ORDER BY students.last_name ASC, students.first_name ASC;
 
 -- name: EditStudent :exec
 UPDATE students

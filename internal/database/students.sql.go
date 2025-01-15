@@ -88,51 +88,101 @@ func (q *Queries) EditStudent(ctx context.Context, arg EditStudentParams) error 
 }
 
 const getStudent = `-- name: GetStudent :one
-SELECT student_id, academic_year_id, last_name, first_name, gender, date_of_birth, status, promoted, graduated, suspended FROM students WHERE student_id = $1
+SELECT
+    students.student_id,
+    students.last_name,
+    students.first_name,
+    students.gender,
+    students.date_of_birth,
+    students.status,
+    academic_year.name AS AcademicYear,
+    classes.name AS ClassName
+FROM students
+INNER JOIN academic_year
+    ON students.academic_year_id = academic_year.academic_year_id
+LEFT OUTER JOIN student_classes
+    ON students.student_id = student_classes.student_id
+LEFT OUTER JOIN classes
+    ON student_classes.class_id = classes.class_id
+WHERE students.student_id = $1
 `
 
-func (q *Queries) GetStudent(ctx context.Context, studentID pgtype.UUID) (Student, error) {
+type GetStudentRow struct {
+	StudentID    pgtype.UUID
+	LastName     string
+	FirstName    string
+	Gender       string
+	DateOfBirth  pgtype.Date
+	Status       string
+	Academicyear string
+	Classname    pgtype.Text
+}
+
+func (q *Queries) GetStudent(ctx context.Context, studentID pgtype.UUID) (GetStudentRow, error) {
 	row := q.db.QueryRow(ctx, getStudent, studentID)
-	var i Student
+	var i GetStudentRow
 	err := row.Scan(
 		&i.StudentID,
-		&i.AcademicYearID,
 		&i.LastName,
 		&i.FirstName,
 		&i.Gender,
 		&i.DateOfBirth,
 		&i.Status,
-		&i.Promoted,
-		&i.Graduated,
-		&i.Suspended,
+		&i.Academicyear,
+		&i.Classname,
 	)
 	return i, err
 }
 
 const listStudents = `-- name: ListStudents :many
-SELECT student_id, academic_year_id, last_name, first_name, gender, date_of_birth, status, promoted, graduated, suspended FROM students
+SELECT
+    students.student_id,
+    students.last_name,
+    students.first_name,
+    students.gender,
+    students.date_of_birth,
+    students.status,
+    academic_year.name AS AcademicYear,
+    classes.name AS ClassName
+FROM students
+INNER JOIN academic_year
+    ON students.academic_year_id = academic_year.academic_year_id
+LEFT OUTER JOIN student_classes
+    ON students.student_id = student_classes.student_id
+LEFT OUTER JOIN classes
+    ON student_classes.class_id = classes.class_id
+ORDER BY students.last_name ASC, students.first_name ASC
 `
 
-func (q *Queries) ListStudents(ctx context.Context) ([]Student, error) {
+type ListStudentsRow struct {
+	StudentID    pgtype.UUID
+	LastName     string
+	FirstName    string
+	Gender       string
+	DateOfBirth  pgtype.Date
+	Status       string
+	Academicyear string
+	Classname    pgtype.Text
+}
+
+func (q *Queries) ListStudents(ctx context.Context) ([]ListStudentsRow, error) {
 	rows, err := q.db.Query(ctx, listStudents)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Student
+	var items []ListStudentsRow
 	for rows.Next() {
-		var i Student
+		var i ListStudentsRow
 		if err := rows.Scan(
 			&i.StudentID,
-			&i.AcademicYearID,
 			&i.LastName,
 			&i.FirstName,
 			&i.Gender,
 			&i.DateOfBirth,
 			&i.Status,
-			&i.Promoted,
-			&i.Graduated,
-			&i.Suspended,
+			&i.Academicyear,
+			&i.Classname,
 		); err != nil {
 			return nil, err
 		}

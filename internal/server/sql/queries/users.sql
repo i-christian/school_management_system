@@ -15,9 +15,9 @@ RETURNING *;
 SELECT roles.name AS role, users.user_id
 FROM users
 INNER JOIN sessions 
-ON users.user_id = sessions.user_id
+    ON users.user_id = sessions.user_id
 INNER JOIN roles 
-ON users.role_id = roles.role_id
+    ON users.role_id = roles.role_id
 WHERE session_id = $1;
 
 -- name: GetUserDetails :one
