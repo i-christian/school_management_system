@@ -13,7 +13,7 @@ import (
 
 const createStudentClasses = `-- name: CreateStudentClasses :one
 INSERT INTO student_classes (student_id, class_id)
-VALUES ($1, $2) RETURNING student_class_id, student_id, class_id
+VALUES ($1, $2) RETURNING student_class_id, student_id, class_id, term_id
 `
 
 type CreateStudentClassesParams struct {
@@ -24,7 +24,12 @@ type CreateStudentClassesParams struct {
 func (q *Queries) CreateStudentClasses(ctx context.Context, arg CreateStudentClassesParams) (StudentClass, error) {
 	row := q.db.QueryRow(ctx, createStudentClasses, arg.StudentID, arg.ClassID)
 	var i StudentClass
-	err := row.Scan(&i.StudentClassID, &i.StudentID, &i.ClassID)
+	err := row.Scan(
+		&i.StudentClassID,
+		&i.StudentID,
+		&i.ClassID,
+		&i.TermID,
+	)
 	return i, err
 }
 
@@ -56,18 +61,23 @@ func (q *Queries) EditStudentClasses(ctx context.Context, arg EditStudentClasses
 }
 
 const getStudentClasses = `-- name: GetStudentClasses :one
-SELECT student_class_id, student_id, class_id FROM student_classes WHERE student_class_id = $1
+SELECT student_class_id, student_id, class_id, term_id FROM student_classes WHERE student_class_id = $1
 `
 
 func (q *Queries) GetStudentClasses(ctx context.Context, studentClassID pgtype.UUID) (StudentClass, error) {
 	row := q.db.QueryRow(ctx, getStudentClasses, studentClassID)
 	var i StudentClass
-	err := row.Scan(&i.StudentClassID, &i.StudentID, &i.ClassID)
+	err := row.Scan(
+		&i.StudentClassID,
+		&i.StudentID,
+		&i.ClassID,
+		&i.TermID,
+	)
 	return i, err
 }
 
 const listStudentClasses = `-- name: ListStudentClasses :many
-SELECT student_class_id, student_id, class_id FROM student_classes
+SELECT student_class_id, student_id, class_id, term_id FROM student_classes
 `
 
 func (q *Queries) ListStudentClasses(ctx context.Context) ([]StudentClass, error) {
@@ -79,7 +89,12 @@ func (q *Queries) ListStudentClasses(ctx context.Context) ([]StudentClass, error
 	var items []StudentClass
 	for rows.Next() {
 		var i StudentClass
-		if err := rows.Scan(&i.StudentClassID, &i.StudentID, &i.ClassID); err != nil {
+		if err := rows.Scan(
+			&i.StudentClassID,
+			&i.StudentID,
+			&i.ClassID,
+			&i.TermID,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

@@ -1,18 +1,55 @@
 -- name: CreateUser :one
-INSERT INTO users(last_name, first_name, phone_number, email, gender, password) 
-VALUES ($1, $2, $3, $4, $5, $6)
+INSERT INTO users (first_name, last_name, phone_number, email, gender, password, role_id)
+VALUES (
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    (SELECT role_id FROM roles WHERE name = $7)
+)
 RETURNING *;
 
--- name: GetUser :one
-SELECT users.role, users.user_id FROM users INNER JOIN sessions ON users.user_id = sessions.user_id WHERE session_id = $1;
+-- name: GetUserRole :one
+SELECT roles.name AS role, users.user_id
+FROM users
+INNER JOIN sessions 
+ON users.user_id = sessions.user_id
+INNER JOIN roles 
+ON users.role_id = roles.role_id
+WHERE session_id = $1;
 
 -- name: GetUserDetails :one
-SELECT last_name, first_name, gender, email, phone_number, role 
-FROM users WHERE user_id = $1;
+SELECT 
+    users.last_name, 
+    users.first_name, 
+    users.gender, 
+    users.email, 
+    users.phone_number, 
+    roles.name AS role
+FROM 
+    users
+INNER JOIN 
+    roles 
+ON 
+    users.role_id = roles.role_id
+WHERE 
+    roles.name = $2
+    AND users.user_id = $1;
 
 -- name: ListUsers :many
-SELECT user_id, last_name, first_name, gender, email, phone_number, role
-FROM users ORDER BY last_name;
+SELECT
+    users.user_id,
+    users.last_name,
+    users.first_name,
+    users.gender,
+    users.email,
+    users.phone_number,
+    roles.name AS role
+FROM users
+INNER JOIN roles ON users.role_id = roles.role_id
+ORDER BY last_name;
 
 -- name: EditUser :exec
 UPDATE users
@@ -22,7 +59,7 @@ UPDATE users
     phone_number = COALESCE($5, phone_number),
     email = COALESCE($6, email),
     password = COALESCE($7, password),
-    role = COALESCE($8, role)
+    role_id = COALESCE((SELECT role_id FROM roles WHERE name = $8), role_id)
 WHERE user_id = $1;
 
 -- name: DeleteUser :exec
