@@ -55,7 +55,8 @@ const editRemark = `-- name: EditRemark :exec
 UPDATE remarks
 SET term_id = COALESCE($2, term_id),
 content_class_teacher = COALESCE($3, content_class_teacher),
-content_head_teacher = COALESCE($4, content_head_teacher)
+content_head_teacher = COALESCE($4, content_head_teacher),
+updated_at = COALESCE($5, updated_at)
 WHERE remarks_id = $1
 `
 
@@ -64,6 +65,7 @@ type EditRemarkParams struct {
 	TermID              pgtype.UUID
 	ContentClassTeacher pgtype.Text
 	ContentHeadTeacher  pgtype.Text
+	UpdatedAt           pgtype.Timestamptz
 }
 
 func (q *Queries) EditRemark(ctx context.Context, arg EditRemarkParams) error {
@@ -72,47 +74,95 @@ func (q *Queries) EditRemark(ctx context.Context, arg EditRemarkParams) error {
 		arg.TermID,
 		arg.ContentClassTeacher,
 		arg.ContentHeadTeacher,
+		arg.UpdatedAt,
 	)
 	return err
 }
 
 const getRemark = `-- name: GetRemark :one
-SELECT remarks_id, student_id, term_id, content_class_teacher, content_head_teacher, updated_at FROM remarks WHERE student_id = $1
+SELECT
+    remarks.remarks_id,
+    students.last_name,
+    students.first_name,
+    term.name AS AcademicTerm,
+    remarks.content_class_teacher AS ClassTeacherRemarks,
+    remarks.content_head_teacher AS HeadTeacherRemarks,
+    remarks.updated_at
+FROM remarks
+INNER JOIN students 
+    ON remarks.student_id = students.student_id
+INNER JOIN term
+    ON remarks.term_id = term.term_id
+WHERE students.student_id = $1
 `
 
-func (q *Queries) GetRemark(ctx context.Context, studentID pgtype.UUID) (Remark, error) {
+type GetRemarkRow struct {
+	RemarksID           pgtype.UUID
+	LastName            string
+	FirstName           string
+	Academicterm        string
+	Classteacherremarks pgtype.Text
+	Headteacherremarks  pgtype.Text
+	UpdatedAt           pgtype.Timestamptz
+}
+
+func (q *Queries) GetRemark(ctx context.Context, studentID pgtype.UUID) (GetRemarkRow, error) {
 	row := q.db.QueryRow(ctx, getRemark, studentID)
-	var i Remark
+	var i GetRemarkRow
 	err := row.Scan(
 		&i.RemarksID,
-		&i.StudentID,
-		&i.TermID,
-		&i.ContentClassTeacher,
-		&i.ContentHeadTeacher,
+		&i.LastName,
+		&i.FirstName,
+		&i.Academicterm,
+		&i.Classteacherremarks,
+		&i.Headteacherremarks,
 		&i.UpdatedAt,
 	)
 	return i, err
 }
 
 const listRemarks = `-- name: ListRemarks :many
-SELECT remarks_id, student_id, term_id, content_class_teacher, content_head_teacher, updated_at FROM remarks
+SELECT
+    remarks.remarks_id,
+    students.last_name,
+    students.first_name,
+    term.name AS AcademicTerm,
+    remarks.content_class_teacher AS ClassTeacherRemarks,
+    remarks.content_head_teacher AS HeadTeacherRemarks,
+    remarks.updated_at
+FROM remarks
+INNER JOIN students 
+    ON remarks.student_id = students.student_id
+INNER JOIN term
+    ON remarks.term_id = term.term_id
 `
 
-func (q *Queries) ListRemarks(ctx context.Context) ([]Remark, error) {
+type ListRemarksRow struct {
+	RemarksID           pgtype.UUID
+	LastName            string
+	FirstName           string
+	Academicterm        string
+	Classteacherremarks pgtype.Text
+	Headteacherremarks  pgtype.Text
+	UpdatedAt           pgtype.Timestamptz
+}
+
+func (q *Queries) ListRemarks(ctx context.Context) ([]ListRemarksRow, error) {
 	rows, err := q.db.Query(ctx, listRemarks)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Remark
+	var items []ListRemarksRow
 	for rows.Next() {
-		var i Remark
+		var i ListRemarksRow
 		if err := rows.Scan(
 			&i.RemarksID,
-			&i.StudentID,
-			&i.TermID,
-			&i.ContentClassTeacher,
-			&i.ContentHeadTeacher,
+			&i.LastName,
+			&i.FirstName,
+			&i.Academicterm,
+			&i.Classteacherremarks,
+			&i.Headteacherremarks,
 			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
