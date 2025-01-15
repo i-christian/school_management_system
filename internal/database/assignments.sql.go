@@ -69,39 +69,76 @@ func (q *Queries) EditAssignments(ctx context.Context, arg EditAssignmentsParams
 }
 
 const getAssignment = `-- name: GetAssignment :one
-SELECT id, class_id, subject_id, teacher_id FROM assignments WHERE id = $1
+SELECT
+assignments.id,
+classes.name AS ClassRoom,
+subjects.name AS Subject,
+users.last_name AS Teacher_LastName,
+users.first_name AS Teacher_FirstName
+FROM assignments
+INNER JOIN classes ON assignments.class_id = classes.class_id
+INNER JOIN subjects ON assignments.subject_id = subjects.subject_id
+INNER JOIN users ON assignments.teacher_id = users.user_id
+WHERE teacher_id = $1
 `
 
-func (q *Queries) GetAssignment(ctx context.Context, id pgtype.UUID) (Assignment, error) {
-	row := q.db.QueryRow(ctx, getAssignment, id)
-	var i Assignment
+type GetAssignmentRow struct {
+	ID               pgtype.UUID
+	Classroom        string
+	Subject          string
+	TeacherLastname  string
+	TeacherFirstname string
+}
+
+func (q *Queries) GetAssignment(ctx context.Context, teacherID pgtype.UUID) (GetAssignmentRow, error) {
+	row := q.db.QueryRow(ctx, getAssignment, teacherID)
+	var i GetAssignmentRow
 	err := row.Scan(
 		&i.ID,
-		&i.ClassID,
-		&i.SubjectID,
-		&i.TeacherID,
+		&i.Classroom,
+		&i.Subject,
+		&i.TeacherLastname,
+		&i.TeacherFirstname,
 	)
 	return i, err
 }
 
 const listAssignments = `-- name: ListAssignments :many
-SELECT id, class_id, subject_id, teacher_id FROM assignments
+SELECT
+assignments.id AS assignment_id,
+classes.name AS ClassRoom,
+subjects.name AS Subject,
+users.last_name AS Teacher_LastName,
+users.first_name AS Teacher_FirstName
+FROM assignments
+INNER JOIN classes ON assignments.class_id = classes.class_id
+INNER JOIN subjects ON assignments.subject_id = subjects.subject_id
+INNER JOIN users ON assignments.teacher_id = users.user_id
 `
 
-func (q *Queries) ListAssignments(ctx context.Context) ([]Assignment, error) {
+type ListAssignmentsRow struct {
+	AssignmentID     pgtype.UUID
+	Classroom        string
+	Subject          string
+	TeacherLastname  string
+	TeacherFirstname string
+}
+
+func (q *Queries) ListAssignments(ctx context.Context) ([]ListAssignmentsRow, error) {
 	rows, err := q.db.Query(ctx, listAssignments)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Assignment
+	var items []ListAssignmentsRow
 	for rows.Next() {
-		var i Assignment
+		var i ListAssignmentsRow
 		if err := rows.Scan(
-			&i.ID,
-			&i.ClassID,
-			&i.SubjectID,
-			&i.TeacherID,
+			&i.AssignmentID,
+			&i.Classroom,
+			&i.Subject,
+			&i.TeacherLastname,
+			&i.TeacherFirstname,
 		); err != nil {
 			return nil, err
 		}

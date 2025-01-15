@@ -3,10 +3,29 @@ INSERT INTO assignments (class_id, subject_id, teacher_id)
 VALUES($1, $2, $3) RETURNING *;
 
 -- name: ListAssignments :many
-SELECT * FROM assignments;
+SELECT
+assignments.id,
+classes.name AS ClassRoom,
+subjects.name AS Subject,
+users.last_name AS Teacher_LastName,
+users.first_name AS Teacher_FirstName
+FROM assignments
+INNER JOIN classes ON assignments.class_id = classes.class_id
+INNER JOIN subjects ON assignments.subject_id = subjects.subject_id
+INNER JOIN users ON assignments.teacher_id = users.user_id;
 
 -- name: GetAssignment :one
-SELECT * FROM assignments WHERE id = $1;
+SELECT
+assignments.id,
+classes.name AS ClassRoom,
+subjects.name AS Subject,
+users.last_name AS Teacher_LastName,
+users.first_name AS Teacher_FirstName
+FROM assignments
+INNER JOIN classes ON assignments.class_id = classes.class_id
+INNER JOIN subjects ON assignments.subject_id = subjects.subject_id
+INNER JOIN users ON assignments.teacher_id = users.user_id
+WHERE teacher_id = $1;
 
 -- name: EditAssignments :exec
 UPDATE assignments
