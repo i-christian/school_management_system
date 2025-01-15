@@ -19,7 +19,7 @@ ON
 discipline_records.student_id = students.student_id
 INNER JOIN users
 ON
-discipline_records.reported_by = users.users_id
+discipline_records.reported_by = users.user_id
 INNER JOIN term
 ON
 discipline_records.term_id = term.term_id
@@ -42,7 +42,7 @@ ON
 discipline_records.student_id = students.student_id
 INNER JOIN users
 ON
-discipline_records.reported_by = users.users_id
+discipline_records.reported_by = users.user_id
 INNER JOIN term
 ON
 discipline_records.term_id = term.term_id;
