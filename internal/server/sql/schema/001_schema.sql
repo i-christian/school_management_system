@@ -65,6 +65,15 @@ CREATE TABLE IF NOT EXISTS classes (
     name VARCHAR(20) NOT NULL UNIQUE
 );
 
+-- CLASS PROMOTION TABLE
+CREATE TABLE IF NOT EXISTS class_promotions (
+    class_id UUID NOT NULL,
+    next_class_id UUID,
+    CONSTRAINT fk_current_class FOREIGN KEY (class_id) REFERENCES classes(class_id) ON DELETE CASCADE,
+    CONSTRAINT fk_next_class FOREIGN KEY (next_class_id) REFERENCES classes(class_id) ON DELETE CASCADE,
+    PRIMARY KEY (class_id)
+);
+
 -- SUBJECTS TABLE
 CREATE TABLE subjects (
     subject_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -162,17 +171,24 @@ CREATE INDEX idx_grades_subject_id ON grades(subject_id);
 CREATE INDEX idx_grades_term_id ON grades(term_id);
 
 -- FEES TABLE
-CREATE TABLE fees (
+CREATE TABLE IF NOT EXISTS fees (
     fees_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     student_id UUID NOT NULL,
     term_id UUID NOT NULL,
+    class_id UUID NOT NULL, 
     required NUMERIC(10, 2) NOT NULL CHECK (required >= 0),
     paid NUMERIC(10, 2) NOT NULL CHECK (paid >= 0),
     status VARCHAR(20) NOT NULL DEFAULT 'PARTIAL',
     CONSTRAINT chk_fees_status CHECK (status IN ('PAID', 'PARTIAL', 'OVERDUE')),
     CONSTRAINT fk_student FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE,
-    CONSTRAINT fk_term FOREIGN KEY (term_id) REFERENCES term(term_id) ON DELETE CASCADE
+    CONSTRAINT fk_term FOREIGN KEY (term_id) REFERENCES term(term_id) ON DELETE CASCADE,
+    CONSTRAINT fk_class FOREIGN KEY (class_id) REFERENCES classes(class_id) ON DELETE CASCADE
 );
+
+-- Index for filtering fees by student, term, and class
+CREATE INDEX idx_fees_student_id ON fees(student_id);
+CREATE INDEX idx_fees_term_id ON fees(term_id);
+CREATE INDEX idx_fees_class_id ON fees(class_id);
 
 -- Index for filtering fees by student or academic year
 CREATE INDEX idx_fees_student_id ON fees(student_id);
