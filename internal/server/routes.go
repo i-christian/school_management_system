@@ -29,6 +29,10 @@ func (s *Server) RegisterRoutes() http.Handler {
 		MaxAge:           300,
 	}))
 
+	// testing cookies implementation
+	r.Get("/set", s.SetCookieHandler)
+	r.Get("/get", s.GetCookieHandler)
+
 	r.Get("/", s.HelloWorldHandler)
 
 	fileServer := http.FileServer(http.FS(web.Files))
@@ -37,6 +41,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.Get("/web", templ.Handler(web.HelloForm()).ServeHTTP)
 	r.Post("/hello", HelloWebHandler)
 	r.Handle("/404", templ.Handler(web.NotFoundComponent(), templ.WithStatus(http.StatusNotFound)))
+	r.Get("/register", templ.Handler(web.Register()).ServeHTTP)
 
 	return r
 }

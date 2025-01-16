@@ -1,6 +1,6 @@
--- name: CreateSession :exec
+-- name: CreateSession :one
 INSERT INTO sessions (session_id, user_id) 
-VALUES ($1, $2);
+VALUES ($1, $2) RETURNING session_id;
 
 -- name: GetSession :one
 SELECT session_id, expires FROM sessions WHERE user_id = $1;

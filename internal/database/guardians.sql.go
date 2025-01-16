@@ -8,6 +8,7 @@ package database
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -23,12 +24,12 @@ RETURNING student_id, guardian_id
 `
 
 type CreateAndLinkGuardianParams struct {
-	Name         string
-	PhoneNumber1 pgtype.Text
-	PhoneNumber2 pgtype.Text
-	Gender       string
-	Profession   pgtype.Text
-	StudentID    pgtype.UUID
+	Name         string      `json:"name"`
+	PhoneNumber1 pgtype.Text `json:"phone_number_1"`
+	PhoneNumber2 pgtype.Text `json:"phone_number_2"`
+	Gender       string      `json:"gender"`
+	Profession   pgtype.Text `json:"profession"`
+	StudentID    uuid.UUID   `json:"student_id"`
 }
 
 func (q *Queries) CreateAndLinkGuardian(ctx context.Context, arg CreateAndLinkGuardianParams) (StudentGuardian, error) {
@@ -55,7 +56,7 @@ DELETE FROM student_guardians
 WHERE student_guardians.guardian_id = (SELECT deleted_guardian.guardian_id FROM deleted_guardian)
 `
 
-func (q *Queries) DeleteGuardianAndUnlink(ctx context.Context, guardianID pgtype.UUID) error {
+func (q *Queries) DeleteGuardianAndUnlink(ctx context.Context, guardianID uuid.UUID) error {
 	_, err := q.db.Exec(ctx, deleteGuardianAndUnlink, guardianID)
 	return err
 }
@@ -69,13 +70,13 @@ ORDER BY s.last_name
 `
 
 type GetAllStudentGuardianLinksRow struct {
-	StudentFirstName   string
-	StudentLastName    string
-	GuardianName       string
-	PhoneNumber1       pgtype.Text
-	PhoneNumber2       pgtype.Text
-	GuardianGender     string
-	GuardianProfession pgtype.Text
+	StudentFirstName   string      `json:"student_first_name"`
+	StudentLastName    string      `json:"student_last_name"`
+	GuardianName       string      `json:"guardian_name"`
+	PhoneNumber1       pgtype.Text `json:"phone_number_1"`
+	PhoneNumber2       pgtype.Text `json:"phone_number_2"`
+	GuardianGender     string      `json:"guardian_gender"`
+	GuardianProfession pgtype.Text `json:"guardian_profession"`
 }
 
 func (q *Queries) GetAllStudentGuardianLinks(ctx context.Context) ([]GetAllStudentGuardianLinksRow, error) {
@@ -84,7 +85,7 @@ func (q *Queries) GetAllStudentGuardianLinks(ctx context.Context) ([]GetAllStude
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetAllStudentGuardianLinksRow
+	items := []GetAllStudentGuardianLinksRow{}
 	for rows.Next() {
 		var i GetAllStudentGuardianLinksRow
 		if err := rows.Scan(
@@ -115,24 +116,24 @@ WHERE s.student_id = $1
 `
 
 type GetStudentAndLinkedGuardiansRow struct {
-	StudentFirstName string
-	StudentLastName  string
-	StudentGender    string
-	GuardianID       pgtype.UUID
-	Name             pgtype.Text
-	PhoneNumber1     pgtype.Text
-	PhoneNumber2     pgtype.Text
-	Gender           pgtype.Text
-	Profession       pgtype.Text
+	StudentFirstName string      `json:"student_first_name"`
+	StudentLastName  string      `json:"student_last_name"`
+	StudentGender    string      `json:"student_gender"`
+	GuardianID       pgtype.UUID `json:"guardian_id"`
+	Name             pgtype.Text `json:"name"`
+	PhoneNumber1     pgtype.Text `json:"phone_number_1"`
+	PhoneNumber2     pgtype.Text `json:"phone_number_2"`
+	Gender           pgtype.Text `json:"gender"`
+	Profession       pgtype.Text `json:"profession"`
 }
 
-func (q *Queries) GetStudentAndLinkedGuardians(ctx context.Context, studentID pgtype.UUID) ([]GetStudentAndLinkedGuardiansRow, error) {
+func (q *Queries) GetStudentAndLinkedGuardians(ctx context.Context, studentID uuid.UUID) ([]GetStudentAndLinkedGuardiansRow, error) {
 	rows, err := q.db.Query(ctx, getStudentAndLinkedGuardians, studentID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetStudentAndLinkedGuardiansRow
+	items := []GetStudentAndLinkedGuardiansRow{}
 	for rows.Next() {
 		var i GetStudentAndLinkedGuardiansRow
 		if err := rows.Scan(
@@ -167,12 +168,12 @@ WHERE guardian_id = $1
 `
 
 type UpdateGuardianAndLinkParams struct {
-	GuardianID   pgtype.UUID
-	Name         string
-	PhoneNumber1 pgtype.Text
-	PhoneNumber2 pgtype.Text
-	Gender       string
-	Profession   pgtype.Text
+	GuardianID   uuid.UUID   `json:"guardian_id"`
+	Name         string      `json:"name"`
+	PhoneNumber1 pgtype.Text `json:"phone_number_1"`
+	PhoneNumber2 pgtype.Text `json:"phone_number_2"`
+	Gender       string      `json:"gender"`
+	Profession   pgtype.Text `json:"profession"`
 }
 
 func (q *Queries) UpdateGuardianAndLink(ctx context.Context, arg UpdateGuardianAndLinkParams) error {

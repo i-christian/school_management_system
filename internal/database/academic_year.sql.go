@@ -8,6 +8,7 @@ package database
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -18,14 +19,14 @@ RETURNING academic_year_id
 `
 
 type CreateAcademicYearParams struct {
-	Name      string
-	StartDate pgtype.Date
-	EndDate   pgtype.Date
+	Name      string      `json:"name"`
+	StartDate pgtype.Date `json:"start_date"`
+	EndDate   pgtype.Date `json:"end_date"`
 }
 
-func (q *Queries) CreateAcademicYear(ctx context.Context, arg CreateAcademicYearParams) (pgtype.UUID, error) {
+func (q *Queries) CreateAcademicYear(ctx context.Context, arg CreateAcademicYearParams) (uuid.UUID, error) {
 	row := q.db.QueryRow(ctx, createAcademicYear, arg.Name, arg.StartDate, arg.EndDate)
-	var academic_year_id pgtype.UUID
+	var academic_year_id uuid.UUID
 	err := row.Scan(&academic_year_id)
 	return academic_year_id, err
 }
@@ -37,20 +38,20 @@ RETURNING term_id
 `
 
 type CreateTermParams struct {
-	AcademicYearID pgtype.UUID
-	Name           string
-	StartDate      pgtype.Date
-	EndDate        pgtype.Date
+	AcademicYearID uuid.UUID   `json:"academic_year_id"`
+	Name           string      `json:"name"`
+	StartDate      pgtype.Date `json:"start_date"`
+	EndDate        pgtype.Date `json:"end_date"`
 }
 
-func (q *Queries) CreateTerm(ctx context.Context, arg CreateTermParams) (pgtype.UUID, error) {
+func (q *Queries) CreateTerm(ctx context.Context, arg CreateTermParams) (uuid.UUID, error) {
 	row := q.db.QueryRow(ctx, createTerm,
 		arg.AcademicYearID,
 		arg.Name,
 		arg.StartDate,
 		arg.EndDate,
 	)
-	var term_id pgtype.UUID
+	var term_id uuid.UUID
 	err := row.Scan(&term_id)
 	return term_id, err
 }
@@ -60,7 +61,7 @@ DELETE FROM academic_year
 WHERE academic_year_id = $1
 `
 
-func (q *Queries) DeleteAcademicYear(ctx context.Context, academicYearID pgtype.UUID) error {
+func (q *Queries) DeleteAcademicYear(ctx context.Context, academicYearID uuid.UUID) error {
 	_, err := q.db.Exec(ctx, deleteAcademicYear, academicYearID)
 	return err
 }
@@ -70,7 +71,7 @@ DELETE FROM term
 WHERE term_id = $1
 `
 
-func (q *Queries) DeleteTerm(ctx context.Context, termID pgtype.UUID) error {
+func (q *Queries) DeleteTerm(ctx context.Context, termID uuid.UUID) error {
 	_, err := q.db.Exec(ctx, deleteTerm, termID)
 	return err
 }
@@ -84,10 +85,10 @@ WHERE academic_year_id = $4
 `
 
 type EditAcademicYearParams struct {
-	Name           string
-	StartDate      pgtype.Date
-	EndDate        pgtype.Date
-	AcademicYearID pgtype.UUID
+	Name           string      `json:"name"`
+	StartDate      pgtype.Date `json:"start_date"`
+	EndDate        pgtype.Date `json:"end_date"`
+	AcademicYearID uuid.UUID   `json:"academic_year_id"`
 }
 
 func (q *Queries) EditAcademicYear(ctx context.Context, arg EditAcademicYearParams) error {
@@ -110,11 +111,11 @@ WHERE term_id = $5
 `
 
 type EditTermParams struct {
-	AcademicYearID pgtype.UUID
-	Name           string
-	StartDate      pgtype.Date
-	EndDate        pgtype.Date
-	TermID         pgtype.UUID
+	AcademicYearID uuid.UUID   `json:"academic_year_id"`
+	Name           string      `json:"name"`
+	StartDate      pgtype.Date `json:"start_date"`
+	EndDate        pgtype.Date `json:"end_date"`
+	TermID         uuid.UUID   `json:"term_id"`
 }
 
 func (q *Queries) EditTerm(ctx context.Context, arg EditTermParams) error {
@@ -132,7 +133,7 @@ const getAcademicYear = `-- name: GetAcademicYear :one
 SELECT academic_year_id, name, start_date, end_date FROM academic_year WHERE academic_year_id = $1
 `
 
-func (q *Queries) GetAcademicYear(ctx context.Context, academicYearID pgtype.UUID) (AcademicYear, error) {
+func (q *Queries) GetAcademicYear(ctx context.Context, academicYearID uuid.UUID) (AcademicYear, error) {
 	row := q.db.QueryRow(ctx, getAcademicYear, academicYearID)
 	var i AcademicYear
 	err := row.Scan(
@@ -159,20 +160,20 @@ WHERE academic_year.academic_year_id = $1
 `
 
 type GetAcademicYearTermsRow struct {
-	TermID       pgtype.UUID
-	AcademicYear string
-	AcademicTerm string
-	OpeningDate  pgtype.Date
-	ClosingDate  pgtype.Date
+	TermID       uuid.UUID   `json:"term_id"`
+	AcademicYear string      `json:"academic_year"`
+	AcademicTerm string      `json:"academic_term"`
+	OpeningDate  pgtype.Date `json:"opening_date"`
+	ClosingDate  pgtype.Date `json:"closing_date"`
 }
 
-func (q *Queries) GetAcademicYearTerms(ctx context.Context, academicYearID pgtype.UUID) ([]GetAcademicYearTermsRow, error) {
+func (q *Queries) GetAcademicYearTerms(ctx context.Context, academicYearID uuid.UUID) ([]GetAcademicYearTermsRow, error) {
 	rows, err := q.db.Query(ctx, getAcademicYearTerms, academicYearID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetAcademicYearTermsRow
+	items := []GetAcademicYearTermsRow{}
 	for rows.Next() {
 		var i GetAcademicYearTermsRow
 		if err := rows.Scan(
@@ -207,14 +208,14 @@ WHERE term_id = $1
 `
 
 type GetTermRow struct {
-	TermID       pgtype.UUID
-	AcademicYear string
-	AcademicTerm string
-	OpeningDate  pgtype.Date
-	ClosingDate  pgtype.Date
+	TermID       uuid.UUID   `json:"term_id"`
+	AcademicYear string      `json:"academic_year"`
+	AcademicTerm string      `json:"academic_term"`
+	OpeningDate  pgtype.Date `json:"opening_date"`
+	ClosingDate  pgtype.Date `json:"closing_date"`
 }
 
-func (q *Queries) GetTerm(ctx context.Context, termID pgtype.UUID) (GetTermRow, error) {
+func (q *Queries) GetTerm(ctx context.Context, termID uuid.UUID) (GetTermRow, error) {
 	row := q.db.QueryRow(ctx, getTerm, termID)
 	var i GetTermRow
 	err := row.Scan(
@@ -237,7 +238,7 @@ func (q *Queries) ListAcademicYear(ctx context.Context) ([]AcademicYear, error) 
 		return nil, err
 	}
 	defer rows.Close()
-	var items []AcademicYear
+	items := []AcademicYear{}
 	for rows.Next() {
 		var i AcademicYear
 		if err := rows.Scan(
@@ -270,11 +271,11 @@ term.academic_year_id = academic_year.academic_year_id
 `
 
 type ListTermsRow struct {
-	TermID       pgtype.UUID
-	AcademicYear string
-	AcademicTerm string
-	OpeningDate  pgtype.Date
-	ClosingDate  pgtype.Date
+	TermID       uuid.UUID   `json:"term_id"`
+	AcademicYear string      `json:"academic_year"`
+	AcademicTerm string      `json:"academic_term"`
+	OpeningDate  pgtype.Date `json:"opening_date"`
+	ClosingDate  pgtype.Date `json:"closing_date"`
 }
 
 func (q *Queries) ListTerms(ctx context.Context) ([]ListTermsRow, error) {
@@ -283,7 +284,7 @@ func (q *Queries) ListTerms(ctx context.Context) ([]ListTermsRow, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListTermsRow
+	items := []ListTermsRow{}
 	for rows.Next() {
 		var i ListTermsRow
 		if err := rows.Scan(

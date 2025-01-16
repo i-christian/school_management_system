@@ -8,7 +8,7 @@ package database
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 )
 
 const createAssignments = `-- name: CreateAssignments :one
@@ -17,9 +17,9 @@ VALUES($1, $2, $3) RETURNING id, class_id, subject_id, teacher_id
 `
 
 type CreateAssignmentsParams struct {
-	ClassID   pgtype.UUID
-	SubjectID pgtype.UUID
-	TeacherID pgtype.UUID
+	ClassID   uuid.UUID `json:"class_id"`
+	SubjectID uuid.UUID `json:"subject_id"`
+	TeacherID uuid.UUID `json:"teacher_id"`
 }
 
 func (q *Queries) CreateAssignments(ctx context.Context, arg CreateAssignmentsParams) (Assignment, error) {
@@ -38,7 +38,7 @@ const deleteAssignments = `-- name: DeleteAssignments :exec
 DELETE FROM assignments WHERE id = $1
 `
 
-func (q *Queries) DeleteAssignments(ctx context.Context, id pgtype.UUID) error {
+func (q *Queries) DeleteAssignments(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.Exec(ctx, deleteAssignments, id)
 	return err
 }
@@ -52,10 +52,10 @@ WHERE id = $1
 `
 
 type EditAssignmentsParams struct {
-	ID        pgtype.UUID
-	ClassID   pgtype.UUID
-	SubjectID pgtype.UUID
-	TeacherID pgtype.UUID
+	ID        uuid.UUID `json:"id"`
+	ClassID   uuid.UUID `json:"class_id"`
+	SubjectID uuid.UUID `json:"subject_id"`
+	TeacherID uuid.UUID `json:"teacher_id"`
 }
 
 func (q *Queries) EditAssignments(ctx context.Context, arg EditAssignmentsParams) error {
@@ -86,14 +86,14 @@ WHERE users.user_id = $1
 `
 
 type GetAssignmentRow struct {
-	ID               pgtype.UUID
-	Classroom        string
-	Subject          string
-	TeacherLastname  string
-	TeacherFirstname string
+	ID               uuid.UUID `json:"id"`
+	Classroom        string    `json:"classroom"`
+	Subject          string    `json:"subject"`
+	TeacherLastname  string    `json:"teacher_lastname"`
+	TeacherFirstname string    `json:"teacher_firstname"`
 }
 
-func (q *Queries) GetAssignment(ctx context.Context, userID pgtype.UUID) (GetAssignmentRow, error) {
+func (q *Queries) GetAssignment(ctx context.Context, userID uuid.UUID) (GetAssignmentRow, error) {
 	row := q.db.QueryRow(ctx, getAssignment, userID)
 	var i GetAssignmentRow
 	err := row.Scan(
@@ -123,11 +123,11 @@ INNER JOIN users
 `
 
 type ListAssignmentsRow struct {
-	ID               pgtype.UUID
-	Classroom        string
-	Subject          string
-	TeacherLastname  string
-	TeacherFirstname string
+	ID               uuid.UUID `json:"id"`
+	Classroom        string    `json:"classroom"`
+	Subject          string    `json:"subject"`
+	TeacherLastname  string    `json:"teacher_lastname"`
+	TeacherFirstname string    `json:"teacher_firstname"`
 }
 
 func (q *Queries) ListAssignments(ctx context.Context) ([]ListAssignmentsRow, error) {
@@ -136,7 +136,7 @@ func (q *Queries) ListAssignments(ctx context.Context) ([]ListAssignmentsRow, er
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListAssignmentsRow
+	items := []ListAssignmentsRow{}
 	for rows.Next() {
 		var i ListAssignmentsRow
 		if err := rows.Scan(

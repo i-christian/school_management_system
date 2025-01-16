@@ -8,6 +8,7 @@ package database
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -26,13 +27,13 @@ RETURNING user_id, last_name, first_name, gender, email, phone_number, password,
 `
 
 type CreateUserParams struct {
-	FirstName   string
-	LastName    string
-	PhoneNumber pgtype.Text
-	Email       pgtype.Text
-	Gender      string
-	Password    string
-	Name        string
+	FirstName   string      `json:"first_name"`
+	LastName    string      `json:"last_name"`
+	PhoneNumber pgtype.Text `json:"phone_number"`
+	Email       pgtype.Text `json:"email"`
+	Gender      string      `json:"gender"`
+	Password    string      `json:"password"`
+	Name        string      `json:"name"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
@@ -66,7 +67,7 @@ DELETE FROM users
 WHERE user_id = $1
 `
 
-func (q *Queries) DeleteUser(ctx context.Context, userID pgtype.UUID) error {
+func (q *Queries) DeleteUser(ctx context.Context, userID uuid.UUID) error {
 	_, err := q.db.Exec(ctx, deleteUser, userID)
 	return err
 }
@@ -84,14 +85,14 @@ WHERE user_id = $1
 `
 
 type EditUserParams struct {
-	UserID      pgtype.UUID
-	FirstName   string
-	LastName    string
-	Gender      string
-	PhoneNumber pgtype.Text
-	Email       pgtype.Text
-	Password    string
-	Name        string
+	UserID      uuid.UUID   `json:"user_id"`
+	FirstName   string      `json:"first_name"`
+	LastName    string      `json:"last_name"`
+	Gender      string      `json:"gender"`
+	PhoneNumber pgtype.Text `json:"phone_number"`
+	Email       pgtype.Text `json:"email"`
+	Password    string      `json:"password"`
+	Name        string      `json:"name"`
 }
 
 func (q *Queries) EditUser(ctx context.Context, arg EditUserParams) error {
@@ -128,17 +129,17 @@ WHERE
 `
 
 type GetUserDetailsParams struct {
-	UserID pgtype.UUID
-	Name   string
+	UserID uuid.UUID `json:"user_id"`
+	Name   string    `json:"name"`
 }
 
 type GetUserDetailsRow struct {
-	LastName    string
-	FirstName   string
-	Gender      string
-	Email       pgtype.Text
-	PhoneNumber pgtype.Text
-	Role        string
+	LastName    string      `json:"last_name"`
+	FirstName   string      `json:"first_name"`
+	Gender      string      `json:"gender"`
+	Email       pgtype.Text `json:"email"`
+	PhoneNumber pgtype.Text `json:"phone_number"`
+	Role        string      `json:"role"`
 }
 
 func (q *Queries) GetUserDetails(ctx context.Context, arg GetUserDetailsParams) (GetUserDetailsRow, error) {
@@ -166,11 +167,11 @@ WHERE session_id = $1
 `
 
 type GetUserRoleRow struct {
-	Role   string
-	UserID pgtype.UUID
+	Role   string    `json:"role"`
+	UserID uuid.UUID `json:"user_id"`
 }
 
-func (q *Queries) GetUserRole(ctx context.Context, sessionID pgtype.UUID) (GetUserRoleRow, error) {
+func (q *Queries) GetUserRole(ctx context.Context, sessionID uuid.UUID) (GetUserRoleRow, error) {
 	row := q.db.QueryRow(ctx, getUserRole, sessionID)
 	var i GetUserRoleRow
 	err := row.Scan(&i.Role, &i.UserID)
@@ -192,13 +193,13 @@ ORDER BY last_name
 `
 
 type ListUsersRow struct {
-	UserID      pgtype.UUID
-	LastName    string
-	FirstName   string
-	Gender      string
-	Email       pgtype.Text
-	PhoneNumber pgtype.Text
-	Role        string
+	UserID      uuid.UUID   `json:"user_id"`
+	LastName    string      `json:"last_name"`
+	FirstName   string      `json:"first_name"`
+	Gender      string      `json:"gender"`
+	Email       pgtype.Text `json:"email"`
+	PhoneNumber pgtype.Text `json:"phone_number"`
+	Role        string      `json:"role"`
 }
 
 func (q *Queries) ListUsers(ctx context.Context) ([]ListUsersRow, error) {
@@ -207,7 +208,7 @@ func (q *Queries) ListUsers(ctx context.Context) ([]ListUsersRow, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListUsersRow
+	items := []ListUsersRow{}
 	for rows.Next() {
 		var i ListUsersRow
 		if err := rows.Scan(

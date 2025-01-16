@@ -8,6 +8,7 @@ package database
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -18,11 +19,11 @@ RETURNING student_id, academic_year_id, last_name, first_name, gender, date_of_b
 `
 
 type CreateStudentParams struct {
-	AcademicYearID pgtype.UUID
-	LastName       string
-	FirstName      string
-	Gender         string
-	DateOfBirth    pgtype.Date
+	AcademicYearID uuid.UUID   `json:"academic_year_id"`
+	LastName       string      `json:"last_name"`
+	FirstName      string      `json:"first_name"`
+	Gender         string      `json:"gender"`
+	DateOfBirth    pgtype.Date `json:"date_of_birth"`
 }
 
 func (q *Queries) CreateStudent(ctx context.Context, arg CreateStudentParams) (Student, error) {
@@ -53,7 +54,7 @@ const deleteStudent = `-- name: DeleteStudent :exec
 DELETE FROM students WHERE student_id = $1
 `
 
-func (q *Queries) DeleteStudent(ctx context.Context, studentID pgtype.UUID) error {
+func (q *Queries) DeleteStudent(ctx context.Context, studentID uuid.UUID) error {
 	_, err := q.db.Exec(ctx, deleteStudent, studentID)
 	return err
 }
@@ -69,11 +70,11 @@ WHERE student_id = $1
 `
 
 type EditStudentParams struct {
-	StudentID      pgtype.UUID
-	AcademicYearID pgtype.UUID
-	LastName       string
-	FirstName      string
-	Gender         string
+	StudentID      uuid.UUID `json:"student_id"`
+	AcademicYearID uuid.UUID `json:"academic_year_id"`
+	LastName       string    `json:"last_name"`
+	FirstName      string    `json:"first_name"`
+	Gender         string    `json:"gender"`
 }
 
 func (q *Queries) EditStudent(ctx context.Context, arg EditStudentParams) error {
@@ -108,17 +109,17 @@ WHERE students.student_id = $1
 `
 
 type GetStudentRow struct {
-	StudentID    pgtype.UUID
-	LastName     string
-	FirstName    string
-	Gender       string
-	DateOfBirth  pgtype.Date
-	Status       string
-	Academicyear string
-	Classname    pgtype.Text
+	StudentID    uuid.UUID   `json:"student_id"`
+	LastName     string      `json:"last_name"`
+	FirstName    string      `json:"first_name"`
+	Gender       string      `json:"gender"`
+	DateOfBirth  pgtype.Date `json:"date_of_birth"`
+	Status       string      `json:"status"`
+	Academicyear string      `json:"academicyear"`
+	Classname    pgtype.Text `json:"classname"`
 }
 
-func (q *Queries) GetStudent(ctx context.Context, studentID pgtype.UUID) (GetStudentRow, error) {
+func (q *Queries) GetStudent(ctx context.Context, studentID uuid.UUID) (GetStudentRow, error) {
 	row := q.db.QueryRow(ctx, getStudent, studentID)
 	var i GetStudentRow
 	err := row.Scan(
@@ -155,14 +156,14 @@ ORDER BY students.last_name ASC, students.first_name ASC
 `
 
 type ListStudentsRow struct {
-	StudentID    pgtype.UUID
-	LastName     string
-	FirstName    string
-	Gender       string
-	DateOfBirth  pgtype.Date
-	Status       string
-	Academicyear string
-	Classname    pgtype.Text
+	StudentID    uuid.UUID   `json:"student_id"`
+	LastName     string      `json:"last_name"`
+	FirstName    string      `json:"first_name"`
+	Gender       string      `json:"gender"`
+	DateOfBirth  pgtype.Date `json:"date_of_birth"`
+	Status       string      `json:"status"`
+	Academicyear string      `json:"academicyear"`
+	Classname    pgtype.Text `json:"classname"`
 }
 
 func (q *Queries) ListStudents(ctx context.Context) ([]ListStudentsRow, error) {
@@ -171,7 +172,7 @@ func (q *Queries) ListStudents(ctx context.Context) ([]ListStudentsRow, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListStudentsRow
+	items := []ListStudentsRow{}
 	for rows.Next() {
 		var i ListStudentsRow
 		if err := rows.Scan(

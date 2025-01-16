@@ -8,22 +8,25 @@ package database
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const createSession = `-- name: CreateSession :exec
+const createSession = `-- name: CreateSession :one
 INSERT INTO sessions (session_id, user_id) 
-VALUES ($1, $2)
+VALUES ($1, $2) RETURNING session_id
 `
 
 type CreateSessionParams struct {
-	SessionID pgtype.UUID
-	UserID    pgtype.UUID
+	SessionID uuid.UUID `json:"session_id"`
+	UserID    uuid.UUID `json:"user_id"`
 }
 
-func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) error {
-	_, err := q.db.Exec(ctx, createSession, arg.SessionID, arg.UserID)
-	return err
+func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (uuid.UUID, error) {
+	row := q.db.QueryRow(ctx, createSession, arg.SessionID, arg.UserID)
+	var session_id uuid.UUID
+	err := row.Scan(&session_id)
+	return session_id, err
 }
 
 const deleteSession = `-- name: DeleteSession :exec
@@ -31,7 +34,7 @@ DELETE FROM sessions
 WHERE user_id = $1
 `
 
-func (q *Queries) DeleteSession(ctx context.Context, userID pgtype.UUID) error {
+func (q *Queries) DeleteSession(ctx context.Context, userID uuid.UUID) error {
 	_, err := q.db.Exec(ctx, deleteSession, userID)
 	return err
 }
@@ -41,11 +44,11 @@ SELECT session_id, expires FROM sessions WHERE user_id = $1
 `
 
 type GetSessionRow struct {
-	SessionID pgtype.UUID
-	Expires   pgtype.Timestamptz
+	SessionID uuid.UUID          `json:"session_id"`
+	Expires   pgtype.Timestamptz `json:"expires"`
 }
 
-func (q *Queries) GetSession(ctx context.Context, userID pgtype.UUID) (GetSessionRow, error) {
+func (q *Queries) GetSession(ctx context.Context, userID uuid.UUID) (GetSessionRow, error) {
 	row := q.db.QueryRow(ctx, getSession, userID)
 	var i GetSessionRow
 	err := row.Scan(&i.SessionID, &i.Expires)
@@ -59,8 +62,8 @@ WHERE user_id = $1
 `
 
 type RefreshSessionParams struct {
-	UserID  pgtype.UUID
-	Expires pgtype.Timestamptz
+	UserID  uuid.UUID          `json:"user_id"`
+	Expires pgtype.Timestamptz `json:"expires"`
 }
 
 func (q *Queries) RefreshSession(ctx context.Context, arg RefreshSessionParams) error {
