@@ -8,7 +8,7 @@ package database
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 )
 
 const createClass = `-- name: CreateClass :one
@@ -26,7 +26,7 @@ const deleteClass = `-- name: DeleteClass :exec
 DELETE FROM classes WHERE class_id = $1
 `
 
-func (q *Queries) DeleteClass(ctx context.Context, classID pgtype.UUID) error {
+func (q *Queries) DeleteClass(ctx context.Context, classID uuid.UUID) error {
 	_, err := q.db.Exec(ctx, deleteClass, classID)
 	return err
 }
@@ -38,8 +38,8 @@ WHERE class_id = $1
 `
 
 type EditClassParams struct {
-	ClassID pgtype.UUID
-	Name    string
+	ClassID uuid.UUID `json:"class_id"`
+	Name    string    `json:"name"`
 }
 
 func (q *Queries) EditClass(ctx context.Context, arg EditClassParams) error {
@@ -68,7 +68,7 @@ func (q *Queries) ListClasses(ctx context.Context) ([]Class, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Class
+	items := []Class{}
 	for rows.Next() {
 		var i Class
 		if err := rows.Scan(&i.ClassID, &i.Name); err != nil {

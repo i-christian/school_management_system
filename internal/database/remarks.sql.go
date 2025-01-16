@@ -8,6 +8,7 @@ package database
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -17,10 +18,10 @@ VALUES ($1, $2, $3, $4) RETURNING remarks_id, student_id, term_id, content_class
 `
 
 type CreateRemarkParams struct {
-	StudentID           pgtype.UUID
-	TermID              pgtype.UUID
-	ContentClassTeacher pgtype.Text
-	ContentHeadTeacher  pgtype.Text
+	StudentID           uuid.UUID   `json:"student_id"`
+	TermID              uuid.UUID   `json:"term_id"`
+	ContentClassTeacher pgtype.Text `json:"content_class_teacher"`
+	ContentHeadTeacher  pgtype.Text `json:"content_head_teacher"`
 }
 
 func (q *Queries) CreateRemark(ctx context.Context, arg CreateRemarkParams) (Remark, error) {
@@ -46,7 +47,7 @@ const deleteRemark = `-- name: DeleteRemark :exec
 DELETE FROM remarks WHERE remarks_id = $1
 `
 
-func (q *Queries) DeleteRemark(ctx context.Context, remarksID pgtype.UUID) error {
+func (q *Queries) DeleteRemark(ctx context.Context, remarksID uuid.UUID) error {
 	_, err := q.db.Exec(ctx, deleteRemark, remarksID)
 	return err
 }
@@ -61,11 +62,11 @@ WHERE remarks_id = $1
 `
 
 type EditRemarkParams struct {
-	RemarksID           pgtype.UUID
-	TermID              pgtype.UUID
-	ContentClassTeacher pgtype.Text
-	ContentHeadTeacher  pgtype.Text
-	UpdatedAt           pgtype.Timestamptz
+	RemarksID           uuid.UUID          `json:"remarks_id"`
+	TermID              uuid.UUID          `json:"term_id"`
+	ContentClassTeacher pgtype.Text        `json:"content_class_teacher"`
+	ContentHeadTeacher  pgtype.Text        `json:"content_head_teacher"`
+	UpdatedAt           pgtype.Timestamptz `json:"updated_at"`
 }
 
 func (q *Queries) EditRemark(ctx context.Context, arg EditRemarkParams) error {
@@ -97,16 +98,16 @@ WHERE students.student_id = $1
 `
 
 type GetRemarkRow struct {
-	RemarksID           pgtype.UUID
-	LastName            string
-	FirstName           string
-	Academicterm        string
-	Classteacherremarks pgtype.Text
-	Headteacherremarks  pgtype.Text
-	UpdatedAt           pgtype.Timestamptz
+	RemarksID           uuid.UUID          `json:"remarks_id"`
+	LastName            string             `json:"last_name"`
+	FirstName           string             `json:"first_name"`
+	Academicterm        string             `json:"academicterm"`
+	Classteacherremarks pgtype.Text        `json:"classteacherremarks"`
+	Headteacherremarks  pgtype.Text        `json:"headteacherremarks"`
+	UpdatedAt           pgtype.Timestamptz `json:"updated_at"`
 }
 
-func (q *Queries) GetRemark(ctx context.Context, studentID pgtype.UUID) (GetRemarkRow, error) {
+func (q *Queries) GetRemark(ctx context.Context, studentID uuid.UUID) (GetRemarkRow, error) {
 	row := q.db.QueryRow(ctx, getRemark, studentID)
 	var i GetRemarkRow
 	err := row.Scan(
@@ -138,13 +139,13 @@ INNER JOIN term
 `
 
 type ListRemarksRow struct {
-	RemarksID           pgtype.UUID
-	LastName            string
-	FirstName           string
-	Academicterm        string
-	Classteacherremarks pgtype.Text
-	Headteacherremarks  pgtype.Text
-	UpdatedAt           pgtype.Timestamptz
+	RemarksID           uuid.UUID          `json:"remarks_id"`
+	LastName            string             `json:"last_name"`
+	FirstName           string             `json:"first_name"`
+	Academicterm        string             `json:"academicterm"`
+	Classteacherremarks pgtype.Text        `json:"classteacherremarks"`
+	Headteacherremarks  pgtype.Text        `json:"headteacherremarks"`
+	UpdatedAt           pgtype.Timestamptz `json:"updated_at"`
 }
 
 func (q *Queries) ListRemarks(ctx context.Context) ([]ListRemarksRow, error) {
@@ -153,7 +154,7 @@ func (q *Queries) ListRemarks(ctx context.Context) ([]ListRemarksRow, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListRemarksRow
+	items := []ListRemarksRow{}
 	for rows.Next() {
 		var i ListRemarksRow
 		if err := rows.Scan(

@@ -8,6 +8,7 @@ package database
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -18,11 +19,11 @@ RETURNING fees_id, student_id, term_id, class_id, required, paid, status
 `
 
 type CreateFeesRecordParams struct {
-	StudentID pgtype.UUID
-	TermID    pgtype.UUID
-	ClassID   pgtype.UUID
-	Required  pgtype.Numeric
-	Paid      pgtype.Numeric
+	StudentID uuid.UUID      `json:"student_id"`
+	TermID    uuid.UUID      `json:"term_id"`
+	ClassID   uuid.UUID      `json:"class_id"`
+	Required  pgtype.Numeric `json:"required"`
+	Paid      pgtype.Numeric `json:"paid"`
 }
 
 func (q *Queries) CreateFeesRecord(ctx context.Context, arg CreateFeesRecordParams) (Fee, error) {
@@ -50,7 +51,7 @@ const deleteFeesRecord = `-- name: DeleteFeesRecord :exec
 DELETE FROM fees WHERE fees_id = $1
 `
 
-func (q *Queries) DeleteFeesRecord(ctx context.Context, feesID pgtype.UUID) error {
+func (q *Queries) DeleteFeesRecord(ctx context.Context, feesID uuid.UUID) error {
 	_, err := q.db.Exec(ctx, deleteFeesRecord, feesID)
 	return err
 }
@@ -65,11 +66,11 @@ WHERE fees_id = $1
 `
 
 type EditFeesRecordParams struct {
-	FeesID   pgtype.UUID
-	TermID   pgtype.UUID
-	ClassID  pgtype.UUID
-	Required pgtype.Numeric
-	Paid     pgtype.Numeric
+	FeesID   uuid.UUID      `json:"fees_id"`
+	TermID   uuid.UUID      `json:"term_id"`
+	ClassID  uuid.UUID      `json:"class_id"`
+	Required pgtype.Numeric `json:"required"`
+	Paid     pgtype.Numeric `json:"paid"`
 }
 
 func (q *Queries) EditFeesRecord(ctx context.Context, arg EditFeesRecordParams) error {
@@ -104,17 +105,17 @@ WHERE students.student_id = $1
 `
 
 type GetStudentFeesRecordRow struct {
-	FeesID       pgtype.UUID
-	Lastname     string
-	Firstname    string
-	Academicterm string
-	Classname    string
-	Tutionamount pgtype.Numeric
-	Paidamount   pgtype.Numeric
-	Status       pgtype.Text
+	FeesID       uuid.UUID      `json:"fees_id"`
+	Lastname     string         `json:"lastname"`
+	Firstname    string         `json:"firstname"`
+	Academicterm string         `json:"academicterm"`
+	Classname    string         `json:"classname"`
+	Tutionamount pgtype.Numeric `json:"tutionamount"`
+	Paidamount   pgtype.Numeric `json:"paidamount"`
+	Status       pgtype.Text    `json:"status"`
 }
 
-func (q *Queries) GetStudentFeesRecord(ctx context.Context, studentID pgtype.UUID) (GetStudentFeesRecordRow, error) {
+func (q *Queries) GetStudentFeesRecord(ctx context.Context, studentID uuid.UUID) (GetStudentFeesRecordRow, error) {
 	row := q.db.QueryRow(ctx, getStudentFeesRecord, studentID)
 	var i GetStudentFeesRecordRow
 	err := row.Scan(
@@ -150,14 +151,14 @@ INNER JOIN classes
 `
 
 type ListStudentFeesRecordsRow struct {
-	FeesID       pgtype.UUID
-	Lastname     string
-	Firstname    string
-	Academicterm string
-	Classname    string
-	Tutionamount pgtype.Numeric
-	Paidamount   pgtype.Numeric
-	Status       pgtype.Text
+	FeesID       uuid.UUID      `json:"fees_id"`
+	Lastname     string         `json:"lastname"`
+	Firstname    string         `json:"firstname"`
+	Academicterm string         `json:"academicterm"`
+	Classname    string         `json:"classname"`
+	Tutionamount pgtype.Numeric `json:"tutionamount"`
+	Paidamount   pgtype.Numeric `json:"paidamount"`
+	Status       pgtype.Text    `json:"status"`
 }
 
 func (q *Queries) ListStudentFeesRecords(ctx context.Context) ([]ListStudentFeesRecordsRow, error) {
@@ -166,7 +167,7 @@ func (q *Queries) ListStudentFeesRecords(ctx context.Context) ([]ListStudentFees
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListStudentFeesRecordsRow
+	items := []ListStudentFeesRecordsRow{}
 	for rows.Next() {
 		var i ListStudentFeesRecordsRow
 		if err := rows.Scan(

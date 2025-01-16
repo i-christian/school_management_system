@@ -8,6 +8,7 @@ package database
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -17,8 +18,8 @@ VALUES ($1, $2) RETURNING class_id, next_class_id
 `
 
 type CreateClassPromotionsParams struct {
-	ClassID     pgtype.UUID
-	NextClassID pgtype.UUID
+	ClassID     uuid.UUID   `json:"class_id"`
+	NextClassID pgtype.UUID `json:"next_class_id"`
 }
 
 func (q *Queries) CreateClassPromotions(ctx context.Context, arg CreateClassPromotionsParams) (ClassPromotion, error) {
@@ -38,7 +39,7 @@ func (q *Queries) ListClassPromotions(ctx context.Context) ([]ClassPromotion, er
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ClassPromotion
+	items := []ClassPromotion{}
 	for rows.Next() {
 		var i ClassPromotion
 		if err := rows.Scan(&i.ClassID, &i.NextClassID); err != nil {
@@ -70,7 +71,7 @@ WHERE s.status = 'active'
   AND t.end_date <= CURRENT_DATE
 `
 
-func (q *Queries) UpdateStudentTerm(ctx context.Context, termID pgtype.UUID) error {
+func (q *Queries) UpdateStudentTerm(ctx context.Context, termID uuid.UUID) error {
 	_, err := q.db.Exec(ctx, updateStudentTerm, termID)
 	return err
 }

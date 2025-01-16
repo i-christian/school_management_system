@@ -8,7 +8,7 @@ package database
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 )
 
 const createStudentClasses = `-- name: CreateStudentClasses :one
@@ -17,9 +17,9 @@ VALUES ($1, $2, $3) RETURNING student_class_id, student_id, class_id, term_id
 `
 
 type CreateStudentClassesParams struct {
-	StudentID pgtype.UUID
-	ClassID   pgtype.UUID
-	TermID    pgtype.UUID
+	StudentID uuid.UUID `json:"student_id"`
+	ClassID   uuid.UUID `json:"class_id"`
+	TermID    uuid.UUID `json:"term_id"`
 }
 
 func (q *Queries) CreateStudentClasses(ctx context.Context, arg CreateStudentClassesParams) (StudentClass, error) {
@@ -38,7 +38,7 @@ const deleteStudentClasses = `-- name: DeleteStudentClasses :exec
 DELETE FROM student_classes WHERE student_class_id = $1
 `
 
-func (q *Queries) DeleteStudentClasses(ctx context.Context, studentClassID pgtype.UUID) error {
+func (q *Queries) DeleteStudentClasses(ctx context.Context, studentClassID uuid.UUID) error {
 	_, err := q.db.Exec(ctx, deleteStudentClasses, studentClassID)
 	return err
 }
@@ -52,10 +52,10 @@ WHERE student_class_id = $1
 `
 
 type EditStudentClassesParams struct {
-	StudentClassID pgtype.UUID
-	StudentID      pgtype.UUID
-	ClassID        pgtype.UUID
-	TermID         pgtype.UUID
+	StudentClassID uuid.UUID `json:"student_class_id"`
+	StudentID      uuid.UUID `json:"student_id"`
+	ClassID        uuid.UUID `json:"class_id"`
+	TermID         uuid.UUID `json:"term_id"`
 }
 
 func (q *Queries) EditStudentClasses(ctx context.Context, arg EditStudentClassesParams) error {
@@ -86,14 +86,14 @@ WHERE students.student_id = $1
 `
 
 type GetStudentClassesRow struct {
-	StudentClassID pgtype.UUID
-	LastName       string
-	FirstName      string
-	Classname      string
-	Academicterm   pgtype.UUID
+	StudentClassID uuid.UUID `json:"student_class_id"`
+	LastName       string    `json:"last_name"`
+	FirstName      string    `json:"first_name"`
+	Classname      string    `json:"classname"`
+	Academicterm   uuid.UUID `json:"academicterm"`
 }
 
-func (q *Queries) GetStudentClasses(ctx context.Context, studentID pgtype.UUID) (GetStudentClassesRow, error) {
+func (q *Queries) GetStudentClasses(ctx context.Context, studentID uuid.UUID) (GetStudentClassesRow, error) {
 	row := q.db.QueryRow(ctx, getStudentClasses, studentID)
 	var i GetStudentClassesRow
 	err := row.Scan(
@@ -123,11 +123,11 @@ INNER JOIN term
 `
 
 type ListStudentClassesRow struct {
-	StudentClassID pgtype.UUID
-	LastName       string
-	FirstName      string
-	Classname      string
-	Academicterm   pgtype.UUID
+	StudentClassID uuid.UUID `json:"student_class_id"`
+	LastName       string    `json:"last_name"`
+	FirstName      string    `json:"first_name"`
+	Classname      string    `json:"classname"`
+	Academicterm   uuid.UUID `json:"academicterm"`
 }
 
 func (q *Queries) ListStudentClasses(ctx context.Context) ([]ListStudentClassesRow, error) {
@@ -136,7 +136,7 @@ func (q *Queries) ListStudentClasses(ctx context.Context) ([]ListStudentClassesR
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListStudentClassesRow
+	items := []ListStudentClassesRow{}
 	for rows.Next() {
 		var i ListStudentClassesRow
 		if err := rows.Scan(

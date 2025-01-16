@@ -5,142 +5,143 @@
 package database
 
 import (
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type AcademicYear struct {
-	AcademicYearID pgtype.UUID
-	Name           string
-	StartDate      pgtype.Date
-	EndDate        pgtype.Date
+	AcademicYearID uuid.UUID   `json:"academic_year_id"`
+	Name           string      `json:"name"`
+	StartDate      pgtype.Date `json:"start_date"`
+	EndDate        pgtype.Date `json:"end_date"`
 }
 
 type Assignment struct {
-	ID        pgtype.UUID
-	ClassID   pgtype.UUID
-	SubjectID pgtype.UUID
-	TeacherID pgtype.UUID
+	ID        uuid.UUID `json:"id"`
+	ClassID   uuid.UUID `json:"class_id"`
+	SubjectID uuid.UUID `json:"subject_id"`
+	TeacherID uuid.UUID `json:"teacher_id"`
 }
 
 type Class struct {
-	ClassID pgtype.UUID
-	Name    string
+	ClassID uuid.UUID `json:"class_id"`
+	Name    string    `json:"name"`
 }
 
 type ClassPromotion struct {
-	ClassID     pgtype.UUID
-	NextClassID pgtype.UUID
+	ClassID     uuid.UUID   `json:"class_id"`
+	NextClassID pgtype.UUID `json:"next_class_id"`
 }
 
 type DisciplineRecord struct {
-	DisciplineID pgtype.UUID
-	StudentID    pgtype.UUID
-	TermID       pgtype.UUID
-	Date         pgtype.Date
-	Description  string
-	ActionTaken  pgtype.Text
-	ReportedBy   pgtype.UUID
-	Notes        pgtype.Text
+	DisciplineID uuid.UUID   `json:"discipline_id"`
+	StudentID    uuid.UUID   `json:"student_id"`
+	TermID       uuid.UUID   `json:"term_id"`
+	Date         pgtype.Date `json:"date"`
+	Description  string      `json:"description"`
+	ActionTaken  pgtype.Text `json:"action_taken"`
+	ReportedBy   uuid.UUID   `json:"reported_by"`
+	Notes        pgtype.Text `json:"notes"`
 }
 
 type Fee struct {
-	FeesID    pgtype.UUID
-	StudentID pgtype.UUID
-	TermID    pgtype.UUID
-	ClassID   pgtype.UUID
-	Required  pgtype.Numeric
-	Paid      pgtype.Numeric
-	Status    pgtype.Text
+	FeesID    uuid.UUID      `json:"fees_id"`
+	StudentID uuid.UUID      `json:"student_id"`
+	TermID    uuid.UUID      `json:"term_id"`
+	ClassID   uuid.UUID      `json:"class_id"`
+	Required  pgtype.Numeric `json:"required"`
+	Paid      pgtype.Numeric `json:"paid"`
+	Status    pgtype.Text    `json:"status"`
 }
 
 type Grade struct {
-	GradeID   pgtype.UUID
-	StudentID pgtype.UUID
-	SubjectID pgtype.UUID
-	TermID    pgtype.UUID
-	Score     pgtype.Numeric
-	Remark    pgtype.Text
+	GradeID   uuid.UUID      `json:"grade_id"`
+	StudentID uuid.UUID      `json:"student_id"`
+	SubjectID uuid.UUID      `json:"subject_id"`
+	TermID    uuid.UUID      `json:"term_id"`
+	Score     pgtype.Numeric `json:"score"`
+	Remark    pgtype.Text    `json:"remark"`
 }
 
 type Guardian struct {
-	GuardianID   pgtype.UUID
-	Name         string
-	PhoneNumber1 pgtype.Text
-	PhoneNumber2 pgtype.Text
-	Gender       string
-	Profession   pgtype.Text
+	GuardianID   uuid.UUID   `json:"guardian_id"`
+	Name         string      `json:"name"`
+	PhoneNumber1 pgtype.Text `json:"phone_number_1"`
+	PhoneNumber2 pgtype.Text `json:"phone_number_2"`
+	Gender       string      `json:"gender"`
+	Profession   pgtype.Text `json:"profession"`
 }
 
 type Remark struct {
-	RemarksID           pgtype.UUID
-	StudentID           pgtype.UUID
-	TermID              pgtype.UUID
-	ContentClassTeacher pgtype.Text
-	ContentHeadTeacher  pgtype.Text
-	UpdatedAt           pgtype.Timestamptz
+	RemarksID           uuid.UUID          `json:"remarks_id"`
+	StudentID           uuid.UUID          `json:"student_id"`
+	TermID              uuid.UUID          `json:"term_id"`
+	ContentClassTeacher pgtype.Text        `json:"content_class_teacher"`
+	ContentHeadTeacher  pgtype.Text        `json:"content_head_teacher"`
+	UpdatedAt           pgtype.Timestamptz `json:"updated_at"`
 }
 
 type Role struct {
-	RoleID      pgtype.UUID
-	Name        string
-	Description pgtype.Text
+	RoleID      uuid.UUID   `json:"role_id"`
+	Name        string      `json:"name"`
+	Description pgtype.Text `json:"description"`
 }
 
 type Session struct {
-	ID        pgtype.UUID
-	SessionID pgtype.UUID
-	UserID    pgtype.UUID
-	Expires   pgtype.Timestamptz
+	ID        uuid.UUID          `json:"id"`
+	SessionID uuid.UUID          `json:"session_id"`
+	UserID    uuid.UUID          `json:"user_id"`
+	Expires   pgtype.Timestamptz `json:"expires"`
 }
 
 type Student struct {
-	StudentID      pgtype.UUID
-	AcademicYearID pgtype.UUID
-	LastName       string
-	FirstName      string
-	Gender         string
-	DateOfBirth    pgtype.Date
-	Status         string
-	Promoted       bool
-	Graduated      bool
-	Suspended      bool
+	StudentID      uuid.UUID   `json:"student_id"`
+	AcademicYearID uuid.UUID   `json:"academic_year_id"`
+	LastName       string      `json:"last_name"`
+	FirstName      string      `json:"first_name"`
+	Gender         string      `json:"gender"`
+	DateOfBirth    pgtype.Date `json:"date_of_birth"`
+	Status         string      `json:"status"`
+	Promoted       bool        `json:"promoted"`
+	Graduated      bool        `json:"graduated"`
+	Suspended      bool        `json:"suspended"`
 }
 
 type StudentClass struct {
-	StudentClassID pgtype.UUID
-	StudentID      pgtype.UUID
-	ClassID        pgtype.UUID
-	TermID         pgtype.UUID
+	StudentClassID uuid.UUID `json:"student_class_id"`
+	StudentID      uuid.UUID `json:"student_id"`
+	ClassID        uuid.UUID `json:"class_id"`
+	TermID         uuid.UUID `json:"term_id"`
 }
 
 type StudentGuardian struct {
-	StudentID  pgtype.UUID
-	GuardianID pgtype.UUID
+	StudentID  uuid.UUID `json:"student_id"`
+	GuardianID uuid.UUID `json:"guardian_id"`
 }
 
 type Subject struct {
-	SubjectID pgtype.UUID
-	ClassID   pgtype.UUID
-	Name      string
+	SubjectID uuid.UUID `json:"subject_id"`
+	ClassID   uuid.UUID `json:"class_id"`
+	Name      string    `json:"name"`
 }
 
 type Term struct {
-	TermID         pgtype.UUID
-	AcademicYearID pgtype.UUID
-	Name           string
-	StartDate      pgtype.Date
-	EndDate        pgtype.Date
+	TermID         uuid.UUID   `json:"term_id"`
+	AcademicYearID uuid.UUID   `json:"academic_year_id"`
+	Name           string      `json:"name"`
+	StartDate      pgtype.Date `json:"start_date"`
+	EndDate        pgtype.Date `json:"end_date"`
 }
 
 type User struct {
-	UserID      pgtype.UUID
-	LastName    string
-	FirstName   string
-	Gender      string
-	Email       pgtype.Text
-	PhoneNumber pgtype.Text
-	Password    string
-	CreatedAt   pgtype.Timestamptz
-	UpdatedAt   pgtype.Timestamptz
-	RoleID      pgtype.UUID
+	UserID      uuid.UUID          `json:"user_id"`
+	LastName    string             `json:"last_name"`
+	FirstName   string             `json:"first_name"`
+	Gender      string             `json:"gender"`
+	Email       pgtype.Text        `json:"email"`
+	PhoneNumber pgtype.Text        `json:"phone_number"`
+	Password    string             `json:"password"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
+	RoleID      uuid.UUID          `json:"role_id"`
 }

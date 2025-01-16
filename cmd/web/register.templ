@@ -1,0 +1,38 @@
+package web
+
+// type User struct {
+// 	FirstName string
+// 	LastName  string
+// 	Role      string
+// }
+templ Register() {
+	<form hx-post="/register" hx-target="#result" hx-swap="innerHTML">
+		<label for="first_name">First Name:</label>
+		<input type="text" id="first_name" name="first_name" required/>
+		<label for="last_name">Last Name:</label>
+		<input type="text" id="last_name" name="last_name" required/>
+		<label for="phone_number">Phone Number:</label>
+		<input type="text" id="phone_number" name="phone_number" required/>
+		<label for="email">Email (optional):</label>
+		<input type="email" id="email" name="email"/>
+		<label for="gender">Gender:</label>
+		<select id="gender" name="gender" required>
+			<option value="">Select</option>
+			<option value="M">Male</option>
+			<option value="F">Female</option>
+		</select>
+		<label for="password">Password:</label>
+		<input type="password" id="password" name="password" required/>
+		<label for="name">Role:</label>
+		<select id="name" name="name" required>
+			<option value="">Select</option>
+			<option value="teacher">Teacher</option>
+			<option value="headteacher">Headteacher</option>
+			<option value="admin">Admin</option>
+		</select>
+		<button type="submit">Register</button>
+	</form>
+	<div id="result">
+		<!-- Server response will be rendered here -->
+	</div>
+}

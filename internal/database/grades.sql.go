@@ -8,6 +8,7 @@ package database
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -18,11 +19,11 @@ RETURNING grade_id, student_id, subject_id, term_id, score, remark
 `
 
 type CreateGradeParams struct {
-	StudentID pgtype.UUID
-	SubjectID pgtype.UUID
-	TermID    pgtype.UUID
-	Score     pgtype.Numeric
-	Remark    pgtype.Text
+	StudentID uuid.UUID      `json:"student_id"`
+	SubjectID uuid.UUID      `json:"subject_id"`
+	TermID    uuid.UUID      `json:"term_id"`
+	Score     pgtype.Numeric `json:"score"`
+	Remark    pgtype.Text    `json:"remark"`
 }
 
 func (q *Queries) CreateGrade(ctx context.Context, arg CreateGradeParams) (Grade, error) {
@@ -49,7 +50,7 @@ const deleteGrade = `-- name: DeleteGrade :exec
 DELETE FROM grades WHERE grade_id = $1
 `
 
-func (q *Queries) DeleteGrade(ctx context.Context, gradeID pgtype.UUID) error {
+func (q *Queries) DeleteGrade(ctx context.Context, gradeID uuid.UUID) error {
 	_, err := q.db.Exec(ctx, deleteGrade, gradeID)
 	return err
 }
@@ -65,12 +66,12 @@ WHERE grade_id = $1
 `
 
 type EditGradeParams struct {
-	GradeID   pgtype.UUID
-	StudentID pgtype.UUID
-	SubjectID pgtype.UUID
-	TermID    pgtype.UUID
-	Score     pgtype.Numeric
-	Remark    pgtype.Text
+	GradeID   uuid.UUID      `json:"grade_id"`
+	StudentID uuid.UUID      `json:"student_id"`
+	SubjectID uuid.UUID      `json:"subject_id"`
+	TermID    uuid.UUID      `json:"term_id"`
+	Score     pgtype.Numeric `json:"score"`
+	Remark    pgtype.Text    `json:"remark"`
 }
 
 func (q *Queries) EditGrade(ctx context.Context, arg EditGradeParams) error {
@@ -105,16 +106,16 @@ WHERE students.student_id = $1
 `
 
 type GetGradeRow struct {
-	GradeID      pgtype.UUID
-	LastName     string
-	FirstName    string
-	Subject      string
-	Academicterm string
-	Score        pgtype.Numeric
-	Remark       pgtype.Text
+	GradeID      uuid.UUID      `json:"grade_id"`
+	LastName     string         `json:"last_name"`
+	FirstName    string         `json:"first_name"`
+	Subject      string         `json:"subject"`
+	Academicterm string         `json:"academicterm"`
+	Score        pgtype.Numeric `json:"score"`
+	Remark       pgtype.Text    `json:"remark"`
 }
 
-func (q *Queries) GetGrade(ctx context.Context, studentID pgtype.UUID) (GetGradeRow, error) {
+func (q *Queries) GetGrade(ctx context.Context, studentID uuid.UUID) (GetGradeRow, error) {
 	row := q.db.QueryRow(ctx, getGrade, studentID)
 	var i GetGradeRow
 	err := row.Scan(
@@ -148,13 +149,13 @@ INNER JOIN term
 `
 
 type ListGradesRow struct {
-	GradeID      pgtype.UUID
-	LastName     string
-	FirstName    string
-	Subject      string
-	Academicterm string
-	Score        pgtype.Numeric
-	Remark       pgtype.Text
+	GradeID      uuid.UUID      `json:"grade_id"`
+	LastName     string         `json:"last_name"`
+	FirstName    string         `json:"first_name"`
+	Subject      string         `json:"subject"`
+	Academicterm string         `json:"academicterm"`
+	Score        pgtype.Numeric `json:"score"`
+	Remark       pgtype.Text    `json:"remark"`
 }
 
 func (q *Queries) ListGrades(ctx context.Context) ([]ListGradesRow, error) {
@@ -163,7 +164,7 @@ func (q *Queries) ListGrades(ctx context.Context) ([]ListGradesRow, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListGradesRow
+	items := []ListGradesRow{}
 	for rows.Next() {
 		var i ListGradesRow
 		if err := rows.Scan(

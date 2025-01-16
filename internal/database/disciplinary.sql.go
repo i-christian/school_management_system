@@ -8,6 +8,7 @@ package database
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -17,13 +18,13 @@ VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING discipline_id, student_id, term_id
 `
 
 type CreateDisciplinaryRecordParams struct {
-	StudentID   pgtype.UUID
-	TermID      pgtype.UUID
-	Date        pgtype.Date
-	Description string
-	ActionTaken pgtype.Text
-	ReportedBy  pgtype.UUID
-	Notes       pgtype.Text
+	StudentID   uuid.UUID   `json:"student_id"`
+	TermID      uuid.UUID   `json:"term_id"`
+	Date        pgtype.Date `json:"date"`
+	Description string      `json:"description"`
+	ActionTaken pgtype.Text `json:"action_taken"`
+	ReportedBy  uuid.UUID   `json:"reported_by"`
+	Notes       pgtype.Text `json:"notes"`
 }
 
 func (q *Queries) CreateDisciplinaryRecord(ctx context.Context, arg CreateDisciplinaryRecordParams) (DisciplineRecord, error) {
@@ -54,7 +55,7 @@ const deleteDisciplinaryRecord = `-- name: DeleteDisciplinaryRecord :exec
 DELETE FROM discipline_records WHERE discipline_id = $1
 `
 
-func (q *Queries) DeleteDisciplinaryRecord(ctx context.Context, disciplineID pgtype.UUID) error {
+func (q *Queries) DeleteDisciplinaryRecord(ctx context.Context, disciplineID uuid.UUID) error {
 	_, err := q.db.Exec(ctx, deleteDisciplinaryRecord, disciplineID)
 	return err
 }
@@ -68,10 +69,10 @@ WHERE discipline_id = $1
 `
 
 type EditDisciplinaryRecordParams struct {
-	DisciplineID pgtype.UUID
-	Description  string
-	ActionTaken  pgtype.Text
-	Notes        pgtype.Text
+	DisciplineID uuid.UUID   `json:"discipline_id"`
+	Description  string      `json:"description"`
+	ActionTaken  pgtype.Text `json:"action_taken"`
+	Notes        pgtype.Text `json:"notes"`
 }
 
 func (q *Queries) EditDisciplinaryRecord(ctx context.Context, arg EditDisciplinaryRecordParams) error {
@@ -109,18 +110,18 @@ WHERE students.student_id = $1
 `
 
 type GetDisciplinaryRecordRow struct {
-	LastName          string
-	FirstName         string
-	Date              pgtype.Date
-	Offense           string
-	ActionTaken       pgtype.Text
-	Notes             pgtype.Text
-	TermName          string
-	ReporterLastName  string
-	ReporterFirstName string
+	LastName          string      `json:"last_name"`
+	FirstName         string      `json:"first_name"`
+	Date              pgtype.Date `json:"date"`
+	Offense           string      `json:"offense"`
+	ActionTaken       pgtype.Text `json:"action_taken"`
+	Notes             pgtype.Text `json:"notes"`
+	TermName          string      `json:"term_name"`
+	ReporterLastName  string      `json:"reporter_last_name"`
+	ReporterFirstName string      `json:"reporter_first_name"`
 }
 
-func (q *Queries) GetDisciplinaryRecord(ctx context.Context, studentID pgtype.UUID) (GetDisciplinaryRecordRow, error) {
+func (q *Queries) GetDisciplinaryRecord(ctx context.Context, studentID uuid.UUID) (GetDisciplinaryRecordRow, error) {
 	row := q.db.QueryRow(ctx, getDisciplinaryRecord, studentID)
 	var i GetDisciplinaryRecordRow
 	err := row.Scan(
@@ -161,15 +162,15 @@ discipline_records.term_id = term.term_id
 `
 
 type ListDisciplinaryRecordsRow struct {
-	LastName          string
-	FirstName         string
-	Date              pgtype.Date
-	Offense           string
-	ActionTaken       pgtype.Text
-	Notes             pgtype.Text
-	TermName          string
-	ReporterLastName  string
-	ReporterFirstName string
+	LastName          string      `json:"last_name"`
+	FirstName         string      `json:"first_name"`
+	Date              pgtype.Date `json:"date"`
+	Offense           string      `json:"offense"`
+	ActionTaken       pgtype.Text `json:"action_taken"`
+	Notes             pgtype.Text `json:"notes"`
+	TermName          string      `json:"term_name"`
+	ReporterLastName  string      `json:"reporter_last_name"`
+	ReporterFirstName string      `json:"reporter_first_name"`
 }
 
 func (q *Queries) ListDisciplinaryRecords(ctx context.Context) ([]ListDisciplinaryRecordsRow, error) {
@@ -178,7 +179,7 @@ func (q *Queries) ListDisciplinaryRecords(ctx context.Context) ([]ListDisciplina
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListDisciplinaryRecordsRow
+	items := []ListDisciplinaryRecordsRow{}
 	for rows.Next() {
 		var i ListDisciplinaryRecordsRow
 		if err := rows.Scan(

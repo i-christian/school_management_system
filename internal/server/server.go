@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"embed"
+	"encoding/hex"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -21,8 +22,9 @@ import (
 )
 
 type Server struct {
-	queries *database.Queries
-	port    int
+	queries   *database.Queries
+	port      int
+	SecretKey []byte
 }
 
 //go:embed sql/schema/*.sql
@@ -49,6 +51,10 @@ func setUpMigration() {
 func NewServer() *http.Server {
 	// Runs migrations and exits
 	setUpMigration()
+	SecretKey, err := hex.DecodeString(os.Getenv("RANDOM_HEX"))
+	if err != nil {
+		slog.Error(err.Error())
+	}
 
 	ctx := context.Background()
 	port, _ := strconv.Atoi(os.Getenv("PORT"))
@@ -62,8 +68,9 @@ func NewServer() *http.Server {
 	generatedQeries := database.New(conn)
 
 	NewServer := &Server{
-		port:    port,
-		queries: generatedQeries,
+		port:      port,
+		queries:   generatedQeries,
+		SecretKey: SecretKey,
 	}
 
 	// Declare Server config

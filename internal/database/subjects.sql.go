@@ -8,7 +8,7 @@ package database
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 )
 
 const createSubject = `-- name: CreateSubject :one
@@ -16,8 +16,8 @@ INSERT INTO subjects (class_id, name) VALUES ($1, $2) RETURNING subject_id, clas
 `
 
 type CreateSubjectParams struct {
-	ClassID pgtype.UUID
-	Name    string
+	ClassID uuid.UUID `json:"class_id"`
+	Name    string    `json:"name"`
 }
 
 func (q *Queries) CreateSubject(ctx context.Context, arg CreateSubjectParams) (Subject, error) {
@@ -31,7 +31,7 @@ const deleteSubject = `-- name: DeleteSubject :exec
 DELETE FROM subjects WHERE subject_id = $1
 `
 
-func (q *Queries) DeleteSubject(ctx context.Context, subjectID pgtype.UUID) error {
+func (q *Queries) DeleteSubject(ctx context.Context, subjectID uuid.UUID) error {
 	_, err := q.db.Exec(ctx, deleteSubject, subjectID)
 	return err
 }
@@ -44,9 +44,9 @@ WHERE subject_id = $1
 `
 
 type EditSubjectParams struct {
-	SubjectID pgtype.UUID
-	ClassID   pgtype.UUID
-	Name      string
+	SubjectID uuid.UUID `json:"subject_id"`
+	ClassID   uuid.UUID `json:"class_id"`
+	Name      string    `json:"name"`
 }
 
 func (q *Queries) EditSubject(ctx context.Context, arg EditSubjectParams) error {
@@ -67,9 +67,9 @@ ORDER BY subjects.name
 `
 
 type GetSubjectsByClassNameRow struct {
-	SubjectID   pgtype.UUID
-	Subjectname string
-	Classname   string
+	SubjectID   uuid.UUID `json:"subject_id"`
+	Subjectname string    `json:"subjectname"`
+	Classname   string    `json:"classname"`
 }
 
 func (q *Queries) GetSubjectsByClassName(ctx context.Context, name string) ([]GetSubjectsByClassNameRow, error) {
@@ -78,7 +78,7 @@ func (q *Queries) GetSubjectsByClassName(ctx context.Context, name string) ([]Ge
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetSubjectsByClassNameRow
+	items := []GetSubjectsByClassNameRow{}
 	for rows.Next() {
 		var i GetSubjectsByClassNameRow
 		if err := rows.Scan(&i.SubjectID, &i.Subjectname, &i.Classname); err != nil {
@@ -104,9 +104,9 @@ ORDER BY subjects.name
 `
 
 type ListSubjectsRow struct {
-	SubjectID   pgtype.UUID
-	Subjectname string
-	Classname   string
+	SubjectID   uuid.UUID `json:"subject_id"`
+	Subjectname string    `json:"subjectname"`
+	Classname   string    `json:"classname"`
 }
 
 func (q *Queries) ListSubjects(ctx context.Context) ([]ListSubjectsRow, error) {
@@ -115,7 +115,7 @@ func (q *Queries) ListSubjects(ctx context.Context) ([]ListSubjectsRow, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListSubjectsRow
+	items := []ListSubjectsRow{}
 	for rows.Next() {
 		var i ListSubjectsRow
 		if err := rows.Scan(&i.SubjectID, &i.Subjectname, &i.Classname); err != nil {
