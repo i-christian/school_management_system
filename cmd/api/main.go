@@ -32,22 +32,27 @@ func gracefulShutdown(apiServer *http.Server, done chan bool) {
 
 	slog.Info("Server exiting")
 
+	// Shutting down database connection
+
 	// Notify the main goroutine that the shutdown is complete
 	done <- true
 }
 
 func main() {
-	server := server.NewServer()
+	appServer, httpServer := server.NewServer()
 
 	// Create a done channel to signal when the shutdown is complete
 	done := make(chan bool, 1)
 
 	// Run graceful shutdown in a separate goroutine
-	go gracefulShutdown(server, done)
+	go func() {
+		gracefulShutdown(httpServer, done)
+		appServer.CloseDbConn()
+	}()
 
 	slog.Info("The server is starting on: http://localhost:8080")
 
-	err := server.ListenAndServe()
+	err := httpServer.ListenAndServe()
 	if err != nil && err != http.ErrServerClosed {
 		panic(fmt.Sprintf("http server error: %s", err))
 	}
