@@ -2,9 +2,11 @@ package server
 
 import (
 	"errors"
+	"fmt"
 	"log/slog"
 	"net/http"
 
+	"school_management_system/cmd/web"
 	"school_management_system/internal/database"
 	"school_management_system/internal/server/cookies"
 
@@ -20,7 +22,7 @@ func (s *Server) Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := r.ParseForm(); err != nil {
-		http.Error(w, "Failed to parse form data: "+err.Error(), http.StatusBadRequest)
+		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}
 
@@ -60,12 +62,24 @@ func (s *Server) Register(w http.ResponseWriter, r *http.Request) {
 		Name:        name,
 	}
 
-	if _, err := s.queries.CreateUser(r.Context(), user); err != nil {
+	if _, err = s.queries.CreateUser(r.Context(), user); err != nil {
 		http.Error(w, "Failed to create user: "+err.Error(), http.StatusInternalServerError)
+		fmt.Println(err)
 		return
 	}
 
 	w.Header().Set("Content-Type", "text/html")
+
+	component := web.SucessModal(web.User{
+		FirstName: firstName,
+		LastName:  lastName,
+		Role:      name,
+	})
+	err = component.Render(r.Context(), w)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		slog.Error("Error rendering in HelloWebHandler\n", "Error Message", err.Error())
+	}
 }
 
 func (s *Server) SetCookieHandler(w http.ResponseWriter, r *http.Request) {

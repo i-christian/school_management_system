@@ -23,8 +23,9 @@ import (
 
 type Server struct {
 	queries   *database.Queries
-	port      int
+	conn      *pgx.Conn
 	SecretKey []byte
+	port      int
 }
 
 //go:embed sql/schema/*.sql
@@ -35,6 +36,7 @@ func setUpMigration() {
 	db, err := sql.Open("postgres", os.Getenv("DB_URL"))
 	if err != nil {
 		slog.Error("Failed to open database for migration")
+		return
 	}
 
 	defer db.Close()
@@ -48,7 +50,18 @@ func setUpMigration() {
 	}
 }
 
-func NewServer() *http.Server {
+func validateEnvVars() {
+	requiredVars := []string{"DB_URL", "PORT", "RANDOM_HEX"}
+	for _, v := range requiredVars {
+		if os.Getenv(v) == "" {
+			slog.Error(fmt.Sprintf("Environment variable %s is required", v))
+			os.Exit(1)
+		}
+	}
+}
+
+func NewServer() (*Server, *http.Server) {
+	validateEnvVars()
 	// Runs migrations and exits
 	setUpMigration()
 	SecretKey, err := hex.DecodeString(os.Getenv("RANDOM_HEX"))
@@ -64,23 +77,23 @@ func NewServer() *http.Server {
 		os.Exit(1)
 	}
 
-	defer conn.Close(ctx)
 	generatedQeries := database.New(conn)
 
-	NewServer := &Server{
+	AppServer := &Server{
 		port:      port,
+		conn:      conn,
 		queries:   generatedQeries,
 		SecretKey: SecretKey,
 	}
 
 	// Declare Server config
-	server := &http.Server{
-		Addr:         fmt.Sprintf(":%d", NewServer.port),
-		Handler:      NewServer.RegisterRoutes(),
+	httpserver := &http.Server{
+		Addr:         fmt.Sprintf(":%d", AppServer.port),
+		Handler:      AppServer.RegisterRoutes(),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
 	}
 
-	return server
+	return AppServer, httpserver
 }
