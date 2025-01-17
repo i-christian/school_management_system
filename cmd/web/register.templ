@@ -19,6 +19,7 @@ templ Register() {
 			<fieldset
 				class="shadow-lg rounded-md flex flex-col justify-center mx-auto my-5 py-10 px-10 items-center text-md"
 			>
+				<legend class="text-md text-center mt-2">User details </legend>
 				<label for="first_name">
 					First Name: <input type="text" id="first_name" name="first_name" required/>
 				</label>
@@ -26,10 +27,17 @@ templ Register() {
 					Last Name: <input type="text" id="last_name" name="last_name" required/>
 				</label>
 				<label for="phone_number">
-					Phone Number: <input type="text" id="phone_number" name="phone_number" required/>
+					Phone Number:
+					<input
+						type="tel"
+						id="phone_number"
+						name="phone_number"
+						pattern="[0-9]{10}"
+						required
+					/>
 				</label>
 				<label for="email">
-					Email (optional): <input type="email" id="email" name="email"/>
+					Email (optional): <input type="email" id="email" name="email" pattern=".+@example\.com"/>
 				</label>
 				<label for="gender">
 					Gender: 
@@ -43,7 +51,7 @@ templ Register() {
 					Password: <input type="password" id="password" name="password" required/>
 				</label>
 				<label for="confirmpassword">
-					Confirm Password: <input type="confirmpassword" id="password" name="password" required/>
+					Confirm Password: <input type="password" id="password" name="password" required/>
 				</label>
 				<label for="name">
 					Role: 
