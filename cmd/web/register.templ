@@ -8,31 +8,56 @@ type User struct {
 
 templ Register() {
 	@Base() {
-		<form hx-post="/register" hx-target="#result" hx-swap="innerHTML">
-			<label for="first_name">First Name:</label>
-			<input type="text" id="first_name" name="first_name" required/>
-			<label for="last_name">Last Name:</label>
-			<input type="text" id="last_name" name="last_name" required/>
-			<label for="phone_number">Phone Number:</label>
-			<input type="text" id="phone_number" name="phone_number" required/>
-			<label for="email">Email (optional):</label>
-			<input type="email" id="email" name="email"/>
-			<label for="gender">Gender:</label>
-			<select id="gender" name="gender" required>
-				<option value="">Select</option>
-				<option value="M">Male</option>
-				<option value="F">Female</option>
-			</select>
-			<label for="password">Password:</label>
-			<input type="password" id="password" name="password" required/>
-			<label for="name">Role:</label>
-			<select id="name" name="name" required>
-				<option value="">Select</option>
-				<option value="teacher">Teacher</option>
-				<option value="headteacher">Headteacher</option>
-				<option value="admin">Admin</option>
-			</select>
-			<button type="submit">Register</button>
+		<form
+			hx-post="/register"
+			hx-target="#result"
+			hx-swap="innerHTML"
+			hx-on::after-request="if(event.detail.successful) this.reset()"
+			class="flex flex-col mx-auto"
+		>
+			<h2 class="text-center text-2xl font-semibold">Create Account </h2>
+			<fieldset
+				class="shadow-lg rounded-md flex flex-col justify-center mx-auto my-5 py-10 px-10 items-center text-md"
+			>
+				<label for="first_name">
+					First Name: <input type="text" id="first_name" name="first_name" required/>
+				</label>
+				<label for="last_name">
+					Last Name: <input type="text" id="last_name" name="last_name" required/>
+				</label>
+				<label for="phone_number">
+					Phone Number: <input type="text" id="phone_number" name="phone_number" required/>
+				</label>
+				<label for="email">
+					Email (optional): <input type="email" id="email" name="email"/>
+				</label>
+				<label for="gender">
+					Gender: 
+					<select id="gender" name="gender" required>
+						<option value="">Select</option>
+						<option value="M">Male</option>
+						<option value="F">Female</option>
+					</select>
+				</label>
+				<label for="password">
+					Password: <input type="password" id="password" name="password" required/>
+				</label>
+				<label for="confirmpassword">
+					Confirm Password: <input type="confirmpassword" id="password" name="password" required/>
+				</label>
+				<label for="name">
+					Role: 
+					<select id="name" name="name" required>
+						<option value="">Select</option>
+						<option value="teacher">Teacher</option>
+						<option value="classteacher">ClassTeacher</option>
+						<option value="headteacher">Headteacher</option>
+						<option value="accountant">Accountant</option>
+						<option value="admin">Admin</option>
+					</select>
+				</label>
+				<button type="submit">Register</button>
+			</fieldset>
 		</form>
 		<div id="result">
 			<!-- Server response will be rendered here -->
