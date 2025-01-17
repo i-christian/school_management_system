@@ -3,8 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"log/slog"
 	"net/http"
+	"os"
 	"os/signal"
 	"syscall"
 	"time"
@@ -50,7 +52,7 @@ func main() {
 		appServer.CloseDbConn()
 	}()
 
-	slog.Info("The server is starting on: http://localhost:8080")
+	log.Printf("The server is starting on: http://%s:%s\n", os.Getenv("DOMAIN"), os.Getenv("PORT"))
 
 	err := httpServer.ListenAndServe()
 	if err != nil && err != http.ErrServerClosed {

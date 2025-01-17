@@ -33,7 +33,7 @@ var embedMigrations embed.FS
 
 // Setup database migrations and closes database connection afterwards
 func setUpMigration() {
-	db, err := sql.Open("postgres", os.Getenv("DB_URL"))
+	db, err := sql.Open(os.Getenv("GOOSE_DRIVER"), os.Getenv("DB_URL"))
 	if err != nil {
 		slog.Error("Failed to open database for migration")
 		return
@@ -45,13 +45,14 @@ func setUpMigration() {
 		slog.Error("Failed to select postgres database")
 	}
 
-	if err := goose.Up(db, "sql/schema"); err != nil {
+	if err := goose.Up(db, os.Getenv("GOOSE_MIGRATION_DIR")); err != nil {
 		slog.Error("Unable to run migrations:\n", "Details", err)
 	}
 }
 
+// Checks if required env vars are all set during server startup
 func validateEnvVars() {
-	requiredVars := []string{"DB_URL", "PORT", "RANDOM_HEX"}
+	requiredVars := []string{"DB_URL", "PORT", "RANDOM_HEX", "DOMAIN", "RANDOM_HEX", "GOOSE_DRIVER", "GOOSE_MIGRATION_DIR"}
 	for _, v := range requiredVars {
 		if os.Getenv(v) == "" {
 			slog.Error(fmt.Sprintf("Environment variable %s is required", v))
@@ -62,8 +63,8 @@ func validateEnvVars() {
 
 func NewServer() (*Server, *http.Server) {
 	validateEnvVars()
-	// Runs migrations and exits
 	setUpMigration()
+
 	SecretKey, err := hex.DecodeString(os.Getenv("RANDOM_HEX"))
 	if err != nil {
 		slog.Error(err.Error())
