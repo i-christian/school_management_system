@@ -13,49 +13,94 @@ templ Register() {
 			hx-target="#result"
 			hx-swap="innerHTML"
 			hx-on::after-request="if(event.detail.successful) this.reset()"
-			class="flex flex-col mx-auto"
+			class="flex flex-col mx-auto w-full max-w-lg bg-white shadow-md rounded-md p-6"
 		>
-			<h2 class="text-center text-2xl font-semibold">Create Account </h2>
-			<fieldset
-				class="shadow-lg rounded-md flex flex-col justify-center mx-auto my-5 py-10 px-10 items-center text-md"
-			>
-				<legend class="text-md text-center mt-2">User details </legend>
-				<label for="first_name">
-					First Name: <input type="text" id="first_name" name="first_name" required/>
+			<h2 class="text-center text-2xl font-semibold text-blue-600 mb-4">Create Account</h2>
+			<fieldset class="flex flex-col gap-4">
+				<legend class="text-lg text-gray-700 font-medium mb-2">User Details</legend>
+				<label class="flex flex-col gap-1">
+					<span class="font-medium text-gray-700">First Name</span>
+					<input
+						type="text"
+						id="first_name"
+						name="first_name"
+						required
+						class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+					/>
 				</label>
-				<label for="last_name">
-					Last Name: <input type="text" id="last_name" name="last_name" required/>
+				<label class="flex flex-col gap-1">
+					<span class="font-medium text-gray-700">Last Name</span>
+					<input
+						type="text"
+						id="last_name"
+						name="last_name"
+						required
+						class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+					/>
 				</label>
-				<label for="phone_number">
-					Phone Number:
+				<label class="flex flex-col gap-1">
+					<span class="font-medium text-gray-700">Phone Number</span>
 					<input
 						type="tel"
 						id="phone_number"
 						name="phone_number"
 						pattern="[0-9]{10}"
 						required
+						class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
 					/>
 				</label>
-				<label for="email">
-					Email (optional): <input type="email" id="email" name="email" pattern=".+@example\.com"/>
+				<label class="flex flex-col gap-1">
+					<span class="font-medium text-gray-700">Email (optional)</span>
+					<input
+						type="email"
+						id="email"
+						name="email"
+						pattern=".+@example\.com"
+						class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+					/>
 				</label>
-				<label for="gender">
-					Gender: 
-					<select id="gender" name="gender" required>
+				<label class="flex flex-col gap-1">
+					<span class="font-medium text-gray-700">Gender</span>
+					<select
+						id="gender"
+						name="gender"
+						required
+						class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+					>
 						<option value="">Select</option>
 						<option value="M">Male</option>
 						<option value="F">Female</option>
 					</select>
 				</label>
-				<label for="password">
-					Password: <input type="password" id="password" name="password" required/>
+				<label class="flex flex-col gap-1">
+					<span class="font-medium text-gray-700">Password</span>
+					<input
+						type="password"
+						id="password"
+						name="password"
+						required
+						class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+					/>
 				</label>
-				<label for="confirmpassword">
-					Confirm Password: <input type="password" id="password" name="password" required/>
+				<label class="flex flex-col gap-1">
+					<span class="font-medium text-gray-700">Confirm Password</span>
+					<input
+						type="password"
+						id="confirm_password"
+						name="confirm_password"
+						required
+						class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+					/>
+					<small id="password-error" class="text-red-500"></small>
 				</label>
-				<label for="name">
-					Role: 
-					<select id="name" name="name" required>
+				<label class="flex flex-col gap-1">
+					<span class="font-medium text-gray-700">Role</span>
+					<select
+						id="role"
+						name="role"
+						required
+						class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+					>
 						<option value="">Select</option>
 						<option value="teacher">Teacher</option>
 						<option value="classteacher">ClassTeacher</option>
@@ -64,20 +109,47 @@ templ Register() {
 						<option value="admin">Admin</option>
 					</select>
 				</label>
-				<button type="submit">Register</button>
+				<button
+					type="submit"
+					class="bg-blue-600 text-white font-semibold rounded-md py-2 mt-4 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+				>
+					Register
+				</button>
 			</fieldset>
 		</form>
-		<div id="result">
+		<div id="result" class="mt-4">
 			<!-- Server response will be rendered here -->
 		</div>
 	}
 }
 
 templ SucessModal(user User) {
-	<section>
-		<h2>Registration Successful </h2>
-		<p>First Name: { user.FirstName }</p>
-		<p>Last Name: { user.LastName } </p>
-		<p>Role: { user.Role } </p>
+	<section class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+		<div class="bg-white w-full max-w-md rounded-md shadow-lg p-6 text-gray-800">
+			<h2 class="text-center text-2xl font-semibold text-green-600 mb-4">
+				Registration Successful!
+			</h2>
+			<div class="text-gray-700">
+				<p class="mb-2">
+					<strong>First Name:</strong> { user.FirstName }
+				</p>
+				<p class="mb-2">
+					<strong>Last Name:</strong> { user.LastName }
+				</p>
+				<p class="mb-2">
+					<strong>Role:</strong> { user.Role }
+				</p>
+			</div>
+			<div class="mt-6 flex justify-center">
+				<button
+					class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+					hx-get="/"
+					hx-trigger="click"
+					hx-swap="none"
+				>
+					Go to Dashboard
+				</button>
+			</div>
+		</div>
 	</section>
 }
