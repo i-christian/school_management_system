@@ -10,6 +10,7 @@ templ Register() {
 	@Base() {
 		<form
 			hx-post="/register"
+			hx-debug="true"
 			hx-target="#result"
 			hx-swap="innerHTML"
 			hx-on::after-request="if(event.detail.successful) this.reset()"
@@ -17,7 +18,7 @@ templ Register() {
 		>
 			<h2 class="text-center text-2xl font-semibold text-blue-600 mb-4">Create Account</h2>
 			<fieldset class="flex flex-col gap-4">
-				<legend class="text-lg text-gray-700 font-medium mb-2">User Details</legend>
+				<legend class="text-lg text-center text-gray-700 font-medium mb-2">User Details</legend>
 				<label class="flex flex-col gap-1">
 					<span class="font-medium text-gray-700">First Name</span>
 					<input
@@ -55,7 +56,6 @@ templ Register() {
 						type="email"
 						id="email"
 						name="email"
-						pattern=".+@example\.com"
 						class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
 					/>
 				</label>

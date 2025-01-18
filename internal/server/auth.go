@@ -15,6 +15,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// An endpoint to create a new user account
 func (s *Server) Register(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -32,10 +33,16 @@ func (s *Server) Register(w http.ResponseWriter, r *http.Request) {
 	email := r.FormValue("email")
 	gender := r.FormValue("gender")
 	password := r.FormValue("password")
-	name := r.FormValue("name") // Role name
+	confirmPassword := r.FormValue("confirm_password")
+	name := r.FormValue("role") // Role name
 
-	if firstName == "" || lastName == "" || phoneNumber == "" || gender == "" || password == "" || name == "" {
+	if firstName == "" || lastName == "" || phoneNumber == "" || gender == "" || password == "" || confirmPassword == "" || name == "" {
 		http.Error(w, "All fields except email are required", http.StatusBadRequest)
+		return
+	}
+
+	if password != confirmPassword {
+		http.Error(w, "Passwords do not match", http.StatusBadRequest)
 		return
 	}
 
