@@ -1,0 +1,71 @@
+package web
+
+templ Login() {
+	@Base() {
+		<form
+			hx-post="/logged_in"
+			hx-target="#result"
+			hx-swap="innerHTML"
+			hx-on::after-request="if(event.detail.successful) this.reset()"
+			class="flex flex-col mx-auto w-full max-w-lg bg-white shadow-md rounded-md p-6"
+		>
+			<fieldset class="flex flex-col gap-4">
+				<legend class="text-center text-2xl font-semibold text-blue-600 mb-4">Login</legend>
+				<label class="flex flex-col gap-1">
+					<span class="font-medium text-gray-700">Phone Number</span>
+					<input
+						type="tel"
+						id="phone_number"
+						name="phone_number"
+						pattern="[0-9]{10}"
+						required
+						class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+					/>
+				</label>
+				<label class="flex flex-col gap-1">
+					<span class="font-medium text-gray-700">Password</span>
+					<div class="relative">
+						<input
+							type="password"
+							id="password"
+							name="password"
+							required
+							class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+						/>
+						<button
+							type="button"
+							id="toggle-password"
+							class="absolute inset-y-0 right-3 flex items-center text-gray-500"
+							onclick="togglePasswordVisibility()"
+						>
+							<span id="password-toggle-icon">👁️</span>
+						</button>
+					</div>
+				</label>
+				<button
+					type="submit"
+					class="bg-blue-600 text-white font-semibold rounded-md py-2 mt-4 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+				>
+					Login
+				</button>
+			</fieldset>
+		</form>
+		<div id="result" class="mt-4">
+			<!-- Server response will be rendered here -->
+		</div>
+		<script>
+			function togglePasswordVisibility() {
+				const passwordField = document.getElementById('password');
+				const toggleIcon = document.getElementById('password-toggle-icon');
+		
+				if (passwordField.type === 'password') {
+					passwordField.type = 'text';
+					toggleIcon.textContent = '🙈';
+				} else {
+					passwordField.type = 'password';
+					toggleIcon.textContent = '👁️';
+				}
+			}
+		</script>
+	}
+}
