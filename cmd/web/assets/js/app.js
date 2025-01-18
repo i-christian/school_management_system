@@ -4,6 +4,20 @@ document.addEventListener("DOMContentLoaded", () => {
   if (yearElement) {
     yearElement.textContent = new Date().getFullYear();
   }
+
+  // Toggle password visibility
+  document.querySelectorAll(".password-toggle").forEach((toggleButton) => {
+    toggleButton.addEventListener("click", () => {
+      const inputField = document.getElementById(toggleButton.dataset.target);
+      if (inputField.type === "password") {
+        inputField.type = "text";
+        toggleButton.textContent = "Hide";
+      } else {
+        inputField.type = "password";
+        toggleButton.textContent = "Show";
+      }
+    });
+  });
 });
 
 // Password and Confirm Password validation
