@@ -1,12 +1,19 @@
 package web
 
+import "os"
+
+// Define the project name
+func SchoolName() string {
+	return os.Getenv("PROJECT_NAME")
+}
+
 templ Base() {
 	<!DOCTYPE html>
 	<html lang="en" class="h-screen bg-gray-50">
 		<head>
 			<meta charset="utf-8"/>
 			<meta name="viewport" content="width=device-width,initial-scale=1"/>
-			<title>School Manager</title>
+			<title>{ SchoolName() }</title>
 			<link href="assets/css/output.css" rel="stylesheet"/>
 			<script src="assets/js/htmx.min.js"></script>
 			<script defer src="assets/js/app.js"></script>
@@ -14,8 +21,8 @@ templ Base() {
 		<body class="bg-gray-50 text-gray-800 font-sans">
 			<header class="bg-white shadow-md">
 				<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-					<h1 class="text-2xl font-semibold text-blue-600 py-4">
-						School Manager
+					<h1 class="text-2xl font-semibold text-blue-600 py-3">
+						{ SchoolName() }
 					</h1>
 				</div>
 			</header>
