@@ -1,71 +1,92 @@
 package web
 
 templ Login() {
-	@Base() {
-		<form
-			hx-post="/logged_in"
-			hx-target="#result"
-			hx-swap="innerHTML"
-			hx-on::after-request="if(event.detail.successful) this.reset()"
-			class="flex flex-col mx-auto w-full max-w-lg bg-white shadow-md rounded-md p-6"
-		>
-			<fieldset class="flex flex-col gap-4">
-				<legend class="text-center text-2xl font-semibold text-blue-600 mb-4">Login</legend>
-				<label class="flex flex-col gap-1">
-					<span class="font-medium text-gray-700">Phone Number</span>
-					<input
-						type="tel"
-						id="phone_number"
-						name="phone_number"
-						pattern="[0-9]{10}"
-						required
-						class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-					/>
-				</label>
-				<label class="flex flex-col gap-1">
-					<span class="font-medium text-gray-700">Password</span>
-					<div class="relative">
+	<!DOCTYPE html>
+	<html lang="en" class="h-screen bg-gray-50">
+		<head>
+			<meta charset="utf-8"/>
+			<meta name="viewport" content="width=device-width,initial-scale=1"/>
+			<title>{ SchoolName() }</title>
+			<link href="assets/css/output.css" rel="stylesheet"/>
+			<script src="assets/js/htmx.min.js"></script>
+		</head>
+		<body class="h-screen bg-gray-50 flex justify-center items-center">
+			<form
+				hx-post="/logged_in"
+				hx-target="#result"
+				hx-swap="innerHTML"
+				hx-on="htmx:responseError: showErrorMessage, htmx:responseSuccess: redirectToDashboard"
+				class="flex flex-col mx-auto w-full max-w-lg bg-white shadow-md rounded-md p-6"
+			>
+				<fieldset class="flex flex-col gap-4">
+					<legend class="text-center text-2xl font-semibold text-blue-600 mb-4">Login</legend>
+					<label class="flex flex-col gap-1">
+						<span class="font-medium text-gray-700">Phone Number</span>
 						<input
-							type="password"
-							id="password"
-							name="password"
+							type="tel"
+							id="phone_number"
+							name="phone_number"
+							pattern="[0-9]{12}"
 							required
-							class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+							class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
 						/>
-						<button
-							type="button"
-							id="toggle-password"
-							class="absolute inset-y-0 right-3 flex items-center text-gray-500"
-							onclick="togglePasswordVisibility()"
-						>
-							<span id="password-toggle-icon">👁️</span>
-						</button>
-					</div>
-				</label>
-				<button
-					type="submit"
-					class="bg-blue-600 text-white font-semibold rounded-md py-2 mt-4 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-				>
-					Login
-				</button>
-			</fieldset>
-		</form>
-		<div id="result" class="mt-4">
-			<!-- Server response will be rendered here -->
-		</div>
-		<script>
-			function togglePasswordVisibility() {
-				const passwordField = document.getElementById('password');
-				const toggleIcon = document.getElementById('password-toggle-icon');
-		
-				if (passwordField.type === 'password') {
-					passwordField.type = 'text';
-					toggleIcon.textContent = '🙈';
-				} else {
-					passwordField.type = 'password';
-					toggleIcon.textContent = '👁️';
-				}
-			}
-		</script>
-	}
+					</label>
+					<label class="flex flex-col gap-1">
+						<span class="font-medium text-gray-700">Password</span>
+						<div class="relative">
+							<input
+								type="password"
+								id="password"
+								name="password"
+								required
+								class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+							/>
+							<button
+								type="button"
+								id="toggle-password"
+								class="absolute inset-y-0 right-3 flex items-center text-gray-500"
+								onclick="togglePasswordVisibility()"
+							>
+								<span id="password-toggle-icon">👁️</span>
+							</button>
+						</div>
+					</label>
+					<button
+						type="submit"
+						class="bg-blue-600 text-white font-semibold rounded-md py-2 mt-4 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+					>
+						Login
+					</button>
+				</fieldset>
+			</form>
+			<div id="result"></div>
+			<script>
+      			function togglePasswordVisibility() {
+        			const passwordField = document.getElementById("password");
+        			const toggleIcon = document.getElementById("password-toggle-icon");
+
+        			if (passwordField.type === "password") {
+          				passwordField.type = "text";
+          				toggleIcon.textContent = "🙈";
+        			} else {
+          				passwordField.type = "password";
+          				toggleIcon.textContent = "👁️";
+        			}
+      			}
+
+      			function redirectToDashboard(event) {
+        			const response = event.detail.xhr.responseText;
+        			if (response && !response.includes("error")) {
+          				window.location.href = "/dashboard";
+        			}
+      			}
+
+      			function showErrorMessage(event) {
+        			const response = event.detail.xhr.responseText;
+        			const resultDiv = document.getElementById("result");
+        			resultDiv.innerHTML = `<div class="text-red-500 text-center mt-4">${response}</div>`;
+      			}
+    		</script>
+		</body>
+	</html>
 }
