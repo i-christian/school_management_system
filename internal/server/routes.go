@@ -43,5 +43,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	r.Get("/login", templ.Handler(web.Login()).ServeHTTP)
 
+	// dashboard routes
+	r.Get("/dashboard", templ.Handler(web.Dashboard()).ServeHTTP)
+
 	return r
 }

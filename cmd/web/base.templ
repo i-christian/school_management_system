@@ -1,12 +1,5 @@
 package web
 
-import "os"
-
-// Define the project name
-func SchoolName() string {
-	return os.Getenv("PROJECT_NAME")
-}
-
 templ Base() {
 	<!DOCTYPE html>
 	<html lang="en" class="h-screen bg-gray-50">
