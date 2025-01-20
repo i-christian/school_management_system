@@ -33,7 +33,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.Get("/set", s.SetCookieHandler)
 	r.Get("/get", s.GetCookieHandler)
 
-	r.Get("/", s.HelloWorldHandler)
+	r.Get("/", templ.Handler(web.Home()).ServeHTTP)
 
 	fileServer := http.FileServer(http.FS(web.Files))
 	r.Handle("/assets/*", fileServer)
