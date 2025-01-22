@@ -37,6 +37,7 @@ services:
       dockerfile: Dockerfile
     image: '${DOCKER_IMAGE?Variable not set}:${TAG-latest}'
     restart: always
+    container_name: school_manager
     networks:
       - app-network
     ports:
@@ -47,7 +48,7 @@ services:
       - PROJECT_NAME=${PROJECT_NAME}
       - DOMAIN=${DOMAIN}
       - RANDOM_HEX=${RANDOM_HEX}
-      - DATABASE_URL=postgres://${DB_USERNAME}:${DB_PASSWORD}@postgres_db:${DB_PORT}/${DB_NAME}
+      - DB_URL=postgres://${DB_USERNAME}:${DB_PASSWORD}@postgres_db:${DB_PORT}/${DB_NAME}?sslmode=disable&search_path=${DB_SCHEMA}
     depends_on:
       - db
 
