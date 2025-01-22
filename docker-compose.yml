@@ -1,15 +1,82 @@
 services:
   db:
     image: postgres:16
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: ${DB_DATABASE}
-      POSTGRES_USER: ${DB_USERNAME}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-    ports:
-      - "${DB_PORT}:5432"
+    restart: always
+    container_name: postgres_db
     volumes:
-      - school_app_data:/var/lib/postgresql/data
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    env_file:
+      - .env
+    environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
+      - POSTGRES_PASSWORD=${DB_PASSWORD?Variable not set}
+      - POSTGRES_USER=${DB_USERNAME?Variable not set}
+      - POSTGRES_DB=${DB_NAME?Variable not set}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
+  adminer:
+    image: adminer:latest
+    container_name: adminer
+    networks:
+      - app-network
+    restart: always
+    environment:
+      - ADMINER_DESIGN=pepa-linha-dark
+    ports:
+      - "8081:8080"
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: '${DOCKER_IMAGE?Variable not set}:${TAG-latest}'
+    restart: always
+    networks:
+      - app-network
+    ports:
+      - "${PORT:-8080}:${PORT:-8080}"
+    env_file:
+      - .env
+    environment:
+      - PROJECT_NAME=${PROJECT_NAME}
+      - DOMAIN=${DOMAIN}
+      - RANDOM_HEX=${RANDOM_HEX}
+      - DATABASE_URL=postgres://${DB_USERNAME}:${DB_PASSWORD}@postgres_db:${DB_PORT}/${DB_NAME}
+    depends_on:
+      - db
+
+  caddy:
+    image: caddy:latest
+    container_name: caddy_proxy
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    environment:
+      DOMAIN: ${DOMAIN}
+    depends_on:
+      - app
+    networks:
+      - app-network
+      - caddy
+
+networks:
+  app-network:
+    driver: bridge
+  caddy:
+    driver: bridge
+    # external: true
+    
 volumes:
-  school_app_data:
+  db_data:
+  caddy_data:
+  caddy_config:
