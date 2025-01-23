@@ -57,16 +57,18 @@ func (q *Queries) GetSession(ctx context.Context, userID uuid.UUID) (GetSessionR
 
 const refreshSession = `-- name: RefreshSession :exec
 UPDATE sessions
-  SET expires = COALESCE($2, expires)
+  SET expires = COALESCE($2, expires),
+  session_id = COALESCE($3, session_id)
 WHERE user_id = $1
 `
 
 type RefreshSessionParams struct {
-	UserID  uuid.UUID          `json:"user_id"`
-	Expires pgtype.Timestamptz `json:"expires"`
+	UserID    uuid.UUID          `json:"user_id"`
+	Expires   pgtype.Timestamptz `json:"expires"`
+	SessionID uuid.UUID          `json:"session_id"`
 }
 
 func (q *Queries) RefreshSession(ctx context.Context, arg RefreshSessionParams) error {
-	_, err := q.db.Exec(ctx, refreshSession, arg.UserID, arg.Expires)
+	_, err := q.db.Exec(ctx, refreshSession, arg.UserID, arg.Expires, arg.SessionID)
 	return err
 }
