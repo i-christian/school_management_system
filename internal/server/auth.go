@@ -154,10 +154,6 @@ func (s *Server) LoginHandler(w http.ResponseWriter, r *http.Request) {
 func (s *Server) AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		sessionID, err := cookies.ReadEncrypted(r, "sessionid", s.SecretKey)
-		// debug cookies
-		fmt.Println(r.Cookie("sessionid"))
-		fmt.Println("Session error:", err)
-		fmt.Println(sessionID)
 		if err != nil {
 			if errors.Is(err, http.ErrNoCookie) || errors.Is(err, cookies.ErrInvalidValue) {
 				http.Redirect(w, r, "/login", http.StatusFound)
