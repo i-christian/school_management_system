@@ -102,12 +102,14 @@ templ Dashboard() {
 							>
 								Settings
 							</a>
-							<a
-								href="/logout"
-								class="px-4 py-2 text-sm text-red-600 bg-red-50 rounded-md hover:bg-red-100 flex items-center"
+							<button
+								hx-post="/user/logout"
+								hx-trigger="click"
 							>
+								class="px-4 py-2 text-sm text-red-600 bg-red-50 rounded-md hover:bg-red-100 flex items-center"
+								>
 								Logout
-							</a>
+							</button>
 						</div>
 					</div>
 				</section>
