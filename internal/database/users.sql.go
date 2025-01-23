@@ -109,6 +109,23 @@ func (q *Queries) EditUser(ctx context.Context, arg EditUserParams) error {
 	return err
 }
 
+const getUserByPhone = `-- name: GetUserByPhone :one
+SELECT password, user_id FROM users 
+WHERE phone_number = $1
+`
+
+type GetUserByPhoneRow struct {
+	Password string    `json:"password"`
+	UserID   uuid.UUID `json:"user_id"`
+}
+
+func (q *Queries) GetUserByPhone(ctx context.Context, phoneNumber pgtype.Text) (GetUserByPhoneRow, error) {
+	row := q.db.QueryRow(ctx, getUserByPhone, phoneNumber)
+	var i GetUserByPhoneRow
+	err := row.Scan(&i.Password, &i.UserID)
+	return i, err
+}
+
 const getUserDetails = `-- name: GetUserDetails :one
 SELECT 
     users.last_name, 

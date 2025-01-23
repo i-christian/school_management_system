@@ -38,6 +38,10 @@ WHERE
     roles.name = $2
     AND users.user_id = $1;
 
+-- name: GetUserByPhone :one
+SELECT password, user_id FROM users 
+WHERE phone_number = $1;
+
 -- name: ListUsers :many
 SELECT
     users.user_id,

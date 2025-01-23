@@ -33,22 +33,26 @@ func (s *Server) RegisterRoutes() http.Handler {
 	fileServer := http.FileServer(http.FS(web.Files))
 	r.Handle("/assets/*", fileServer)
 
-	// testing cookies implementation
-	r.Get("/set", s.SetCookieHandler)
-	r.Get("/get", s.GetCookieHandler)
-
 	// public routes
 	r.Route("/", func(r chi.Router) {
 		r.Get("/", templ.Handler(web.Home()).ServeHTTP)
 		r.Get("/login", templ.Handler(web.Login()).ServeHTTP)
+		r.Post("/login", s.LoginHandler)
 	})
 
-	// private routes
+	// private user routes
 	// require authentication
 	r.Route("/user", func(r chi.Router) {
+		r.Use(s.AuthMiddleware)
 		r.Get("/", templ.Handler(web.Register()).ServeHTTP)
 		r.Post("/", s.Register)
-		r.Get("/dashboard", templ.Handler(web.Dashboard()).ServeHTTP)
+		r.Post("/logout", s.LogoutHandler)
+	})
+
+	// private dashboard routes
+	r.Route("/dashboard", func(r chi.Router) {
+		r.Use(s.AuthMiddleware)
+		r.Get("/", templ.Handler(web.Dashboard()).ServeHTTP)
 	})
 
 	return r

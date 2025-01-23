@@ -1,10 +1,12 @@
 package server
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
+	"time"
 
 	"school_management_system/cmd/web"
 	"school_management_system/internal/database"
@@ -89,44 +91,196 @@ func (s *Server) Register(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s *Server) SetCookieHandler(w http.ResponseWriter, r *http.Request) {
-	// Create a session_id which will also be inserted into the database together with user_id
+// login handler to authenticate user and create session
+func (s *Server) LoginHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
 
-	session_id := uuid.New()
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
+	phoneNumber := r.FormValue("phone_number")
+	password := r.FormValue("password")
+
+	credentials := pgtype.Text{String: phoneNumber, Valid: true}
+
+	user, err := s.queries.GetUserByPhone(r.Context(), credentials)
+	if err != nil {
+		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		return
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	if err != nil {
+		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		return
+	}
+
+	sessionID := uuid.New()
+	sessionParams := database.CreateSessionParams{
+		SessionID: sessionID,
+		UserID:    user.UserID,
+	}
+
+	_, err = s.queries.CreateSession(r.Context(), sessionParams)
+	if err != nil {
+		http.Error(w, "Failed to create session", http.StatusInternalServerError)
+		return
+	}
+
 	cookie := http.Cookie{
 		Name:     "sessionid",
-		Value:    session_id.String(),
+		Value:    sessionID.String(),
 		Path:     "/",
-		MaxAge:   3600,
+		MaxAge:   3600 * 24 * 7 * 2, // 2 weeks
 		HttpOnly: true,
 		Secure:   true,
 		SameSite: http.SameSiteStrictMode,
 	}
 
-	err := cookies.WriteEncrypted(w, cookie, s.SecretKey)
-	if err != nil {
-		slog.Error(err.Error())
+	if err := cookies.WriteEncrypted(w, cookie, s.SecretKey); err != nil {
 		http.Error(w, "server error", http.StatusInternalServerError)
 		return
 	}
 
-	w.Write([]byte("cookie set!"))
+	http.Redirect(w, r, "/dashboard", http.StatusFound)
 }
 
-func (s *Server) GetCookieHandler(w http.ResponseWriter, r *http.Request) {
-	value, err := cookies.ReadEncrypted(r, "sessionid", s.SecretKey)
-	if err != nil {
-		switch {
-		case errors.Is(err, http.ErrNoCookie):
-			http.Error(w, "cookie not found", http.StatusBadRequest)
-		case errors.Is(err, cookies.ErrInvalidValue):
-			http.Error(w, "invalid cookie", http.StatusBadRequest)
-		default:
-			slog.Error(err.Error())
+// AuthMiddleware ensures the user is authenticated for private routes
+func (s *Server) AuthMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		sessionID, err := cookies.ReadEncrypted(r, "sessionid", s.SecretKey)
+		// debug cookies
+		fmt.Println(r.Cookie("sessionid"))
+		fmt.Println("Session error:", err)
+		fmt.Println(sessionID)
+		if err != nil {
+			if errors.Is(err, http.ErrNoCookie) || errors.Is(err, cookies.ErrInvalidValue) {
+				http.Redirect(w, r, "/login", http.StatusFound)
+				return
+			}
 			http.Error(w, "server error", http.StatusInternalServerError)
+			return
 		}
+
+		parsedSessionID, err := uuid.Parse(sessionID)
+		if err != nil {
+			http.Error(w, "invalid session ID", http.StatusBadRequest)
+			return
+		}
+
+		session, err := s.queries.GetSession(r.Context(), parsedSessionID)
+		fmt.Println("Fetched session:", session, "Error:", err)
+		if err != nil {
+			http.Redirect(w, r, "/login", http.StatusFound)
+			return
+		}
+
+		if session.Expires.Valid && session.Expires.Time.Before(time.Now()) {
+			http.Redirect(w, r, "/login", http.StatusFound)
+			return
+		}
+
+		timeLeft := time.Until(session.Expires.Time)
+		if timeLeft < 24*time.Hour {
+			newExpiry := pgtype.Timestamptz{Time: time.Now().Add(2 * 7 * 24 * time.Hour), Valid: true}
+			newSessionID := uuid.New()
+
+			refreshParams := database.RefreshSessionParams{
+				UserID:    parsedSessionID,
+				Expires:   newExpiry,
+				SessionID: newSessionID,
+			}
+
+			if err := s.queries.RefreshSession(r.Context(), refreshParams); err != nil {
+				http.Error(w, "server error", http.StatusInternalServerError)
+				return
+			}
+
+			cookie := http.Cookie{
+				Name:     "sessionid",
+				Value:    newSessionID.String(),
+				Path:     "/",
+				MaxAge:   3600 * 24 * 7 * 2, // 2 weeks
+				HttpOnly: true,
+				Secure:   true,
+				SameSite: http.SameSiteStrictMode,
+			}
+
+			if err := cookies.WriteEncrypted(w, cookie, s.SecretKey); err != nil {
+				http.Error(w, "server error", http.StatusInternalServerError)
+				return
+			}
+		}
+
+		r = r.WithContext(context.WithValue(r.Context(), "session_id", session.SessionID))
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+// Admin middleware to restrict access to admin-only routes
+func (s *Server) AdminMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		sessionID, err := cookies.ReadEncrypted(r, "sessionid", s.SecretKey)
+		if err != nil {
+			http.Redirect(w, r, "/login", http.StatusFound)
+			return
+		}
+
+		parsedSessionID, err := uuid.Parse(sessionID)
+		if err != nil {
+			http.Error(w, "invalid session ID", http.StatusBadRequest)
+			return
+		}
+
+		role, err := s.queries.GetUserRole(r.Context(), parsedSessionID)
+		if err != nil {
+			http.Redirect(w, r, "/login", http.StatusFound)
+			return
+		}
+
+		if role.Role != "admin" {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+// LogoutHandler to log users out
+func (s *Server) LogoutHandler(w http.ResponseWriter, r *http.Request) {
+	sessionID, err := cookies.ReadEncrypted(r, "sessionid", s.SecretKey)
+	if err != nil {
+		http.Error(w, "invalid session", http.StatusBadRequest)
 		return
 	}
 
-	w.Write([]byte(value))
+	parsedSessionID, err := uuid.Parse(sessionID)
+	if err != nil {
+		http.Error(w, "invalid session ID", http.StatusBadRequest)
+		return
+	}
+
+	if err := s.queries.DeleteSession(r.Context(), parsedSessionID); err != nil {
+		http.Error(w, "server error", http.StatusInternalServerError)
+		return
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "sessionid",
+		Value:    "",
+		Path:     "/",
+		MaxAge:   -1,
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteStrictMode,
+	})
+
+	http.Redirect(w, r, "/login", http.StatusFound)
 }
