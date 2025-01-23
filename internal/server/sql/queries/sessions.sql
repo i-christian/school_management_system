@@ -3,7 +3,7 @@ INSERT INTO sessions (session_id, user_id)
 VALUES ($1, $2) RETURNING session_id;
 
 -- name: GetSession :one
-SELECT session_id, expires FROM sessions WHERE user_id = $1;
+SELECT session_id, expires FROM sessions WHERE session_id = $1;
 
 -- name: RefreshSession :exec
 UPDATE sessions
