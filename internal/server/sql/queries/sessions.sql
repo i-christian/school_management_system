@@ -7,7 +7,8 @@ SELECT session_id, expires FROM sessions WHERE user_id = $1;
 
 -- name: RefreshSession :exec
 UPDATE sessions
-  SET expires = COALESCE($2, expires)
+  SET expires = COALESCE($2, expires),
+  session_id = COALESCE($3, session_id)
 WHERE user_id = $1;
 
 -- name: DeleteSession :exec
