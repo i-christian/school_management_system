@@ -29,22 +29,27 @@ func (s *Server) RegisterRoutes() http.Handler {
 		MaxAge:           300,
 	}))
 
+	// Serve static assets globally
+	fileServer := http.FileServer(http.FS(web.Files))
+	r.Handle("/assets/*", fileServer)
+
 	// testing cookies implementation
 	r.Get("/set", s.SetCookieHandler)
 	r.Get("/get", s.GetCookieHandler)
 
-	r.Get("/", templ.Handler(web.Home()).ServeHTTP)
+	// public routes
+	r.Route("/", func(r chi.Router) {
+		r.Get("/", templ.Handler(web.Home()).ServeHTTP)
+		r.Get("/login", templ.Handler(web.Login()).ServeHTTP)
+	})
 
-	fileServer := http.FileServer(http.FS(web.Files))
-	r.Handle("/assets/*", fileServer)
-
-	r.Get("/create", templ.Handler(web.Register()).ServeHTTP)
-	r.Post("/register", s.Register)
-
-	r.Get("/login", templ.Handler(web.Login()).ServeHTTP)
-
-	// dashboard routes
-	r.Get("/dashboard", templ.Handler(web.Dashboard()).ServeHTTP)
+	// private routes
+	// require authentication
+	r.Route("/user", func(r chi.Router) {
+		r.Get("/", templ.Handler(web.Register()).ServeHTTP)
+		r.Post("/", s.Register)
+		r.Get("/dashboard", templ.Handler(web.Dashboard()).ServeHTTP)
+	})
 
 	return r
 }
