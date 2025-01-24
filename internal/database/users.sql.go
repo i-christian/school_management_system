@@ -23,6 +23,7 @@ VALUES (
     $6,
     (SELECT role_id FROM roles WHERE name = $7)
 )
+ON CONFLICT (phone_number) DO NOTHING
 RETURNING user_id, last_name, first_name, gender, email, phone_number, password, created_at, updated_at, role_id
 `
 

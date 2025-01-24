@@ -9,6 +9,7 @@ VALUES (
     $6,
     (SELECT role_id FROM roles WHERE name = $7)
 )
+ON CONFLICT (phone_number) DO NOTHING
 RETURNING *;
 
 -- name: GetUserRole :one
