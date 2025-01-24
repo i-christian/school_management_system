@@ -78,11 +78,10 @@ func (s *Server) AuthMiddleware(next http.Handler) http.Handler {
 			}
 
 			cookie := http.Cookie{
-				Name:   "sessionid",
-				Value:  newSessionID.String(),
-				Path:   "/",
-				MaxAge: 1800,
-				// MaxAge:   3600 * 24 * 7 * 2, // 2 weeks
+				Name:     "sessionid",
+				Value:    newSessionID.String(),
+				Path:     "/",
+				MaxAge:   3600 * 24 * 7 * 2, // 2 weeks
 				HttpOnly: true,
 				Secure:   true,
 				SameSite: http.SameSiteStrictMode,
