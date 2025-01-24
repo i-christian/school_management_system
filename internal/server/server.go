@@ -15,8 +15,10 @@ import (
 	"school_management_system/internal/database"
 
 	"github.com/pressly/goose/v3"
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 	_ "github.com/joho/godotenv/autoload"
 	_ "github.com/lib/pq"
 )
@@ -52,7 +54,7 @@ func setUpMigration() {
 
 // Checks if required env vars are all set during server startup
 func validateEnvVars() {
-	requiredVars := []string{"DB_URL", "PORT", "RANDOM_HEX", "DOMAIN", "RANDOM_HEX", "PROJECT_NAME", "GOOSE_DRIVER", "GOOSE_MIGRATION_DIR"}
+	requiredVars := []string{"DB_URL", "PORT", "RANDOM_HEX", "DOMAIN", "RANDOM_HEX", "PROJECT_NAME", "GOOSE_DRIVER", "GOOSE_MIGRATION_DIR", "SUPERUSER_ROLE", "SUPERUSER_EMAIL", "SUPERUSER_PHONE", "SUPERUSER_PASSWORD"}
 	for _, v := range requiredVars {
 		if os.Getenv(v) == "" {
 			slog.Error(fmt.Sprintf("Environment variable %s is required", v))
@@ -79,6 +81,7 @@ func NewServer() (*Server, *http.Server) {
 	}
 
 	generatedQeries := database.New(conn)
+	createSuperUser(ctx, generatedQeries)
 
 	AppServer := &Server{
 		port:      port,
@@ -97,4 +100,34 @@ func NewServer() (*Server, *http.Server) {
 	}
 
 	return AppServer, httpserver
+}
+
+func createSuperUser(ctx context.Context, queries *database.Queries) {
+	role := os.Getenv("SUPERUSER_ROLE")
+	email := os.Getenv("SUPERUSER_EMAIL")
+	phone := os.Getenv("SUPERUSER_PHONE")
+	password := os.Getenv("SUPERUSER_PASSWORD")
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		slog.Error("Failed to hash password")
+		os.Exit(1)
+	}
+
+	user := database.CreateUserParams{
+		FirstName:   "Admin",
+		LastName:    "Admin",
+		PhoneNumber: pgtype.Text{String: phone, Valid: true},
+		Email:       pgtype.Text{String: email, Valid: true},
+		Gender:      "M",
+		Password:    string(hashedPassword),
+		Name:        role,
+	}
+
+	_, err = queries.CreateUser(ctx, user)
+	if err != nil {
+		slog.Error("Failed to create superuser:", "Message", err)
+	} else {
+		slog.Info("Superuser created successfully")
+	}
 }
