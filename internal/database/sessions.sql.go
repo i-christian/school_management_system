@@ -40,10 +40,15 @@ func (q *Queries) DeleteSession(ctx context.Context, userID uuid.UUID) error {
 }
 
 const getSession = `-- name: GetSession :one
-SELECT session_id, expires FROM sessions WHERE session_id = $1
+SELECT 
+  user_id,
+  session_id,
+  expires
+FROM sessions WHERE session_id = $1
 `
 
 type GetSessionRow struct {
+	UserID    uuid.UUID          `json:"user_id"`
 	SessionID uuid.UUID          `json:"session_id"`
 	Expires   pgtype.Timestamptz `json:"expires"`
 }
@@ -51,7 +56,7 @@ type GetSessionRow struct {
 func (q *Queries) GetSession(ctx context.Context, sessionID uuid.UUID) (GetSessionRow, error) {
 	row := q.db.QueryRow(ctx, getSession, sessionID)
 	var i GetSessionRow
-	err := row.Scan(&i.SessionID, &i.Expires)
+	err := row.Scan(&i.UserID, &i.SessionID, &i.Expires)
 	return i, err
 }
 
