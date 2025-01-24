@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"school_management_system/cmd/web"
+	"school_management_system/internal/cookies"
 	"school_management_system/internal/database"
-	"school_management_system/internal/server/cookies"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
