@@ -126,7 +126,7 @@ func (s *Server) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		UserID:    user.UserID,
 	}
 
-	_, err = s.queries.CreateSession(r.Context(), sessionParams)
+	err = s.queries.CreateSession(r.Context(), sessionParams)
 	if err != nil {
 		http.Error(w, "Failed to create session", http.StatusInternalServerError)
 		return
@@ -170,7 +170,6 @@ func (s *Server) AuthMiddleware(next http.Handler) http.Handler {
 		}
 
 		session, err := s.queries.GetSession(r.Context(), parsedSessionID)
-		fmt.Println("Fetched session:", session, "Error:", err)
 		if err != nil {
 			http.Redirect(w, r, "/login", http.StatusFound)
 			return
