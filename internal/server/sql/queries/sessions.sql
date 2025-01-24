@@ -5,7 +5,11 @@ ON CONFLICT (user_id)
 DO UPDATE SET session_id = EXCLUDED.session_id;
 
 -- name: GetSession :one
-SELECT session_id, expires FROM sessions WHERE session_id = $1;
+SELECT 
+  user_id,
+  session_id,
+  expires
+FROM sessions WHERE session_id = $1;
 
 -- name: RefreshSession :exec
 UPDATE sessions

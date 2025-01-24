@@ -204,7 +204,7 @@ func (s *Server) AuthMiddleware(next http.Handler) http.Handler {
 			newSessionID := uuid.New()
 
 			refreshParams := database.RefreshSessionParams{
-				UserID:    parsedSessionID,
+				UserID:    session.UserID,
 				Expires:   newExpiry,
 				SessionID: newSessionID,
 			}
