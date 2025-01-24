@@ -36,7 +36,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	// public routes
 	r.Route("/", func(r chi.Router) {
 		r.Get("/", templ.Handler(web.Home()).ServeHTTP)
-		r.Get("/login", templ.Handler(web.Login()).ServeHTTP)
+		r.With(s.RedirectIfAuthenticated).Get("/login", templ.Handler(web.Login()).ServeHTTP)
 		r.Post("/login", s.LoginHandler)
 	})
 
