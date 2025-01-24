@@ -1,6 +1,8 @@
--- name: CreateSession :one
+-- name: CreateSession :exec
 INSERT INTO sessions (session_id, user_id) 
-VALUES ($1, $2) RETURNING session_id;
+VALUES ($1, $2)
+ON CONFLICT (user_id) 
+DO UPDATE SET session_id = EXCLUDED.session_id;
 
 -- name: GetSession :one
 SELECT session_id, expires FROM sessions WHERE session_id = $1;
