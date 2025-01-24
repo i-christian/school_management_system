@@ -46,6 +46,9 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Use(s.AuthMiddleware)
 		r.Get("/", templ.Handler(web.Register()).ServeHTTP)
 		r.Post("/", s.Register)
+
+		r.Get("/logout/confirm", s.LogoutConfirmHandler)
+		r.Get("/logout/cancel", s.LogoutCancelHandler)
 		r.Post("/logout", s.LogoutHandler)
 	})
 
