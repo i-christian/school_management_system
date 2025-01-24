@@ -268,6 +268,11 @@ func (s *Server) AdminMiddleware(next http.Handler) http.Handler {
 
 // LogoutHandler to log users out
 func (s *Server) LogoutHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
 	sessionID, err := cookies.ReadEncrypted(r, "sessionid", s.SecretKey)
 	if err != nil {
 		http.Error(w, "invalid session", http.StatusBadRequest)
@@ -298,35 +303,6 @@ func (s *Server) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
-func (s *Server) LogoutConfirmHandler(w http.ResponseWriter, r *http.Request) {
-	modal := `
-    <div id="logout-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-        <div class="bg-white p-6 rounded-lg shadow-lg">
-            <h2 class="text-lg font-semibold mb-4">Confirm Logout</h2>
-            <p class="text-sm mb-4">Are you sure you want to log out?</p>
-            <div class="flex justify-end gap-4">
-                <button
-                    class="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300"
-                    hx-get="/user/logout/cancel"
-                    hx-target="#logout-modal"
-                    hx-swap="outerHTML"
-                >
-                    Cancel
-                </button>
-                <button
-                    class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-                    hx-post="/user/logout"
-                >
-                    Logout
-                </button>
-            </div>
-        </div>
-    </div>`
-
-	w.Header().Set("Content-Type", "text/html")
-	w.Write([]byte(modal))
-}
-
 func (s *Server) LogoutCancelHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte(""))
+	http.Redirect(w, r, "/dashboard", http.StatusFound)
 }
