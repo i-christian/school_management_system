@@ -17,6 +17,14 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+func writeError(w http.ResponseWriter, statusCode int, message string) {
+	http.Error(w, message, statusCode)
+}
+
+type contextKey string
+
+const sessionIDKey contextKey = "session_id"
+
 // An endpoint to create a new user account
 func (s *Server) Register(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -168,6 +176,24 @@ func (s *Server) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/dashboard", http.StatusFound)
 }
 
+// refreshSession method updates a near session in the database if its near expiry
+func (s *Server) refreshSession(ctx context.Context, session database.GetSessionRow) (uuid.UUID, error) {
+	newExpiry := pgtype.Timestamptz{Time: time.Now().Add(2 * 7 * 24 * time.Hour), Valid: true}
+	newSessionID := uuid.New()
+
+	refreshParams := database.RefreshSessionParams{
+		UserID:    session.UserID,
+		Expires:   newExpiry,
+		SessionID: newSessionID,
+	}
+
+	if err := s.queries.RefreshSession(ctx, refreshParams); err != nil {
+		return uuid.Nil, err
+	}
+
+	return newSessionID, nil
+}
+
 // AuthMiddleware ensures the user is authenticated for private routes
 func (s *Server) AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -177,13 +203,13 @@ func (s *Server) AuthMiddleware(next http.Handler) http.Handler {
 				http.Redirect(w, r, "/login", http.StatusFound)
 				return
 			}
-			http.Error(w, "server error", http.StatusInternalServerError)
+			writeError(w, http.StatusInternalServerError, "server error")
 			return
 		}
 
 		parsedSessionID, err := uuid.Parse(sessionID)
 		if err != nil {
-			http.Error(w, "invalid session ID", http.StatusBadRequest)
+			writeError(w, http.StatusBadRequest, "invalid session ID")
 			return
 		}
 
@@ -200,17 +226,9 @@ func (s *Server) AuthMiddleware(next http.Handler) http.Handler {
 
 		timeLeft := time.Until(session.Expires.Time)
 		if timeLeft < 24*time.Hour {
-			newExpiry := pgtype.Timestamptz{Time: time.Now().Add(2 * 7 * 24 * time.Hour), Valid: true}
-			newSessionID := uuid.New()
-
-			refreshParams := database.RefreshSessionParams{
-				UserID:    session.UserID,
-				Expires:   newExpiry,
-				SessionID: newSessionID,
-			}
-
-			if err := s.queries.RefreshSession(r.Context(), refreshParams); err != nil {
-				http.Error(w, "server error", http.StatusInternalServerError)
+			newSessionID, err := s.refreshSession(r.Context(), session)
+			if err != nil {
+				writeError(w, http.StatusInternalServerError, "server error")
 				return
 			}
 
@@ -225,12 +243,14 @@ func (s *Server) AuthMiddleware(next http.Handler) http.Handler {
 			}
 
 			if err := cookies.WriteEncrypted(w, cookie, s.SecretKey); err != nil {
-				http.Error(w, "server error", http.StatusInternalServerError)
+				writeError(w, http.StatusInternalServerError, "server error")
 				return
 			}
-		}
 
-		r = r.WithContext(context.WithValue(r.Context(), "session_id", session.SessionID))
+			r = r.WithContext(context.WithValue(r.Context(), sessionIDKey, newSessionID))
+		} else {
+			r = r.WithContext(context.WithValue(r.Context(), sessionIDKey, session.SessionID))
+		}
 
 		next.ServeHTTP(w, r)
 	})
