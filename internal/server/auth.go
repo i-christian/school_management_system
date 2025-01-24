@@ -91,6 +91,24 @@ func (s *Server) Register(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// RedirectIfAuthenticated checks if a user is already logged in and redirects them to the home page
+func (s *Server) RedirectIfAuthenticated(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		sessionID, err := cookies.ReadEncrypted(r, "sessionid", s.SecretKey)
+		if err == nil {
+			parsedSessionID, parseErr := uuid.Parse(sessionID)
+			if parseErr == nil {
+				session, getSessionErr := s.queries.GetSession(r.Context(), parsedSessionID)
+				if getSessionErr == nil && session.Expires.Valid && session.Expires.Time.After(time.Now()) {
+					http.Redirect(w, r, "/", http.StatusFound)
+					return
+				}
+			}
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
 // login handler to authenticate user and create session
 func (s *Server) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
