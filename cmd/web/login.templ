@@ -12,10 +12,8 @@ templ Login() {
 		</head>
 		<body class="h-screen bg-gray-50 flex justify-center items-center">
 			<form
-				hx-post="/login"
-				hx-target="#result"
-				hx-swap="innerHTML"
-				hx-on="htmx:responseError: showErrorMessage, htmx:responseSuccess: redirectToDashboard"
+				action="/login"
+				method="POST"
 				class="flex flex-col mx-auto w-full max-w-lg bg-white shadow-md rounded-md p-6"
 			>
 				<fieldset class="flex flex-col gap-4">
@@ -71,13 +69,6 @@ templ Login() {
         			} else {
           				passwordField.type = "password";
           				toggleIcon.textContent = "👁️";
-        			}
-      			}
-
-      			function redirectToDashboard(event) {
-        			const response = event.detail.xhr.responseText;
-        			if (response && !response.includes("error")) {
-          				window.location.href = "/dashboard";
         			}
       			}
 
