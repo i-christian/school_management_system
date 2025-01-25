@@ -155,19 +155,12 @@ func (s *Server) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sessionID, err := cookies.ReadEncrypted(r, "sessionid", s.SecretKey)
-	if err != nil {
-		http.Error(w, "invalid session", http.StatusBadRequest)
-		return
+	parsedUserID, ok := r.Context().Value(userIDKey).(uuid.UUID)
+	if !ok {
+		writeError(w, http.StatusUnauthorized, "user not authenticated")
 	}
 
-	parsedSessionID, err := uuid.Parse(sessionID)
-	if err != nil {
-		http.Error(w, "invalid session ID", http.StatusBadRequest)
-		return
-	}
-
-	if err := s.queries.DeleteSession(r.Context(), parsedSessionID); err != nil {
+	if err := s.queries.DeleteSession(r.Context(), parsedUserID); err != nil {
 		http.Error(w, "server error", http.StatusInternalServerError)
 		return
 	}
