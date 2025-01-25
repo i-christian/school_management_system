@@ -19,7 +19,10 @@ func writeError(w http.ResponseWriter, statusCode int, message string) {
 
 type contextKey string
 
-const sessionIDKey contextKey = "session_id"
+const (
+	sessionIDKey contextKey = "session_id"
+	userIDKey    contextKey = "user_id"
+)
 
 // refreshSession method updates a near session in the database if its near expiry
 func (s *Server) refreshSession(ctx context.Context, session database.GetSessionRow) (uuid.UUID, error) {
@@ -97,6 +100,9 @@ func (s *Server) AuthMiddleware(next http.Handler) http.Handler {
 			r = r.WithContext(context.WithValue(r.Context(), sessionIDKey, session.SessionID))
 		}
 
+		r = r.WithContext(context.WithValue(r.Context(), userIDKey, session.UserID))
+
+		// call the next handler function
 		next.ServeHTTP(w, r)
 	})
 }
@@ -104,16 +110,9 @@ func (s *Server) AuthMiddleware(next http.Handler) http.Handler {
 // Admin middleware to restrict access to admin-only routes
 func (s *Server) AdminMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		sessionID, err := cookies.ReadEncrypted(r, "sessionid", s.SecretKey)
-		if err != nil {
-			http.Redirect(w, r, "/login", http.StatusFound)
-			return
-		}
-
-		parsedSessionID, err := uuid.Parse(sessionID)
-		if err != nil {
-			http.Error(w, "invalid session ID", http.StatusBadRequest)
-			return
+		parsedSessionID, ok := r.Context().Value(sessionIDKey).(uuid.UUID)
+		if !ok {
+			writeError(w, http.StatusUnauthorized, "User not authenticated")
 		}
 
 		role, err := s.queries.GetUserRole(r.Context(), parsedSessionID)
