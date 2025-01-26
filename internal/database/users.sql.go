@@ -133,7 +133,8 @@ SELECT
     users.first_name, 
     users.gender, 
     users.email, 
-    users.phone_number, 
+    users.phone_number,
+    users.password, 
     roles.name AS role
 FROM 
     users
@@ -157,6 +158,7 @@ type GetUserDetailsRow struct {
 	Gender      string      `json:"gender"`
 	Email       pgtype.Text `json:"email"`
 	PhoneNumber pgtype.Text `json:"phone_number"`
+	Password    string      `json:"password"`
 	Role        string      `json:"role"`
 }
 
@@ -169,6 +171,7 @@ func (q *Queries) GetUserDetails(ctx context.Context, arg GetUserDetailsParams) 
 		&i.Gender,
 		&i.Email,
 		&i.PhoneNumber,
+		&i.Password,
 		&i.Role,
 	)
 	return i, err
