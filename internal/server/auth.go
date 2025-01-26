@@ -157,7 +157,7 @@ func (s *Server) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 
 	parsedUserID, ok := r.Context().Value(userIDKey).(uuid.UUID)
 	if !ok {
-		writeError(w, http.StatusUnauthorized, "user not authenticated")
+		writeError(w, http.StatusUnauthorized, "User not authenticated")
 	}
 
 	if err := s.queries.DeleteSession(r.Context(), parsedUserID); err != nil {

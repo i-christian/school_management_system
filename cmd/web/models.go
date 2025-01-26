@@ -12,3 +12,10 @@ var Files embed.FS
 func SchoolName() string {
 	return os.Getenv("PROJECT_NAME")
 }
+
+type User struct {
+	FirstName string
+	LastName  string
+	Gender    string
+	Role      string
+}
