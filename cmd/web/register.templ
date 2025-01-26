@@ -1,11 +1,5 @@
 package web
 
-type User struct {
-	FirstName string
-	LastName  string
-	Role      string
-}
-
 templ Register() {
 	@Base() {
 		<form
@@ -120,7 +114,6 @@ templ Register() {
 						<option value="classteacher">ClassTeacher</option>
 						<option value="headteacher">Headteacher</option>
 						<option value="accountant">Accountant</option>
-						<option value="admin">Admin</option>
 					</select>
 				</label>
 				<button
