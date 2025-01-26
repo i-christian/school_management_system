@@ -139,7 +139,7 @@ func (s *Server) RedirectIfAuthenticated(next http.Handler) http.Handler {
 			if parseErr == nil {
 				session, getSessionErr := s.queries.GetSession(r.Context(), parsedSessionID)
 				if getSessionErr == nil && session.Expires.Valid && session.Expires.Time.After(time.Now()) {
-					http.Redirect(w, r, "/", http.StatusFound)
+					http.Redirect(w, r, "/dashboard", http.StatusFound)
 					return
 				}
 			}
