@@ -14,8 +14,11 @@ func SchoolName() string {
 }
 
 type User struct {
-	FirstName string
-	LastName  string
-	Gender    string
-	Role      string
+	FirstName   string
+	LastName    string
+	Gender      string
+	Email       string
+	PhoneNumber string
+	Password    string
+	Role        string
 }

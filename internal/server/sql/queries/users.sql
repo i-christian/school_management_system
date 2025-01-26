@@ -27,7 +27,8 @@ SELECT
     users.first_name, 
     users.gender, 
     users.email, 
-    users.phone_number, 
+    users.phone_number,
+    users.password, 
     roles.name AS role
 FROM 
     users
