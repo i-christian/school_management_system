@@ -64,6 +64,16 @@ func (s *Server) userDetails(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// ListUsers handler retrieves all users from the database
+// This handler can only be accessed by someone with admin priviledges
+func (s *Server) ListUsers(w http.ResponseWriter, r *http.Request) {
+	_, err := s.queries.ListUsers(r.Context())
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "Internal Server Error")
+		return
+	}
+}
+
 // EditUser handler
 // Update user information
 // expects form data with user information from
