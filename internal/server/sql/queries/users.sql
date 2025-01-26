@@ -52,6 +52,7 @@ SELECT
     users.gender,
     users.email,
     users.phone_number,
+    users.password,
     roles.name AS role
 FROM users
 INNER JOIN roles ON users.role_id = roles.role_id

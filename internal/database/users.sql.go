@@ -207,6 +207,7 @@ SELECT
     users.gender,
     users.email,
     users.phone_number,
+    users.password,
     roles.name AS role
 FROM users
 INNER JOIN roles ON users.role_id = roles.role_id
@@ -220,6 +221,7 @@ type ListUsersRow struct {
 	Gender      string      `json:"gender"`
 	Email       pgtype.Text `json:"email"`
 	PhoneNumber pgtype.Text `json:"phone_number"`
+	Password    string      `json:"password"`
 	Role        string      `json:"role"`
 }
 
@@ -239,6 +241,7 @@ func (q *Queries) ListUsers(ctx context.Context) ([]ListUsersRow, error) {
 			&i.Gender,
 			&i.Email,
 			&i.PhoneNumber,
+			&i.Password,
 			&i.Role,
 		); err != nil {
 			return nil, err
