@@ -57,6 +57,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.Route("/dashboard", func(r chi.Router) {
 		r.Use(s.AuthMiddleware)
 		r.Get("/", templ.Handler(web.Dashboard()).ServeHTTP)
+		r.Get("/userlist", s.ListUsers)
 	})
 
 	return r
