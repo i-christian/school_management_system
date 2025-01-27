@@ -31,19 +31,9 @@ func (s *Server) userDetails(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	role, err := s.queries.GetUserRole(r.Context(), parsedSessionID)
-	if err != nil {
-		slog.Error("Failed to retrieve user role")
-	}
-
 	user, err := s.queries.GetSession(r.Context(), parsedSessionID)
 
-	userInfoParams := database.GetUserDetailsParams{
-		UserID: user.UserID,
-		Name:   role.Role,
-	}
-
-	userInfo, err := s.queries.GetUserDetails(r.Context(), userInfoParams)
+	userInfo, err := s.queries.GetUserDetails(r.Context(), user.UserID)
 
 	w.Header().Set("Content-Type", "text/html")
 

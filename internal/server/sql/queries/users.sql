@@ -37,8 +37,7 @@ INNER JOIN
 ON 
     users.role_id = roles.role_id
 WHERE 
-    roles.name = $2
-    AND users.user_id = $1;
+    users.user_id = $1;
 
 -- name: GetUserByPhone :one
 SELECT password, user_id FROM users 
