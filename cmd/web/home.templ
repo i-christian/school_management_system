@@ -1,20 +1,5 @@
 package web
 
-templ UserRole(user User) {
-	switch user.Role {
-		case "admin":
-			{ "Admin" }
-		case "teacher":
-			{ "Teacher" }
-		case "classteacher":
-			{ "Class Teacher" }
-		case "headteacher":
-			{ "Head Teacher" }
-		default:
-			{ "Login" }
-	}
-}
-
 templ Home() {
 	@Base() {
 		<header
@@ -34,7 +19,7 @@ templ Home() {
 				>
 					<button
 						id="user-role"
-						hx-get="/details"
+						hx-get="/role"
 						hx-trigger="load"
 						hx-target="#user-role"
 						hx-swap="innerHTML"
