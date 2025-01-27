@@ -24,13 +24,24 @@ templ navList() {
 			</li>
 			<li>
 				<a
-					href="/users"
 					class="block px-4 py-2 rounded-md text-gray-800 hover:bg-blue-100"
-					hx-get="/users"
+					hx-get="/dashboard/userlist"
+					hx-trigger="click"
 					hx-target="#main-content"
 					hx-swap="innerHTML"
 				>
 					Users
+				</a>
+			</li>
+			<li>
+				<a
+					href="/academics"
+					class="block px-4 py-2 rounded-md text-gray-800 hover:bg-blue-100"
+					hx-get="/grades"
+					hx-target="#main-content"
+					hx-swap="innerHTML"
+				>
+					Academic Year
 				</a>
 			</li>
 			<li>
@@ -57,13 +68,24 @@ templ navList() {
 			</li>
 			<li>
 				<a
+					href="/discpline"
+					class="block px-4 py-2 rounded-md text-gray-800 hover:bg-blue-100"
+					hx-get="/grades"
+					hx-target="#main-content"
+					hx-swap="innerHTML"
+				>
+					Discplinary
+				</a>
+			</li>
+			<li>
+				<a
 					href="/fees"
 					class="block px-4 py-2 rounded-md text-gray-800 hover:bg-blue-100"
 					hx-get="/fees"
 					hx-target="#main-content"
 					hx-swap="innerHTML"
 				>
-					fees
+					Fees
 				</a>
 			</li>
 		</ul>
