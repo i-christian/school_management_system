@@ -143,14 +143,8 @@ INNER JOIN
 ON 
     users.role_id = roles.role_id
 WHERE 
-    roles.name = $2
-    AND users.user_id = $1
+    users.user_id = $1
 `
-
-type GetUserDetailsParams struct {
-	UserID uuid.UUID `json:"user_id"`
-	Name   string    `json:"name"`
-}
 
 type GetUserDetailsRow struct {
 	LastName    string      `json:"last_name"`
@@ -162,8 +156,8 @@ type GetUserDetailsRow struct {
 	Role        string      `json:"role"`
 }
 
-func (q *Queries) GetUserDetails(ctx context.Context, arg GetUserDetailsParams) (GetUserDetailsRow, error) {
-	row := q.db.QueryRow(ctx, getUserDetails, arg.UserID, arg.Name)
+func (q *Queries) GetUserDetails(ctx context.Context, userID uuid.UUID) (GetUserDetailsRow, error) {
+	row := q.db.QueryRow(ctx, getUserDetails, userID)
 	var i GetUserDetailsRow
 	err := row.Scan(
 		&i.LastName,
