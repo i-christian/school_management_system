@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"school_management_system/cmd/web/components"
+	"school_management_system/cmd/web/dashboard"
 	"school_management_system/internal/cookies"
 	"school_management_system/internal/database"
 
@@ -177,11 +178,14 @@ func (s *Server) userRole(w http.ResponseWriter, r *http.Request) {
 // ListUsers handler retrieves all users from the database
 // This handler can only be accessed by someone with admin priviledges
 func (s *Server) ListUsers(w http.ResponseWriter, r *http.Request) {
-	_, err := s.queries.ListUsers(r.Context())
+	userList, err := s.queries.ListUsers(r.Context())
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "Internal Server Error")
 		return
 	}
+
+	component := dashboard.UsersList(userList)
+	s.renderComponent(w, r, component)
 }
 
 // EditUser handler
