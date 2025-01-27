@@ -129,32 +129,3 @@ templ Register() {
 		</div>
 	}
 }
-
-templ SucessModal(user User) {
-	<section class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
-		<div class="bg-white w-full max-w-md rounded-md shadow-lg p-6 text-gray-800">
-			<h2 class="text-center text-2xl font-semibold text-green-600 mb-4">
-				Registration Successful!
-			</h2>
-			<div class="text-gray-700">
-				<p class="mb-2">
-					<strong>First Name:</strong> { user.FirstName }
-				</p>
-				<p class="mb-2">
-					<strong>Last Name:</strong> { user.LastName }
-				</p>
-				<p class="mb-2">
-					<strong>Role:</strong> { user.Role }
-				</p>
-			</div>
-			<div class="mt-6 flex justify-center">
-				<a
-					class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
-					href="/user/dashboard"
-				>
-					Go to Dashboard
-				</a>
-			</div>
-		</div>
-	</section>
-}
