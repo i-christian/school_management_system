@@ -8,7 +8,7 @@ templ UsersList(userList []database.ListUsersRow) {
 			<h2 class="text-xl font-bold">Users</h2>
 			<button
 				class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-				hx-get="/users/create"
+				hx-get="/user"
 				hx-target="#main-content"
 				hx-swap="innerHTML"
 			>
