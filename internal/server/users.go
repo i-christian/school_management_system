@@ -30,12 +30,12 @@ func (s *Server) renderComponent(w http.ResponseWriter, r *http.Request, compone
 // An endpoint to create a new user account
 func (s *Server) Register(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
 		return
 	}
 
 	if err := r.ParseForm(); err != nil {
-		http.Error(w, "Bad Request", http.StatusBadRequest)
+		writeError(w, http.StatusUnprocessableEntity, "failed to parse form")
 		return
 	}
 
@@ -49,12 +49,12 @@ func (s *Server) Register(w http.ResponseWriter, r *http.Request) {
 	name := r.FormValue("role") // Role name
 
 	if firstName == "" || lastName == "" || phoneNumber == "" || gender == "" || password == "" || confirmPassword == "" || name == "" {
-		http.Error(w, "All fields except email are required", http.StatusBadRequest)
+		writeError(w, http.StatusBadRequest, "all fields except email are required")
 		return
 	}
 
 	if password != confirmPassword {
-		http.Error(w, "Passwords do not match", http.StatusBadRequest)
+		writeError(w, http.StatusBadRequest, "passwords do not match")
 		return
 	}
 
