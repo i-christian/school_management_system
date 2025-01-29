@@ -35,7 +35,8 @@ term.end_date AS Closing_date
 FROM term
 INNER JOIN academic_year
 ON
-term.academic_year_id = academic_year.academic_year_id;
+term.academic_year_id = academic_year.academic_year_id
+WHERE academic_year.name = $1;
 
 -- name: GetTerm :one
 SELECT
