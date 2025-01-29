@@ -123,6 +123,7 @@ func (s *Server) getSessionAndUserDetails(r *http.Request) (components.User, err
 	}
 
 	return components.User{
+		UserID:      userInfo.UserID,
 		FirstName:   userInfo.FirstName,
 		LastName:    userInfo.LastName,
 		Gender:      userInfo.Gender,
@@ -192,14 +193,9 @@ func (s *Server) ListUsers(w http.ResponseWriter, r *http.Request) {
 // Update user information
 // expects form data with user information from
 func (s *Server) EditUser(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		writeError(w, http.StatusMethodNotAllowed, "Method not allowed")
-		return
-	}
-	userID, ok := r.Context().Value(userIDKey).(uuid.UUID)
-	if !ok {
-		writeError(w, http.StatusUnauthorized, "User not authorised")
-		return
+	userID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		writeError(w, http.StatusUnprocessableEntity, "invalid user id")
 	}
 
 	if err := r.ParseForm(); err != nil {
@@ -233,8 +229,23 @@ func (s *Server) EditUser(w http.ResponseWriter, r *http.Request) {
 		Name:        name,
 	}
 
-	err := s.queries.EditUser(r.Context(), updateInfo)
+	err = s.queries.EditUser(r.Context(), updateInfo)
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "Internal Server Error")
+		writeError(w, http.StatusInternalServerError, "internal server error")
+	}
+}
+
+// DeleteUser handler
+// Accepts an id parameter
+// deletes a user from the database
+func (s *Server) DeleteUser(w http.ResponseWriter, r *http.Request) {
+	userID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		writeError(w, http.StatusUnprocessableEntity, "failed to parse user id")
+	}
+
+	err = s.queries.DeleteUser(r.Context(), userID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
 	}
 }

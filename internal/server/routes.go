@@ -47,6 +47,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Use(s.AuthMiddleware)
 		r.Get("/", templ.Handler(web.Register()).ServeHTTP)
 		r.Post("/", s.Register)
+		r.Put("/{id}", s.EditUser)
+		r.Delete("/{id}", s.DeleteUser)
 
 		r.Get("/logout/confirm", templ.Handler(web.LogoutConfirmHandler()).ServeHTTP)
 		r.Get("/logout/cancel", s.LogoutCancelHandler)
