@@ -130,11 +130,11 @@ func (q *Queries) EditTerm(ctx context.Context, arg EditTermParams) error {
 }
 
 const getAcademicYear = `-- name: GetAcademicYear :one
-SELECT academic_year_id, name, start_date, end_date FROM academic_year WHERE academic_year_id = $1
+SELECT academic_year_id, name, start_date, end_date FROM academic_year WHERE name = $1
 `
 
-func (q *Queries) GetAcademicYear(ctx context.Context, academicYearID uuid.UUID) (AcademicYear, error) {
-	row := q.db.QueryRow(ctx, getAcademicYear, academicYearID)
+func (q *Queries) GetAcademicYear(ctx context.Context, name string) (AcademicYear, error) {
+	row := q.db.QueryRow(ctx, getAcademicYear, name)
 	var i AcademicYear
 	err := row.Scan(
 		&i.AcademicYearID,

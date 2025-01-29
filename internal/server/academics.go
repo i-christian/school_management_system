@@ -47,3 +47,6 @@ func (s *Server) CreateAcademicYear(w http.ResponseWriter, r *http.Request) {
 
 	_, err = s.queries.CreateAcademicYear(r.Context(), params)
 }
+
+func (s *Server) ListAcademicYears(w http.ResponseWriter, r *http.Request) {
+}
