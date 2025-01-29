@@ -23,6 +23,7 @@ WHERE session_id = $1;
 
 -- name: GetUserDetails :one
 SELECT 
+    users.user_id,
     users.last_name, 
     users.first_name, 
     users.gender, 

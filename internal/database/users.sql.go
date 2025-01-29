@@ -129,6 +129,7 @@ func (q *Queries) GetUserByPhone(ctx context.Context, phoneNumber pgtype.Text) (
 
 const getUserDetails = `-- name: GetUserDetails :one
 SELECT 
+    users.user_id,
     users.last_name, 
     users.first_name, 
     users.gender, 
@@ -147,6 +148,7 @@ WHERE
 `
 
 type GetUserDetailsRow struct {
+	UserID      uuid.UUID   `json:"user_id"`
 	LastName    string      `json:"last_name"`
 	FirstName   string      `json:"first_name"`
 	Gender      string      `json:"gender"`
@@ -160,6 +162,7 @@ func (q *Queries) GetUserDetails(ctx context.Context, userID uuid.UUID) (GetUser
 	row := q.db.QueryRow(ctx, getUserDetails, userID)
 	var i GetUserDetailsRow
 	err := row.Scan(
+		&i.UserID,
 		&i.LastName,
 		&i.FirstName,
 		&i.Gender,
