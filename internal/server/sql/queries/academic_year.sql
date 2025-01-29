@@ -1,6 +1,7 @@
 -- name: CreateAcademicYear :one
 INSERT INTO academic_year (name, start_date, end_date) 
 VALUES ($1, $2, $3)
+ON CONFLICT (name) DO NOTHING
 RETURNING academic_year_id;
 
 -- name: ListAcademicYear :many
@@ -50,19 +51,6 @@ INNER JOIN academic_year
 ON
 term.academic_year_id = academic_year.academic_year_id
 WHERE term_id = $1;
-
--- name: GetAcademicYearTerms :many
-SELECT
-term.term_id,
-academic_year.name AS Academic_Year,
-term.name AS Academic_Term,
-term.start_date AS Opening_date,
-term.end_date AS Closing_date
-FROM term
-INNER JOIN academic_year
-ON
-term.academic_year_id = academic_year.academic_year_id
-WHERE academic_year.academic_year_id = $1;
 
 -- name: EditTerm :exec
 UPDATE term 

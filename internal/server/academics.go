@@ -166,10 +166,22 @@ func (s *Server) CreateTerm(w http.ResponseWriter, r *http.Request) {
 
 // ListTerms handler method retrieves terms per academic year
 func (s *Server) ListTerms(w http.ResponseWriter, r *http.Request) {
-	academicYear := r.PathValue("year")
+	academicYear := r.PathValue("academic_year")
 
 	_, err := s.queries.ListTerms(r.Context(), academicYear)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "failed to retrieve terms")
 	}
+}
+
+// GetTerm handler method retrives all data for a specific term
+func (s *Server) GetTerm(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	term_id, err := uuid.Parse(id)
+	if err != nil {
+		writeError(w, http.StatusUnprocessableEntity, "wrong parameters")
+	}
+
+	// add termInfo struct data to later
+	_, err = s.queries.GetTerm(r.Context(), term_id)
 }
