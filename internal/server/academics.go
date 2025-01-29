@@ -105,6 +105,19 @@ func (s *Server) EditAcademicYear(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// DeleteAcademicYear
+func (s *Server) DeleteAcademicYear(w http.ResponseWriter, r *http.Request) {
+	id, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		writeError(w, http.StatusUnprocessableEntity, "invalid request data")
+	}
+
+	err = s.queries.DeleteAcademicYear(r.Context(), id)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to delete academic year")
+	}
+}
+
 // CreateTerm handler function
 func (s *Server) CreateTerm(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
