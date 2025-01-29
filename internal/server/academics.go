@@ -163,3 +163,10 @@ func (s *Server) CreateTerm(w http.ResponseWriter, r *http.Request) {
 
 	_, err = s.queries.CreateTerm(r.Context(), params)
 }
+
+func (s *Server) ListTerms(w http.ResponseWriter, r *http.Request) {
+	_, err := s.queries.ListTerms(r.Context())
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to retrieve terms")
+	}
+}
