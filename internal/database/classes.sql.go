@@ -11,15 +11,16 @@ import (
 	"github.com/google/uuid"
 )
 
-const createClass = `-- name: CreateClass :one
-INSERT INTO classes (name) VALUES ($1) RETURNING class_id, name
+const createClass = `-- name: CreateClass :exec
+INSERT INTO classes (name)
+VALUES ($1)
+ON CONFLICT (name) DO NOTHING
+RETURNING class_id, name
 `
 
-func (q *Queries) CreateClass(ctx context.Context, name string) (Class, error) {
-	row := q.db.QueryRow(ctx, createClass, name)
-	var i Class
-	err := row.Scan(&i.ClassID, &i.Name)
-	return i, err
+func (q *Queries) CreateClass(ctx context.Context, name string) error {
+	_, err := q.db.Exec(ctx, createClass, name)
+	return err
 }
 
 const deleteClass = `-- name: DeleteClass :exec

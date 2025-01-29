@@ -1,5 +1,9 @@
--- name: CreateSubject :one
-INSERT INTO subjects (class_id, name) VALUES ($1, $2) RETURNING *;
+-- name: CreateSubject :exec
+INSERT INTO
+    subjects (class_id, name)
+VALUES ($1, $2)
+ON CONFLICT (class_id, name) DO NOTHING
+RETURNING *;
 
 -- name: ListSubjects :many
 SELECT

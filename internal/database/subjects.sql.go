@@ -11,8 +11,12 @@ import (
 	"github.com/google/uuid"
 )
 
-const createSubject = `-- name: CreateSubject :one
-INSERT INTO subjects (class_id, name) VALUES ($1, $2) RETURNING subject_id, class_id, name
+const createSubject = `-- name: CreateSubject :exec
+INSERT INTO
+    subjects (class_id, name)
+VALUES ($1, $2)
+ON CONFLICT (class_id, name) DO NOTHING
+RETURNING subject_id, class_id, name
 `
 
 type CreateSubjectParams struct {
@@ -20,11 +24,9 @@ type CreateSubjectParams struct {
 	Name    string    `json:"name"`
 }
 
-func (q *Queries) CreateSubject(ctx context.Context, arg CreateSubjectParams) (Subject, error) {
-	row := q.db.QueryRow(ctx, createSubject, arg.ClassID, arg.Name)
-	var i Subject
-	err := row.Scan(&i.SubjectID, &i.ClassID, &i.Name)
-	return i, err
+func (q *Queries) CreateSubject(ctx context.Context, arg CreateSubjectParams) error {
+	_, err := q.db.Exec(ctx, createSubject, arg.ClassID, arg.Name)
+	return err
 }
 
 const deleteSubject = `-- name: DeleteSubject :exec

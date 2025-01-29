@@ -248,6 +248,7 @@ func (s *Server) EditTerm(w http.ResponseWriter, r *http.Request) {
 	err = s.queries.EditTerm(r.Context(), params)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "internal server error")
+		return
 	}
 }
 
@@ -257,10 +258,12 @@ func (s *Server) DeleteTerm(w http.ResponseWriter, r *http.Request) {
 	term_id, err := uuid.Parse(id)
 	if err != nil {
 		writeError(w, http.StatusUnprocessableEntity, "wrong parameters")
+		return
 	}
 
 	err = s.queries.DeleteTerm(r.Context(), term_id)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "internal server error")
+		return
 	}
 }

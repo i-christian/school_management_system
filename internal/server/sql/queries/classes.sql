@@ -1,5 +1,8 @@
--- name: CreateClass :one
-INSERT INTO classes (name) VALUES ($1) RETURNING *;
+-- name: CreateClass :exec
+INSERT INTO classes (name)
+VALUES ($1)
+ON CONFLICT (name) DO NOTHING
+RETURNING *;
 
 -- name: ListClasses :many
 SELECT * FROM classes ORDER BY name;
