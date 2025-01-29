@@ -250,3 +250,17 @@ func (s *Server) EditTerm(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusInternalServerError, "internal server error")
 	}
 }
+
+// DeleteTerm handler method deletes a term
+func (s *Server) DeleteTerm(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	term_id, err := uuid.Parse(id)
+	if err != nil {
+		writeError(w, http.StatusUnprocessableEntity, "wrong parameters")
+	}
+
+	err = s.queries.DeleteTerm(r.Context(), term_id)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+	}
+}
