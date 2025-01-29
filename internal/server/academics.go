@@ -14,6 +14,7 @@ import (
 func (s *Server) CreateAcademicYear(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
 	}
 
 	if err := r.ParseForm(); err != nil {
@@ -28,6 +29,7 @@ func (s *Server) CreateAcademicYear(w http.ResponseWriter, r *http.Request) {
 	// validate form
 	if name == "" || start == "" || end == "" {
 		writeError(w, http.StatusBadRequest, "all fields are required")
+		return
 	}
 	startDate, err := time.Parse(time.DateOnly, start)
 	if err != nil {
@@ -38,6 +40,7 @@ func (s *Server) CreateAcademicYear(w http.ResponseWriter, r *http.Request) {
 	endDate, err := time.Parse(time.DateOnly, end)
 	if err != nil {
 		writeError(w, http.StatusBadRequest, "failed to parse end date")
+		return
 	}
 
 	params := database.CreateAcademicYearParams{
@@ -54,6 +57,7 @@ func (s *Server) ListAcademicYears(w http.ResponseWriter, r *http.Request) {
 	_, err := s.queries.ListAcademicYear(r.Context())
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "could not fetch academic year list")
+		return
 	}
 }
 
@@ -61,11 +65,13 @@ func (s *Server) ListAcademicYears(w http.ResponseWriter, r *http.Request) {
 func (s *Server) EditAcademicYear(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPut {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
 	}
 
 	academic_year_id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		writeError(w, http.StatusUnprocessableEntity, "failed to parse id")
+		return
 	}
 
 	if err := r.ParseForm(); err != nil {
@@ -80,6 +86,7 @@ func (s *Server) EditAcademicYear(w http.ResponseWriter, r *http.Request) {
 	// validate form
 	if name == "" || start == "" || end == "" {
 		writeError(w, http.StatusBadRequest, "all fields are required")
+		return
 	}
 	startDate, err := time.Parse(time.DateOnly, start)
 	if err != nil {
@@ -90,6 +97,7 @@ func (s *Server) EditAcademicYear(w http.ResponseWriter, r *http.Request) {
 	endDate, err := time.Parse(time.DateOnly, end)
 	if err != nil {
 		writeError(w, http.StatusBadRequest, "failed to parse end date")
+		return
 	}
 
 	params := database.EditAcademicYearParams{
@@ -102,6 +110,7 @@ func (s *Server) EditAcademicYear(w http.ResponseWriter, r *http.Request) {
 	err = s.queries.EditAcademicYear(r.Context(), params)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "internal server error")
+		return
 	}
 }
 
@@ -110,11 +119,13 @@ func (s *Server) DeleteAcademicYear(w http.ResponseWriter, r *http.Request) {
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		writeError(w, http.StatusUnprocessableEntity, "invalid request data")
+		return
 	}
 
 	err = s.queries.DeleteAcademicYear(r.Context(), id)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "failed to delete academic year")
+		return
 	}
 }
 
@@ -122,6 +133,7 @@ func (s *Server) DeleteAcademicYear(w http.ResponseWriter, r *http.Request) {
 func (s *Server) CreateTerm(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
 	}
 
 	if err := r.ParseForm(); err != nil {
@@ -137,6 +149,7 @@ func (s *Server) CreateTerm(w http.ResponseWriter, r *http.Request) {
 	// validate form
 	if academicYear == "" || name == "" || start == "" || end == "" {
 		writeError(w, http.StatusBadRequest, "all fields are required")
+		return
 	}
 	startDate, err := time.Parse(time.DateOnly, start)
 	if err != nil {
@@ -147,11 +160,13 @@ func (s *Server) CreateTerm(w http.ResponseWriter, r *http.Request) {
 	endDate, err := time.Parse(time.DateOnly, end)
 	if err != nil {
 		writeError(w, http.StatusBadRequest, "failed to parse end date")
+		return
 	}
 
 	academic_year, err := s.queries.GetAcademicYear(r.Context(), academicYear)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "failed to find academic year")
+		return
 	}
 
 	params := database.CreateTermParams{
@@ -171,6 +186,7 @@ func (s *Server) ListTerms(w http.ResponseWriter, r *http.Request) {
 	_, err := s.queries.ListTerms(r.Context(), academicYear)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "failed to retrieve terms")
+		return
 	}
 }
 
@@ -180,8 +196,57 @@ func (s *Server) GetTerm(w http.ResponseWriter, r *http.Request) {
 	term_id, err := uuid.Parse(id)
 	if err != nil {
 		writeError(w, http.StatusUnprocessableEntity, "wrong parameters")
+		return
 	}
 
 	// add termInfo struct data to later
 	_, err = s.queries.GetTerm(r.Context(), term_id)
+}
+
+// EditTerms handler method
+func (s *Server) EditTerm(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	term_id, err := uuid.Parse(id)
+	if err != nil {
+		writeError(w, http.StatusUnprocessableEntity, "wrong parameters")
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		writeError(w, http.StatusUnprocessableEntity, "failed to parse form")
+		return
+	}
+
+	name := r.FormValue("name")
+	start := r.FormValue("start")
+	end := r.FormValue("end")
+
+	// validate form
+	if name == "" || start == "" || end == "" {
+		writeError(w, http.StatusBadRequest, "all fields are required")
+		return
+	}
+	startDate, err := time.Parse(time.DateOnly, start)
+	if err != nil {
+		writeError(w, http.StatusBadGateway, "failed to parse start date")
+		return
+	}
+
+	endDate, err := time.Parse(time.DateOnly, end)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "failed to parse end date")
+		return
+	}
+
+	params := database.EditTermParams{
+		TermID:    term_id,
+		Name:      name,
+		StartDate: pgtype.Date{Time: startDate, Valid: true},
+		EndDate:   pgtype.Date{Time: endDate, Valid: true},
+	}
+
+	err = s.queries.EditTerm(r.Context(), params)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+	}
 }

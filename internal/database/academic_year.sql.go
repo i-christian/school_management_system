@@ -15,6 +15,7 @@ import (
 const createAcademicYear = `-- name: CreateAcademicYear :one
 INSERT INTO academic_year (name, start_date, end_date) 
 VALUES ($1, $2, $3)
+ON CONFLICT (name) DO NOTHING
 RETURNING academic_year_id
 `
 
@@ -103,28 +104,25 @@ func (q *Queries) EditAcademicYear(ctx context.Context, arg EditAcademicYearPara
 
 const editTerm = `-- name: EditTerm :exec
 UPDATE term 
-SET academic_year_id = COALESCE($1, academic_year_id),
-name = COALESCE($2, name),
+SET name = COALESCE($2, name),
 start_date = COALESCE($3, start_date),
 end_date = COALESCE($4, end_date)
-WHERE term_id = $5
+WHERE term_id = $1
 `
 
 type EditTermParams struct {
-	AcademicYearID uuid.UUID   `json:"academic_year_id"`
-	Name           string      `json:"name"`
-	StartDate      pgtype.Date `json:"start_date"`
-	EndDate        pgtype.Date `json:"end_date"`
-	TermID         uuid.UUID   `json:"term_id"`
+	TermID    uuid.UUID   `json:"term_id"`
+	Name      string      `json:"name"`
+	StartDate pgtype.Date `json:"start_date"`
+	EndDate   pgtype.Date `json:"end_date"`
 }
 
 func (q *Queries) EditTerm(ctx context.Context, arg EditTermParams) error {
 	_, err := q.db.Exec(ctx, editTerm,
-		arg.AcademicYearID,
+		arg.TermID,
 		arg.Name,
 		arg.StartDate,
 		arg.EndDate,
-		arg.TermID,
 	)
 	return err
 }
@@ -143,54 +141,6 @@ func (q *Queries) GetAcademicYear(ctx context.Context, name string) (AcademicYea
 		&i.EndDate,
 	)
 	return i, err
-}
-
-const getAcademicYearTerms = `-- name: GetAcademicYearTerms :many
-SELECT
-term.term_id,
-academic_year.name AS Academic_Year,
-term.name AS Academic_Term,
-term.start_date AS Opening_date,
-term.end_date AS Closing_date
-FROM term
-INNER JOIN academic_year
-ON
-term.academic_year_id = academic_year.academic_year_id
-WHERE academic_year.academic_year_id = $1
-`
-
-type GetAcademicYearTermsRow struct {
-	TermID       uuid.UUID   `json:"term_id"`
-	AcademicYear string      `json:"academic_year"`
-	AcademicTerm string      `json:"academic_term"`
-	OpeningDate  pgtype.Date `json:"opening_date"`
-	ClosingDate  pgtype.Date `json:"closing_date"`
-}
-
-func (q *Queries) GetAcademicYearTerms(ctx context.Context, academicYearID uuid.UUID) ([]GetAcademicYearTermsRow, error) {
-	rows, err := q.db.Query(ctx, getAcademicYearTerms, academicYearID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []GetAcademicYearTermsRow{}
-	for rows.Next() {
-		var i GetAcademicYearTermsRow
-		if err := rows.Scan(
-			&i.TermID,
-			&i.AcademicYear,
-			&i.AcademicTerm,
-			&i.OpeningDate,
-			&i.ClosingDate,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
 }
 
 const getTerm = `-- name: GetTerm :one

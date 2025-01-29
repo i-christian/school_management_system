@@ -54,11 +54,10 @@ WHERE term_id = $1;
 
 -- name: EditTerm :exec
 UPDATE term 
-SET academic_year_id = COALESCE($1, academic_year_id),
-name = COALESCE($2, name),
+SET name = COALESCE($2, name),
 start_date = COALESCE($3, start_date),
 end_date = COALESCE($4, end_date)
-WHERE term_id = $5;
+WHERE term_id = $1;
 
 -- name: DeleteTerm :exec
 DELETE FROM term
