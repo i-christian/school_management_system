@@ -15,7 +15,7 @@ const createSubject = `-- name: CreateSubject :exec
 INSERT INTO
     subjects (class_id, name)
 VALUES ($1, $2)
-ON CONFLICT (class_id, name) DO NOTHING
+ON CONFLICT ON CONSTRAINT unique_subject_name_per_class DO NOTHING
 `
 
 type CreateSubjectParams struct {

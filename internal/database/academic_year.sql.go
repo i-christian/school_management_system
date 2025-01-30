@@ -34,7 +34,8 @@ func (q *Queries) CreateAcademicYear(ctx context.Context, arg CreateAcademicYear
 
 const createTerm = `-- name: CreateTerm :one
 INSERT INTO term (academic_year_id, name, start_date, end_date) 
-VALUES ($1, $2, $3, $4) 
+VALUES ($1, $2, $3, $4)
+ON CONFLICT ON CONSTRAINT term_name_on_academic_year DO NOTHING 
 RETURNING term_id
 `
 

@@ -71,3 +71,23 @@ func (s *Server) CreateAssignment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+// GetAssignment handler function
+// Accepts a userID/teacherID
+// Returns classes plus subjects assigned to said teacher
+func (s *Server) GetAssignment(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	userID, err := convertStringToUUID(id)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "wrong parameters")
+		return
+	}
+
+	// TODO: add assignments list here
+	_, err = s.queries.GetAssignment(r.Context(), userID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		slog.Error("failed to retrieve assignments", "message:", err.Error())
+		return
+	}
+}

@@ -1,6 +1,9 @@
 -- name: CreateAssignments :one
-INSERT INTO assignments (class_id, subject_id, teacher_id)
-VALUES($1, $2, $3) RETURNING *;
+INSERT INTO
+    assignments (class_id, subject_id, teacher_id)
+VALUES($1, $2, $3)
+ON CONFLICT ON CONSTRAINT unique_class_subject_per_teacher DO NOTHING
+RETURNING *;
 
 -- name: ListAssignments :many
 SELECT

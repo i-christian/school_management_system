@@ -47,6 +47,7 @@ CREATE TABLE IF NOT EXISTS term (
     name VARCHAR(50) NOT NULL,
     start_date DATE NOT NULL,
     end_date DATE NOT NULL CHECK (end_date > start_date),
+    CONSTRAINT term_name_on_academic_year UNIQUE (academic_year_id, name),
     CONSTRAINT fk_academic_year FOREIGN KEY (academic_year_id) REFERENCES academic_year(academic_year_id) ON DELETE CASCADE
 );
 
@@ -89,7 +90,7 @@ CREATE TABLE IF NOT EXISTS assignments (
     CONSTRAINT fk_class FOREIGN KEY (class_id) REFERENCES classes(class_id) ON DELETE CASCADE,
     CONSTRAINT fk_subject FOREIGN KEY (subject_id) REFERENCES subjects(subject_id) ON DELETE CASCADE,
     CONSTRAINT fk_teacher FOREIGN KEY (teacher_id) REFERENCES users(user_id) ON DELETE CASCADE,
-    UNIQUE (class_id, subject_id)
+    CONSTRAINT unique_class_subject_per_teacher UNIQUE (class_id, subject_id)
 );
 
 -- Indexes for quick filtering

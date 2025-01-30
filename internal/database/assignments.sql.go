@@ -12,8 +12,11 @@ import (
 )
 
 const createAssignments = `-- name: CreateAssignments :one
-INSERT INTO assignments (class_id, subject_id, teacher_id)
-VALUES($1, $2, $3) RETURNING id, class_id, subject_id, teacher_id
+INSERT INTO
+    assignments (class_id, subject_id, teacher_id)
+VALUES($1, $2, $3)
+ON CONFLICT ON CONSTRAINT unique_class_subject_per_teacher DO NOTHING
+RETURNING id, class_id, subject_id, teacher_id
 `
 
 type CreateAssignmentsParams struct {
