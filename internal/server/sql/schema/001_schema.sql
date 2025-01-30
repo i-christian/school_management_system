@@ -112,7 +112,8 @@ CREATE TABLE IF NOT EXISTS students (
     graduated BOOLEAN NOT NULL DEFAULT FALSE, -- Indicates if the student has graduated
     suspended BOOLEAN NOT NULL DEFAULT FALSE, -- Indicates if the student got suspended
     CONSTRAINT chk_student_status CHECK (status IN ('active', 'repeating', 'withdrawn', 'graduated')),
-    CONSTRAINT fk_academic_year FOREIGN KEY (academic_year_id) REFERENCES academic_year(academic_year_id) ON DELETE CASCADE
+    CONSTRAINT fk_academic_year FOREIGN KEY (academic_year_id) REFERENCES academic_year(academic_year_id) ON DELETE CASCADE,
+    CONSTRAINT unique_student_per_year UNIQUE (first_name, last_name, middle_name, date_of_birth, academic_year_id)
 );
 
 -- Index for filtering students by academic year
