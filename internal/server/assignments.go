@@ -104,3 +104,56 @@ func (s *Server) GetAssignment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+// EditAssignment handler method
+// Accepts an assignment id param
+// accepts query parameters
+func (s *Server) EditAssignment(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	parsedassignID, err := convertStringToUUID(id)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "wrong parameters")
+		return
+	}
+
+	query := r.URL.Query()
+	teacherID := query.Get("teacher_id")
+	classID := query.Get("class_id")
+	subjectID := query.Get("subject_id")
+
+	if teacherID == "" || classID == "" || subjectID == " " {
+		writeError(w, http.StatusUnprocessableEntity, "missing query parameters")
+		return
+	}
+
+	parsedTeacherID, err := convertStringToUUID(teacherID)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "wrong teacher ID")
+		return
+	}
+
+	parsedClassID, err := convertStringToUUID(classID)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "wrong class ID")
+		return
+	}
+
+	parsedSubjectID, err := convertStringToUUID(subjectID)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "wrong subject ID")
+		return
+	}
+
+	params := database.EditAssignmentsParams{
+		ID:        parsedassignID,
+		ClassID:   parsedClassID,
+		SubjectID: parsedSubjectID,
+		TeacherID: parsedTeacherID,
+	}
+
+	err = s.queries.EditAssignments(r.Context(), params)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		slog.Error("failed to update assignment", "message:", err.Error())
+	}
+}
