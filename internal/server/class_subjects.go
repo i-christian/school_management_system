@@ -166,3 +166,17 @@ func (s *Server) EditSubject(w http.ResponseWriter, r *http.Request) {
 }
 
 // DeleteSubject handler method
+func (s *Server) DeleteSubject(w http.ResponseWriter, r *http.Request) {
+	subjectID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "wrong parameters")
+		return
+	}
+
+	err = s.queries.DeleteSubject(r.Context(), subjectID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		slog.Error("failed to delete subject", "message:", err.Error())
+		return
+	}
+}
