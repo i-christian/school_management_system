@@ -172,5 +172,6 @@ func (s *Server) DeleteAssignment(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "internal server error")
 		slog.Error("failed to remove assignment", "message:", err.Error())
+		return
 	}
 }
