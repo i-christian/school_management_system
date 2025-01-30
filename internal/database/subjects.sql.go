@@ -39,19 +39,17 @@ func (q *Queries) DeleteSubject(ctx context.Context, subjectID uuid.UUID) error 
 
 const editSubject = `-- name: EditSubject :exec
 UPDATE subjects
-SET class_id = COALESCE($2, class_id),
-name = COALESCE($3, name)
+SET name = COALESCE($2, name)
 WHERE subject_id = $1
 `
 
 type EditSubjectParams struct {
 	SubjectID uuid.UUID `json:"subject_id"`
-	ClassID   uuid.UUID `json:"class_id"`
 	Name      string    `json:"name"`
 }
 
 func (q *Queries) EditSubject(ctx context.Context, arg EditSubjectParams) error {
-	_, err := q.db.Exec(ctx, editSubject, arg.SubjectID, arg.ClassID, arg.Name)
+	_, err := q.db.Exec(ctx, editSubject, arg.SubjectID, arg.Name)
 	return err
 }
 

@@ -17,8 +17,7 @@ ORDER BY subjects.name;
 
 -- name: EditSubject :exec
 UPDATE subjects
-SET class_id = COALESCE($2, class_id),
-name = COALESCE($3, name)
+SET name = COALESCE($2, name)
 WHERE subject_id = $1;
 
 -- name: DeleteSubject :exec

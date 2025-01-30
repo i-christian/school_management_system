@@ -132,3 +132,37 @@ func (s *Server) ListSubjects(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+// EditSubject handler method
+func (s *Server) EditSubject(w http.ResponseWriter, r *http.Request) {
+	subjectID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		writeError(w, http.StatusUnprocessableEntity, "wrong parameters")
+		return
+	}
+
+	err = r.ParseForm()
+	if err != nil {
+		writeError(w, http.StatusUnprocessableEntity, "wrong parameters")
+		return
+	}
+	name := r.FormValue("subject_name")
+	if name == "" {
+		writeError(w, http.StatusBadRequest, "subject name can't be empty")
+		return
+	}
+
+	params := database.EditSubjectParams{
+		SubjectID: subjectID,
+		Name:      name,
+	}
+
+	err = s.queries.EditSubject(r.Context(), params)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		slog.Error("Error updating a subject", "message:", err.Error())
+		return
+	}
+}
+
+// DeleteSubject handler method
