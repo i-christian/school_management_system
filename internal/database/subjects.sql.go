@@ -55,44 +55,6 @@ func (q *Queries) EditSubject(ctx context.Context, arg EditSubjectParams) error 
 	return err
 }
 
-const getSubjectsByClassName = `-- name: GetSubjectsByClassName :many
-SELECT
-    subjects.subject_id,
-    subjects.name AS SubjectName,
-    classes.name AS ClassName
-FROM subjects
-INNER JOIN classes
-    ON subjects.class_id = classes.class_id
-WHERE classes.name = $1
-ORDER BY subjects.name
-`
-
-type GetSubjectsByClassNameRow struct {
-	SubjectID   uuid.UUID `json:"subject_id"`
-	Subjectname string    `json:"subjectname"`
-	Classname   string    `json:"classname"`
-}
-
-func (q *Queries) GetSubjectsByClassName(ctx context.Context, name string) ([]GetSubjectsByClassNameRow, error) {
-	rows, err := q.db.Query(ctx, getSubjectsByClassName, name)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []GetSubjectsByClassNameRow{}
-	for rows.Next() {
-		var i GetSubjectsByClassNameRow
-		if err := rows.Scan(&i.SubjectID, &i.Subjectname, &i.Classname); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const listSubjects = `-- name: ListSubjects :many
 SELECT
     subjects.subject_id,
@@ -101,6 +63,7 @@ SELECT
 FROM subjects
 INNER JOIN classes
     ON subjects.class_id = classes.class_id
+GROUP BY classes.name
 ORDER BY subjects.name
 `
 

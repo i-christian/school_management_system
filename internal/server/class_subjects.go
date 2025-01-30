@@ -121,3 +121,14 @@ func (s *Server) CreateSubject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+// ListSubjects handler method
+func (s *Server) ListSubjects(w http.ResponseWriter, r *http.Request) {
+	// TODO: subjectsInfo
+	_, err := s.queries.ListSubjects(r.Context())
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		slog.Error("failed to retrieve classes", "Message:", err.Error())
+		return
+	}
+}

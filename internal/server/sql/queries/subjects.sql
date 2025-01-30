@@ -12,17 +12,7 @@ SELECT
 FROM subjects
 INNER JOIN classes
     ON subjects.class_id = classes.class_id
-ORDER BY subjects.name;
-
--- name: GetSubjectsByClassName :many
-SELECT
-    subjects.subject_id,
-    subjects.name AS SubjectName,
-    classes.name AS ClassName
-FROM subjects
-INNER JOIN classes
-    ON subjects.class_id = classes.class_id
-WHERE classes.name = $1
+GROUP BY classes.name
 ORDER BY subjects.name;
 
 -- name: EditSubject :exec
