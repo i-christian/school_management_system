@@ -67,3 +67,20 @@ func (s *Server) EditClass(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+// DeleteClass handler method
+func (s *Server) DeleteClass(w http.ResponseWriter, r *http.Request) {
+	class_id, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		writeError(w, http.StatusUnprocessableEntity, "wrong parameters")
+		return
+	}
+
+	err = s.queries.DeleteClass(r.Context(), class_id)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		return
+	}
+}
+
+// CreateSubject handler method
