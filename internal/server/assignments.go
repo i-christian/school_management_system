@@ -155,5 +155,22 @@ func (s *Server) EditAssignment(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "internal server error")
 		slog.Error("failed to update assignment", "message:", err.Error())
+		return
+	}
+}
+
+// DeleteAssignment handler method
+// Accepts id path param
+func (s *Server) DeleteAssignment(w http.ResponseWriter, r *http.Request) {
+	assignID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "invalid user id")
+		return
+	}
+
+	err = s.queries.DeleteAssignments(r.Context(), assignID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		slog.Error("failed to remove assignment", "message:", err.Error())
 	}
 }
