@@ -120,6 +120,8 @@ INNER JOIN subjects
     ON assignments.subject_id = subjects.subject_id
 INNER JOIN users
     ON assignments.teacher_id = users.user_id
+GROUP BY users.last_name
+ORDER BY classes.name
 `
 
 type ListAssignmentsRow struct {
