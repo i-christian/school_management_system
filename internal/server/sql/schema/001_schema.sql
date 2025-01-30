@@ -103,6 +103,7 @@ CREATE TABLE IF NOT EXISTS students (
     student_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     academic_year_id UUID NOT NULL,
     last_name VARCHAR(50) NOT NULL,
+    middle_name VARCHAR(50),
     first_name VARCHAR(50) NOT NULL,
     gender CHAR(1) NOT NULL CHECK (gender IN ('M', 'F')),
     date_of_birth DATE NOT NULL,
@@ -121,10 +122,11 @@ CREATE INDEX idx_students_academic_year_id ON students(academic_year_id);
 CREATE TABLE IF NOT EXISTS guardians (
     guardian_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(50) NOT NULL,
-    phone_number_1 VARCHAR(15),
-    phone_number_2 VARCHAR(15),
+    phone_number_1 VARCHAR(15) UNIQUE,
+    phone_number_2 VARCHAR(15) UNIQUE,
     gender CHAR(1) NOT NULL CHECK (gender IN ('M', 'F')),
-    profession VARCHAR(50)
+    profession VARCHAR(50),
+    CONSTRAINT atleast_one_phone_number CHECK (phone_number_1 IS NOT NULL OR phone_number_2 IS NOT NULL)
 );
 
 -- A linking table between students and their guardians
@@ -133,7 +135,7 @@ CREATE TABLE IF NOT EXISTS student_guardians (
     guardian_id UUID NOT NULL,
     CONSTRAINT fk_student FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE,
     CONSTRAINT fk_guardian FOREIGN KEY (guardian_id) REFERENCES guardians(guardian_id) ON DELETE CASCADE,
-    UNIQUE(student_id, guardian_id)
+    CONSTRAINT student_guardian UNIQUE(student_id, guardian_id)
 );
 
 -- STUDENT_CLASSES TABLE
