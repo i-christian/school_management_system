@@ -16,7 +16,6 @@ INSERT INTO
     subjects (class_id, name)
 VALUES ($1, $2)
 ON CONFLICT (class_id, name) DO NOTHING
-RETURNING subject_id, class_id, name
 `
 
 type CreateSubjectParams struct {

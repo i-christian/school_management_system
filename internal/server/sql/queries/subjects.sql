@@ -2,8 +2,7 @@
 INSERT INTO
     subjects (class_id, name)
 VALUES ($1, $2)
-ON CONFLICT (class_id, name) DO NOTHING
-RETURNING *;
+ON CONFLICT (class_id, name) DO NOTHING;
 
 -- name: ListSubjects :many
 SELECT
