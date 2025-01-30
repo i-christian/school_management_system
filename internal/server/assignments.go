@@ -72,6 +72,19 @@ func (s *Server) CreateAssignment(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// ListAssignments handler method
+// params: no parameters
+// returns: a list of various teachers assignments
+func (s *Server) ListAssignments(w http.ResponseWriter, r *http.Request) {
+	// TODO: assignmentsData
+	_, err := s.queries.ListAssignments(r.Context())
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		slog.Error("failed to retrieve teacher class assignments", "Message:", err.Error())
+		return
+	}
+}
+
 // GetAssignment handler function
 // Accepts a userID/teacherID
 // Returns classes plus subjects assigned to said teacher
