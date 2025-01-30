@@ -23,3 +23,16 @@ func (s *Server) CreateClass(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+// ListClasses handler method
+func (s *Server) ListClasses(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPut {
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+
+	_, err := s.queries.ListClasses(r.Context())
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+	}
+}
