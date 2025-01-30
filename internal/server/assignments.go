@@ -49,13 +49,13 @@ func (s *Server) CreateAssignment(w http.ResponseWriter, r *http.Request) {
 
 	parsedClassID, err := convertStringToUUID(classID)
 	if err != nil {
-		writeError(w, http.StatusBadRequest, "wrong teacher ID")
+		writeError(w, http.StatusBadRequest, "wrong class ID")
 		return
 	}
 
 	parsedSubjectID, err := convertStringToUUID(subjectID)
 	if err != nil {
-		writeError(w, http.StatusBadRequest, "wrong teacher ID")
+		writeError(w, http.StatusBadRequest, "wrong subject ID")
 		return
 	}
 
