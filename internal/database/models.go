@@ -65,7 +65,7 @@ type Grade struct {
 
 type Guardian struct {
 	GuardianID   uuid.UUID   `json:"guardian_id"`
-	Name         string      `json:"name"`
+	GuardianName string      `json:"guardian_name"`
 	PhoneNumber1 pgtype.Text `json:"phone_number_1"`
 	PhoneNumber2 pgtype.Text `json:"phone_number_2"`
 	Gender       string      `json:"gender"`
@@ -98,6 +98,7 @@ type Student struct {
 	StudentID      uuid.UUID   `json:"student_id"`
 	AcademicYearID uuid.UUID   `json:"academic_year_id"`
 	LastName       string      `json:"last_name"`
+	MiddleName     pgtype.Text `json:"middle_name"`
 	FirstName      string      `json:"first_name"`
 	Gender         string      `json:"gender"`
 	DateOfBirth    pgtype.Date `json:"date_of_birth"`

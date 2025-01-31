@@ -122,12 +122,13 @@ CREATE INDEX idx_students_academic_year_id ON students(academic_year_id);
 -- GUARDIANS TABLE
 CREATE TABLE IF NOT EXISTS guardians (
     guardian_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name VARCHAR(50) NOT NULL,
+    guardian_name VARCHAR(50) NOT NULL,
     phone_number_1 VARCHAR(15) UNIQUE,
     phone_number_2 VARCHAR(15) UNIQUE,
     gender CHAR(1) NOT NULL CHECK (gender IN ('M', 'F')),
     profession VARCHAR(50),
-    CONSTRAINT atleast_one_phone_number CHECK (phone_number_1 IS NOT NULL OR phone_number_2 IS NOT NULL)
+    CONSTRAINT atleast_one_phone_number CHECK (phone_number_1 IS NOT NULL OR phone_number_2 IS NOT NULL),
+    CONSTRAINT unique_phone_numbers UNIQUE (phone_number_1, phone_number_2)
 );
 
 -- A linking table between students and their guardians

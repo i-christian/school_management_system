@@ -12,40 +12,6 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const createAndLinkGuardian = `-- name: CreateAndLinkGuardian :one
-WITH new_guardian AS (
-    INSERT INTO guardians (name, phone_number_1, phone_number_2, gender, profession)
-    VALUES ($1, $2, $3, $4, $5)
-    RETURNING guardian_id
-)
-INSERT INTO student_guardians (student_id, guardian_id)
-VALUES ($6, (SELECT guardian_id FROM new_guardian))
-RETURNING student_id, guardian_id
-`
-
-type CreateAndLinkGuardianParams struct {
-	Name         string      `json:"name"`
-	PhoneNumber1 pgtype.Text `json:"phone_number_1"`
-	PhoneNumber2 pgtype.Text `json:"phone_number_2"`
-	Gender       string      `json:"gender"`
-	Profession   pgtype.Text `json:"profession"`
-	StudentID    uuid.UUID   `json:"student_id"`
-}
-
-func (q *Queries) CreateAndLinkGuardian(ctx context.Context, arg CreateAndLinkGuardianParams) (StudentGuardian, error) {
-	row := q.db.QueryRow(ctx, createAndLinkGuardian,
-		arg.Name,
-		arg.PhoneNumber1,
-		arg.PhoneNumber2,
-		arg.Gender,
-		arg.Profession,
-		arg.StudentID,
-	)
-	var i StudentGuardian
-	err := row.Scan(&i.StudentID, &i.GuardianID)
-	return i, err
-}
-
 const deleteGuardianAndUnlink = `-- name: DeleteGuardianAndUnlink :exec
 WITH deleted_guardian AS (
     DELETE FROM guardians
@@ -62,7 +28,7 @@ func (q *Queries) DeleteGuardianAndUnlink(ctx context.Context, guardianID uuid.U
 }
 
 const getAllStudentGuardianLinks = `-- name: GetAllStudentGuardianLinks :many
-SELECT s.last_name AS student_first_name, s.first_name AS student_last_name, g.name AS guardian_name, g.phone_number_1, g.phone_number_2, g.gender AS guardian_gender, g.profession AS guardian_profession
+SELECT s.last_name AS student_first_name, s.first_name AS student_last_name, g.guardian_name AS guardian_name, g.phone_number_1, g.phone_number_2, g.gender AS guardian_gender, g.profession AS guardian_profession
 FROM students s
 INNER JOIN student_guardians sg ON s.student_id = sg.student_id
 INNER JOIN guardians g ON sg.guardian_id = g.guardian_id
@@ -108,7 +74,7 @@ func (q *Queries) GetAllStudentGuardianLinks(ctx context.Context) ([]GetAllStude
 }
 
 const getStudentAndLinkedGuardians = `-- name: GetStudentAndLinkedGuardians :many
-SELECT s.last_name AS student_first_name, s.first_name AS student_last_name, s.gender AS student_gender, g.guardian_id, g.name, g.phone_number_1, g.phone_number_2, g.gender, g.profession
+SELECT s.last_name AS student_first_name, s.first_name AS student_last_name, s.gender AS student_gender, g.guardian_id, g.guardian_name, g.phone_number_1, g.phone_number_2, g.gender, g.profession
 FROM students s
 LEFT JOIN student_guardians sg ON s.student_id = sg.student_id
 LEFT JOIN guardians g ON sg.guardian_id = g.guardian_id
@@ -120,7 +86,7 @@ type GetStudentAndLinkedGuardiansRow struct {
 	StudentLastName  string      `json:"student_last_name"`
 	StudentGender    string      `json:"student_gender"`
 	GuardianID       pgtype.UUID `json:"guardian_id"`
-	Name             pgtype.Text `json:"name"`
+	GuardianName     pgtype.Text `json:"guardian_name"`
 	PhoneNumber1     pgtype.Text `json:"phone_number_1"`
 	PhoneNumber2     pgtype.Text `json:"phone_number_2"`
 	Gender           pgtype.Text `json:"gender"`
@@ -141,7 +107,7 @@ func (q *Queries) GetStudentAndLinkedGuardians(ctx context.Context, studentID uu
 			&i.StudentLastName,
 			&i.StudentGender,
 			&i.GuardianID,
-			&i.Name,
+			&i.GuardianName,
 			&i.PhoneNumber1,
 			&i.PhoneNumber2,
 			&i.Gender,
@@ -159,7 +125,7 @@ func (q *Queries) GetStudentAndLinkedGuardians(ctx context.Context, studentID uu
 
 const updateGuardianAndLink = `-- name: UpdateGuardianAndLink :exec
 UPDATE guardians
-SET name = COALESCE($2, name),
+SET guardian_name = COALESCE($2, guardian_name),
     phone_number_1 = COALESCE($3, phone_number_1),
     phone_number_2 = COALESCE($4, phone_number_2),
     gender = COALESCE($5, gender),
@@ -169,7 +135,7 @@ WHERE guardian_id = $1
 
 type UpdateGuardianAndLinkParams struct {
 	GuardianID   uuid.UUID   `json:"guardian_id"`
-	Name         string      `json:"name"`
+	GuardianName string      `json:"guardian_name"`
 	PhoneNumber1 pgtype.Text `json:"phone_number_1"`
 	PhoneNumber2 pgtype.Text `json:"phone_number_2"`
 	Gender       string      `json:"gender"`
@@ -179,7 +145,7 @@ type UpdateGuardianAndLinkParams struct {
 func (q *Queries) UpdateGuardianAndLink(ctx context.Context, arg UpdateGuardianAndLinkParams) error {
 	_, err := q.db.Exec(ctx, updateGuardianAndLink,
 		arg.GuardianID,
-		arg.Name,
+		arg.GuardianName,
 		arg.PhoneNumber1,
 		arg.PhoneNumber2,
 		arg.Gender,

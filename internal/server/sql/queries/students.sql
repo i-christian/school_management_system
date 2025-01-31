@@ -1,6 +1,35 @@
 -- name: CreateStudent :one
-INSERT INTO students (academic_year_id, last_name, first_name, gender, date_of_birth) 
-VALUES ($1, $2, $3, $4, $5) 
+WITH new_student AS (
+    INSERT INTO students (academic_year_id, last_name, first_name, middle_name, gender, date_of_birth)
+    VALUES
+    ($1, $2, $3, $4, $5, $6)
+    ON CONFLICT (first_name, last_name, middle_name, date_of_birth, academic_year_id)
+    DO NOTHING
+    RETURNING student_id
+), existing_guardian AS (
+    SELECT guardian_id
+    FROM guardians
+    WHERE guardians.phone_number_1 = $7
+    OR guardians.phone_number_2 = $9
+    LIMIT 1
+), new_guardian AS (
+    INSERT INTO guardians (guardian_name, phone_number_1, phone_number_2, gender, profession)
+    SELECT $8, $7, $9, $10, $11
+    WHERE NOT EXISTS (SELECT 1 FROM existing_guardian)
+    RETURNING guardian_id
+)
+INSERT INTO student_guardians (student_id, guardian_id)
+SELECT
+    COALESCE(
+        (SELECT student_id FROM new_student LIMIT 1),
+        (SELECT student_id FROM students WHERE students.first_name = $3 AND students.last_name = $2 AND students.academic_year_id = $1 LIMIT 1)
+    ),
+    COALESCE(
+        (SELECT guardian_id FROM existing_guardian LIMIT 1),
+        (SELECT guardian_id FROM new_guardian LIMIT 1)
+    )
+ON CONFLICT (student_id, guardian_id)
+DO NOTHING
 RETURNING *;
 
 -- name: GetStudent :one
