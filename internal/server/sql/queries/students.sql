@@ -19,21 +19,29 @@ WITH new_student AS (
     RETURNING guardian_id
 )
 INSERT INTO student_guardians (student_id, guardian_id)
-SELECT
-    COALESCE(
-        (SELECT student_id FROM new_student LIMIT 1),
-        (SELECT student_id FROM students WHERE students.first_name = $3 AND students.last_name = $2 AND students.middle_name = $4 OR students.middle_name IS NULL AND students.academic_year_id = $1 LIMIT 1)
-    ),
-    COALESCE(
-        (SELECT guardian_id FROM existing_guardian LIMIT 1),
-        (SELECT guardian_id FROM new_guardian LIMIT 1)
-    )
-ON CONFLICT (student_id, guardian_id)
-DO NOTHING
+SELECT student_id, guardian_id
+FROM (
+    SELECT 
+        COALESCE(
+            (SELECT student_id FROM new_student LIMIT 1),
+            (SELECT student_id FROM students 
+             WHERE students.first_name = $3 
+               AND students.last_name = $2 
+               AND (students.middle_name = $4 OR students.middle_name IS NULL) 
+               AND students.academic_year_id = $1 
+             LIMIT 1)
+        ) AS student_id,
+        COALESCE(
+            (SELECT guardian_id FROM existing_guardian LIMIT 1),
+            (SELECT guardian_id FROM new_guardian LIMIT 1)
+        ) AS guardian_id
+) AS sg
+WHERE sg.student_id IS NOT NULL AND sg.guardian_id IS NOT NULL
+ON CONFLICT (student_id, guardian_id) DO NOTHING
 RETURNING *;
 
 -- name: GetStudent :one
-SELECT
+SELECT DISTINCT ON (students.student_id)
     students.student_id,
     students.last_name,
     students.first_name,
@@ -52,7 +60,7 @@ LEFT OUTER JOIN classes
 WHERE students.student_id = $1;
 
 -- name: ListStudents :many
-SELECT
+SELECT DISTINCT ON (students.student_id)
     students.student_id,
     students.last_name,
     students.first_name,
@@ -68,16 +76,23 @@ LEFT OUTER JOIN student_classes
     ON students.student_id = student_classes.student_id
 LEFT OUTER JOIN classes
     ON student_classes.class_id = classes.class_id
-ORDER BY students.last_name ASC, students.first_name ASC;
+ORDER BY students.student_id, students.last_name ASC;
 
 -- name: EditStudent :exec
 UPDATE students
 SET academic_year_id = COALESCE($2, academic_year_id),
-last_name = COALESCE($3, last_name),
-first_name = COALESCE($4, first_name),
-gender = COALESCE($5, gender),
-date_of_birth = COALESCE($5, date_of_birth) 
-WHERE student_id = $1;
+    last_name = COALESCE($3, last_name),
+    first_name = COALESCE($4, first_name),
+    gender = COALESCE($5, gender),
+    date_of_birth = COALESCE($6, date_of_birth)
+WHERE student_id = $1
+AND (
+    $2 IS NOT NULL OR 
+    $3 IS NOT NULL OR 
+    $4 IS NOT NULL OR 
+    $5 IS NOT NULL OR 
+    $6 IS NOT NULL
+);
 
 -- name: DeleteStudent :exec
 DELETE FROM students WHERE student_id = $1;
