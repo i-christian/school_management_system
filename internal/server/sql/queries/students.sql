@@ -22,7 +22,7 @@ INSERT INTO student_guardians (student_id, guardian_id)
 SELECT
     COALESCE(
         (SELECT student_id FROM new_student LIMIT 1),
-        (SELECT student_id FROM students WHERE students.first_name = $3 AND students.last_name = $2 AND students.academic_year_id = $1 LIMIT 1)
+        (SELECT student_id FROM students WHERE students.first_name = $3 AND students.last_name = $2 AND students.middle_name = $4 OR students.middle_name IS NULL AND students.academic_year_id = $1 LIMIT 1)
     ),
     COALESCE(
         (SELECT guardian_id FROM existing_guardian LIMIT 1),
