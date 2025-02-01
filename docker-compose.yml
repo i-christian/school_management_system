@@ -11,7 +11,7 @@ services:
       - .env
     environment:
       - PGDATA=/var/lib/postgresql/data/pgdata
-      - POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_USER=${DB_USERNAME?Variable not set}
       - POSTGRES_DB=${DB_NAME?Variable not set}
     healthcheck:
@@ -45,13 +45,13 @@ services:
     env_file:
       - .env
     environment:
-      - PROJECT_NAME=${{ secrets.PROJECT_NAME }}
-      - DOMAIN=${{ secrets.DOMAIN }}
-      - RANDOM_HEX=${{ secrets.RANDOM_HEX }}
+      - PROJECT_NAME=${PROJECT_NAME}
+      - DOMAIN=${DOMAIN}
+      - RANDOM_HEX=${RANDOM_HEX}
       - SUPERUSER_ROLE=${SUPERUSER_ROLE}
-      - SUPERUSER_EMAIL=${{ secrets.SUPERUSER_EMAIL }}
-      - SUPERUSER_PHONE=${{ secrets.SUPERUSER_PHONE }}
-      - SUPERUSER_PASSWORD=${{ secrets.SUPERUSER_PASSWORD }}
+      - SUPERUSER_EMAIL=${SUPERUSER_EMAIL}
+      - SUPERUSER_PHONE=${SUPERUSER_PHONE}
+      - SUPERUSER_PASSWORD=${SUPERUSER_PASSWORD}
       - DB_URL=postgres://${DB_USERNAME}:${DB_PASSWORD}@postgres_db:${DB_PORT}/${DB_NAME}?sslmode=disable&search_path=${DB_SCHEMA}
     depends_on:
       - db
@@ -67,7 +67,7 @@ services:
       - caddy_data:/data
       - caddy_config:/config
     environment:
-      DOMAIN: ${{ secrets.DOMAIN }}
+      DOMAIN: ${DOMAIN}
     depends_on:
       - app
     networks:

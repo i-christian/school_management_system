@@ -27,10 +27,10 @@ tmp/
 main
 *templ.go
 
-# OS X generated file
-.DS_Store
-
-
 # Tailwind CSS
 cmd/web/assets/css/output.css
 tailwindcss
+
+
+# Environment variable file
+.env/

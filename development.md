@@ -3,6 +3,13 @@
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
 ## Local development setup
+The application has some environment variable. To use the example configuration, make sure to:
+#### copy `.env_example` to `.env`
+- On the project root
+```
+  cp .env_example .env
+```
+
 Set up postgresql as follows:
 
 #### Log in to PostgreSQL as a Superuser
