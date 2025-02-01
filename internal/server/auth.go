@@ -1,6 +1,7 @@
 package server
 
 import (
+	"log/slog"
 	"net/http"
 
 	"school_management_system/internal/cookies"
@@ -19,7 +20,7 @@ func (s *Server) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := r.ParseForm(); err != nil {
-		http.Error(w, "Bad Request", http.StatusBadRequest)
+		writeError(w, http.StatusBadRequest, "bad request")
 		return
 	}
 
@@ -30,14 +31,14 @@ func (s *Server) LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	user, err := s.queries.GetUserByPhone(r.Context(), credentials)
 	if err != nil {
-		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		writeError(w, http.StatusUnauthorized, "invalid credentials")
 		http.Redirect(w, r, "/login", http.StatusFound)
 		return
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
-		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		writeError(w, http.StatusUnauthorized, "invalid credentials")
 		return
 	}
 
@@ -49,7 +50,8 @@ func (s *Server) LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = s.queries.CreateSession(r.Context(), sessionParams)
 	if err != nil {
-		http.Error(w, "Failed to create session", http.StatusInternalServerError)
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		slog.Error("Failed to create session", "message:", err.Error())
 		return
 	}
 
@@ -64,7 +66,7 @@ func (s *Server) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := cookies.WriteEncrypted(w, cookie, s.SecretKey); err != nil {
-		http.Error(w, "server error", http.StatusInternalServerError)
+		writeError(w, http.StatusInternalServerError, "internal server error")
 		return
 	}
 
@@ -74,7 +76,7 @@ func (s *Server) LoginHandler(w http.ResponseWriter, r *http.Request) {
 // LogoutHandler to log users out
 func (s *Server) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
 		return
 	}
 
@@ -84,7 +86,7 @@ func (s *Server) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := s.queries.DeleteSession(r.Context(), parsedUserID); err != nil {
-		http.Error(w, "server error", http.StatusInternalServerError)
+		writeError(w, http.StatusInternalServerError, "internal server error")
 		return
 	}
 

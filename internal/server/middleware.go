@@ -118,7 +118,7 @@ func (s *Server) AdminMiddleware(next http.Handler) http.Handler {
 		}
 
 		if role.Role != "admin" {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			writeError(w, http.StatusUnauthorized, "unauthorized")
 			return
 		}
 
