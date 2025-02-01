@@ -232,6 +232,7 @@ func (s *Server) EditUser(w http.ResponseWriter, r *http.Request) {
 	err = s.queries.EditUser(r.Context(), updateInfo)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "internal server error")
+		return
 	}
 }
 
@@ -242,10 +243,12 @@ func (s *Server) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	userID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		writeError(w, http.StatusUnprocessableEntity, "failed to parse user id")
+		return
 	}
 
 	err = s.queries.DeleteUser(r.Context(), userID)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "internal server error")
+		return
 	}
 }

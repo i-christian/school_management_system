@@ -13,10 +13,6 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-func writeError(w http.ResponseWriter, statusCode int, message string) {
-	http.Error(w, message, statusCode)
-}
-
 type contextKey string
 
 const (
