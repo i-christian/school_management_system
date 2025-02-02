@@ -1,91 +1,135 @@
 package web
 
 templ navList() {
-	<nav class="p-4 bg-gray-50 rounded-md shadow-sm">
+	<nav class="p-4 h-full">
 		<ul class="space-y-2">
 			<li>
-				<a
-					href="/"
-					class="block px-4 py-2 rounded-md text-gray-800 hover:bg-blue-100"
-				>
-					Home
+				<a href="/" class="flex items-center px-4 py-3 rounded-md hover:bg-blue-200 transition" title="Home">
+					<svg xmlns="http://www.w3.org/2000/svg" class="nav-icon w-5 h-5 mr-3 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9l9-7 9 7v11a2 2 0 01-2 2h-4a2 2 0 01-2-2V12H9v8a2 2 0 01-2 2H3a2 2 0 01-2-2V9z"></path>
+					</svg>
+					<span class="nav-text transition-all duration-300 text-sm">Home</span>
 				</a>
 			</li>
 			<li>
 				<a
 					href="/insights"
-					class="block px-4 py-2 rounded-md text-gray-800 hover:bg-blue-100"
+					class="flex items-center px-4 py-3 rounded-md hover:bg-blue-200 transition"
 					hx-get="/insights"
-					hx-target="#main-content"
+					hx-target="#content-area"
 					hx-swap="innerHTML"
+					title="Insights"
 				>
-					Insights
+					<svg xmlns="http://www.w3.org/2000/svg" class="nav-icon w-5 h-5 mr-3 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6m4 6v-8m4 8v-4M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+					</svg>
+					<span class="nav-text transition-all duration-300 text-sm">Insights</span>
 				</a>
 			</li>
-			<li>
-				<a
-					class="block px-4 py-2 rounded-md text-gray-800 hover:bg-blue-100"
-					hx-get="/dashboard/userlist"
-					hx-trigger="click"
-					hx-target="#main-content"
-					hx-swap="innerHTML"
-				>
-					Users
-				</a>
+			<li id="users-menu" class="relative">
+				<button class="w-full flex items-center justify-between px-4 py-3 rounded-md hover:bg-blue-200 transition" title="Users">
+					<span class="flex items-center">
+						<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-3 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-5-3.87M9 20H4v-2a4 4 0 015-3.87M15 11a4 4 0 11-8 0 4 4 0 018 0z"></path>
+						</svg>
+						<span class="nav-text transition-all duration-300 text-sm">Users</span>
+					</span>
+					<svg xmlns="http://www.w3.org/2000/svg" id="users-menu-icon" class="w-4 h-4 text-gray-600 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+					</svg>
+				</button>
+				<ul id="users-submenu" class="hidden pl-8 mt-1 space-y-1">
+					<li>
+						<a
+							href="/dashboard/userlist"
+							class="block px-4 py-2 rounded-md hover:bg-blue-100 transition text-sm"
+							hx-get="/dashboard/userlist"
+							hx-target="#content-area"
+							hx-swap="innerHTML"
+						>
+							All Users
+						</a>
+					</li>
+					<li>
+						<a
+							href="/dashboard/active-users"
+							class="block px-4 py-2 rounded-md hover:bg-blue-100 transition text-sm"
+							hx-get="/dashboard/active-users"
+							hx-target="#content-area"
+							hx-swap="innerHTML"
+						>
+							Active Users
+						</a>
+					</li>
+				</ul>
 			</li>
-			<li>
-				<a
-					href="/academics"
-					class="block px-4 py-2 rounded-md text-gray-800 hover:bg-blue-100"
-					hx-get="/grades"
-					hx-target="#main-content"
-					hx-swap="innerHTML"
-				>
-					Academic Year
-				</a>
-			</li>
-			<li>
-				<a
-					href="/students"
-					class="block px-4 py-2 rounded-md text-gray-800 hover:bg-blue-100"
-					hx-get="/students"
-					hx-target="#main-content"
-					hx-swap="innerHTML"
-				>
-					Students
-				</a>
+			<li id="students-menu" class="relative">
+				<button class="w-full flex items-center justify-between px-4 py-3 rounded-md hover:bg-blue-200 transition" title="Students">
+					<span class="flex items-center">
+						<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-3 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path>
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.84 6.86L12 21l-7-3.562a12.083 12.083 0 01.84-6.86L12 14z"></path>
+						</svg>
+						<span class="nav-text transition-all duration-300 text-sm">Students</span>
+					</span>
+					<svg xmlns="http://www.w3.org/2000/svg" id="students-menu-icon" class="w-4 h-4 text-gray-600 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+					</svg>
+				</button>
+				<ul id="students-submenu" class="hidden pl-8 mt-1 space-y-1">
+					<li>
+						<a
+							href="/students"
+							class="block px-4 py-2 rounded-md hover:bg-blue-100 transition text-sm"
+							hx-get="/students"
+							hx-target="#content-area"
+							hx-swap="innerHTML"
+						>
+							All Students
+						</a>
+					</li>
+					<li>
+						<a
+							href="/students/graduated"
+							class="block px-4 py-2 rounded-md hover:bg-blue-100 transition text-sm"
+							hx-get="/students/graduated"
+							hx-target="#content-area"
+							hx-swap="innerHTML"
+						>
+							Graduated
+						</a>
+					</li>
+				</ul>
 			</li>
 			<li>
 				<a
 					href="/grades"
-					class="block px-4 py-2 rounded-md text-gray-800 hover:bg-blue-100"
+					class="flex items-center px-4 py-3 rounded-md hover:bg-blue-200 transition"
 					hx-get="/grades"
-					hx-target="#main-content"
+					hx-target="#content-area"
 					hx-swap="innerHTML"
+					title="Grades"
 				>
-					Grades
-				</a>
-			</li>
-			<li>
-				<a
-					href="/discpline"
-					class="block px-4 py-2 rounded-md text-gray-800 hover:bg-blue-100"
-					hx-get="/grades"
-					hx-target="#main-content"
-					hx-swap="innerHTML"
-				>
-					Discplinary
+					<svg xmlns="http://www.w3.org/2000/svg" class="nav-icon w-5 h-5 mr-3 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m2 0a2 2 0 012 2v4a2 2 0 01-2 2H7a2 2 0 01-2-2v-4a2 2 0 012-2m10 0V6a2 2 0 00-2-2H9a2 2 0 00-2 2v6"></path>
+					</svg>
+					<span class="nav-text transition-all duration-300 text-sm">Grades</span>
 				</a>
 			</li>
 			<li>
 				<a
 					href="/fees"
-					class="block px-4 py-2 rounded-md text-gray-800 hover:bg-blue-100"
+					class="flex items-center px-4 py-3 rounded-md hover:bg-blue-200 transition"
 					hx-get="/fees"
-					hx-target="#main-content"
+					hx-target="#content-area"
 					hx-swap="innerHTML"
+					title="Fees"
 				>
-					Fees
+					<svg xmlns="http://www.w3.org/2000/svg" class="nav-icon w-5 h-5 mr-3 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z"></path>
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v2m0 16v2m6-10h2M4 12H2m15.364-6.364l1.414 1.414M4.222 19.778l1.414-1.414m0-10.728L4.222 4.222m15.364 15.364l-1.414-1.414"></path>
+					</svg>
+					<span class="nav-text transition-all duration-300 text-sm">Fees</span>
 				</a>
 			</li>
 		</ul>
@@ -93,40 +137,55 @@ templ navList() {
 }
 
 templ userProfile() {
-	<section class="mt-auto p-4 border-t border-gray-200 shadow-sm">
-		<div class="flex items-center justify-between space-y-4 flex-col gap-5">
-			<div class="flex items-center space-x-4">
-				<div class="w-10 h-10 flex items-center justify-center bg-gray-200 rounded-full text-lg font-semibold text-gray-700">
-					<span>A</span>
-				</div>
-				<span class="text-sm font-medium text-gray-800">Admin</span>
-			</div>
-			<div class="flex items-center space-x-4">
-				<a
-					href="/settings"
-					class="px-4 py-2 text-sm text-gray-800 bg-blue-50 rounded-md hover:bg-blue-100 flex items-center"
-					hx-get="/settings"
-					hx-target="#main-content"
-					hx-swap="innerHTML"
-				>
-					Settings
-				</a>
-				<button
-					class="px-4 py-2 text-sm text-red-600 bg-red-50 rounded-md hover:bg-red-100 flex items-center"
-					hx-get="/user/logout/confirm"
-					hx-target="body"
-					hx-swap="beforeend"
-				>
-					Logout
-				</button>
-			</div>
+	<div id="header-user-profile" class="flex items-center space-x-3 cursor-pointer">
+		<div class="w-8 h-8 flex items-center justify-center bg-blue-600 text-white rounded-full text-xs font-semibold">
+			A
 		</div>
-	</section>
+		<span class="hidden md:inline-block text-sm font-medium">Admin</span>
+		<svg xmlns="http://www.w3.org/2000/svg" id="header-user-icon" class="w-4 h-4 text-gray-600 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+		</svg>
+	</div>
+	<div id="header-user-options" class="hidden absolute right-4 mt-12 w-48 bg-white shadow rounded-md overflow-hidden z-50 transition-all duration-200">
+		<a href="/settings" class="block px-4 py-2 text-sm bg-blue-600 text-white hover:bg-blue-500">
+			<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 3a2.25 2.25 0 00-2.197 1.757L6.03 7.5H3a.75.75 0 000 1.5h3l.528 2.743a2.25 2.25 0 004.444 0L12 9h3a.75.75 0 000-1.5h-3l-.528-2.743A2.25 2.25 0 009.75 3z"></path>
+			</svg>
+			Settings
+		</a>
+		<button
+			class="block w-full text-left px-4 py-2 text-sm bg-red-600 text-white hover:bg-red-500"
+			hx-get="/user/logout/confirm"
+			hx-target="body"
+			hx-swap="beforeend"
+		>
+			<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1"></path>
+			</svg>
+			Logout
+		</button>
+	</div>
+	<script>
+    document.getElementById('header-user-profile').addEventListener('click', function(e) {
+      const options = document.getElementById('header-user-options');
+      const icon = document.getElementById('header-user-icon');
+      options.classList.toggle('hidden');
+      icon.classList.toggle('rotate-180');
+      e.stopPropagation();
+    });
+    document.addEventListener('click', function(e) {
+      const options = document.getElementById('header-user-options');
+      if (!options.classList.contains('hidden')) {
+        options.classList.add('hidden');
+        document.getElementById('header-user-icon').classList.remove('rotate-180');
+      }
+    });
+  </script>
 }
 
 templ Dashboard() {
 	<!DOCTYPE html>
-	<html lang="en" class="h-screen bg-gray-50">
+	<html lang="en" class="h-screen bg-gray-100">
 		<head>
 			<meta charset="utf-8"/>
 			<meta name="viewport" content="width=device-width,initial-scale=1"/>
@@ -135,57 +194,124 @@ templ Dashboard() {
 			<script src="/assets/js/htmx.min.js"></script>
 			<script defer src="/assets/js/app.js"></script>
 		</head>
-		<body class="bg-gray-50 text-gray-800 font-sans h-screen flex">
-			<aside id="sidebar" class="bg-white shadow-md h-full w-64 fixed top-0 left-0 z-40 transform -translate-x-64 transition-transform duration-300 ease-in-out lg:static lg:translate-x-0">
-				<div class="flex items-center justify-between px-4 py-5 bg-blue-600 text-white">
-					<h2 class="text-lg font-semibold">{ SchoolName() }</h2>
-				</div>
-				@navList()
-				<hr class="border-gray-200"/>
-				@userProfile()
-			</aside>
-			<main class="flex-1 p-6 overflow-y-auto relative">
-				<button
-					id="toggle-sidebar"
-					aria-label="Toggle Sidebar"
-					aria-expanded="false"
-					class="absolute top-4 left-4 lg:hidden text-black p-2 cursor-pointer text-2xl z-50"
-				>
-					&#9776;
+		<body class="bg-gray-100 text-gray-800 font-sans h-screen">
+			<header id="header" class="fixed top-0 left-0 right-0 z-50 flex items-center justify-between bg-white shadow p-4 transition-all duration-300">
+				<button id="toggle-sidebar" class="text-2xl">
+					<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+					</svg>
 				</button>
-				<div id="main-content" class="m-10 lg:mx-5">
+				<h1 class="text-xl ml-2 font-bold">{ SchoolName() }</h1>
+				@userProfile()
+			</header>
+			<aside id="sidebar" class="fixed z-40 h-full bg-white shadow transition-all duration-300 overflow-hidden" data-expanded="true">
+				<div class="pt-16 h-full flex flex-col">
+					@navList()
+				</div>
+			</aside>
+			<main id="content-area" class="pt-[4rem] transition-all duration-300 mx-4">
+				<div class="p-6 mx-5 my-6">
 					{ children... }
 				</div>
 			</main>
 			<script>
-				const sidebar = document.getElementById('sidebar');
-				const toggleSidebar = document.getElementById('toggle-sidebar');
+        function updateNavText(expanded) {
+          document.querySelectorAll('.nav-text').forEach(el => {
+            if(expanded) {
+              el.classList.remove('hidden');
+            } else {
+              el.classList.add('hidden');
+            }
+          });
+        }
 
-				toggleSidebar.setAttribute(
-					'aria-expanded',
-    				sidebar.classList.contains('-translate-x-64') ? 'false' : 'true'
-				);
+        const sidebar = document.getElementById('sidebar');
+        const contentArea = document.getElementById('content-area');
+        const toggleBtn = document.getElementById('toggle-sidebar');
 
+        function setSidebarWidth(width) {
+          document.documentElement.style.setProperty('--sidebar-width', width + 'px');
+        }
 
-				toggleSidebar.addEventListener('click', () => {
-					if (sidebar.classList.contains('-translate-x-64')) {
-						sidebar.classList.remove('-translate-x-64');
-					} else {
-						sidebar.classList.add('-translate-x-64');
-					}
-					toggleSidebar.classList.toggle('hidden')
-				});
+        let isDesktop = window.innerWidth >= 1024;
+        let expanded = isDesktop ? true : false;
 
-				document.body.addEventListener('click', (e) => {
-					if (
-						!sidebar.contains(e.target) &&
-						!e.target.closest('#toggle-sidebar')
-					) {
-						sidebar.classList.add('-translate-x-64');
-						toggleSidebar.classList.remove('hidden')
-					}
-				});
-			</script>
+        function applyLayout() {
+          if (isDesktop) {
+            sidebar.classList.remove('-translate-x-full');
+            sidebar.classList.add('top-16');
+            if (expanded) {
+              sidebar.classList.remove('w-20');
+              sidebar.classList.add('w-64');
+              setSidebarWidth(256);
+              document.querySelectorAll('.nav-icon').forEach(el => {
+                el.classList.remove('w-6','h-6');
+                el.classList.add('w-5','h-5');
+              });
+            } else {
+              sidebar.classList.remove('w-64');
+              sidebar.classList.add('w-20');
+              setSidebarWidth(80);
+              document.querySelectorAll('.nav-icon').forEach(el => {
+                el.classList.remove('w-5','h-5');
+                el.classList.add('w-6','h-6');
+              });
+            }
+            contentArea.style.marginLeft = getComputedStyle(document.documentElement).getPropertyValue('--sidebar-width');
+          } else {
+            contentArea.style.marginLeft = '0px';
+            sidebar.classList.remove('top-16');
+            sidebar.classList.add('top-16');
+            if (expanded) {
+              sidebar.classList.remove('-translate-x-full', 'w-20');
+              sidebar.classList.add('w-64');
+            } else {
+              sidebar.classList.remove('w-64');
+              sidebar.classList.add('w-20', '-translate-x-full');
+            }
+          }
+          updateNavText(expanded);
+        }
+
+        applyLayout();
+
+        toggleBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          isDesktop = window.innerWidth >= 1024;
+          expanded = !expanded;
+          applyLayout();
+        });
+
+        document.addEventListener('click', (e) => {
+          if (window.innerWidth < 1024) {
+            if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
+              if (expanded) {
+                expanded = false;
+                applyLayout();
+              }
+            }
+          }
+        });
+
+        function setupExpandableMenu(menuId, iconId, submenuId) {
+          const menuButton = document.getElementById(menuId);
+          const menuIcon = document.getElementById(iconId);
+          const submenu = document.getElementById(submenuId);
+          menuButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            submenu.classList.toggle('hidden');
+            menuIcon.classList.toggle('rotate-180');
+          });
+        }
+        setupExpandableMenu('users-menu', 'users-menu-icon', 'users-submenu');
+        setupExpandableMenu('students-menu', 'students-menu-icon', 'students-submenu');
+
+        window.addEventListener('resize', () => {
+          isDesktop = window.innerWidth >= 1024;
+          expanded = isDesktop ? true : false;
+          applyLayout();
+        });
+      </script>
 		</body>
 	</html>
 }
