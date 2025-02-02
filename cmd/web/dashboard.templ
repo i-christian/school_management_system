@@ -37,11 +37,20 @@ templ DashboardCards() {
           center: 'title',
           right: 'dayGridMonth,timeGridWeek,timeGridDay'
         },
-        // Sample events
         events: [
           { title: 'Event 1', start: '2025-02-10' },
           { title: 'Event 2', start: '2025-02-15', end: '2025-02-17' },
-        ]
+        ],
+        dayCellDidMount: function(info) {
+          let today = new Date();
+          let todayStr = today.toISOString().split('T')[0];
+          if (info.date.toISOString().split('T')[0] === todayStr) {
+            info.el.style.backgroundColor = '#f3f4f6';
+            info.el.style.borderRadius = '50%';
+            info.el.style.fontWeight = 'bold';
+            info.el.style.color = '#374151';
+          }
+        }
       });
       calendar.render();
     });
