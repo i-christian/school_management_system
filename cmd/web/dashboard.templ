@@ -1,5 +1,45 @@
 package web
 
+templ DashboardCards() {
+	<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+		<div class="bg-white p-6 shadow rounded-lg">
+			<h3 class="text-gray-500 text-sm">Total Users</h3>
+			<p class="mt-2 text-3xl font-bold text-gray-700">1,234</p>
+		</div>
+		<div class="bg-white p-6 shadow rounded-lg">
+			<h3 class="text-gray-500 text-sm">Total Students</h3>
+			<p class="mt-2 text-3xl font-bold text-gray-700">567</p>
+		</div>
+		<div class="bg-white p-6 shadow rounded-lg">
+			<h3 class="text-gray-500 text-sm">Income</h3>
+			<p class="mt-2 text-3xl font-bold text-gray-700">$8,910</p>
+		</div>
+		<div class="bg-white p-6 shadow rounded-lg lg:col-span-2">
+			<h3 class="text-gray-500 text-sm mb-2">Calendar</h3>
+			<div id="calendar" class="rounded overflow-hidden"></div>
+		</div>
+	</div>
+	<script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var calendarEl = document.getElementById('calendar');
+      var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        // some events here:
+        events: [
+          { title: 'Event 1', start: '2025-02-10' },
+          { title: 'Event 2', start: '2025-02-15', end: '2025-02-17' },
+        ]
+      });
+      calendar.render();
+    });
+  </script>
+}
+
 templ navList() {
 	<nav class="p-4 h-full">
 		<ul class="space-y-2">
@@ -9,21 +49,6 @@ templ navList() {
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9l9-7 9 7v11a2 2 0 01-2 2h-4a2 2 0 01-2-2V12H9v8a2 2 0 01-2 2H3a2 2 0 01-2-2V9z"></path>
 					</svg>
 					<span class="nav-text transition-all duration-300 text-sm">Home</span>
-				</a>
-			</li>
-			<li>
-				<a
-					href="/insights"
-					class="flex items-center px-4 py-3 rounded-md hover:bg-blue-200 transition"
-					hx-get="/insights"
-					hx-target="#content-area"
-					hx-swap="innerHTML"
-					title="Insights"
-				>
-					<svg xmlns="http://www.w3.org/2000/svg" class="nav-icon w-5 h-5 mr-3 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6m4 6v-8m4 8v-4M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-					</svg>
-					<span class="nav-text transition-all duration-300 text-sm">Insights</span>
 				</a>
 			</li>
 			<li id="users-menu" class="relative">
@@ -192,7 +217,7 @@ templ Dashboard() {
 			<title>{ SchoolName() }</title>
 			<link href="/assets/css/output.css" rel="stylesheet"/>
 			<script src="/assets/js/htmx.min.js"></script>
-			<script defer src="/assets/js/app.js"></script>
+			<script src="https://cdn.jsdelivr.net/npm/fullcalendar/index.global.min.js"></script>
 		</head>
 		<body class="bg-gray-100 text-gray-800 font-sans h-screen">
 			<header id="header" class="fixed top-0 left-0 right-0 z-50 flex items-center justify-between bg-white shadow p-4 transition-all duration-300">
@@ -209,8 +234,9 @@ templ Dashboard() {
 					@navList()
 				</div>
 			</aside>
-			<main id="content-area" class="pt-[4rem] transition-all duration-300 mx-4">
-				<div class="p-6 mx-5 my-6">
+			<main class="pt-[4rem] transition-all mx-5 my-6 duration-300">
+				<div id="content-area">
+					@DashboardCards()
 					{ children... }
 				</div>
 			</main>
