@@ -2,11 +2,9 @@ package web
 
 templ Home() {
 	@Base() {
-		<header
-			class="bg-white sticky mt-0 top-0 z-10"
-		>
-			<div class="max-w-7xl mx-auto px-4 flex flex-row justify-between items-center sm:px-6 lg:px-8">
-				<h1 class="text-2xl font-semibold text-blue-600 py-3">
+		<header class="bg-white sticky top-0 z-10 shadow">
+			<div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between sm:px-6 lg:px-8">
+				<h1 class="text-2xl font-semibold text-blue-600">
 					{ SchoolName() }
 				</h1>
 				<nav class="hidden md:flex gap-6">
@@ -14,9 +12,7 @@ templ Home() {
 					<a href="#achievements" class="text-gray-600 hover:text-blue-600 font-medium">Achievements</a>
 					<a href="#contact" class="text-gray-600 hover:text-blue-600 font-medium">Contact</a>
 				</nav>
-				<a
-					href="/login"
-				>
+				<a href="/login">
 					<button
 						id="user-role"
 						hx-get="/role"
@@ -24,7 +20,7 @@ templ Home() {
 						hx-target="#user-role"
 						hx-swap="innerHTML"
 						type="button"
-						class="bg-blue-600 text-white font-semibold rounded-md h-fit w-fit py-1 px-4 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+						class="bg-blue-600 text-white font-semibold rounded-md py-1 px-4 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
 					>Login</button>
 				</a>
 			</div>
@@ -32,47 +28,39 @@ templ Home() {
 		<main class="bg-gray-50">
 			<!-- Hero Section -->
 			<section class="bg-blue-100 py-16">
-				<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+				<div class="max-w-7xl mx-auto px-4 text-center sm:px-6 lg:px-8">
 					<h2 class="text-4xl font-bold text-blue-600">
 						Welcome to { SchoolName() }
 					</h2>
 					<p class="text-gray-700 mt-4 max-w-2xl mx-auto">
-						A place where education meets excellence. Inspiring students to dream big, achieve success, and contribute to the community.
+						A place where education meets excellence. We inspire our students to dream big, achieve success, and contribute meaningfully to the community.
 					</p>
 				</div>
 			</section>
 			<!-- About Section -->
 			<section id="about" class="py-12">
 				<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-					<h3 class="text-2xl font-bold text-blue-600 text-center">
-						About Us
-					</h3>
+					<h3 class="text-2xl font-bold text-blue-600 text-center">About Us</h3>
 					<p class="text-gray-700 mt-4 text-center max-w-3xl mx-auto">
-						At { SchoolName() }, we are committed to providing a nurturing environment that fosters academic excellence, creativity, and critical thinking.
+						At { SchoolName() }, we provide a nurturing environment that fosters academic excellence, creativity, and critical thinking.
 					</p>
 					<div class="mt-8 grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
 						<div class="bg-white shadow-lg rounded-lg p-6">
-							<h4 class="text-lg font-semibold text-blue-600">
-								Our Facilities
-							</h4>
+							<h4 class="text-lg font-semibold text-blue-600">Our Facilities</h4>
 							<p class="text-gray-700 mt-2">
-								Our state-of-the-art facilities provide an ideal environment for academic and extracurricular development.
+								State-of-the-art facilities that support both academic and extracurricular growth.
 							</p>
 						</div>
 						<div class="bg-white shadow-lg rounded-lg p-6">
-							<h4 class="text-lg font-semibold text-blue-600">
-								Our Faculty
-							</h4>
+							<h4 class="text-lg font-semibold text-blue-600">Our Faculty</h4>
 							<p class="text-gray-700 mt-2">
-								Experienced and dedicated faculty members who inspire and guide students to achieve their full potential.
+								Experienced educators dedicated to inspiring and guiding our students.
 							</p>
 						</div>
 						<div class="bg-white shadow-lg rounded-lg p-6">
-							<h4 class="text-lg font-semibold text-blue-600">
-								Holistic Education
-							</h4>
+							<h4 class="text-lg font-semibold text-blue-600">Holistic Education</h4>
 							<p class="text-gray-700 mt-2">
-								Emphasizing the growth of the whole student – academically, socially, and emotionally.
+								We focus on developing academic, social, and emotional skills.
 							</p>
 						</div>
 					</div>
@@ -81,11 +69,9 @@ templ Home() {
 			<!-- Achievements Section -->
 			<section id="achievements" class="bg-gray-100 py-12">
 				<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-					<h3 class="text-2xl font-bold text-blue-600 text-center">
-						Our Achievements
-					</h3>
+					<h3 class="text-2xl font-bold text-blue-600 text-center">Our Achievements</h3>
 					<p class="text-gray-700 mt-4 text-center max-w-3xl mx-auto">
-						Our students and faculty have achieved numerous milestones, making us a leader in education and extracurricular activities.
+						Our students and faculty have reached numerous milestones, establishing us as a leader in education.
 					</p>
 					<ul class="mt-6 space-y-4">
 						<li class="bg-white shadow-md rounded-lg px-6 py-4">
@@ -95,32 +81,28 @@ templ Home() {
 						</li>
 						<li class="bg-white shadow-md rounded-lg px-6 py-4">
 							<p class="text-gray-800 font-medium">
-								<strong>100% Success Rate:</strong> All our students passed with last year.
+								<strong>100% Success Rate:</strong> Every student passed with distinction last year.
 							</p>
 						</li>
 						<li class="bg-white shadow-md rounded-lg px-6 py-4">
 							<p class="text-gray-800 font-medium">
-								<strong>University Selection:</strong> We have sent countless students to the country's top most universities over the years.
+								<strong>University Selection:</strong> Our alumni gain admission to the nation's top universities.
 							</p>
 						</li>
 					</ul>
 				</div>
 			</section>
-			<!-- Call to Action -->
+			<!-- Call to Action / Contact Section -->
 			<section id="contact" class="bg-blue-600 py-12">
-				<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+				<div class="max-w-7xl mx-auto px-4 text-center sm:px-6 lg:px-8">
 					<header>
-						<h3 class="text-3xl font-bold text-white">
-							Ready to Join Us?
-						</h3>
+						<h3 class="text-3xl font-bold text-white">Ready to Join Us?</h3>
 						<p class="text-gray-100 mt-4 max-w-2xl mx-auto">
-							Contact us to learn more. We're here to assist you!
+							Contact us today to learn more. We’re here to assist you every step of the way!
 						</p>
 					</header>
 					<article class="mt-8">
-						<h4 class="text-xl font-semibold text-white mb-4">
-							Contact Information
-						</h4>
+						<h4 class="text-xl font-semibold text-white mb-4">Contact Information</h4>
 						<div class="space-y-4 text-gray-100">
 							<p>
 								<strong>Email:</strong> <a href="mailto:info@school.com" class="text-blue-300 hover:underline">info@school.com</a>
@@ -133,12 +115,15 @@ templ Home() {
 				</div>
 			</section>
 		</main>
-		<footer class="mt-12 bg-gray-200">
-			<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+		<footer class="bg-gray-200">
+			<div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
 				<p class="text-center text-sm text-gray-600">
 					&copy; <span id="current-year"></span> { SchoolName() }. All rights reserved.
 				</p>
 			</div>
 		</footer>
+		<script>
+			document.getElementById("current-year").textContent = new Date().getFullYear();
+		</script>
 	}
 }
