@@ -1,9 +1,11 @@
 package server
 
 import (
+	"crypto/rand"
 	"errors"
 	"fmt"
 	"log/slog"
+	"math/big"
 	"net/http"
 	"strings"
 
@@ -16,6 +18,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 	"golang.org/x/crypto/bcrypt"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 // common handler logic for rendering components
@@ -25,6 +29,22 @@ func (s *Server) renderComponent(w http.ResponseWriter, r *http.Request, compone
 		writeError(w, http.StatusBadRequest, err.Error())
 		slog.Error("Failed to render component", "Message:", err)
 	}
+}
+
+// Generate a random 6-digit numeric password
+func generateNumericPassword() (string, error) {
+	const passwordLength = 6
+	password := ""
+
+	for i := 0; i < passwordLength; i++ {
+		num, err := rand.Int(rand.Reader, big.NewInt(10))
+		if err != nil {
+			return "", err
+		}
+		password += fmt.Sprintf("%d", num.Int64())
+	}
+
+	return password, nil
 }
 
 // An endpoint to create a new user account
@@ -44,17 +64,17 @@ func (s *Server) Register(w http.ResponseWriter, r *http.Request) {
 	phoneNumber := r.FormValue("phone_number")
 	email := r.FormValue("email")
 	gender := r.FormValue("gender")
-	password := r.FormValue("password")
-	confirmPassword := r.FormValue("confirm_password")
-	name := r.FormValue("role") // Role name
+	role := r.FormValue("role") // Role name
 
-	if firstName == "" || lastName == "" || phoneNumber == "" || gender == "" || password == "" || confirmPassword == "" || name == "" {
+	if firstName == "" || lastName == "" || phoneNumber == "" || gender == "" || role == "" {
 		writeError(w, http.StatusBadRequest, "all fields except email are required")
 		return
 	}
 
-	if password != confirmPassword {
-		writeError(w, http.StatusBadRequest, "passwords do not match")
+	// Generate a 6-digit numeric password
+	password, err := generateNumericPassword()
+	if err != nil {
+		http.Error(w, "Failed to generate password: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -71,14 +91,15 @@ func (s *Server) Register(w http.ResponseWriter, r *http.Request) {
 		emailValue = pgtype.Text{Valid: false}
 	}
 
+	caser := cases.Title(language.English)
 	user := database.CreateUserParams{
-		FirstName:   firstName,
-		LastName:    lastName,
+		FirstName:   caser.String(firstName),
+		LastName:    caser.String(lastName),
 		PhoneNumber: pgtype.Text{String: phoneNumber, Valid: true},
 		Email:       emailValue,
 		Gender:      gender,
 		Password:    string(hashedPassword),
-		Name:        name,
+		Name:        role,
 	}
 
 	if _, err = s.queries.CreateUser(r.Context(), user); err != nil {
@@ -91,7 +112,8 @@ func (s *Server) Register(w http.ResponseWriter, r *http.Request) {
 	component := components.SucessModal(components.User{
 		FirstName: firstName,
 		LastName:  lastName,
-		Role:      name,
+		Role:      role,
+		Password:  password,
 	})
 
 	s.renderComponent(w, r, component)

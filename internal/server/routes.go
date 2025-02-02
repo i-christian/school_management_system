@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"school_management_system/cmd/web"
+	"school_management_system/cmd/web/dashboard"
 
 	"github.com/a-h/templ"
 	"github.com/go-chi/chi/v5"
@@ -45,7 +46,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	// private user routes
 	r.Route("/user", func(r chi.Router) {
 		r.Use(s.AuthMiddleware)
-		r.Get("/", templ.Handler(web.Register()).ServeHTTP)
+		r.Get("/", templ.Handler(dashboard.CreateUserForm()).ServeHTTP)
 		r.Post("/", s.Register)
 		r.Put("/{id}", s.EditUser)
 		r.Delete("/{id}", s.DeleteUser)
