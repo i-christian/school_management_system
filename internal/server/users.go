@@ -2,7 +2,6 @@ package server
 
 import (
 	"crypto/rand"
-	"errors"
 	"fmt"
 	"log/slog"
 	"math/big"
@@ -11,7 +10,6 @@ import (
 
 	"school_management_system/cmd/web/components"
 	"school_management_system/cmd/web/dashboard"
-	"school_management_system/internal/cookies"
 	"school_management_system/internal/database"
 
 	"github.com/a-h/templ"
@@ -119,29 +117,16 @@ func (s *Server) Register(w http.ResponseWriter, r *http.Request) {
 	s.renderComponent(w, r, component)
 }
 
-// extract common session and user details retrieval logic
-func (s *Server) getSessionAndUserDetails(r *http.Request) (components.User, error) {
-	sessionID, err := cookies.ReadEncrypted(r, "sessionid", s.SecretKey)
-	if err != nil {
-		if errors.Is(err, http.ErrNoCookie) || errors.Is(err, cookies.ErrInvalidValue) {
-			return components.User{}, fmt.Errorf("unauthorized: %w", err)
-		}
-		return components.User{}, fmt.Errorf("server error: %w", err)
+// extract common user details retrieval logic
+func (s *Server) getUserDetails(w http.ResponseWriter, r *http.Request) (components.User, error) {
+	UserID, ok := r.Context().Value(userIDKey).(uuid.UUID)
+	if !ok {
+		writeError(w, http.StatusUnauthorized, "user not authenticated")
 	}
 
-	parsedSessionID, err := uuid.Parse(sessionID)
+	userInfo, err := s.queries.GetUserDetails(r.Context(), UserID)
 	if err != nil {
-		return components.User{}, fmt.Errorf("bad request: invalid session ID")
-	}
-
-	user, err := s.queries.GetSession(r.Context(), parsedSessionID)
-	if err != nil {
-		return components.User{}, fmt.Errorf("server error: %w", err)
-	}
-
-	userInfo, err := s.queries.GetUserDetails(r.Context(), user.UserID)
-	if err != nil {
-		return components.User{}, fmt.Errorf("server error: %w", err)
+		return components.User{}, fmt.Errorf("internal server error")
 	}
 
 	return components.User{
@@ -151,14 +136,13 @@ func (s *Server) getSessionAndUserDetails(r *http.Request) (components.User, err
 		Gender:      userInfo.Gender,
 		Email:       userInfo.Email.String,
 		PhoneNumber: userInfo.PhoneNumber.String,
-		Password:    userInfo.Password,
 		Role:        userInfo.Role,
 	}, nil
 }
 
 // userDetails handler function
 func (s *Server) userDetails(w http.ResponseWriter, r *http.Request) {
-	user, err := s.getSessionAndUserDetails(r)
+	user, err := s.getUserDetails(w, r)
 	if err != nil {
 		var status int
 		if strings.Contains(err.Error(), "unauthorized") {
@@ -179,7 +163,7 @@ func (s *Server) userDetails(w http.ResponseWriter, r *http.Request) {
 
 // userRole handler function
 func (s *Server) userRole(w http.ResponseWriter, r *http.Request) {
-	user, err := s.getSessionAndUserDetails(r)
+	user, err := s.getUserDetails(w, r)
 	if err != nil {
 		var status int
 		if strings.Contains(err.Error(), "unauthorized") {
