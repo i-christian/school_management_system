@@ -190,16 +190,19 @@ templ navList() {
 }
 
 templ userProfile() {
-	<div id="header-user-profile" class="flex items-center space-x-3 cursor-pointer">
-		<div class="w-8 h-8 flex items-center justify-center bg-blue-600 text-white rounded-full text-xs font-semibold">
-			A
+	<div
+		id="header-user-profile"
+		class="flex items-center space-x-3 cursor-pointer"
+	>
+		<div id="user-initials" class="w-8 h-8 flex items-center justify-center bg-blue-600 text-white rounded-full text-xs font-semibold">
+			U
 		</div>
-		<span class="hidden md:inline-block text-sm font-medium">Admin</span>
+		<span id="user-name" class="hidden md:inline-block text-sm font-medium">User</span>
 		<svg xmlns="http://www.w3.org/2000/svg" id="header-user-icon" class="w-4 h-4 text-gray-600 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
 		</svg>
 	</div>
-	<div id="header-user-options" class="hidden absolute right-4 mt-12 w-48 bg-white shadow rounded-md overflow-hidden z-50 transition-all duration-200">
+	<div id="header-user-options" class="hidden absolute right-4 mt-12 flex-row gap-5 w-48 bg-white shadow rounded-md overflow-hidden z-50 transition-all duration-200">
 		<a href="/settings" class="block px-4 py-2 text-sm bg-blue-600 text-white hover:bg-blue-500">
 			<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 3a2.25 2.25 0 00-2.197 1.757L6.03 7.5H3a.75.75 0 000 1.5h3l.528 2.743a2.25 2.25 0 004.444 0L12 9h3a.75.75 0 000-1.5h-3l-.528-2.743A2.25 2.25 0 009.75 3z"></path>
@@ -219,21 +222,37 @@ templ userProfile() {
 		</button>
 	</div>
 	<script>
-    document.getElementById('header-user-profile').addEventListener('click', function(e) {
-      const options = document.getElementById('header-user-options');
-      const icon = document.getElementById('header-user-icon');
-      options.classList.toggle('hidden');
-      icon.classList.toggle('rotate-180');
-      e.stopPropagation();
-    });
-    document.addEventListener('click', function(e) {
-      const options = document.getElementById('header-user-options');
-      if (!options.classList.contains('hidden')) {
-        options.classList.add('hidden');
-        document.getElementById('header-user-icon').classList.remove('rotate-180');
-      }
-    });
-  </script>
+		function updateUserProfile() {
+			const storedUser = localStorage.getItem("userData");
+			if (storedUser) {
+				try {
+					const user = JSON.parse(storedUser);
+					const initials = user.FirstName ? user.FirstName.charAt(0).toUpperCase() : "U";
+					document.getElementById("user-initials").textContent = initials;
+					document.getElementById("user-name").textContent = user.FirstName || "User";
+				} catch (error) {
+					console.error("Error parsing user data from localStorage:", error);
+				}
+			}
+		}
+
+		document.addEventListener("DOMContentLoaded", updateUserProfile);
+
+		document.getElementById('header-user-profile').addEventListener('click', function(e) {
+			const options = document.getElementById('header-user-options');
+			const icon = document.getElementById('header-user-icon');
+			options.classList.toggle('hidden');
+			icon.classList.toggle('rotate-180');
+			e.stopPropagation();
+		});
+		document.addEventListener('click', function(e) {
+			const options = document.getElementById('header-user-options');
+			if (!options.classList.contains('hidden')) {
+				options.classList.add('hidden');
+				document.getElementById('header-user-icon').classList.remove('rotate-180');
+			}
+		});
+	</script>
 }
 
 templ Dashboard() {
@@ -246,8 +265,13 @@ templ Dashboard() {
 			<link href="/assets/css/output.css" rel="stylesheet"/>
 			<script src="/assets/js/htmx.min.js"></script>
 		</head>
-		<body class="bg-gray-100 text-gray-800 font-sans h-screen">
-			<header id="header" class="fixed top-0 left-0 right-0 z-50 flex items-center justify-between bg-white shadow p-4 transition-all duration-300">
+		<body
+			class="bg-gray-100 text-gray-800 font-sans h-screen"
+		>
+			<header
+				id="header"
+				class="fixed top-0 left-0 right-0 z-50 flex items-center justify-between bg-white shadow p-4 transition-all duration-300"
+			>
 				<button id="toggle-sidebar" class="text-2xl">
 					<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>

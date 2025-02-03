@@ -13,21 +13,6 @@ type User struct {
 	Role        string
 }
 
-templ UserRole(user User) {
-	switch user.Role {
-		case "admin":
-			{ "Admin" }
-		case "teacher":
-			{ "Teacher" }
-		case "classteacher":
-			{ "Class Teacher" }
-		case "headteacher":
-			{ "Head Teacher" }
-		default:
-			{ "Login" }
-	}
-}
-
 templ UserDetails(user User) {
 	@templ.JSONScript("user", user)
 	<script>

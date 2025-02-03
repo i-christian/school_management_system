@@ -161,27 +161,6 @@ func (s *Server) userDetails(w http.ResponseWriter, r *http.Request) {
 	s.renderComponent(w, r, component)
 }
 
-// userRole handler function
-func (s *Server) userRole(w http.ResponseWriter, r *http.Request) {
-	user, err := s.getUserDetails(w, r)
-	if err != nil {
-		var status int
-		if strings.Contains(err.Error(), "unauthorized") {
-			status = http.StatusUnauthorized
-		} else if strings.Contains(err.Error(), "bad request") {
-			status = http.StatusBadRequest
-		} else {
-			status = http.StatusInternalServerError
-		}
-		writeError(w, status, err.Error())
-		return
-	}
-
-	w.Header().Set("Content-Type", "text/html")
-	component := components.UserRole(user)
-	s.renderComponent(w, r, component)
-}
-
 // ListUsers handler retrieves all users from the database
 // This handler can only be accessed by someone with admin priviledges
 func (s *Server) ListUsers(w http.ResponseWriter, r *http.Request) {
