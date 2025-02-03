@@ -124,6 +124,12 @@ templ Home() {
 		</footer>
 		<script>
 			document.getElementById("current-year").textContent = new Date().getFullYear();
+			
+			document.body.addEventListener("htmx:beforeSwap", e => {
+ 			 	if (e.target.id === "user-role" && e.detail.xhr.responseText.includes('id="login-form"')) {
+   					 e.preventDefault();
+ 				}
+			});
 		</script>
 	}
 }
