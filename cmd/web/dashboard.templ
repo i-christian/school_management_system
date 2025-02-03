@@ -90,13 +90,13 @@ templ navList() {
 					</li>
 					<li>
 						<a
-							href="/dashboard/active-users"
+							href="/assignments"
 							class="block px-4 py-2 rounded-md hover:bg-blue-100 transition text-sm"
-							hx-get="/dashboard/active-users"
+							hx-get="/assignments"
 							hx-target="#content-area"
 							hx-swap="innerHTML"
 						>
-							Active Users
+							Assignments
 						</a>
 					</li>
 				</ul>
@@ -128,16 +128,31 @@ templ navList() {
 					</li>
 					<li>
 						<a
-							href="/students/graduated"
+							href="/students/guardians"
 							class="block px-4 py-2 rounded-md hover:bg-blue-100 transition text-sm"
-							hx-get="/students/graduated"
+							hx-get="/students/guardians"
 							hx-target="#content-area"
 							hx-swap="innerHTML"
 						>
-							Graduated
+							Guardians
 						</a>
 					</li>
 				</ul>
+			</li>
+			<li>
+				<a
+					href="/classes"
+					class="flex items-center px-4 py-3 rounded-md hover:bg-blue-200 transition"
+					hx-get="/classes"
+					hx-target="#content-area"
+					hx-swap="innerHTML"
+					title="Classes"
+				>
+					<svg xmlns="http://www.w3.org/2000/svg" class="nav-icon w-5 h-5 mr-3 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+					</svg>
+					<span class="nav-text transition-all duration-300 text-sm">Classes</span>
+				</a>
 			</li>
 			<li>
 				<a
