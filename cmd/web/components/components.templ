@@ -29,15 +29,11 @@ templ UserRole(user User) {
 }
 
 templ UserDetails(user User) {
-	<section>
-		<p>
-			<span>{ user.FirstName } </span>
-			<span>{ user.LastName } </span>
-		</p>
-		<p>{ user.Email }</p>
-		<p>{ user.Gender }</p>
-		<p>{ user.Role }</p>
-	</section>
+	@templ.JSONScript("user", user)
+	<script>
+		const data = JSON.parse(document.getElementById('user').textContent);
+		localStorage.setItem("userData", JSON.stringify(data));
+	</script>
 }
 
 templ SucessModal(user User) {
