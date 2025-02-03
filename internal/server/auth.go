@@ -32,7 +32,6 @@ func (s *Server) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	user, err := s.queries.GetUserByPhone(r.Context(), credentials)
 	if err != nil {
 		writeError(w, http.StatusUnauthorized, "invalid credentials")
-		http.Redirect(w, r, "/login", http.StatusFound)
 		return
 	}
 
@@ -67,6 +66,13 @@ func (s *Server) LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	if err := cookies.WriteEncrypted(w, cookie, s.SecretKey); err != nil {
 		writeError(w, http.StatusInternalServerError, "internal server error")
+		return
+	}
+
+	// If the request is from HTMX, send an HX-Redirect header.
+	if r.Header.Get("HX-Request") != "" {
+		w.Header().Set("HX-Redirect", "/dashboard")
+		w.WriteHeader(http.StatusOK)
 		return
 	}
 

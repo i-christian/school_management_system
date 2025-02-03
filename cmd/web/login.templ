@@ -12,12 +12,19 @@ templ Login() {
 		</head>
 		<body class="h-screen bg-gray-50 flex justify-center items-center">
 			<form
-				action="/login"
-				method="POST"
+				id="login-form"
+				hx-post="/login"
+				hx-target="#result"
+				hx-swap="innerHTML"
 				class="flex flex-col mx-auto w-full max-w-lg bg-white shadow-md rounded-lg p-6"
 			>
 				<fieldset class="flex flex-col gap-4">
 					<legend class="text-center text-2xl font-semibold text-blue-600 mb-4">Login</legend>
+					<div
+						id="result"
+						aria-live="polite"
+						class="text-center"
+					></div>
 					<label class="flex flex-col gap-1">
 						<span class="font-medium text-gray-700">Phone Number</span>
 						<input
@@ -70,9 +77,6 @@ templ Login() {
 					</button>
 				</fieldset>
 			</form>
-			<!-- Error Message Display -->
-			<div id="result" aria-live="polite"></div>
-			<!-- JavaScript for Password Toggle -->
 			<script>
       			function togglePasswordVisibility() {
         			const passwordField = document.getElementById("password");
@@ -90,11 +94,15 @@ templ Login() {
         			}
       			}
 
-      			function showErrorMessage(event) {
-        			const response = event.detail.xhr.responseText;
-        			const resultDiv = document.getElementById("result");
-        			resultDiv.innerHTML = `<div class="text-red-500 text-center mt-4">${response}</div>`;
-      			}
+      			document.addEventListener('htmx:responseError', (event) => {
+        			const xhr = event.detail.xhr;
+					if (xhr.status === 401) {
+        				const resultDiv = document.getElementById("result");
+        				resultDiv.innerHTML = `<div class="text-red-500 text-center mt-4">${xhr.responseText}</div>`;
+					} else {
+						console.error(xhr.responseText)
+					}
+      			})
     		</script>
 		</body>
 	</html>
