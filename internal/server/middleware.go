@@ -47,7 +47,7 @@ func (s *Server) AuthMiddleware(next http.Handler) http.Handler {
 				http.Redirect(w, r, "/login", http.StatusFound)
 				return
 			}
-			writeError(w, http.StatusInternalServerError, "server error")
+			writeError(w, http.StatusInternalServerError, "internal server error")
 			return
 		}
 
@@ -72,7 +72,7 @@ func (s *Server) AuthMiddleware(next http.Handler) http.Handler {
 		if timeLeft < 24*time.Hour {
 			newSessionID, err := s.refreshSession(r.Context(), session)
 			if err != nil {
-				writeError(w, http.StatusInternalServerError, "server error")
+				writeError(w, http.StatusInternalServerError, "internal server error")
 				return
 			}
 
@@ -87,7 +87,7 @@ func (s *Server) AuthMiddleware(next http.Handler) http.Handler {
 			}
 
 			if err := cookies.WriteEncrypted(w, cookie, s.SecretKey); err != nil {
-				writeError(w, http.StatusInternalServerError, "server error")
+				writeError(w, http.StatusInternalServerError, "internal server error")
 				return
 			}
 
@@ -140,6 +140,20 @@ func (s *Server) RedirectIfAuthenticated(next http.Handler) http.Handler {
 				}
 			}
 		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+// secureHeaders middleware automatically adds HTTP security headers to every response inline with current OWASP guidance.
+// This middleware acts on every request that is received, and needs it to be executed before a request hits our servemux(router)
+func secureHeaders(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' fonts.googleapis.com; font-src 'self' data: fonts.gstatic.com")
+		w.Header().Set("Referrer-Policy", "origin-when-cross-origin")
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		w.Header().Set("X-Frame-Options", "deny")
+		w.Header().Set("X-XSS-Protection", "0")
+
 		next.ServeHTTP(w, r)
 	})
 }

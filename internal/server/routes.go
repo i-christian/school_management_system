@@ -17,6 +17,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r := chi.NewRouter()
 	r.Use(middleware.CleanPath)
 	r.Use(middleware.RequestID)
+	r.Use(secureHeaders)
 	r.Use(middleware.Compress(5, "text/html", "text/css"))
 
 	r.Use(middleware.Recoverer)
