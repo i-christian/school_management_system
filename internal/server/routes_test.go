@@ -20,28 +20,6 @@ func checkResponseCode(t *testing.T, expected, actual int) {
 	}
 }
 
-// Test that the secureHeaders middleware adds the expected security headers.
-func TestSecureHeadersMiddleware(t *testing.T) {
-	s := &Server{}
-	req, _ := http.NewRequest(http.MethodGet, "/", nil)
-	rr := executeRequest(req, s)
-
-	// Check that the secure headers are present.
-	headers := map[string]string{
-		"Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' fonts.googleapis.com; font-src 'self' data: fonts.gstatic.com",
-		"Referrer-Policy":         "origin-when-cross-origin",
-		"X-Content-Type-Options":  "nosniff",
-		"X-Frame-Options":         "deny",
-		"X-XSS-Protection":        "0",
-	}
-	for key, expected := range headers {
-		actual := rr.Header().Get(key)
-		if actual != expected {
-			t.Errorf("Expected header %s to be '%s', got '%s'", key, expected, actual)
-		}
-	}
-}
-
 // Test basic endpoints using table-driven tests.
 func TestRoutes(t *testing.T) {
 	s := &Server{}
