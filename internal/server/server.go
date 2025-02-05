@@ -14,6 +14,7 @@ import (
 
 	"school_management_system/internal/database"
 
+	"github.com/google/uuid"
 	"github.com/pressly/goose/v3"
 	"golang.org/x/crypto/bcrypt"
 
@@ -112,6 +113,13 @@ func createSuperUser(ctx context.Context, queries *database.Queries) {
 	if err != nil {
 		slog.Error("Failed to hash password")
 		os.Exit(1)
+	}
+
+	adminUser, err := queries.GetUserByPhone(ctx, pgtype.Text{String: phone, Valid: true})
+
+	if adminUser.UserID != uuid.Nil {
+		slog.Info("Superuser already exists")
+		return
 	}
 
 	user := database.CreateUserParams{
