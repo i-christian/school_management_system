@@ -62,6 +62,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Get("/", templ.Handler(web.Dashboard()).ServeHTTP)
 		r.Get("/userlist", s.ListUsers)
 		r.Get("/total_users", s.GetTotalUsers)
+		r.Get("/total_students", s.GetStudentsTotal)
+		r.Get("/income", s.GetFees)
 	})
 
 	return r

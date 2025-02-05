@@ -13,13 +13,25 @@ templ DashboardCards() {
 				<h3 class="text-gray-500 text-sm">Total Users</h3>
 				<p id="total-users" class="mt-2 text-3xl font-bold text-gray-700">0</p>
 			</section>
-			<section class="bg-white p-6 shadow rounded-lg">
+			<section
+				class="bg-white p-6 shadow rounded-lg"
+				hx-get="/dashboard/total_students"
+				hx-trigger="load"
+				hx-target="#total-students"
+				hx-swap="textContent"
+			>
 				<h3 class="text-gray-500 text-sm">Total Students</h3>
-				<p class="mt-2 text-3xl font-bold text-gray-700">567</p>
+				<p id="total-students" class="mt-2 text-3xl font-bold text-gray-700">0</p>
 			</section>
-			<section class="bg-white p-6 shadow rounded-lg">
+			<section
+				class="bg-white p-6 shadow rounded-lg"
+				hx-get="/dashboard/total_income"
+				hx-trigger="load"
+				hx-target="#total-income"
+				hx-swap="textContent"
+			>
 				<h3 class="text-gray-500 text-sm">Income</h3>
-				<p class="mt-2 text-3xl font-bold text-gray-700">$8,910</p>
+				<p id="total-income" class="mt-2 text-3xl font-bold text-gray-700">0.00</p>
 			</section>
 			<section class="bg-white p-6 shadow rounded-lg">
 				<h3 class="text-gray-500 text-sm">Academic Year &amp; Term</h3>
