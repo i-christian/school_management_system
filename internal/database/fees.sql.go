@@ -112,7 +112,7 @@ type GetStudentFeesRecordRow struct {
 	Classname    string         `json:"classname"`
 	Tutionamount pgtype.Numeric `json:"tutionamount"`
 	Paidamount   pgtype.Numeric `json:"paidamount"`
-	Status       pgtype.Text    `json:"status"`
+	Status       string         `json:"status"`
 }
 
 func (q *Queries) GetStudentFeesRecord(ctx context.Context, studentID uuid.UUID) (GetStudentFeesRecordRow, error) {
@@ -158,7 +158,7 @@ type ListStudentFeesRecordsRow struct {
 	Classname    string         `json:"classname"`
 	Tutionamount pgtype.Numeric `json:"tutionamount"`
 	Paidamount   pgtype.Numeric `json:"paidamount"`
-	Status       pgtype.Text    `json:"status"`
+	Status       string         `json:"status"`
 }
 
 func (q *Queries) ListStudentFeesRecords(ctx context.Context) ([]ListStudentFeesRecordsRow, error) {

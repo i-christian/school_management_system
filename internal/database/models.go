@@ -51,7 +51,7 @@ type Fee struct {
 	ClassID   uuid.UUID      `json:"class_id"`
 	Required  pgtype.Numeric `json:"required"`
 	Paid      pgtype.Numeric `json:"paid"`
-	Status    pgtype.Text    `json:"status"`
+	Status    string         `json:"status"`
 }
 
 type Grade struct {
@@ -70,6 +70,12 @@ type Guardian struct {
 	PhoneNumber2 pgtype.Text `json:"phone_number_2"`
 	Gender       string      `json:"gender"`
 	Profession   pgtype.Text `json:"profession"`
+}
+
+type NumberCounter struct {
+	Type    string `json:"type"`
+	Year    string `json:"year"`
+	LastVal int32  `json:"last_val"`
 }
 
 type Remark struct {
