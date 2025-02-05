@@ -88,8 +88,8 @@ templ Login() {
 				toggleButton.addEventListener("click", () => {
 					const isPassword = passwordField.type === "password";
 					passwordField.type = isPassword ? "text" : "password";
-					eyeIcon.classList.toggle("hidden", !isPassword);
-					eyeOffIcon.classList.toggle("hidden", isPassword);
+					eyeIcon.classList.toggle("hidden", isPassword);
+					eyeOffIcon.classList.toggle("hidden", !isPassword);
 				});
 			});
 

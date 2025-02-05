@@ -101,7 +101,8 @@ func (s *Server) Register(w http.ResponseWriter, r *http.Request) {
 		Name:        role,
 	}
 
-	if _, err = s.queries.CreateUser(r.Context(), user); err != nil {
+	newUser, err := s.queries.CreateUser(r.Context(), user)
+	if err != nil {
 		writeError(w, http.StatusInternalServerError, "internal server error")
 		slog.Info("Failed to create user", "message:", err.Error())
 		return
@@ -110,6 +111,7 @@ func (s *Server) Register(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 
 	component := components.SucessModal(components.User{
+		UserNo:    newUser.UserNo,
 		FirstName: firstName,
 		LastName:  lastName,
 		Role:      role,
