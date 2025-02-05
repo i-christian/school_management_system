@@ -10,6 +10,7 @@ CREATE TABLE roles (
 -- USERS TABLE
 CREATE TABLE users (
     user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_no VARCHAR(20) UNIQUE NOT NULL,
     last_name VARCHAR(50) NOT NULL,
     first_name VARCHAR(50) NOT NULL,
     gender CHAR(1) NOT NULL CHECK (gender IN ('M', 'F')),
@@ -101,6 +102,7 @@ CREATE INDEX idx_cst_teacher_id ON assignments(teacher_id);
 -- STUDENTS TABLE
 CREATE TABLE IF NOT EXISTS students (
     student_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    student_no VARCHAR(20) UNIQUE NOT NULL,
     academic_year_id UUID NOT NULL,
     last_name VARCHAR(50) NOT NULL,
     middle_name VARCHAR(50),
