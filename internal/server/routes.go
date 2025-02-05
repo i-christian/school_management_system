@@ -61,6 +61,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Use(s.AuthMiddleware)
 		r.Get("/", templ.Handler(web.Dashboard()).ServeHTTP)
 		r.Get("/userlist", s.ListUsers)
+		r.Get("/total_users", s.GetTotalUsers)
 	})
 
 	return r
