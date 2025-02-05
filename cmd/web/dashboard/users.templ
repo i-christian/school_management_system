@@ -19,6 +19,7 @@ templ UsersList(userList []database.ListUsersRow) {
 			<table class="min-w-full table-auto border-collapse border border-gray-200">
 				<thead class="bg-gray-100">
 					<tr>
+						<th class="border border-gray-200 px-4 py-2 text-left">#</th>
 						<th class="border border-gray-200 px-4 py-2 text-left">Last Name</th>
 						<th class="border border-gray-200 px-4 py-2 text-left">First Name</th>
 						<th class="border border-gray-200 px-4 py-2 text-left">Gender</th>
@@ -31,6 +32,7 @@ templ UsersList(userList []database.ListUsersRow) {
 				<tbody id="user-table-body" class="divide-y divide-gray-200">
 					for _, user := range userList {
 						<tr>
+							<td class="border border-gray-200 px-4 py-2">{ user.UserNo }</td>
 							<td class="border border-gray-200 px-4 py-2">{ user.LastName }</td>
 							<td class="border border-gray-200 px-4 py-2">{ user.FirstName }</td>
 							<td class="border border-gray-200 px-4 py-2">{ user.Gender }</td>

@@ -138,6 +138,7 @@ func (q *Queries) EditStudent(ctx context.Context, arg EditStudentParams) error 
 const getStudent = `-- name: GetStudent :one
 SELECT DISTINCT ON (students.student_id)
     students.student_id,
+    students.student_no,
     students.last_name,
     students.first_name,
     students.gender,
@@ -157,6 +158,7 @@ WHERE students.student_id = $1
 
 type GetStudentRow struct {
 	StudentID    uuid.UUID   `json:"student_id"`
+	StudentNo    string      `json:"student_no"`
 	LastName     string      `json:"last_name"`
 	FirstName    string      `json:"first_name"`
 	Gender       string      `json:"gender"`
@@ -171,6 +173,7 @@ func (q *Queries) GetStudent(ctx context.Context, studentID uuid.UUID) (GetStude
 	var i GetStudentRow
 	err := row.Scan(
 		&i.StudentID,
+		&i.StudentNo,
 		&i.LastName,
 		&i.FirstName,
 		&i.Gender,
@@ -185,6 +188,7 @@ func (q *Queries) GetStudent(ctx context.Context, studentID uuid.UUID) (GetStude
 const listStudents = `-- name: ListStudents :many
 SELECT DISTINCT ON (students.student_id)
     students.student_id,
+    students.student_no,
     students.last_name,
     students.first_name,
     students.gender,
@@ -204,6 +208,7 @@ ORDER BY students.student_id, students.last_name ASC
 
 type ListStudentsRow struct {
 	StudentID    uuid.UUID   `json:"student_id"`
+	StudentNo    string      `json:"student_no"`
 	LastName     string      `json:"last_name"`
 	FirstName    string      `json:"first_name"`
 	Gender       string      `json:"gender"`
@@ -224,6 +229,7 @@ func (q *Queries) ListStudents(ctx context.Context) ([]ListStudentsRow, error) {
 		var i ListStudentsRow
 		if err := rows.Scan(
 			&i.StudentID,
+			&i.StudentNo,
 			&i.LastName,
 			&i.FirstName,
 			&i.Gender,

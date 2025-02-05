@@ -43,6 +43,7 @@ RETURNING *;
 -- name: GetStudent :one
 SELECT DISTINCT ON (students.student_id)
     students.student_id,
+    students.student_no,
     students.last_name,
     students.first_name,
     students.gender,
@@ -62,6 +63,7 @@ WHERE students.student_id = $1;
 -- name: ListStudents :many
 SELECT DISTINCT ON (students.student_id)
     students.student_id,
+    students.student_no,
     students.last_name,
     students.first_name,
     students.gender,

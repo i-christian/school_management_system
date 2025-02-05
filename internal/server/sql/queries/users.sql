@@ -24,6 +24,7 @@ WHERE session_id = $1;
 -- name: GetUserDetails :one
 SELECT 
     users.user_id,
+    users.user_no,
     users.last_name, 
     users.first_name, 
     users.gender, 
@@ -47,6 +48,7 @@ WHERE phone_number = $1;
 -- name: ListUsers :many
 SELECT
     users.user_id,
+    users.user_no,
     users.last_name,
     users.first_name,
     users.gender,

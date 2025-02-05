@@ -96,6 +96,7 @@ type Session struct {
 
 type Student struct {
 	StudentID      uuid.UUID   `json:"student_id"`
+	StudentNo      string      `json:"student_no"`
 	AcademicYearID uuid.UUID   `json:"academic_year_id"`
 	LastName       string      `json:"last_name"`
 	MiddleName     pgtype.Text `json:"middle_name"`
@@ -136,6 +137,7 @@ type Term struct {
 
 type User struct {
 	UserID      uuid.UUID          `json:"user_id"`
+	UserNo      string             `json:"user_no"`
 	LastName    string             `json:"last_name"`
 	FirstName   string             `json:"first_name"`
 	Gender      string             `json:"gender"`

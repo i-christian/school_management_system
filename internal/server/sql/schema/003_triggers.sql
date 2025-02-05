@@ -1,4 +1,10 @@
 -- +goose Up
+CREATE TABLE IF NOT EXISTS number_counters (
+  type TEXT NOT NULL,
+  year TEXT NOT NULL,
+  last_val INT NOT NULL,
+  PRIMARY KEY (type, year)
+);
 
 -- +goose StatementBegin
 CREATE OR REPLACE FUNCTION fn_generate_user_no() 
@@ -8,13 +14,26 @@ DECLARE
     seq INT;
 BEGIN
     IF NEW.user_no IS NULL THEN
-        SELECT COALESCE(MAX(CAST(SUBSTRING(user_no FROM 9) AS INTEGER)), 0) + 1
-          INTO seq
-        FROM users
-        WHERE SUBSTRING(user_no FROM 5 FOR 4) = current_year;
+        PERFORM 1 FROM number_counters 
+          WHERE type = 'user' AND year = current_year FOR UPDATE;
         
-        NEW.user_no := 'USR-' || current_year || '-' || lpad(seq::TEXT, 5, '0');
+        IF FOUND THEN
+            SELECT last_val + 1 INTO seq 
+              FROM number_counters 
+              WHERE type = 'user' AND year = current_year;
+            
+            UPDATE number_counters 
+              SET last_val = seq 
+              WHERE type = 'user' AND year = current_year;
+        ELSE
+            seq := 1;
+            INSERT INTO number_counters (type, year, last_val)
+              VALUES ('user', current_year, seq);
+        END IF;
+        
+        NEW.user_no := 'USR-' || current_year || '-' || LPAD(seq::TEXT, 5, '0');
     END IF;
+    
     RETURN NEW;
 END;
 $function$ LANGUAGE plpgsql;
@@ -25,6 +44,7 @@ BEFORE INSERT ON users
 FOR EACH ROW
 EXECUTE FUNCTION fn_generate_user_no();
 
+
 -- +goose StatementBegin
 CREATE OR REPLACE FUNCTION fn_generate_student_no() 
 RETURNS trigger AS $function$
@@ -33,13 +53,26 @@ DECLARE
     seq INT;
 BEGIN
     IF NEW.student_no IS NULL THEN
-        SELECT COALESCE(MAX(CAST(SUBSTRING(student_no FROM 10) AS INTEGER)), 0) + 1
-          INTO seq
-        FROM students
-        WHERE SUBSTRING(student_no FROM 5 FOR 4) = current_year;
+        PERFORM 1 FROM number_counters 
+          WHERE type = 'student' AND year = current_year FOR UPDATE;
         
-        NEW.student_no := 'STD-' || current_year || '-' || lpad(seq::TEXT, 5, '0');
+        IF FOUND THEN
+            SELECT last_val + 1 INTO seq 
+              FROM number_counters 
+              WHERE type = 'student' AND year = current_year;
+            
+            UPDATE number_counters 
+              SET last_val = seq 
+              WHERE type = 'student' AND year = current_year;
+        ELSE
+            seq := 1;
+            INSERT INTO number_counters (type, year, last_val)
+              VALUES ('student', current_year, seq);
+        END IF;
+        
+        NEW.student_no := 'STD-' || current_year || '-' || LPAD(seq::TEXT, 5, '0');
     END IF;
+    
     RETURN NEW;
 END;
 $function$ LANGUAGE plpgsql;
@@ -50,9 +83,12 @@ BEFORE INSERT ON students
 FOR EACH ROW
 EXECUTE FUNCTION fn_generate_student_no();
 
+
 -- +goose Down
 DROP TRIGGER IF EXISTS trg_generate_student_no ON students;
 DROP FUNCTION IF EXISTS fn_generate_student_no();
 
 DROP TRIGGER IF EXISTS trg_generate_user_no ON users;
 DROP FUNCTION IF EXISTS fn_generate_user_no();
+
+DROP TABLE IF EXISTS number_counters;

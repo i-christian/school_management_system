@@ -72,13 +72,14 @@ func (s *Server) Register(w http.ResponseWriter, r *http.Request) {
 	// Generate a 6-digit numeric password
 	password, err := generateNumericPassword()
 	if err != nil {
-		http.Error(w, "Failed to generate password: "+err.Error(), http.StatusInternalServerError)
+		slog.Error("Failed to generate password")
+		writeError(w, http.StatusInternalServerError, "internal server error")
 		return
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		http.Error(w, "Failed to hash password: "+err.Error(), http.StatusInternalServerError)
+		writeError(w, http.StatusInternalServerError, "internal server error")
 		return
 	}
 
@@ -101,7 +102,8 @@ func (s *Server) Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if _, err = s.queries.CreateUser(r.Context(), user); err != nil {
-		http.Error(w, "Failed to create user: "+err.Error(), http.StatusInternalServerError)
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		slog.Info("Failed to create user", "message:", err.Error())
 		return
 	}
 
@@ -131,6 +133,7 @@ func (s *Server) getUserDetails(w http.ResponseWriter, r *http.Request) (compone
 
 	return components.User{
 		UserID:      userInfo.UserID,
+		UserNo:      userInfo.UserNo,
 		FirstName:   userInfo.FirstName,
 		LastName:    userInfo.LastName,
 		Gender:      userInfo.Gender,

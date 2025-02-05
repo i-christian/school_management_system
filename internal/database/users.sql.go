@@ -24,7 +24,7 @@ VALUES (
     (SELECT role_id FROM roles WHERE name = $7)
 )
 ON CONFLICT (phone_number) DO NOTHING
-RETURNING user_id, last_name, first_name, gender, email, phone_number, password, created_at, updated_at, role_id
+RETURNING user_id, user_no, last_name, first_name, gender, email, phone_number, password, created_at, updated_at, role_id
 `
 
 type CreateUserParams struct {
@@ -50,6 +50,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	var i User
 	err := row.Scan(
 		&i.UserID,
+		&i.UserNo,
 		&i.LastName,
 		&i.FirstName,
 		&i.Gender,
@@ -130,6 +131,7 @@ func (q *Queries) GetUserByPhone(ctx context.Context, phoneNumber pgtype.Text) (
 const getUserDetails = `-- name: GetUserDetails :one
 SELECT 
     users.user_id,
+    users.user_no,
     users.last_name, 
     users.first_name, 
     users.gender, 
@@ -149,6 +151,7 @@ WHERE
 
 type GetUserDetailsRow struct {
 	UserID      uuid.UUID   `json:"user_id"`
+	UserNo      string      `json:"user_no"`
 	LastName    string      `json:"last_name"`
 	FirstName   string      `json:"first_name"`
 	Gender      string      `json:"gender"`
@@ -163,6 +166,7 @@ func (q *Queries) GetUserDetails(ctx context.Context, userID uuid.UUID) (GetUser
 	var i GetUserDetailsRow
 	err := row.Scan(
 		&i.UserID,
+		&i.UserNo,
 		&i.LastName,
 		&i.FirstName,
 		&i.Gender,
@@ -199,6 +203,7 @@ func (q *Queries) GetUserRole(ctx context.Context, sessionID uuid.UUID) (GetUser
 const listUsers = `-- name: ListUsers :many
 SELECT
     users.user_id,
+    users.user_no,
     users.last_name,
     users.first_name,
     users.gender,
@@ -213,6 +218,7 @@ ORDER BY last_name
 
 type ListUsersRow struct {
 	UserID      uuid.UUID   `json:"user_id"`
+	UserNo      string      `json:"user_no"`
 	LastName    string      `json:"last_name"`
 	FirstName   string      `json:"first_name"`
 	Gender      string      `json:"gender"`
@@ -233,6 +239,7 @@ func (q *Queries) ListUsers(ctx context.Context) ([]ListUsersRow, error) {
 		var i ListUsersRow
 		if err := rows.Scan(
 			&i.UserID,
+			&i.UserNo,
 			&i.LastName,
 			&i.FirstName,
 			&i.Gender,
