@@ -10,7 +10,7 @@ CREATE TABLE roles (
 -- USERS TABLE
 CREATE TABLE users (
     user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_no VARCHAR(20) UNIQUE NOT NULL,
+    user_no VARCHAR(50) UNIQUE NOT NULL,
     last_name VARCHAR(50) NOT NULL,
     first_name VARCHAR(50) NOT NULL,
     gender CHAR(1) NOT NULL CHECK (gender IN ('M', 'F')),
@@ -102,7 +102,7 @@ CREATE INDEX idx_cst_teacher_id ON assignments(teacher_id);
 -- STUDENTS TABLE
 CREATE TABLE IF NOT EXISTS students (
     student_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    student_no VARCHAR(20) UNIQUE NOT NULL,
+    student_no VARCHAR(50) UNIQUE NOT NULL,
     academic_year_id UUID NOT NULL,
     last_name VARCHAR(50) NOT NULL,
     middle_name VARCHAR(50),
@@ -183,13 +183,7 @@ CREATE TABLE IF NOT EXISTS fees (
     class_id UUID NOT NULL,
     required NUMERIC(10, 2) NOT NULL CHECK (required >= 0),
     paid NUMERIC(10, 2) NOT NULL CHECK (paid >= 0),
-    status VARCHAR(20) GENERATED ALWAYS AS (
-        CASE
-            WHEN paid >= required THEN 'PAID'
-            WHEN paid > 0 AND paid < required THEN 'PARTIAL'
-            ELSE 'OVERDUE'
-        END
-    ) STORED,
+    status VARCHAR(20) NOT NULL DEFAULT 'OVERDUE',
     CONSTRAINT fk_student FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE,
     CONSTRAINT fk_term FOREIGN KEY (term_id) REFERENCES term(term_id) ON DELETE CASCADE,
     CONSTRAINT fk_class FOREIGN KEY (class_id) REFERENCES classes(class_id) ON DELETE CASCADE

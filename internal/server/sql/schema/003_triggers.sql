@@ -83,6 +83,42 @@ BEFORE INSERT ON students
 FOR EACH ROW
 EXECUTE FUNCTION fn_generate_student_no();
 
+-- +goose StatementBegin
+CREATE OR REPLACE FUNCTION fn_update_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = CURRENT_TIMESTAMP;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+-- +goose StatementEnd
+
+CREATE TRIGGER trg_update_users_timestamp
+BEFORE UPDATE ON users
+FOR EACH ROW
+EXECUTE FUNCTION fn_update_timestamp();
+
+
+-- +goose StatementBegin
+CREATE OR REPLACE FUNCTION fn_update_fee_status()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.paid >= NEW.required THEN
+      NEW.status := 'PAID';
+  ELSIF NEW.paid > 0 AND NEW.paid < NEW.required THEN
+      NEW.status := 'PARTIAL';
+  ELSE
+      NEW.status := 'OVERDUE';
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+-- +goose StatementEnd
+
+CREATE TRIGGER trg_update_fee_status
+BEFORE INSERT OR UPDATE ON fees
+FOR EACH ROW
+EXECUTE FUNCTION fn_update_fee_status();
 
 -- +goose Down
 DROP TRIGGER IF EXISTS trg_generate_student_no ON students;
@@ -92,3 +128,9 @@ DROP TRIGGER IF EXISTS trg_generate_user_no ON users;
 DROP FUNCTION IF EXISTS fn_generate_user_no();
 
 DROP TABLE IF EXISTS number_counters;
+
+DROP TRIGGER IF EXISTS trg_update_users_timestamp ON users;
+DROP FUNCTION IF EXISTS fn_update_timestamp();
+
+DROP TRIGGER IF EXISTS trg_update_fee_status ON fees;
+DROP FUNCTION IF EXISTS fn_update_fee_status();
