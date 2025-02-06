@@ -14,10 +14,6 @@ templ Home() {
 				</nav>
 				<a
 					id="user-role"
-					hx-get="/details"
-					hx-trigger="load"
-					hx-target="#user-role"
-					hx-swap="innerHTML"
 					href="/login"
 					class="bg-blue-600 text-white font-semibold rounded-md py-1 px-4 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
 				>
@@ -124,24 +120,20 @@ templ Home() {
 		</footer>
 		<script>
 			document.getElementById("current-year").textContent = new Date().getFullYear();
-
-			document.body.addEventListener("htmx:afterRequest", e => {
-				if (e.detail.elt.id === "user-role") {
-					const el = e.detail.elt;
-					if (e.detail.xhr.status >= 200 && e.detail.xhr.status < 300) {
-						try {
-							const doc = new DOMParser().parseFromString(e.detail.xhr.responseText, "text/html");
-							const userScript = doc.getElementById("user");
-							const data = userScript && JSON.parse(userScript.textContent);
-							el.textContent = data && data.Role ? data.Role : "Login";
-						} catch (err) {
-							el.textContent = "Login";
-						}
-					} else {
-						el.textContent = "Login";
+			
+			function updateUserProfile() {
+				const storedUser = localStorage.getItem("userData");
+				if (storedUser) {
+					try {
+						const user = JSON.parse(storedUser);
+						document.getElementById("user-role").textContent = user.Role || "Login";
+					} catch (error) {
+						console.error("Error parsing user data from localStorage:", error);
 					}
 				}
-			});
+			}
+
+			document.addEventListener("DOMContentLoaded", updateUserProfile);
 		</script>
 	}
 }

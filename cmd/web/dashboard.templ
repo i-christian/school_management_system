@@ -25,8 +25,6 @@ templ DashboardCards() {
 			</section>
 			<section
 				class="bg-white p-6 shadow rounded-lg"
-				hx-get="/dashboard/total_income"
-				hx-trigger="load"
 				hx-target="#total-income"
 				hx-swap="textContent"
 			>
@@ -211,6 +209,10 @@ templ userProfile() {
 	<div
 		id="header-user-profile"
 		class="flex items-center space-x-3 cursor-pointer"
+		hx-get="/details"
+		hx-trigger="load"
+		hx-target="#user-name"
+		hx-swap="innerHTML"
 	>
 		<div id="user-initials" class="w-8 h-8 flex items-center justify-center bg-blue-600 text-white rounded-full text-xs font-semibold">
 			U
@@ -240,21 +242,22 @@ templ userProfile() {
 		</button>
 	</div>
 	<script>
-		function updateUserProfile() {
-			const storedUser = localStorage.getItem("userData");
-			if (storedUser) {
-				try {
-					const user = JSON.parse(storedUser);
-					const initials = user.FirstName ? user.FirstName.charAt(0).toUpperCase() : "U";
-					document.getElementById("user-initials").textContent = initials;
-					document.getElementById("user-name").textContent = user.FirstName || "User";
-				} catch (error) {
-					console.error("Error parsing user data from localStorage:", error);
-				}
-			}
-		}
+		let userDetails = document.querySelector("#header-user-profile");
+		userDetails.addEventListener("htmx:afterRequest", e => {
+					const el = document.querySelector("#user-name")
+					try {
+						const doc = new DOMParser().parseFromString(e.detail.xhr.responseText, "text/html");
+						const userScript = doc.getElementById("user");
+						const data = userScript && JSON.parse(userScript.textContent);
+							el.textContent = data && data.FirstName ? data.FirstName : "User";
 
-		document.addEventListener("DOMContentLoaded", updateUserProfile);
+						const initials = data.FirstName ? data.FirstName.charAt(0).toUpperCase() : "U";
+						document.getElementById("user-initials").textContent = initials;
+
+					} catch (err) {
+						el.textContent = "User";
+					}
+			});
 
 		document.getElementById('header-user-profile').addEventListener('click', function(e) {
 			const options = document.getElementById('header-user-options');
