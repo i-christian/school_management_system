@@ -98,6 +98,8 @@ func (s *Server) AuthMiddleware(next http.Handler) http.Handler {
 
 		r = r.WithContext(context.WithValue(r.Context(), userIDKey, session.UserID))
 
+		w.Header().Add("Cache-Control", "no-store")
+
 		// call the next handler function
 		next.ServeHTTP(w, r)
 	})
@@ -121,6 +123,8 @@ func (s *Server) AdminMiddleware(next http.Handler) http.Handler {
 			writeError(w, http.StatusUnauthorized, "unauthorized")
 			return
 		}
+
+		w.Header().Add("Cache-Control", "no-store")
 
 		next.ServeHTTP(w, r)
 	})
