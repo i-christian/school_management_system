@@ -20,7 +20,7 @@ Key technologies used in the project include:
 ## Objectives
 
 - **Robust Administration**: Automate the management of school operations including enrollment, grading, fee collection, and disciplinary actions.
-- **Role-based Access Control**: Secure sensitive data with granular user roles (e.g., Admin, Teacher, Registrar).
+- **Role-based Access Control**: Secure sensitive data with granular user roles (e.g., Admin, Teacher, ClassTeacher, Accountant).
 - **User-friendly Interface**: Provide an intuitive and responsive design for desktop and mobile users.
 - **Scalable Architecture**: Leverage modern technologies for high performance and scalability.
 - **Continuous Integration/Deployment**: Automate testing and deployment pipelines for rapid development.
@@ -76,3 +76,21 @@ The application follows a modular, layered architecture:
 For instructions on how to get started with this application, please refer to the [Development Documentation](/development.md).
 
 This documentation provides instructions on how to set up your environment and develop the application.
+
+
+## Contributing 🤝
+
+I welcome contributions to improve this project. Here’s how you can get started:
+
+1. Fork the repository.
+2. Create a new branch (`git checkout -b feature-branch`).
+3. Make your changes.
+4. Commit your changes (`git commit -am 'Add new feature'`).
+5. Push to the branch (`git push origin feature-branch`).
+6. Create a new Pull Request.
+
+## Licensing 📄
+School Management System is licensed under the MIT License. See the [LICENSE](/LICENSE) file for details.
+
+## Acknowledgements 🙌
+Special thanks to the developers of Golang, Templ, and HTMX & TailwindCSS for their excellent tools and libraries.
