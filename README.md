@@ -1,6 +1,5 @@
 # School Management System
 
-
 [![License](https://img.shields.io/github/license/i-christian/school_management_system)](./LICENSE)
 [![Build Status](https://github.com/i-christian/school_management_system/actions/workflows/test.yml/badge.svg)](https://github.com/i-christian/school_management_system/actions/workflows/test.yml)
 [![GitHub Issues](https://img.shields.io/github/issues/i-christian/school_management_system)](https://github.com/i-christian/school_management_system/issues)
@@ -9,25 +8,68 @@
 [![Latest Release](https://img.shields.io/github/v/release/i-christian/school_management_system?include_prereleases)](https://github.com/i-christian/school_management_system/releases)
 
 ## Project Overview
-The `School Management System` is a full-stack web application designed to streamline and automate the management of school operations, including student information, teacher management, class assignments, and grades. Built using modern web technologies, the application ensures a secure, scalable, and user-friendly experience tailored for educational institutions.
 
-- **Backend**: Golang, PostgreSQL
-- **Frontend**: Templ, HTMX, TailwindCSS
-- **Development**: Docker and Docker Compose
-- **Deployment**: Continuous Integration/Continuous Deployment (CI/CD) via GitHub Actions
+The **School Management System** is a full-stack web application designed to streamline and automate various administrative tasks for educational institutions. It consolidates the management of student records, teacher assignments, class schedules, grading, fee tracking, and even discipline records into one secure and scalable platform.
+
+Key technologies used in the project include:
+
+- **Backend**: Golang, PostgreSQL  
+- **Frontend**: Templ, HTMX, TailwindCSS  
+- **Development & Deployment**: Docker & Docker Compose, CI/CD with GitHub Actions
 
 ## Objectives
 
-- Provide a **robust and scalable** web application for managing school operations.
-- Ensure **security** by implementing role-based access control.
-- Deliver a **user-friendly** interface with responsive design across all devices.
-- Implement an automated **CI/CD pipeline** for continuous integration and deployment.
+- **Robust Administration**: Automate the management of school operations including enrollment, grading, fee collection, and disciplinary actions.
+- **Role-based Access Control**: Secure sensitive data with granular user roles (e.g., Admin, Teacher, Registrar).
+- **User-friendly Interface**: Provide an intuitive and responsive design for desktop and mobile users.
+- **Scalable Architecture**: Leverage modern technologies for high performance and scalability.
+- **Continuous Integration/Deployment**: Automate testing and deployment pipelines for rapid development.
+
+## Features
+
+Based on the underlying database schema, the system includes:
+
+- **User & Session Management**
+  - Role-based authentication with clearly defined roles and permissions.
+  - Secure session handling with automatic expiration (2 weeks by default).
+
+- **Academic Administration**
+  - **Academic Years & Terms**: Define academic years and their corresponding terms with start and end dates.
+  - **Classes & Promotions**: Manage class details and support student promotions from one class to the next.
+  - **Subjects & Assignments**: Organize subjects per class and assign teachers to subjects.
+
+- **Student Management**
+  - Maintain detailed student profiles (including personal information and enrollment status).
+  - Support unique student identification per academic year.
+  - Link students with one or more guardians for emergency and contact purposes.
+  - Assign students to specific classes and terms.
+
+- **Academic Records**
+  - **Grades**: Record scores and remarks for each subject per term.
+  - **Fees Management**: Track required fees, payments, and payment status (e.g., OVERDUE).
+  - **Remarks & Discipline**: Allow class teachers and head teachers to provide remarks; maintain a record of disciplinary actions with details on actions taken and reporting staff.
 
 ## Database Design
 
-For a detailed overview of the database schema, including table relationships and descriptions, please refer to the [Database Design Documentation](/database_design.md).
+The project uses a PostgreSQL database with a carefully normalized schema. Highlights include:
 
-This documentation provides insights into the structure and relationships of the database, making it easier to understand how different entities in the system interact.
+- **Roles and Users**: For role-based access control.
+- **Academic and Term Tables**: To manage the school calendar.
+- **Classes, Subjects, and Assignments**: To organize teaching activities.
+- **Students, Guardians, and Student Classes**: To manage student enrollment and family contacts.
+- **Grades, Fees, Remarks, and Discipline Records**: To record academic performance, fee statuses, and behavioral notes.
+
+For a detailed overview of the database schema, please refer to the [Database Design Documentation](/database_design.md).
+
+## Architecture
+
+The application follows a modular, layered architecture:
+
+- **Backend API**: Written in Golang, exposing RESTful endpoints for all operations—from user authentication to recording student grades.
+- **Frontend**: Uses Go’s templating system alongside HTMX for dynamic content updates and TailwindCSS for responsive design.
+- **Database**: PostgreSQL serves as the backbone for all persistent data, with clear relationships between entities such as students, classes, and academic terms.
+- **Containerization**: Docker and Docker Compose streamline development, testing, and deployment.
+- **CI/CD Pipeline**: GitHub Actions automate testing and deployments, ensuring continuous integration and delivery.
 
 ## Development Workflow
 
