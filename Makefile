@@ -30,32 +30,11 @@ build: tailwind-install templ-install
 # Run the application
 run:
 	@go run cmd/app/main.go
-# Create DB container
-docker-run:
-	@if docker compose up --build 2>/dev/null; then \
-		: ; \
-	else \
-		echo "Falling back to Docker Compose V1"; \
-		docker-compose up --build; \
-	fi
-
-# Shutdown DB container
-docker-down:
-	@if docker compose down 2>/dev/null; then \
-		: ; \
-	else \
-		echo "Falling back to Docker Compose V1"; \
-		docker-compose down; \
-	fi
 
 # Test the application
 test:
 	@echo "Testing..."
 	@go test ./... -v -cover
-# Integrations Tests for the application
-# itest:
-# 	@echo "Running integration tests..."
-# 	@go test ./internal/database -v
 
 # Clean the binary
 clean:
