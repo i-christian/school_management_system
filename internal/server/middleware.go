@@ -131,12 +131,12 @@ func (s *Server) RequireRoles(allowedRoles ...string) func(http.Handler) http.Ha
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			user, ok := r.Context().Value(userContextKey).(User)
 			if !ok {
-				writeError(w, http.StatusUnauthorized, "User not authenticated")
+				writeError(w, http.StatusUnauthorized, "user not authenticated")
 				return
 			}
 
 			if _, exists := allowed[user.Role]; !exists {
-				writeError(w, http.StatusUnauthorized, "unauthorized")
+				writeError(w, http.StatusForbidden, "forbidden")
 				return
 			}
 
