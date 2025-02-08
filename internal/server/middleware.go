@@ -16,9 +16,15 @@ import (
 type contextKey string
 
 const (
-	sessionIDKey contextKey = "session_id"
-	userIDKey    contextKey = "user_id"
+	sessionIDKey   contextKey = "session_id"
+	userContextKey contextKey = "user"
 )
+
+// User represents the authenticated user along with their role.
+type User struct {
+	Role   string
+	UserID uuid.UUID
+}
 
 // refreshSession method updates a near session in the database if its near expiry
 func (s *Server) refreshSession(ctx context.Context, session database.GetSessionRow) (uuid.UUID, error) {
@@ -38,7 +44,7 @@ func (s *Server) refreshSession(ctx context.Context, session database.GetSession
 	return newSessionID, nil
 }
 
-// AuthMiddleware ensures the user is authenticated for private routes
+// AuthMiddleware ensures the user is authenticated and loads the user (with role) into the context.
 func (s *Server) AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		sessionID, err := cookies.ReadEncrypted(r, "sessionid", s.SecretKey)
@@ -96,38 +102,48 @@ func (s *Server) AuthMiddleware(next http.Handler) http.Handler {
 			r = r.WithContext(context.WithValue(r.Context(), sessionIDKey, session.SessionID))
 		}
 
-		r = r.WithContext(context.WithValue(r.Context(), userIDKey, session.UserID))
-
-		w.Header().Add("Cache-Control", "no-store")
-
-		// call the next handler function
-		next.ServeHTTP(w, r)
-	})
-}
-
-// Admin middleware to restrict access to admin-only routes
-func (s *Server) AdminMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		parsedSessionID, ok := r.Context().Value(sessionIDKey).(uuid.UUID)
-		if !ok {
-			writeError(w, http.StatusUnauthorized, "User not authenticated")
-		}
-
-		role, err := s.queries.GetUserRole(r.Context(), parsedSessionID)
+		userRecord, err := s.queries.GetUserRole(r.Context(), session.UserID)
 		if err != nil {
 			http.Redirect(w, r, "/login", http.StatusFound)
 			return
 		}
-
-		if role.Role != "admin" {
-			writeError(w, http.StatusUnauthorized, "unauthorized")
-			return
+		user := User{
+			UserID: userRecord.UserID,
+			Role:   userRecord.Role,
 		}
 
-		w.Header().Add("Cache-Control", "no-store")
+		r = r.WithContext(context.WithValue(r.Context(), userContextKey, user))
 
+		w.Header().Add("Cache-Control", "no-store")
 		next.ServeHTTP(w, r)
 	})
+}
+
+// RequireRoles returns a middleware that allows access only if the user's role
+// is in the provided list of allowed roles.
+func (s *Server) RequireRoles(allowedRoles ...string) func(http.Handler) http.Handler {
+	allowed := make(map[string]struct{})
+	for _, role := range allowedRoles {
+		allowed[role] = struct{}{}
+	}
+
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			user, ok := r.Context().Value(userContextKey).(User)
+			if !ok {
+				writeError(w, http.StatusUnauthorized, "User not authenticated")
+				return
+			}
+
+			if _, exists := allowed[user.Role]; !exists {
+				writeError(w, http.StatusUnauthorized, "unauthorized")
+				return
+			}
+
+			w.Header().Add("Cache-Control", "no-store")
+			next.ServeHTTP(w, r)
+		})
+	}
 }
 
 // RedirectIfAuthenticated checks if a user is already logged in and redirects them to the home page

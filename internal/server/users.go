@@ -123,12 +123,12 @@ func (s *Server) Register(w http.ResponseWriter, r *http.Request) {
 
 // extract common user details retrieval logic
 func (s *Server) getUserDetails(w http.ResponseWriter, r *http.Request) (components.User, error) {
-	UserID, ok := r.Context().Value(userIDKey).(uuid.UUID)
+	user, ok := r.Context().Value(userContextKey).(User)
 	if !ok {
 		writeError(w, http.StatusUnauthorized, "user not authenticated")
 	}
 
-	userInfo, err := s.queries.GetUserDetails(r.Context(), UserID)
+	userInfo, err := s.queries.GetUserDetails(r.Context(), user.UserID)
 	if err != nil {
 		return components.User{}, fmt.Errorf("internal server error")
 	}
