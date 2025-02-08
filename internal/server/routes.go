@@ -59,6 +59,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	// private dashboard routes
 	r.Route("/dashboard", func(r chi.Router) {
 		r.Use(s.AuthMiddleware)
+		r.Use(s.RequireRoles("admin"))
 		r.Get("/", templ.Handler(web.Dashboard()).ServeHTTP)
 		r.Get("/userlist", s.ListUsers)
 		r.Get("/total_users", s.GetTotalUsers)

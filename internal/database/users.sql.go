@@ -181,11 +181,9 @@ func (q *Queries) GetUserDetails(ctx context.Context, userID uuid.UUID) (GetUser
 const getUserRole = `-- name: GetUserRole :one
 SELECT roles.name AS role, users.user_id
 FROM users
-INNER JOIN sessions 
-    ON users.user_id = sessions.user_id
 INNER JOIN roles 
     ON users.role_id = roles.role_id
-WHERE session_id = $1
+WHERE users.user_id = $1
 `
 
 type GetUserRoleRow struct {
@@ -193,8 +191,8 @@ type GetUserRoleRow struct {
 	UserID uuid.UUID `json:"user_id"`
 }
 
-func (q *Queries) GetUserRole(ctx context.Context, sessionID uuid.UUID) (GetUserRoleRow, error) {
-	row := q.db.QueryRow(ctx, getUserRole, sessionID)
+func (q *Queries) GetUserRole(ctx context.Context, userID uuid.UUID) (GetUserRoleRow, error) {
+	row := q.db.QueryRow(ctx, getUserRole, userID)
 	var i GetUserRoleRow
 	err := row.Scan(&i.Role, &i.UserID)
 	return i, err
