@@ -47,7 +47,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.Group(func(r chi.Router) {
 		r.Use(s.AuthMiddleware)
 
-		r.Get("/details", s.userDetails)
+		r.Get("/profile", s.userProfile)
 		r.Get("/logout/confirm", templ.Handler(web.LogoutConfirmHandler()).ServeHTTP)
 		r.Get("/logout/cancel", s.LogoutCancelHandler)
 		r.Post("/logout", s.LogoutHandler)

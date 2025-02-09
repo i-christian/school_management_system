@@ -146,7 +146,7 @@ func (s *Server) getUserDetails(w http.ResponseWriter, r *http.Request) (compone
 }
 
 // userDetails handler function
-func (s *Server) userDetails(w http.ResponseWriter, r *http.Request) {
+func (s *Server) userProfile(w http.ResponseWriter, r *http.Request) {
 	user, err := s.getUserDetails(w, r)
 	if err != nil {
 		var status int
