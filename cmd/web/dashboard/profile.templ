@@ -1,0 +1,72 @@
+package dashboard
+
+templ UserProfile() {
+	<div
+		id="header-user-profile"
+		class="flex items-center space-x-3 cursor-pointer"
+		hx-get="/profile"
+		hx-trigger="load"
+		hx-target="#user-name"
+		hx-swap="innerHTML"
+	>
+		<div id="user-initials" class="w-8 h-8 flex items-center justify-center bg-blue-600 text-white rounded-full text-xs font-semibold">
+			U
+		</div>
+		<span id="user-name" class="hidden md:inline-block text-sm font-medium">User</span>
+		<svg xmlns="http://www.w3.org/2000/svg" id="header-user-icon" class="w-4 h-4 text-gray-600 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+		</svg>
+	</div>
+	<div id="header-user-options" class="hidden absolute right-4 mt-12 w-48 bg-white shadow rounded-md overflow-hidden z-50 transition-all duration-200">
+		<a href="/settings" class="block px-4 py-2 text-sm bg-blue-600 text-white hover:bg-blue-500">
+			<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 3a2.25 2.25 0 00-2.197 1.757L6.03 7.5H3a.75.75 0 000 1.5h3l.528 2.743a2.25 2.25 0 004.444 0L12 9h3a.75.75 0 000-1.5h-3l-.528-2.743A2.25 2.25 0 009.75 3z"></path>
+			</svg>
+			Settings
+		</a>
+		<button
+			class="block w-full text-left px-4 py-2 text-sm bg-red-600 text-white hover:bg-red-500"
+			hx-get="/logout/confirm"
+			hx-target="body"
+			hx-swap="beforeend"
+		>
+			<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1"></path>
+			</svg>
+			Logout
+		</button>
+	</div>
+	<script>
+		let userDetails = document.querySelector("#header-user-profile");
+		userDetails.addEventListener("htmx:afterRequest", e => {
+					const el = document.querySelector("#user-name")
+					try {
+						const doc = new DOMParser().parseFromString(e.detail.xhr.responseText, "text/html");
+						const userScript = doc.getElementById("user");
+						const data = userScript && JSON.parse(userScript.textContent);
+							el.textContent = data && data.FirstName ? data.FirstName : "User";
+
+						const initials = data.FirstName ? data.FirstName.charAt(0).toUpperCase() : "U";
+						document.getElementById("user-initials").textContent = initials;
+
+					} catch (err) {
+						el.textContent = "User";
+					}
+			});
+
+		document.getElementById('header-user-profile').addEventListener('click', function(e) {
+			const options = document.getElementById('header-user-options');
+			const icon = document.getElementById('header-user-icon');
+			options.classList.toggle('hidden');
+			icon.classList.toggle('rotate-180');
+			e.stopPropagation();
+		});
+		document.addEventListener('click', function(e) {
+			const options = document.getElementById('header-user-options');
+			if (!options.classList.contains('hidden')) {
+				options.classList.add('hidden');
+				document.getElementById('header-user-icon').classList.remove('rotate-180');
+			}
+		});
+	</script>
+}
