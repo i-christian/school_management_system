@@ -31,16 +31,6 @@ build: tailwind-install templ-install
 run:
 	@go run cmd/app/main.go
 
-# Test the application
-test:
-	@echo "Testing..."
-	@go test ./... -v -cover
-
-# Clean the binary
-clean:
-	@echo "Cleaning..."
-	@rm -f main
-
 # Live Reload
 watch:
 	@if command -v air > /dev/null; then \
@@ -58,4 +48,22 @@ watch:
             fi; \
         fi
 
-.PHONY: all build run test clean watch tailwind-install docker-run docker-down itest templ-install
+# Test the application
+test:
+	@echo "Testing..."
+	@go test ./... -v -cover
+
+# Clean the binary
+clean:
+	@echo "Cleaning..."
+	@rm -f main
+
+docker-up:
+	docker compose -f docker-compose.yml --env-file .env up \
+	--remove-orphans --build
+	
+docker-down:
+	docker compose down -v --remove-orphans && docker volume prune -f
+
+
+.PHONY: all build run test clean watch tailwind-install docker-up docker-down itest templ-install
