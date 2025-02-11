@@ -53,6 +53,10 @@ test:
 	@echo "Testing..."
 	@go test ./... -v -cover
 
+itest:
+	@echo "Running all integration tests..."
+	@go test -v ./internal/tests
+
 # Clean the binary
 clean:
 	@echo "Cleaning..."
