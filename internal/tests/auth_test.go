@@ -60,8 +60,5 @@ func TestLoginIntegration(t *testing.T) {
 
 	defer redirectResp.Body.Close()
 
-	t.Logf("Redirect Response Status: %s", redirectResp.Status)
-	t.Logf("Redirect Response Headers: %+v", redirectResp.Header)
-
 	require.Equal(t, http.StatusOK, redirectResp.StatusCode, "Expected 200 OK after redirect")
 }

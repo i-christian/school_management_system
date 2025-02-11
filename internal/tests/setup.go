@@ -52,4 +52,5 @@ func setEnvVars(dsn string) {
 	os.Setenv("SUPERUSER_PHONE", "123456789012")
 	os.Setenv("SUPERUSER_PASSWORD", "password123")
 	os.Setenv("PROJECT_NAME", "TestSchool")
+	os.Setenv("ENV", "development")
 }
