@@ -1,6 +1,8 @@
 package server
 
 import (
+	"context"
+	"errors"
 	"log/slog"
 	"net/http"
 	"regexp"
@@ -18,6 +20,41 @@ type LoginUser struct {
 	UserID   uuid.UUID
 }
 
+// getUserByIdentifier returns the LoginUser corresponding to the provided identifier.
+// It checks whether the identifier is a 12-digit phone number or a username formatted as "USR-yyyy-xxxxx".
+func (s *Server) getUserByIdentifier(ctx context.Context, identifier string) (LoginUser, error) {
+	phonePattern := regexp.MustCompile(`^[0-9]{12}$`)
+	usernamePattern := regexp.MustCompile(`^USR-\d{4}-\d{5}$`)
+
+	var loginUser LoginUser
+
+	switch {
+	case phonePattern.MatchString(identifier):
+		credentials := pgtype.Text{String: identifier, Valid: true}
+		returnedUser, err := s.queries.GetUserByPhone(ctx, credentials)
+		if err != nil {
+			return loginUser, err
+		}
+		loginUser = LoginUser{
+			Password: returnedUser.Password,
+			UserID:   returnedUser.UserID,
+		}
+	case usernamePattern.MatchString(identifier):
+		returnedUser, err := s.queries.GetUserByUsername(ctx, identifier)
+		if err != nil {
+			return loginUser, err
+		}
+		loginUser = LoginUser{
+			Password: returnedUser.Password,
+			UserID:   returnedUser.UserID,
+		}
+	default:
+		return loginUser, errors.New("invalid identifier")
+	}
+
+	return loginUser, nil
+}
+
 // LoginHandler authenticates the user and creates a session.
 func (s *Server) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -33,35 +70,9 @@ func (s *Server) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	identifier := r.FormValue("identifier")
 	password := r.FormValue("password")
 
-	phonePattern := regexp.MustCompile(`^[0-9]{12}$`)
-	usernamePattern := regexp.MustCompile(`^USR-\d{4}-\d{5}$`)
-
-	var user LoginUser
-	if phonePattern.MatchString(identifier) {
-		credentials := pgtype.Text{String: identifier, Valid: true}
-		returnedUser, err := s.queries.GetUserByPhone(r.Context(), credentials)
-		if err != nil {
-			writeError(w, http.StatusUnauthorized, "invalid credentials")
-			return
-		}
-		user = LoginUser{
-			Password: returnedUser.Password,
-			UserID:   returnedUser.UserID,
-		}
-
-	} else if usernamePattern.MatchString(identifier) {
-		returnedUser, err := s.queries.GetUserByUsername(r.Context(), identifier)
-		if err != nil {
-			writeError(w, http.StatusUnauthorized, "invalid credentials")
-			return
-		}
-
-		user = LoginUser{
-			Password: returnedUser.Password,
-			UserID:   returnedUser.UserID,
-		}
-
-	} else {
+	user, err := s.getUserByIdentifier(r.Context(), identifier)
+	if err != nil {
+		slog.Error("login request denied", "message:", err.Error())
 		writeError(w, http.StatusUnauthorized, "invalid credentials")
 		return
 	}
