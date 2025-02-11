@@ -33,4 +33,4 @@ tailwindcss
 
 
 # Environment variable file
-.env/
+.env
