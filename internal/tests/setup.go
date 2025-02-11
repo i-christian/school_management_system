@@ -11,6 +11,21 @@ import (
 	"github.com/testcontainers/testcontainers-go/wait"
 )
 
+// TestSetup initializes common test setup like the database container and environment variables.
+func TestSetup(t *testing.T) tc.Container {
+	postgresC, dsn := setupPostgresContainer(t)
+	setEnvVars(dsn)
+
+	return postgresC
+}
+
+// TestTeardown cleans up resources (like stopping the Postgres container) after the test completes.
+func TestTeardown(t *testing.T, postgresC tc.Container) {
+	ctx := context.Background()
+	err := postgresC.Terminate(ctx)
+	require.NoError(t, err)
+}
+
 // setupPostgresContainer spins up a PostgreSQL container and returns its DSN.
 func setupPostgresContainer(t *testing.T) (tc.Container, string) {
 	ctx := context.Background()

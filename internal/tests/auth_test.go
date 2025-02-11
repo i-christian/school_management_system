@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"context"
 	"net/http"
 	"net/http/cookiejar"
 	"net/http/httptest"
@@ -10,31 +9,26 @@ import (
 	"strings"
 	"testing"
 
-	"school_management_system/internal/server"
-
 	"github.com/stretchr/testify/require"
+	"school_management_system/internal/server"
 )
 
 func TestLoginIntegration(t *testing.T) {
-	ctx := context.Background()
-
-	postgresC, dsn := setupPostgresContainer(t)
-	defer postgresC.Terminate(ctx)
-
-	setEnvVars(dsn)
+	// Setup common resources (e.g., Postgres container, environment variables)
+	postgresC := TestSetup(t)
+	defer TestTeardown(t, postgresC)
 
 	appServer, _ := server.NewServer()
 	router := appServer.RegisterRoutes()
 
-	// Start an HTTP test server using the server's router.
 	ts := httptest.NewServer(router)
 	defer ts.Close()
 
+	// Prepare form data for login
 	formData := url.Values{}
 	formData.Set("identifier", os.Getenv("SUPERUSER_PHONE"))
 	formData.Set("password", os.Getenv("SUPERUSER_PASSWORD"))
 
-	// Send a POST request to the /login endpoint.
 	cookieJar, _ := cookiejar.New(nil)
 	client := &http.Client{Jar: cookieJar, CheckRedirect: func(req *http.Request, via []*http.Request) error {
 		return http.ErrUseLastResponse
@@ -57,7 +51,6 @@ func TestLoginIntegration(t *testing.T) {
 	require.NoError(t, err)
 	redirectResp, err := client.Do(redirectReq)
 	require.NoError(t, err)
-
 	defer redirectResp.Body.Close()
 
 	require.Equal(t, http.StatusOK, redirectResp.StatusCode, "Expected 200 OK after redirect")
