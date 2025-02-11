@@ -128,6 +128,23 @@ func (q *Queries) GetUserByPhone(ctx context.Context, phoneNumber pgtype.Text) (
 	return i, err
 }
 
+const getUserByUsername = `-- name: GetUserByUsername :one
+SELECT password, user_id FROM users
+WHERE user_no = $1
+`
+
+type GetUserByUsernameRow struct {
+	Password string    `json:"password"`
+	UserID   uuid.UUID `json:"user_id"`
+}
+
+func (q *Queries) GetUserByUsername(ctx context.Context, userNo string) (GetUserByUsernameRow, error) {
+	row := q.db.QueryRow(ctx, getUserByUsername, userNo)
+	var i GetUserByUsernameRow
+	err := row.Scan(&i.Password, &i.UserID)
+	return i, err
+}
+
 const getUserDetails = `-- name: GetUserDetails :one
 SELECT 
     users.user_id,

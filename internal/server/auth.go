@@ -3,6 +3,7 @@ package server
 import (
 	"log/slog"
 	"net/http"
+	"regexp"
 
 	"school_management_system/internal/cookies"
 	"school_management_system/internal/database"
@@ -12,7 +13,12 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// login handler to authenticate user and create session
+type LoginUser struct {
+	Password string
+	UserID   uuid.UUID
+}
+
+// LoginHandler authenticates the user and creates a session.
 func (s *Server) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -24,36 +30,61 @@ func (s *Server) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	phoneNumber := r.FormValue("phone_number")
+	identifier := r.FormValue("identifier")
 	password := r.FormValue("password")
 
-	credentials := pgtype.Text{String: phoneNumber, Valid: true}
+	phonePattern := regexp.MustCompile(`^[0-9]{12}$`)
+	usernamePattern := regexp.MustCompile(`^USR-\d{4}-\d{5}$`)
 
-	user, err := s.queries.GetUserByPhone(r.Context(), credentials)
-	if err != nil {
+	var user LoginUser
+	if phonePattern.MatchString(identifier) {
+		credentials := pgtype.Text{String: identifier, Valid: true}
+		returnedUser, err := s.queries.GetUserByPhone(r.Context(), credentials)
+		if err != nil {
+			writeError(w, http.StatusUnauthorized, "invalid credentials")
+			return
+		}
+		user = LoginUser{
+			Password: returnedUser.Password,
+			UserID:   returnedUser.UserID,
+		}
+
+	} else if usernamePattern.MatchString(identifier) {
+		returnedUser, err := s.queries.GetUserByUsername(r.Context(), identifier)
+		if err != nil {
+			writeError(w, http.StatusUnauthorized, "invalid credentials")
+			return
+		}
+
+		user = LoginUser{
+			Password: returnedUser.Password,
+			UserID:   returnedUser.UserID,
+		}
+
+	} else {
 		writeError(w, http.StatusUnauthorized, "invalid credentials")
 		return
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
-	if err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
 		writeError(w, http.StatusUnauthorized, "invalid credentials")
 		return
 	}
 
+	// Create a new session.
 	sessionID := uuid.New()
 	sessionParams := database.CreateSessionParams{
 		SessionID: sessionID,
 		UserID:    user.UserID,
 	}
 
-	err = s.queries.CreateSession(r.Context(), sessionParams)
-	if err != nil {
+	if err := s.queries.CreateSession(r.Context(), sessionParams); err != nil {
 		writeError(w, http.StatusInternalServerError, "internal server error")
-		slog.Error("Failed to create session", "message:", err.Error())
+		slog.Error("Failed to create session", "message", err.Error())
 		return
 	}
 
+	// Create a secure cookie to store the session ID.
 	cookie := http.Cookie{
 		Name:     "sessionid",
 		Value:    sessionID.String(),
@@ -76,6 +107,7 @@ func (s *Server) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Otherwise, perform a normal HTTP redirect.
 	http.Redirect(w, r, "/dashboard", http.StatusFound)
 }
 

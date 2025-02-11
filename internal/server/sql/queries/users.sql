@@ -43,6 +43,10 @@ WHERE
 SELECT password, user_id FROM users 
 WHERE phone_number = $1;
 
+-- name: GetUserByUsername :one
+SELECT password, user_id FROM users
+WHERE user_no = $1;
+
 -- name: ListUsers :many
 SELECT
     users.user_id,
