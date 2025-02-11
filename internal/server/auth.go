@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
+	"os"
 	"regexp"
 
 	"school_management_system/internal/cookies"
@@ -95,14 +96,15 @@ func (s *Server) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create a secure cookie to store the session ID.
+	// Determine the 'Secure' flag based on the environment.
+	secureFlag := os.Getenv("ENV") == "production"
 	cookie := http.Cookie{
 		Name:     "sessionid",
 		Value:    sessionID.String(),
 		Path:     "/",
 		MaxAge:   3600 * 24 * 7 * 2, // 2 weeks
 		HttpOnly: true,
-		Secure:   true,
+		Secure:   secureFlag,
 		SameSite: http.SameSiteStrictMode,
 	}
 

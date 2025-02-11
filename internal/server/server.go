@@ -55,7 +55,7 @@ func setUpMigration() {
 
 // Checks if required env vars are all set during server startup
 func validateEnvVars() {
-	requiredVars := []string{"DB_URL", "PORT", "RANDOM_HEX", "DOMAIN", "RANDOM_HEX", "PROJECT_NAME", "GOOSE_DRIVER", "GOOSE_MIGRATION_DIR", "SUPERUSER_ROLE", "SUPERUSER_EMAIL", "SUPERUSER_PHONE", "SUPERUSER_PASSWORD"}
+	requiredVars := []string{"DB_URL", "PORT", "RANDOM_HEX", "DOMAIN", "RANDOM_HEX", "PROJECT_NAME", "GOOSE_DRIVER", "GOOSE_MIGRATION_DIR", "SUPERUSER_ROLE", "SUPERUSER_EMAIL", "SUPERUSER_PHONE", "SUPERUSER_PASSWORD", "ENV"}
 	for _, v := range requiredVars {
 		if os.Getenv(v) == "" {
 			slog.Error(fmt.Sprintf("Environment variable %s is required", v))
