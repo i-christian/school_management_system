@@ -5,31 +5,27 @@ templ NavList() {
 		<ul class="space-y-2">
 			<li>
 				<a href="/" class="flex items-center px-4 py-3 rounded-md hover:bg-blue-200 transition" title="Home">
-					<svg xmlns="http://www.w3.org/2000/svg" class="nav-icon w-5 h-5 mr-3 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9l9-7 9 7v11a2 2 0 01-2 2h-4a2 2 0 01-2-2V12H9v8a2 2 0 01-2 2H3a2 2 0 01-2-2V9z"></path>
-					</svg>
+					<!-- Using FontAwesome’s home icon -->
+					<i class="fas fa-home fa-lg mr-3 text-blue-600"></i>
 					<span class="nav-text transition-all duration-300 text-sm">Home</span>
 				</a>
 			</li>
 			<li>
 				<a href="/dashboard" class="flex items-center px-4 py-3 rounded-md hover:bg-blue-200 transition" title="Dashboard">
-					<svg xmlns="http://www.w3.org/2000/svg" class="nav-icon w-5 h-5 mr-3 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h4v11H3zM10 5h4v16h-4zM17 12h4v9h-4z"></path>
-					</svg>
+					<!-- Dashboard icon -->
+					<i class="fas fa-tachometer-alt fa-lg mr-3 text-blue-600"></i>
 					<span class="nav-text transition-all duration-300 text-sm">Dashboard</span>
 				</a>
 			</li>
 			<li id="users-menu" class="relative">
 				<button class="w-full flex items-center justify-between px-4 py-3 rounded-md hover:bg-blue-200 transition" title="Users">
 					<span class="flex items-center">
-						<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-3 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-5-3.87M9 20H4v-2a4 4 0 015-3.87M15 11a4 4 0 11-8 0 4 4 0 018 0z"></path>
-						</svg>
+						<!-- Users icon -->
+						<i class="fas fa-users fa-lg mr-3 text-blue-600"></i>
 						<span class="nav-text transition-all duration-300 text-sm">Users</span>
 					</span>
-					<svg xmlns="http://www.w3.org/2000/svg" id="users-menu-icon" class="w-4 h-4 text-gray-600 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-					</svg>
+					<!-- Chevron for submenu toggle -->
+					<i id="users-menu-icon" class="fas fa-chevron-down text-gray-600 transition-transform"></i>
 				</button>
 				<ul id="users-submenu" class="hidden pl-8 mt-1 space-y-1">
 					<li>
@@ -59,15 +55,11 @@ templ NavList() {
 			<li id="students-menu" class="relative">
 				<button class="w-full flex items-center justify-between px-4 py-3 rounded-md hover:bg-blue-200 transition" title="Students">
 					<span class="flex items-center">
-						<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-3 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path>
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.84 6.86L12 21l-7-3.562a12.083 12.083 0 01.84-6.86L12 14z"></path>
-						</svg>
+						<!-- Students icon -->
+						<i class="fas fa-user-graduate fa-lg mr-3 text-blue-600"></i>
 						<span class="nav-text transition-all duration-300 text-sm">Students</span>
 					</span>
-					<svg xmlns="http://www.w3.org/2000/svg" id="students-menu-icon" class="w-4 h-4 text-gray-600 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-					</svg>
+					<i id="students-menu-icon" class="fas fa-chevron-down text-gray-600 transition-transform"></i>
 				</button>
 				<ul id="students-submenu" class="hidden pl-8 mt-1 space-y-1">
 					<li>
@@ -103,9 +95,8 @@ templ NavList() {
 					hx-swap="innerHTML"
 					title="Classes"
 				>
-					<svg xmlns="http://www.w3.org/2000/svg" class="nav-icon w-5 h-5 mr-3 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-					</svg>
+					<!-- Classes icon -->
+					<i class="fas fa-chalkboard fa-lg mr-3 text-blue-600"></i>
 					<span class="nav-text transition-all duration-300 text-sm">Classes</span>
 				</a>
 			</li>
@@ -118,9 +109,8 @@ templ NavList() {
 					hx-swap="innerHTML"
 					title="Grades"
 				>
-					<svg xmlns="http://www.w3.org/2000/svg" class="nav-icon w-5 h-5 mr-3 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m2 0a2 2 0 012 2v4a2 2 0 01-2 2H7a2 2 0 01-2-2v-4a2 2 0 012-2m10 0V6a2 2 0 00-2-2H9a2 2 0 00-2 2v6"></path>
-					</svg>
+					<!-- Grades icon -->
+					<i class="fas fa-clipboard-list fa-lg mr-3 text-blue-600"></i>
 					<span class="nav-text transition-all duration-300 text-sm">Grades</span>
 				</a>
 			</li>
@@ -133,10 +123,8 @@ templ NavList() {
 					hx-swap="innerHTML"
 					title="Fees"
 				>
-					<svg xmlns="http://www.w3.org/2000/svg" class="nav-icon w-5 h-5 mr-3 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z"></path>
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v2m0 16v2m6-10h2M4 12H2m15.364-6.364l1.414 1.414M4.222 19.778l1.414-1.414m0-10.728L4.222 4.222m15.364 15.364l-1.414-1.414"></path>
-					</svg>
+					<!-- Fees icon -->
+					<i class="fas fa-money-bill-wave fa-lg mr-3 text-blue-600"></i>
 					<span class="nav-text transition-all duration-300 text-sm">Fees</span>
 				</a>
 			</li>
