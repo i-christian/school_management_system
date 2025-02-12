@@ -18,15 +18,15 @@ import (
 	"github.com/pressly/goose/v3"
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/joho/godotenv/autoload"
 	_ "github.com/lib/pq"
 )
 
 type Server struct {
 	queries   *database.Queries
-	conn      *pgx.Conn
+	conn      *pgxpool.Pool
 	SecretKey []byte
 	port      int
 }
@@ -75,7 +75,7 @@ func NewServer() (*Server, *http.Server) {
 
 	ctx := context.Background()
 	port, _ := strconv.Atoi(os.Getenv("PORT"))
-	conn, err := pgx.Connect(ctx, os.Getenv("DB_URL"))
+	conn, err := pgxpool.New(ctx, os.Getenv("DB_URL"))
 	if err != nil {
 		slog.Error("Unable to connect to database: \n", "detailed message", err)
 		os.Exit(1)

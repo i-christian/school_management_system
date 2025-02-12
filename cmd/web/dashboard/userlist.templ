@@ -57,8 +57,8 @@ templ UsersList(userList []database.ListUsersRow) {
 									} else {
 										<button
 											class="flex items-center px-2 py-1 text-sm text-white bg-yellow-500 rounded-md hover:bg-yellow-600 focus:outline-none"
-											hx-put={ "/users/" + user.UserID.String() }
-											hx-target="#main-content"
+											hx-get={ "/users/edit" }
+											hx-target="#content-area"
 											hx-swap="innerHTML"
 										>
 											<i class="fas fa-edit mr-1"></i> Edit
