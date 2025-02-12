@@ -1,3 +1,4 @@
+// userlist.templ
 package dashboard
 
 import "school_management_system/internal/database"
@@ -57,7 +58,7 @@ templ UsersList(userList []database.ListUsersRow) {
 									} else {
 										<button
 											class="flex items-center px-2 py-1 text-sm text-white bg-yellow-500 rounded-md hover:bg-yellow-600 focus:outline-none"
-											hx-get={ "/users/edit" }
+											hx-get={ "/users/" + user.UserID.String() + "/edit" }
 											hx-target="#content-area"
 											hx-swap="innerHTML"
 										>
@@ -65,9 +66,8 @@ templ UsersList(userList []database.ListUsersRow) {
 										</button>
 										<button
 											class="flex items-center px-2 py-1 text-sm text-white bg-red-500 rounded-md hover:bg-red-600 focus:outline-none"
-											hx-delete={ "/users/" + user.UserID.String() }
-											hx-confirm="Are you sure you want to delete this user?"
-											hx-target="#user-table-body"
+											hx-get={ "/users/" + user.UserID.String() + "/delete" }
+											hx-target="body"
 											hx-swap="innerHTML"
 										>
 											<i class="fas fa-trash mr-1"></i> Delete

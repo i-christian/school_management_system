@@ -6,7 +6,6 @@ import (
 
 	"school_management_system/cmd/web"
 	"school_management_system/cmd/web/dashboard"
-	"school_management_system/internal/database"
 
 	"github.com/a-h/templ"
 	"github.com/go-chi/chi/v5"
@@ -61,10 +60,17 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Use(s.RequireRoles("admin"))
 
 		r.Get("/", s.ListUsers)
+
+		// Registration routes
 		r.Get("/create", templ.Handler(dashboard.CreateUserForm()).ServeHTTP)
 		r.Post("/", s.Register)
-		r.Get("/edit", templ.Handler(dashboard.EditUserModal(database.User{})).ServeHTTP)
+
+		// Edit routes
+		r.Get("/{id}/edit", s.ShowEditUserForm)
 		r.Put("/{id}", s.EditUser)
+
+		// Delete routes:
+		r.Get("/{id}/delete", s.ShowDeleteConfirmation)
 		r.Delete("/{id}", s.DeleteUser)
 	})
 

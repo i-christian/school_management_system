@@ -179,6 +179,22 @@ func (s *Server) ListUsers(w http.ResponseWriter, r *http.Request) {
 	s.renderComponent(w, r, component)
 }
 
+// ShowEditUserForm fetches the user by id and renders the edit modal.
+func (s *Server) ShowEditUserForm(w http.ResponseWriter, r *http.Request) {
+	userID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		writeError(w, http.StatusUnprocessableEntity, "invalid user id")
+	}
+
+	user, err := s.queries.GetUserDetails(r.Context(), userID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "user not found")
+		return
+	}
+
+	s.renderComponent(w, r, dashboard.EditUserModal(user))
+}
+
 // EditUser handler
 // Update user information
 // expects form data with user information from
@@ -224,6 +240,12 @@ func (s *Server) EditUser(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusInternalServerError, "internal server error")
 		return
 	}
+}
+
+// ShowDeleteConfirmation renders the delete confirmation modal, passing the user id.
+func (s *Server) ShowDeleteConfirmation(w http.ResponseWriter, r *http.Request) {
+	userID := r.PathValue("id")
+	s.renderComponent(w, r, dashboard.DeleteConfirmationModal(userID))
 }
 
 // DeleteUser handler

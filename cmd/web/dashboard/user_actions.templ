@@ -2,8 +2,7 @@ package dashboard
 
 import "school_management_system/internal/database"
 
-// EditUserModal renders an edit form for a given user.
-templ EditUserModal(user database.User) {
+templ EditUserModal(user database.GetUserDetailsRow) {
 	<section id="edit-user-modal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
 		<div class="bg-white w-full max-w-lg rounded-lg shadow-lg p-6">
 			<h2 class="text-xl font-bold mb-4">Edit User</h2>
@@ -42,12 +41,47 @@ templ EditUserModal(user database.User) {
 						class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
 					/>
 				</div>
-				<!-- Add additional fields as needed -->
+				<div>
+					<label class="block text-gray-700">Phone</label>
+					<input
+						type="phone"
+						name="phone"
+						value={ user.PhoneNumber.String }
+						class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
+					/>
+				</div>
+				<div>
+					<label class="block text-gray-700">Gender</label>
+					<input
+						type="text"
+						name="gender"
+						value={ user.Gender }
+						class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
+					/>
+				</div>
+				<div>
+					<label class="block text-gray-700">Password</label>
+					<input
+						type="text"
+						name="password"
+						value={ user.Password }
+						class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
+					/>
+				</div>
+				<div>
+					<label class="block text-gray-700">Role</label>
+					<input
+						type="text"
+						name="role"
+						value={ user.Role }
+						class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
+					/>
+				</div>
 				<div class="flex justify-end space-x-2">
 					<button
 						type="button"
 						class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 focus:outline-none"
-						hx-get="/dashboard/userlist"
+						hx-get="/users"
 						hx-target="#content-area"
 						hx-swap="innerHTML"
 					>
@@ -65,7 +99,6 @@ templ EditUserModal(user database.User) {
 	</section>
 }
 
-// DeleteConfirmationModal renders a confirmation modal for deleting a user.
 templ DeleteConfirmationModal(userID string) {
 	<section id="delete-confirmation-modal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
 		<div class="bg-white w-full max-w-md rounded-lg shadow-lg p-6">
@@ -75,7 +108,7 @@ templ DeleteConfirmationModal(userID string) {
 				<button
 					type="button"
 					class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 focus:outline-none"
-					hx-get="/dashboard/userlist"
+					hx-get="/users"
 					hx-target="#content-area"
 					hx-swap="innerHTML"
 				>
