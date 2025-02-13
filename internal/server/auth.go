@@ -113,14 +113,12 @@ func (s *Server) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// If the request is from HTMX, send an HX-Redirect header.
 	if r.Header.Get("HX-Request") != "" {
 		w.Header().Set("HX-Redirect", "/dashboard")
 		w.WriteHeader(http.StatusOK)
 		return
 	}
 
-	// Otherwise, perform a normal HTTP redirect.
 	http.Redirect(w, r, "/dashboard", http.StatusFound)
 }
 

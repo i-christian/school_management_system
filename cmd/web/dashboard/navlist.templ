@@ -5,14 +5,12 @@ templ NavList() {
 		<ul class="space-y-2">
 			<li>
 				<a href="/" class="flex items-center px-4 py-3 rounded-md hover:bg-blue-200 transition" title="Home">
-					<!-- Using FontAwesome’s home icon -->
 					<i class="fas fa-home fa-lg mr-3 text-blue-600"></i>
 					<span class="nav-text transition-all duration-300 text-sm">Home</span>
 				</a>
 			</li>
 			<li>
 				<a href="/dashboard" class="flex items-center px-4 py-3 rounded-md hover:bg-blue-200 transition" title="Dashboard">
-					<!-- Dashboard icon -->
 					<i class="fas fa-tachometer-alt fa-lg mr-3 text-blue-600"></i>
 					<span class="nav-text transition-all duration-300 text-sm">Dashboard</span>
 				</a>
@@ -23,7 +21,6 @@ templ NavList() {
 						<i class="fas fa-users fa-lg mr-3 text-blue-600"></i>
 						<span class="nav-text transition-all duration-300 text-sm">Users</span>
 					</span>
-					<!-- Chevron for submenu toggle -->
 					<i id="users-menu-icon" class="fas fa-chevron-down text-gray-600 transition-transform"></i>
 				</button>
 				<ul id="users-submenu" class="hidden pl-8 mt-1 space-y-1">
@@ -51,7 +48,6 @@ templ NavList() {
 			<li id="students-menu" class="relative">
 				<button class="w-full flex items-center justify-between px-4 py-3 rounded-md hover:bg-blue-200 transition" title="Students">
 					<span class="flex items-center">
-						<!-- Students icon -->
 						<i class="fas fa-user-graduate fa-lg mr-3 text-blue-600"></i>
 						<span class="nav-text transition-all duration-300 text-sm">Students</span>
 					</span>
@@ -91,7 +87,6 @@ templ NavList() {
 					hx-swap="innerHTML"
 					title="Classes"
 				>
-					<!-- Classes icon -->
 					<i class="fas fa-chalkboard fa-lg mr-3 text-blue-600"></i>
 					<span class="nav-text transition-all duration-300 text-sm">Classes</span>
 				</a>
@@ -105,7 +100,6 @@ templ NavList() {
 					hx-swap="innerHTML"
 					title="Grades"
 				>
-					<!-- Grades icon -->
 					<i class="fas fa-clipboard-list fa-lg mr-3 text-blue-600"></i>
 					<span class="nav-text transition-all duration-300 text-sm">Grades</span>
 				</a>
@@ -119,7 +113,6 @@ templ NavList() {
 					hx-swap="innerHTML"
 					title="Fees"
 				>
-					<!-- Fees icon -->
 					<i class="fas fa-money-bill-wave fa-lg mr-3 text-blue-600"></i>
 					<span class="nav-text transition-all duration-300 text-sm">Fees</span>
 				</a>

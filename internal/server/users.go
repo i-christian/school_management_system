@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strings"
 
+	"school_management_system/cmd/web"
 	"school_management_system/cmd/web/components"
 	"school_management_system/cmd/web/dashboard"
 	"school_management_system/internal/database"
@@ -20,12 +21,20 @@ import (
 	"golang.org/x/text/language"
 )
 
-// common handler logic for rendering components
-func (s *Server) renderComponent(w http.ResponseWriter, r *http.Request, component templ.Component) {
-	err := component.Render(r.Context(), w)
-	if err != nil {
-		writeError(w, http.StatusBadRequest, err.Error())
-		slog.Error("Failed to render component", "Message:", err)
+// renderDashboardComponent renders a component either as a full dashboard page
+// (when not an HTMX request) or just the component (when it's an HTMX request).
+func (s *Server) renderComponent(w http.ResponseWriter, r *http.Request, children templ.Component) {
+	if r.Header.Get("HX-Request") == "true" {
+		if err := children.Render(r.Context(), w); err != nil {
+			writeError(w, http.StatusBadRequest, err.Error())
+			slog.Error("Failed to render dashboard component", "error", err)
+		}
+	} else {
+		ctx := templ.WithChildren(r.Context(), children)
+		if err := web.Dashboard().Render(ctx, w); err != nil {
+			writeError(w, http.StatusBadRequest, err.Error())
+			slog.Error("Failed to render dashboard layout", "error", err)
+		}
 	}
 }
 
@@ -166,17 +175,21 @@ func (s *Server) userProfile(w http.ResponseWriter, r *http.Request) {
 	s.renderComponent(w, r, component)
 }
 
-// ListUsers handler retrieves all users from the database
-// This handler can only be accessed by someone with admin priviledges
+// Dashboard is the index handler for the dashboard.
+func (s *Server) Dashboard(w http.ResponseWriter, r *http.Request) {
+	contents := dashboard.DashboardCards()
+	s.renderComponent(w, r, contents)
+}
+
+// ListUsers handler retrieves all users from the database.
 func (s *Server) ListUsers(w http.ResponseWriter, r *http.Request) {
 	userList, err := s.queries.ListUsers(r.Context())
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "Internal Server Error")
 		return
 	}
-
-	component := dashboard.UsersList(userList)
-	s.renderComponent(w, r, component)
+	contents := dashboard.UsersList(userList)
+	s.renderComponent(w, r, contents)
 }
 
 // ShowEditUserForm fetches the user by id and renders the edit modal.
@@ -241,7 +254,13 @@ func (s *Server) EditUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.renderComponent(w, r, components.SucessModal("User successfully updated", components.User{}))
+	if r.Header.Get("HX-Request") != "" {
+		w.Header().Set("HX-Redirect", "/dashboard/userlist")
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	http.Redirect(w, r, "/dashboard/userlist", http.StatusFound)
 }
 
 // ShowDeleteConfirmation renders the delete confirmation modal, passing the user id.
@@ -266,5 +285,11 @@ func (s *Server) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.renderComponent(w, r, components.SucessModal("User successfully deleted", components.User{}))
+	if r.Header.Get("HX-Request") != "" {
+		w.Header().Set("HX-Redirect", "/dashboard/userlist")
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	http.Redirect(w, r, "/dashboard/userlist", http.StatusFound)
 }
