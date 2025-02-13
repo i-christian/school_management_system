@@ -81,9 +81,14 @@ Live reload the application:
 make watch
 ```
 
-Run the test suite:
+Run the full test suite:
 ```bash
 make test
+```
+
+Run integration test suite:
+```bash
+make itest
 ```
 
 Clean up binary from the last build:

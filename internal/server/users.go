@@ -110,7 +110,7 @@ func (s *Server) Register(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/html")
 
-	component := components.SucessModal(components.User{
+	component := components.SucessModal("Registration Successful", components.User{
 		UserNo:    newUser.UserNo,
 		FirstName: firstName,
 		LastName:  lastName,
@@ -240,6 +240,8 @@ func (s *Server) EditUser(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusInternalServerError, "internal server error")
 		return
 	}
+
+	s.renderComponent(w, r, components.SucessModal("User successfully updated", components.User{}))
 }
 
 // ShowDeleteConfirmation renders the delete confirmation modal, passing the user id.
@@ -263,4 +265,6 @@ func (s *Server) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusInternalServerError, "internal server error")
 		return
 	}
+
+	s.renderComponent(w, r, components.SucessModal("User successfully deleted", components.User{}))
 }
