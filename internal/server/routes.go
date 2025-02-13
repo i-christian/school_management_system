@@ -76,8 +76,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.Route("/dashboard", func(r chi.Router) {
 		r.Use(s.AuthMiddleware)
 		r.Use(s.RequireRoles("admin", "teacher", "headteacher", "accountant"))
-
-		r.Get("/", templ.Handler(web.Dashboard()).ServeHTTP)
+		r.Get("/", s.Dashboard)
 		r.Get("/userlist", s.ListUsers)
 		r.Get("/total_users", s.GetTotalUsers)
 		r.Get("/total_students", s.GetStudentsTotal)
