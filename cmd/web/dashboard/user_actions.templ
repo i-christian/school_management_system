@@ -3,100 +3,167 @@ package dashboard
 import "school_management_system/internal/database"
 
 templ EditUserModal(user database.GetUserDetailsRow) {
-	<section id="edit-user-modal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
-		<div class="bg-white w-full max-w-lg rounded-lg shadow-lg p-6">
-			<h2 class="text-xl font-bold mb-4">Edit User</h2>
+	<div class="max-w-3xl mx-auto p-6">
+		<div class="bg-white rounded-lg shadow-lg overflow-hidden">
+			<div class="bg-blue-600 px-6 py-4">
+				<h2 class="text-white text-xl font-bold">Edit User</h2>
+			</div>
 			<form
 				hx-put={ "/users/" + user.UserID.String() }
 				hx-target="#content-area"
 				hx-swap="innerHTML"
-				class="space-y-4"
+				class="px-6 py-6"
 			>
-				<div>
-					<label class="block text-gray-700">First Name</label>
-					<input
-						type="text"
-						name="first_name"
-						value={ user.FirstName }
-						class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
-						required
-					/>
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+					<div>
+						<label class="block text-gray-700 font-semibold mb-2">
+							First Name
+						</label>
+						<input
+							type="text"
+							name="first_name"
+							value={ user.FirstName }
+							required
+							class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+						/>
+					</div>
+					<div>
+						<label class="block text-gray-700 font-semibold mb-2">
+							Last Name
+						</label>
+						<input
+							type="text"
+							name="last_name"
+							value={ user.LastName }
+							required
+							class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+						/>
+					</div>
+					<div>
+						<label class="block text-gray-700 font-semibold mb-2">
+							Phone Number
+						</label>
+						<input
+							type="tel"
+							name="phone_number"
+							value={ user.PhoneNumber.String }
+							pattern="[0-9]{12}"
+							required
+							class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+						/>
+					</div>
+					<div>
+						<label class="block text-gray-700 font-semibold mb-2">
+							Email (optional)
+						</label>
+						<input
+							type="email"
+							name="email"
+							value={ user.Email.String }
+							class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+						/>
+					</div>
+					<div>
+						<label class="block text-gray-700 font-semibold mb-2">
+							Gender
+						</label>
+						<select
+							name="gender"
+							required
+							class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+						>
+							<option value="">Select</option>
+							<option
+								value="M"
+								if user.Gender == "M" {
+									selected="M"
+								}
+							>Male</option>
+							<option
+								value="F"
+								if user.Gender == "F" {
+									selected="F"
+								}
+							>Female</option>
+						</select>
+					</div>
+					<div>
+						<label class="block text-gray-700 font-semibold mb-2">
+							Role
+						</label>
+						<select
+							name="role"
+							required
+							class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+						>
+							<option value="">Select</option>
+							<option
+								value="teacher"
+								if user.Role == "teacher" {
+									selected="teacher"
+								}
+							>
+								Teacher
+							</option>
+							<option
+								value="classteacher"
+								if user.Role == "classteacher" {
+									selected="classteacher"
+								}
+							>
+								Class Teacher
+							</option>
+							<option
+								value="headteacher"
+								if user.Role == "headteacher" {
+									selected="headteacher"
+								}
+							>
+								Head Teacher
+							</option>
+							<option
+								value="accountant"
+								if user.Role == "accountant" {
+									selected="accountant"
+								}
+							>
+								Accountant
+							</option>
+						</select>
+					</div>
+					<div>
+						<label class="block text-gray-700 font-semibold mb-2">
+							Password
+						</label>
+						<input
+							type="text"
+							name="password"
+							minlength="6"
+							placeholder="Enter new password"
+							class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+						/>
+					</div>
 				</div>
-				<div>
-					<label class="block text-gray-700">Last Name</label>
-					<input
-						type="text"
-						name="last_name"
-						value={ user.LastName }
-						class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
-						required
-					/>
-				</div>
-				<div>
-					<label class="block text-gray-700">Email</label>
-					<input
-						type="email"
-						name="email"
-						value={ user.Email.String }
-						class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
-					/>
-				</div>
-				<div>
-					<label class="block text-gray-700">Phone</label>
-					<input
-						type="phone"
-						name="phone"
-						value={ user.PhoneNumber.String }
-						class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
-					/>
-				</div>
-				<div>
-					<label class="block text-gray-700">Gender</label>
-					<input
-						type="text"
-						name="gender"
-						value={ user.Gender }
-						class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
-					/>
-				</div>
-				<div>
-					<label class="block text-gray-700">Password</label>
-					<input
-						type="text"
-						name="password"
-						value={ user.Password }
-						class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
-					/>
-				</div>
-				<div>
-					<label class="block text-gray-700">Role</label>
-					<input
-						type="text"
-						name="role"
-						value={ user.Role }
-						class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
-					/>
-				</div>
-				<div class="flex justify-end space-x-2">
+				<div class="flex justify-end mt-8 space-x-4">
 					<button
 						type="button"
-						class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 focus:outline-none"
-						hx-get="/users"
+						hx-get="/dashboard/userlist"
 						hx-target="#content-area"
 						hx-swap="innerHTML"
+						class="bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-gray-400"
 					>
 						Cancel
 					</button>
 					<button
 						type="submit"
-						class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none"
+						class="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
 					>
 						Save
 					</button>
 				</div>
 			</form>
 		</div>
-	</section>
+	</div>
 }
 
 templ DeleteConfirmationModal(userID string) {
@@ -108,7 +175,7 @@ templ DeleteConfirmationModal(userID string) {
 				<button
 					type="button"
 					class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 focus:outline-none"
-					hx-get="/users"
+					hx-get="/dashboard/userlist"
 					hx-target="#content-area"
 					hx-swap="innerHTML"
 				>

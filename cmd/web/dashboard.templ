@@ -39,6 +39,7 @@ templ Dashboard() {
 					{ children... }
 				</div>
 			</main>
+			<div id="modal"></div>
 			<script>
         function updateNavText(expanded) {
           document.querySelectorAll('.nav-text').forEach(el => {
@@ -136,6 +137,12 @@ templ Dashboard() {
           expanded = isDesktop ? true : false;
           applyLayout();
         });
+
+		  document.body.addEventListener('htmx:afterSwap', function(evt) {
+    			if (evt.detail.target.id === 'content-area') {
+      			document.getElementById('modal').innerHTML = '';
+    			}
+  			});
       </script>
 		</body>
 	</html>

@@ -59,8 +59,6 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Use(s.AuthMiddleware)
 		r.Use(s.RequireRoles("admin"))
 
-		r.Get("/", s.ListUsers)
-
 		// Registration routes
 		r.Get("/create", templ.Handler(dashboard.CreateUserForm()).ServeHTTP)
 		r.Post("/", s.Register)

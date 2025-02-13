@@ -92,6 +92,7 @@ templ CreateUserForm() {
 					<button
 						type="button"
 						hx-get="/dashboard/userlist"
+						hx-push-url="true"
 						hx-target="#content-area"
 						hx-swap="innerHTML"
 						class="bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-gray-400"

@@ -4,7 +4,7 @@ package dashboard
 import "school_management_system/internal/database"
 
 templ UsersList(userList []database.ListUsersRow) {
-	<section class="container mx-auto p-4">
+	<section id="user-list" class="container mx-auto p-4">
 		<div class="flex items-center justify-between mb-4">
 			<h2 class="text-xl font-bold">Users</h2>
 			<button
@@ -67,7 +67,7 @@ templ UsersList(userList []database.ListUsersRow) {
 										<button
 											class="flex items-center px-2 py-1 text-sm text-white bg-red-500 rounded-md hover:bg-red-600 focus:outline-none"
 											hx-get={ "/users/" + user.UserID.String() + "/delete" }
-											hx-target="body"
+											hx-target="#modal"
 											hx-swap="innerHTML"
 										>
 											<i class="fas fa-trash mr-1"></i> Delete
