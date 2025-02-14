@@ -2,7 +2,7 @@ package web
 
 import "school_management_system/cmd/web/dashboard"
 
-templ Dashboard() {
+templ Dashboard(user dashboard.DashboardUserRole) {
 	<!DOCTYPE html>
 	<html lang="en" class="h-screen bg-gray-100">
 		<head>
@@ -30,7 +30,7 @@ templ Dashboard() {
 			</header>
 			<aside id="sidebar" class="fixed z-40 h-full bg-white shadow transition-all duration-300 overflow-hidden" data-expanded="true">
 				<div class="pt-5 h-full flex flex-col">
-					@dashboard.NavList()
+					@dashboard.NavList(user)
 				</div>
 			</aside>
 			<main class="pt-[4rem] transition-all mx-5 my-6 duration-300">

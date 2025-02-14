@@ -1,6 +1,10 @@
 package dashboard
 
-templ NavList() {
+type DashboardUserRole struct {
+	Role string
+}
+
+templ NavList(user DashboardUserRole) {
 	<nav class="flex-1 overflow-y-auto">
 		<ul class="space-y-1">
 			<li>
@@ -15,13 +19,15 @@ templ NavList() {
 					<span class="nav-text text-sm">Dashboard</span>
 				</a>
 			</li>
-			<li class="px-4 py-1 text-xs font-bold text-gray-500 uppercase nav-text">User Management</li>
-			<li>
-				<a href="/dashboard/userlist" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="User List">
-					<i class="nav-icon fas fa-users fa-lg mr-3 text-blue-600"></i>
-					<span class="nav-text text-sm">User List</span>
-				</a>
-			</li>
+			if user.Role == "admin" {
+				<li class="px-4 py-1 text-xs font-bold text-gray-500 uppercase nav-text">User Management</li>
+				<li>
+					<a href="/dashboard/userlist" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="User List">
+						<i class="nav-icon fas fa-users fa-lg mr-3 text-blue-600"></i>
+						<span class="nav-text text-sm">User List</span>
+					</a>
+				</li>
+			}
 			<li class="px-4 py-1 text-xs font-bold text-gray-500 uppercase nav-text">Academic Administration</li>
 			<li>
 				<a href="/academic-years-terms" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Academic Years & Terms">
