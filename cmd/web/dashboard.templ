@@ -29,7 +29,7 @@ templ Dashboard() {
 				@dashboard.UserProfile()
 			</header>
 			<aside id="sidebar" class="fixed z-40 h-full bg-white shadow transition-all duration-300 overflow-hidden" data-expanded="true">
-				<div class="pt-16 h-full flex flex-col">
+				<div class="pt-5 h-full flex flex-col">
 					@dashboard.NavList()
 				</div>
 			</aside>
@@ -117,19 +117,6 @@ templ Dashboard() {
             }
           }
         });
-
-        function setupExpandableMenu(menuId, iconId, submenuId) {
-          const menuButton = document.getElementById(menuId);
-          const menuIcon = document.getElementById(iconId);
-          const submenu = document.getElementById(submenuId);
-          menuButton.addEventListener('click', (e) => {
-            e.stopPropagation();
-            submenu.classList.toggle('hidden');
-            menuIcon.classList.toggle('rotate-180');
-          });
-        }
-        setupExpandableMenu('users-menu', 'users-menu-icon', 'users-submenu');
-        setupExpandableMenu('students-menu', 'students-menu-icon', 'students-submenu');
 
         window.addEventListener('resize', () => {
           isDesktop = window.innerWidth >= 1024;

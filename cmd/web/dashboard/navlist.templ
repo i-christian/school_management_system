@@ -1,120 +1,76 @@
 package dashboard
 
 templ NavList() {
-	<nav class="p-4 h-full">
-		<ul class="space-y-2">
+	<nav class="flex-1 overflow-y-auto">
+		<ul class="space-y-1">
 			<li>
-				<a href="/" class="flex items-center px-4 py-3 rounded-md hover:bg-blue-200 transition" title="Home">
-					<i class="fas fa-home fa-lg mr-3 text-blue-600"></i>
-					<span class="nav-text transition-all duration-300 text-sm">Home</span>
+				<a href="/" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Home">
+					<i class="nav-icon fas fa-home fa-lg mr-3 text-blue-600"></i>
+					<span class="nav-text text-sm">Home</span>
 				</a>
 			</li>
 			<li>
-				<a href="/dashboard" class="flex items-center px-4 py-3 rounded-md hover:bg-blue-200 transition" title="Dashboard">
-					<i class="fas fa-tachometer-alt fa-lg mr-3 text-blue-600"></i>
-					<span class="nav-text transition-all duration-300 text-sm">Dashboard</span>
+				<a href="/dashboard" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Dashboard">
+					<i class="nav-icon fas fa-tachometer-alt fa-lg mr-3 text-blue-600"></i>
+					<span class="nav-text text-sm">Dashboard</span>
 				</a>
 			</li>
-			<li id="users-menu" class="relative">
-				<button class="w-full flex items-center justify-between px-4 py-3 rounded-md hover:bg-blue-200 transition" title="Users">
-					<span class="flex items-center">
-						<i class="fas fa-users fa-lg mr-3 text-blue-600"></i>
-						<span class="nav-text transition-all duration-300 text-sm">Users</span>
-					</span>
-					<i id="users-menu-icon" class="fas fa-chevron-down text-gray-600 transition-transform"></i>
-				</button>
-				<ul id="users-submenu" class="hidden pl-8 mt-1 space-y-1">
-					<li>
-						<a
-							href="/dashboard/userlist"
-							class="block px-4 py-2 rounded-md hover:bg-blue-100 transition text-sm"
-						>
-							All Users
-						</a>
-					</li>
-					<li>
-						<a
-							href="/assignments"
-							class="block px-4 py-2 rounded-md hover:bg-blue-100 transition text-sm"
-							hx-get="/assignments"
-							hx-target="#content-area"
-							hx-swap="innerHTML"
-						>
-							Assignments
-						</a>
-					</li>
-				</ul>
-			</li>
-			<li id="students-menu" class="relative">
-				<button class="w-full flex items-center justify-between px-4 py-3 rounded-md hover:bg-blue-200 transition" title="Students">
-					<span class="flex items-center">
-						<i class="fas fa-user-graduate fa-lg mr-3 text-blue-600"></i>
-						<span class="nav-text transition-all duration-300 text-sm">Students</span>
-					</span>
-					<i id="students-menu-icon" class="fas fa-chevron-down text-gray-600 transition-transform"></i>
-				</button>
-				<ul id="students-submenu" class="hidden pl-8 mt-1 space-y-1">
-					<li>
-						<a
-							href="/students"
-							class="block px-4 py-2 rounded-md hover:bg-blue-100 transition text-sm"
-							hx-get="/students"
-							hx-target="#content-area"
-							hx-swap="innerHTML"
-						>
-							All Students
-						</a>
-					</li>
-					<li>
-						<a
-							href="/students/guardians"
-							class="block px-4 py-2 rounded-md hover:bg-blue-100 transition text-sm"
-							hx-get="/students/guardians"
-							hx-target="#content-area"
-							hx-swap="innerHTML"
-						>
-							Guardians
-						</a>
-					</li>
-				</ul>
-			</li>
+			<li class="px-4 py-1 text-xs font-bold text-gray-500 uppercase nav-text">User Management</li>
 			<li>
-				<a
-					href="/classes"
-					class="flex items-center px-4 py-3 rounded-md hover:bg-blue-200 transition"
-					hx-get="/classes"
-					hx-target="#content-area"
-					hx-swap="innerHTML"
-					title="Classes"
-				>
-					<i class="fas fa-chalkboard fa-lg mr-3 text-blue-600"></i>
-					<span class="nav-text transition-all duration-300 text-sm">Classes</span>
+				<a href="/dashboard/userlist" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="User List">
+					<i class="nav-icon fas fa-users fa-lg mr-3 text-blue-600"></i>
+					<span class="nav-text text-sm">User List</span>
+				</a>
+			</li>
+			<li class="px-4 py-1 text-xs font-bold text-gray-500 uppercase nav-text">Academic Administration</li>
+			<li>
+				<a href="/academic-years-terms" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Academic Years & Terms">
+					<i class="nav-icon fas fa-calendar-alt fa-lg mr-3 text-blue-600"></i>
+					<span class="nav-text text-sm">Academic Years &amp; Terms</span>
 				</a>
 			</li>
 			<li>
-				<a
-					href="/grades"
-					class="flex items-center px-4 py-3 rounded-md hover:bg-blue-200 transition"
-					hx-get="/grades"
-					hx-target="#content-area"
-					hx-swap="innerHTML"
-					title="Grades"
-				>
-					<i class="fas fa-clipboard-list fa-lg mr-3 text-blue-600"></i>
-					<span class="nav-text transition-all duration-300 text-sm">Grades</span>
+				<a href="/classes-promotions" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Classes & Promotions">
+					<i class="nav-icon fas fa-chalkboard-teacher fa-lg mr-3 text-blue-600"></i>
+					<span class="nav-text text-sm">Classes &amp; Promotions</span>
 				</a>
 			</li>
 			<li>
-				<a
-					href="/fees"
-					class="flex items-center px-4 py-3 rounded-md hover:bg-blue-200 transition"
-					hx-get="/fees"
-					hx-target="#content-area"
-					hx-swap="innerHTML"
-					title="Fees"
-				>
-					<i class="fas fa-money-bill-wave fa-lg mr-3 text-blue-600"></i>
-					<span class="nav-text transition-all duration-300 text-sm">Fees</span>
+				<a href="/subjects-assignments" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Subjects & Assignments">
+					<i class="nav-icon fas fa-book fa-lg mr-3 text-blue-600"></i>
+					<span class="nav-text text-sm">Subjects &amp; Assignments</span>
+				</a>
+			</li>
+			<li class="px-4 py-1 text-xs font-bold text-gray-500 uppercase nav-text">Student Management</li>
+			<li>
+				<a href="/students" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Students">
+					<i class="nav-icon fas fa-user-graduate fa-lg mr-3 text-blue-600"></i>
+					<span class="nav-text text-sm">Students</span>
+				</a>
+			</li>
+			<li>
+				<a href="/guardians" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Guardians">
+					<i class="nav-icon fas fa-users-cog fa-lg mr-3 text-blue-600"></i>
+					<span class="nav-text text-sm">Guardians</span>
+				</a>
+			</li>
+			<li class="px-4 py-1 text-xs font-bold text-gray-500 uppercase nav-text">Academic Records</li>
+			<li>
+				<a href="/grades" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Grades">
+					<i class="nav-icon fas fa-clipboard-list fa-lg mr-3 text-blue-600"></i>
+					<span class="nav-text text-sm">Grades</span>
+				</a>
+			</li>
+			<li>
+				<a href="/fees-management" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Fees Management">
+					<i class="nav-icon fas fa-money-bill-wave fa-lg mr-3 text-blue-600"></i>
+					<span class="nav-text text-sm">Fees Management</span>
+				</a>
+			</li>
+			<li>
+				<a href="/remarks-discipline" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Remarks & Discipline">
+					<i class="nav-icon fas fa-comments fa-lg mr-3 text-blue-600"></i>
+					<span class="nav-text text-sm">Remarks &amp; Discipline</span>
 				</a>
 			</li>
 		</ul>
