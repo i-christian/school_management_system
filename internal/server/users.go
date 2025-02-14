@@ -185,7 +185,15 @@ func (s *Server) userProfile(w http.ResponseWriter, r *http.Request) {
 
 // Dashboard is the index handler for the dashboard.
 func (s *Server) Dashboard(w http.ResponseWriter, r *http.Request) {
-	contents := dashboard.DashboardCards()
+	user, ok := r.Context().Value(userContextKey).(User)
+	if !ok {
+		writeError(w, http.StatusUnauthorized, "unauthorized")
+	}
+
+	userRole := dashboard.DashboardUserRole{
+		Role: user.Role,
+	}
+	contents := dashboard.DashboardCards(userRole)
 	s.renderComponent(w, r, contents)
 }
 
