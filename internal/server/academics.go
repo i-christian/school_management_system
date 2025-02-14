@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"school_management_system/cmd/web/dashboard/academics"
 	"school_management_system/internal/database"
 
 	"github.com/google/uuid"
@@ -54,11 +55,14 @@ func (s *Server) CreateAcademicYear(w http.ResponseWriter, r *http.Request) {
 
 // ListAcademicYears handler lists academic years
 func (s *Server) ListAcademicYears(w http.ResponseWriter, r *http.Request) {
-	_, err := s.queries.ListAcademicYear(r.Context())
+	AcademicYears, err := s.queries.ListAcademicYear(r.Context())
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "could not fetch academic year list")
 		return
 	}
+
+	component := academics.AcademicYearsTermsList(AcademicYears)
+	s.renderComponent(w, r, component)
 }
 
 // EditAcademicYear handler updates academic year

@@ -84,7 +84,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	})
 
 	// ACADEMIC ADMINISTRATION (ADMIN)
-	r.Route("/academic", func(r chi.Router) {
+	r.Route("/academics", func(r chi.Router) {
 		r.Use(s.AuthMiddleware)
 		r.Use(s.RequireRoles("admin"))
 
