@@ -30,8 +30,16 @@ func (s *Server) renderComponent(w http.ResponseWriter, r *http.Request, childre
 			slog.Error("Failed to render dashboard component", "error", err)
 		}
 	} else {
+		userRole, ok := r.Context().Value(userContextKey).(User)
+		if !ok {
+			writeError(w, http.StatusUnauthorized, "unauthorised")
+			return
+		}
+		user := dashboard.DashboardUserRole{
+			Role: userRole.Role,
+		}
 		ctx := templ.WithChildren(r.Context(), children)
-		if err := web.Dashboard().Render(ctx, w); err != nil {
+		if err := web.Dashboard(user).Render(ctx, w); err != nil {
 			writeError(w, http.StatusBadRequest, err.Error())
 			slog.Error("Failed to render dashboard layout", "error", err)
 		}
