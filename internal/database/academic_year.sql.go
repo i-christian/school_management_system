@@ -147,6 +147,7 @@ func (q *Queries) GetAcademicYear(ctx context.Context, academicYearID uuid.UUID)
 const getTerm = `-- name: GetTerm :one
 SELECT
 term.term_id,
+academic_year.academic_year_id,
 academic_year.name AS Academic_Year,
 term.name AS Academic_Term,
 term.start_date AS Opening_date,
@@ -159,11 +160,12 @@ WHERE term_id = $1
 `
 
 type GetTermRow struct {
-	TermID       uuid.UUID   `json:"term_id"`
-	AcademicYear string      `json:"academic_year"`
-	AcademicTerm string      `json:"academic_term"`
-	OpeningDate  pgtype.Date `json:"opening_date"`
-	ClosingDate  pgtype.Date `json:"closing_date"`
+	TermID         uuid.UUID   `json:"term_id"`
+	AcademicYearID uuid.UUID   `json:"academic_year_id"`
+	AcademicYear   string      `json:"academic_year"`
+	AcademicTerm   string      `json:"academic_term"`
+	OpeningDate    pgtype.Date `json:"opening_date"`
+	ClosingDate    pgtype.Date `json:"closing_date"`
 }
 
 func (q *Queries) GetTerm(ctx context.Context, termID uuid.UUID) (GetTermRow, error) {
@@ -171,6 +173,7 @@ func (q *Queries) GetTerm(ctx context.Context, termID uuid.UUID) (GetTermRow, er
 	var i GetTermRow
 	err := row.Scan(
 		&i.TermID,
+		&i.AcademicYearID,
 		&i.AcademicYear,
 		&i.AcademicTerm,
 		&i.OpeningDate,

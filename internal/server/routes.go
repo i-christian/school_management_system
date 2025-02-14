@@ -96,6 +96,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 		r.Get("/terms/{id}/create", s.CreateTermForm)
 		r.Post("/terms/{id}", s.CreateTerm)
+		r.Get("/terms/{id}/edit", s.ShowEditAcademicTerm)
 		r.Put("/terms/{id}", s.EditTerm)
 		r.Get("/year/{id}/terms", s.ListTerms)
 

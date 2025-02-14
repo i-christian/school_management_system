@@ -85,6 +85,7 @@ func (s *Server) ShowEditAcademicYear(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "internal server error")
 		slog.Error("academic year not found", "message", err.Error())
+		return
 	}
 
 	s.renderComponent(w, r, academics.EditYearModal(academicYear))
@@ -241,25 +242,42 @@ func (s *Server) ListTerms(w http.ResponseWriter, r *http.Request) {
 	s.renderComponent(w, r, component)
 }
 
-// GetTerm handler method retrives all data for a specific term
-func (s *Server) GetTerm(w http.ResponseWriter, r *http.Request) {
-	id := r.PathValue("id")
-	term_id, err := uuid.Parse(id)
+// ShowEditAcademicTerm handler method renders EditTermForm
+func (s *Server) ShowEditAcademicTerm(w http.ResponseWriter, r *http.Request) {
+	termID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		writeError(w, http.StatusUnprocessableEntity, "invalid academic term")
+		slog.Error("failed to parse term id", "message:", err.Error())
+		return
+	}
+
+	academicTerm, err := s.queries.GetTerm(r.Context(), termID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		slog.Error("academic term not found", "message:", err.Error())
+		return
+	}
+
+	s.renderComponent(w, r, academics.EditTermForm(academicTerm))
+}
+
+// EditTerms handler method handles editing an academic year
+func (s *Server) EditTerm(w http.ResponseWriter, r *http.Request) {
+	termID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		writeError(w, http.StatusUnprocessableEntity, "wrong parameters")
 		return
 	}
 
-	// add termInfo struct data to later
-	_, err = s.queries.GetTerm(r.Context(), term_id)
-}
-
-// EditTerms handler method
-func (s *Server) EditTerm(w http.ResponseWriter, r *http.Request) {
-	id := r.PathValue("id")
-	term_id, err := uuid.Parse(id)
+	academicTerm, err := s.queries.GetTerm(r.Context(), termID)
 	if err != nil {
-		writeError(w, http.StatusUnprocessableEntity, "wrong parameters")
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		return
+	}
+
+	academicYear, err := s.queries.GetAcademicYear(r.Context(), academicTerm.AcademicYearID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
 		return
 	}
 
@@ -289,8 +307,15 @@ func (s *Server) EditTerm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// validate academic year dates with terms dates
+	if startDate.Format(time.DateOnly) > academicYear.EndDate.Time.Format(time.DateOnly) || startDate.Format(time.DateOnly) < academicYear.StartDate.Time.Format(time.DateOnly) || endDate.Format(time.DateOnly) > academicYear.EndDate.Time.Format(time.DateOnly) {
+		writeError(w, http.StatusBadRequest, "bad request")
+		slog.Error("invalid term starting date")
+		return
+	}
+
 	params := database.EditTermParams{
-		TermID:    term_id,
+		TermID:    termID,
 		Name:      name,
 		StartDate: pgtype.Date{Time: startDate, Valid: true},
 		EndDate:   pgtype.Date{Time: endDate, Valid: true},
@@ -301,4 +326,12 @@ func (s *Server) EditTerm(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusInternalServerError, "internal server error")
 		return
 	}
+
+	if r.Header.Get("HX-Request") != "" {
+		w.Header().Set("HX-Redirect", "/academics/years")
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	http.Redirect(w, r, "/academics/years", http.StatusFound)
 }

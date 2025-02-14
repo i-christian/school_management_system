@@ -43,6 +43,7 @@ WHERE academic_year.academic_year_id = $1;
 -- name: GetTerm :one
 SELECT
 term.term_id,
+academic_year.academic_year_id,
 academic_year.name AS Academic_Year,
 term.name AS Academic_Term,
 term.start_date AS Opening_date,

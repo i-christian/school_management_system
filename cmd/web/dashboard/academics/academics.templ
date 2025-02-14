@@ -74,7 +74,7 @@ templ TermsList(terms []database.ListTermsRow) {
 			</div>
 			<button
 				class="flex items-center px-3 py-1 text-sm text-white bg-yellow-500 rounded-md hover:bg-yellow-600"
-				hx-get={ "/academic/terms/" + term.TermID.String() + "/edit" }
+				hx-get={ "/academics/terms/" + term.TermID.String() + "/edit" }
 				hx-target="#content-area"
 				hx-swap="innerHTML"
 			>
