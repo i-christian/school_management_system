@@ -38,7 +38,7 @@ FROM term
 INNER JOIN academic_year
 ON
 term.academic_year_id = academic_year.academic_year_id
-WHERE academic_year.name = $1;
+WHERE academic_year.academic_year_id = $1;
 
 -- name: GetTerm :one
 SELECT

@@ -35,7 +35,7 @@ templ AcademicYearsTermsList(years []database.AcademicYear) {
 								</button>
 								<button
 									class="flex items-center px-3 py-1 text-sm text-white bg-green-500 rounded-md hover:bg-green-600"
-									hx-get={ "/academics/terms/create?year=" + year.AcademicYearID.String() }
+									hx-get={ "/academics/terms/" + year.AcademicYearID.String() + "/create" }
 									hx-target="#content-area"
 									hx-swap="innerHTML"
 								>
@@ -43,14 +43,13 @@ templ AcademicYearsTermsList(years []database.AcademicYear) {
 								</button>
 							</div>
 						</div>
-						<!-- Terms Section -->
 						<section class="mt-4">
 							<h4 class="text-md font-medium">Terms</h4>
 							<ul id={ "terms-list-" + year.AcademicYearID.String() } class="space-y-2">
 								<li class="p-2 bg-gray-200 rounded text-center text-sm">
 									<button
 										class="text-blue-600 hover:underline"
-										hx-get={ "/academic/years/" + year.AcademicYearID.String() + "/terms" }
+										hx-get={ "/academics/year/" + year.AcademicYearID.String() + "/terms" }
 										hx-target={ "#terms-list-" + year.AcademicYearID.String() }
 										hx-swap="innerHTML"
 									>
@@ -71,7 +70,7 @@ templ TermsList(terms []database.ListTermsRow) {
 		<li class="p-3 bg-white rounded shadow flex justify-between items-center">
 			<div>
 				<h5 class="text-sm font-medium">{ term.AcademicTerm }</h5>
-				<p class="text-xs text-gray-600">{ term.OpeningDate.Time.Format("Jan 2, 2025") } - { term.ClosingDate.Time.Format("Jan 2, 2025") }</p>
+				<p class="text-xs text-gray-600">{ term.OpeningDate.Time.Format("Jan 2, 2006") } - { term.ClosingDate.Time.Format("Jan 2, 2006") }</p>
 			</div>
 			<button
 				class="flex items-center px-3 py-1 text-sm text-white bg-yellow-500 rounded-md hover:bg-yellow-600"

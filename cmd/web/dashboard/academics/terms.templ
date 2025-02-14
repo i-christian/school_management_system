@@ -1,16 +1,13 @@
 package academics
 
-import "school_management_system/internal/database"
-import "time"
-
-templ EditYearModal(academicYear database.AcademicYear) {
+templ CreateTermForm(academicYearID string) {
 	<div class="max-w-3xl mx-auto p-6">
 		<div class="bg-white rounded-lg shadow-lg overflow-hidden">
 			<header class="bg-blue-600 px-6 py-4">
-				<h2 class="text-white text-xl font-bold">Edit Academic Year</h2>
+				<h2 class="text-white text-xl font-bold">Create Term</h2>
 			</header>
 			<form
-				hx-put={ "/academics/years/" + academicYear.AcademicYearID.String() }
+				hx-post={ "/academics/terms/" + academicYearID }
 				hx-target="#content-area"
 				hx-swap="innerHTML"
 				class="px-6 py-6"
@@ -25,7 +22,7 @@ templ EditYearModal(academicYear database.AcademicYear) {
 							name="name"
 							minlength="6"
 							maxlength="30"
-							value={ academicYear.Name }
+							placeholder="e.g First Term"
 							required
 							class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
 						/>
@@ -34,7 +31,7 @@ templ EditYearModal(academicYear database.AcademicYear) {
 						<label class="block text-gray-700 font-semibold mb-2">Start Date</label>
 						<input
 							type="date"
-							value={ academicYear.StartDate.Time.Format(time.DateOnly) }
+							value="{time.Now().Date()}"
 							name="start"
 							required
 						/>
@@ -43,7 +40,7 @@ templ EditYearModal(academicYear database.AcademicYear) {
 						<label class="block text-gray-700 font-semibold mb-2">End Date</label>
 						<input
 							type="date"
-							value={ academicYear.EndDate.Time.Format(time.DateOnly) }
+							value="{time.Now().Date()}"
 							name="end"
 							required
 						/>

@@ -219,7 +219,7 @@ FROM term
 INNER JOIN academic_year
 ON
 term.academic_year_id = academic_year.academic_year_id
-WHERE academic_year.name = $1
+WHERE academic_year.academic_year_id = $1
 `
 
 type ListTermsRow struct {
@@ -230,8 +230,8 @@ type ListTermsRow struct {
 	ClosingDate  pgtype.Date `json:"closing_date"`
 }
 
-func (q *Queries) ListTerms(ctx context.Context, name string) ([]ListTermsRow, error) {
-	rows, err := q.db.Query(ctx, listTerms, name)
+func (q *Queries) ListTerms(ctx context.Context, academicYearID uuid.UUID) ([]ListTermsRow, error) {
+	rows, err := q.db.Query(ctx, listTerms, academicYearID)
 	if err != nil {
 		return nil, err
 	}

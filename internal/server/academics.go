@@ -73,10 +73,11 @@ func (s *Server) ListAcademicYears(w http.ResponseWriter, r *http.Request) {
 	s.renderComponent(w, r, component)
 }
 
+// ShowEditAcademicYear handler method renders the EditYearModal form
 func (s *Server) ShowEditAcademicYear(w http.ResponseWriter, r *http.Request) {
 	academicYearID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		writeError(w, http.StatusUnprocessableEntity, "invalid user id")
+		writeError(w, http.StatusUnprocessableEntity, "invalid academic year")
 		return
 	}
 
@@ -145,6 +146,13 @@ func (s *Server) EditAcademicYear(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/academics/years", http.StatusFound)
 }
 
+// CreateTermForm handler method renders the CreateTermForm form
+func (s *Server) CreateTermForm(w http.ResponseWriter, r *http.Request) {
+	academicYearID := r.PathValue("id")
+
+	s.renderComponent(w, r, academics.CreateTermForm(academicYearID))
+}
+
 // CreateTerm handler function
 func (s *Server) CreateTerm(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -160,6 +168,12 @@ func (s *Server) CreateTerm(w http.ResponseWriter, r *http.Request) {
 	academicYearID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		writeError(w, http.StatusUnprocessableEntity, "invalid user id")
+		return
+	}
+
+	academicYear, err := s.queries.GetAcademicYear(r.Context(), academicYearID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
 		return
 	}
 
@@ -184,31 +198,47 @@ func (s *Server) CreateTerm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	academic_year, err := s.queries.GetAcademicYear(r.Context(), academicYearID)
-	if err != nil {
-		writeError(w, http.StatusInternalServerError, "failed to find academic year")
+	// validate academic year dates with terms dates
+	if startDate.Format(time.DateOnly) > academicYear.EndDate.Time.Format(time.DateOnly) || startDate.Format(time.DateOnly) < academicYear.StartDate.Time.Format(time.DateOnly) || endDate.Format(time.DateOnly) > academicYear.EndDate.Time.Format(time.DateOnly) {
+		writeError(w, http.StatusBadRequest, "bad request")
+		slog.Error("invalid term starting date")
 		return
 	}
 
 	params := database.CreateTermParams{
-		AcademicYearID: academic_year.AcademicYearID,
+		AcademicYearID: academicYearID,
 		Name:           name,
 		StartDate:      pgtype.Date{Time: startDate, Valid: true},
 		EndDate:        pgtype.Date{Time: endDate, Valid: true},
 	}
 
 	_, err = s.queries.CreateTerm(r.Context(), params)
+
+	if r.Header.Get("HX-Request") != "" {
+		w.Header().Set("HX-Redirect", "/academics/years")
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	http.Redirect(w, r, "/academics/years", http.StatusFound)
 }
 
 // ListTerms handler method retrieves terms per academic year
 func (s *Server) ListTerms(w http.ResponseWriter, r *http.Request) {
-	academicYear := r.PathValue("academic_year")
+	academicYear, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "bad request")
+		slog.Error("failed to parse academic year id")
+	}
 
-	_, err := s.queries.ListTerms(r.Context(), academicYear)
+	terms, err := s.queries.ListTerms(r.Context(), academicYear)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "failed to retrieve terms")
 		return
 	}
+
+	component := academics.TermsList(terms)
+	s.renderComponent(w, r, component)
 }
 
 // GetTerm handler method retrives all data for a specific term
