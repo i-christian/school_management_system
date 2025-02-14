@@ -8,7 +8,7 @@ RETURNING academic_year_id;
 SELECT * FROM academic_year;
 
 -- name: GetAcademicYear :one
-SELECT * FROM academic_year WHERE name = $1;
+SELECT * FROM academic_year WHERE academic_year_id = $1;
 
 -- name: EditAcademicYear :exec
 UPDATE academic_year

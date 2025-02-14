@@ -1,13 +1,16 @@
 package academics
 
-templ AcademicYearForm() {
+import "school_management_system/internal/database"
+import "time"
+
+templ EditYearModal(academicYear database.AcademicYear) {
 	<div class="max-w-3xl mx-auto p-6">
 		<div class="bg-white rounded-lg shadow-lg overflow-hidden">
 			<header class="bg-blue-600 px-6 py-4">
-				<h2 class="text-white text-xl font-bold">Create Academic Year</h2>
+				<h2 class="text-white text-xl font-bold">Edit Academic Year</h2>
 			</header>
 			<form
-				hx-post="/academics/years"
+				hx-put={ "/academics/years/" + academicYear.AcademicYearID.String() }
 				hx-target="#content-area"
 				hx-swap="innerHTML"
 				class="px-6 py-6"
@@ -20,6 +23,7 @@ templ AcademicYearForm() {
 						<input
 							type="text"
 							name="name"
+							value={ academicYear.Name }
 							required
 							class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
 						/>
@@ -28,7 +32,7 @@ templ AcademicYearForm() {
 						<label class="block text-gray-700 font-semibold mb-2">Start Date</label>
 						<input
 							type="date"
-							value="{time.Now().Date()}"
+							value={ academicYear.StartDate.Time.Format(time.DateOnly) }
 							name="start"
 							required
 						/>
@@ -37,7 +41,7 @@ templ AcademicYearForm() {
 						<label class="block text-gray-700 font-semibold mb-2">End Date</label>
 						<input
 							type="date"
-							value="{time.Now().Date()}"
+							value={ academicYear.EndDate.Time.Format(time.DateOnly) }
 							name="end"
 							required
 						/>

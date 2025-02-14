@@ -27,7 +27,7 @@ templ AcademicYearsTermsList(years []database.AcademicYear) {
 							<div class="flex space-x-2">
 								<button
 									class="flex items-center px-3 py-1 text-sm text-white bg-yellow-500 rounded-md hover:bg-yellow-600"
-									hx-get={ "/academic/years/" + year.AcademicYearID.String() + "/edit" }
+									hx-get={ "/academics/years/" + year.AcademicYearID.String() + "/edit" }
 									hx-target="#content-area"
 									hx-swap="innerHTML"
 								>
@@ -35,7 +35,7 @@ templ AcademicYearsTermsList(years []database.AcademicYear) {
 								</button>
 								<button
 									class="flex items-center px-3 py-1 text-sm text-white bg-green-500 rounded-md hover:bg-green-600"
-									hx-get={ "/academic/terms/create?year=" + year.AcademicYearID.String() }
+									hx-get={ "/academics/terms/create?year=" + year.AcademicYearID.String() }
 									hx-target="#content-area"
 									hx-swap="innerHTML"
 								>

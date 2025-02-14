@@ -214,11 +214,13 @@ func (s *Server) ShowEditUserForm(w http.ResponseWriter, r *http.Request) {
 	userID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		writeError(w, http.StatusUnprocessableEntity, "invalid user id")
+		return
 	}
 
 	user, err := s.queries.GetUserDetails(r.Context(), userID)
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "user not found")
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		slog.Error("User not found", "message:", err.Error())
 		return
 	}
 

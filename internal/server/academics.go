@@ -1,6 +1,7 @@
 package server
 
 import (
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -72,13 +73,24 @@ func (s *Server) ListAcademicYears(w http.ResponseWriter, r *http.Request) {
 	s.renderComponent(w, r, component)
 }
 
-// EditAcademicYear handler updates academic year
-func (s *Server) EditAcademicYear(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPut {
-		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+func (s *Server) ShowEditAcademicYear(w http.ResponseWriter, r *http.Request) {
+	academicYearID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		writeError(w, http.StatusUnprocessableEntity, "invalid user id")
 		return
 	}
 
+	academicYear, err := s.queries.GetAcademicYear(r.Context(), academicYearID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		slog.Error("academic year not found", "message", err.Error())
+	}
+
+	s.renderComponent(w, r, academics.EditYearModal(academicYear))
+}
+
+// EditAcademicYear handler updates academic year
+func (s *Server) EditAcademicYear(w http.ResponseWriter, r *http.Request) {
 	academic_year_id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		writeError(w, http.StatusUnprocessableEntity, "failed to parse id")
@@ -123,21 +135,14 @@ func (s *Server) EditAcademicYear(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusInternalServerError, "internal server error")
 		return
 	}
-}
 
-// DeleteAcademicYear
-func (s *Server) DeleteAcademicYear(w http.ResponseWriter, r *http.Request) {
-	id, err := uuid.Parse(r.PathValue("id"))
-	if err != nil {
-		writeError(w, http.StatusUnprocessableEntity, "invalid request data")
+	if r.Header.Get("HX-Request") != "" {
+		w.Header().Set("HX-Redirect", "/academics/years")
+		w.WriteHeader(http.StatusOK)
 		return
 	}
 
-	err = s.queries.DeleteAcademicYear(r.Context(), id)
-	if err != nil {
-		writeError(w, http.StatusInternalServerError, "failed to delete academic year")
-		return
-	}
+	http.Redirect(w, r, "/academics/years", http.StatusFound)
 }
 
 // CreateTerm handler function
@@ -152,13 +157,18 @@ func (s *Server) CreateTerm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	academicYear := r.FormValue("academic_year")
+	academicYearID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		writeError(w, http.StatusUnprocessableEntity, "invalid user id")
+		return
+	}
+
 	name := r.FormValue("name")
 	start := r.FormValue("start")
 	end := r.FormValue("end")
 
 	// validate form
-	if academicYear == "" || name == "" || start == "" || end == "" {
+	if name == "" || start == "" || end == "" {
 		writeError(w, http.StatusBadRequest, "all fields are required")
 		return
 	}
@@ -174,7 +184,7 @@ func (s *Server) CreateTerm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	academic_year, err := s.queries.GetAcademicYear(r.Context(), academicYear)
+	academic_year, err := s.queries.GetAcademicYear(r.Context(), academicYearID)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "failed to find academic year")
 		return
@@ -257,22 +267,6 @@ func (s *Server) EditTerm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = s.queries.EditTerm(r.Context(), params)
-	if err != nil {
-		writeError(w, http.StatusInternalServerError, "internal server error")
-		return
-	}
-}
-
-// DeleteTerm handler method deletes a term
-func (s *Server) DeleteTerm(w http.ResponseWriter, r *http.Request) {
-	id := r.PathValue("id")
-	term_id, err := uuid.Parse(id)
-	if err != nil {
-		writeError(w, http.StatusUnprocessableEntity, "wrong parameters")
-		return
-	}
-
-	err = s.queries.DeleteTerm(r.Context(), term_id)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "internal server error")
 		return
