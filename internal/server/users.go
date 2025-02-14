@@ -11,6 +11,7 @@ import (
 	"school_management_system/cmd/web"
 	"school_management_system/cmd/web/components"
 	"school_management_system/cmd/web/dashboard"
+	"school_management_system/cmd/web/dashboard/userlist"
 	"school_management_system/internal/database"
 
 	"github.com/a-h/templ"
@@ -204,7 +205,7 @@ func (s *Server) ListUsers(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusInternalServerError, "Internal Server Error")
 		return
 	}
-	contents := dashboard.UsersList(userList)
+	contents := userlist.UsersList(userList)
 	s.renderComponent(w, r, contents)
 }
 
@@ -221,7 +222,7 @@ func (s *Server) ShowEditUserForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.renderComponent(w, r, dashboard.EditUserModal(user))
+	s.renderComponent(w, r, userlist.EditUserModal(user))
 }
 
 // EditUser handler
@@ -282,7 +283,7 @@ func (s *Server) EditUser(w http.ResponseWriter, r *http.Request) {
 // ShowDeleteConfirmation renders the delete confirmation modal, passing the user id.
 func (s *Server) ShowDeleteConfirmation(w http.ResponseWriter, r *http.Request) {
 	userID := r.PathValue("id")
-	s.renderComponent(w, r, dashboard.DeleteConfirmationModal(userID))
+	s.renderComponent(w, r, userlist.DeleteConfirmationModal(userID))
 }
 
 // DeleteUser handler

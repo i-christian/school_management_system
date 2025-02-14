@@ -5,8 +5,8 @@ import (
 	"os"
 
 	"school_management_system/cmd/web"
-	"school_management_system/cmd/web/dashboard"
 	"school_management_system/cmd/web/dashboard/academics"
+	"school_management_system/cmd/web/dashboard/userlist"
 
 	"github.com/a-h/templ"
 	"github.com/go-chi/chi/v5"
@@ -61,7 +61,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Use(s.RequireRoles("admin"))
 
 		// Registration routes
-		r.Get("/create", templ.Handler(dashboard.CreateUserForm()).ServeHTTP)
+		r.Get("/create", templ.Handler(userlist.CreateUserForm()).ServeHTTP)
 		r.Post("/", s.Register)
 
 		// Edit routes
