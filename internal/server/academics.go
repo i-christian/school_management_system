@@ -51,6 +51,13 @@ func (s *Server) CreateAcademicYear(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_, err = s.queries.CreateAcademicYear(r.Context(), params)
+	if r.Header.Get("HX-Request") != "" {
+		w.Header().Set("HX-Redirect", "/academics/years")
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	http.Redirect(w, r, "/academics/years", http.StatusFound)
 }
 
 // ListAcademicYears handler lists academic years

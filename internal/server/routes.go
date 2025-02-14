@@ -6,6 +6,7 @@ import (
 
 	"school_management_system/cmd/web"
 	"school_management_system/cmd/web/dashboard"
+	"school_management_system/cmd/web/dashboard/academics"
 
 	"github.com/a-h/templ"
 	"github.com/go-chi/chi/v5"
@@ -86,12 +87,11 @@ func (s *Server) RegisterRoutes() http.Handler {
 	// ACADEMIC ADMINISTRATION (ADMIN)
 	r.Route("/academics", func(r chi.Router) {
 		r.Use(s.AuthMiddleware)
-		r.Use(s.RequireRoles("admin"))
 
 		r.Get("/years", s.ListAcademicYears)
+		r.Get("/create", templ.Handler(academics.AcademicYearForm()).ServeHTTP)
 		r.Post("/years", s.CreateAcademicYear)
 		r.Put("/years/{id}", s.EditAcademicYear)
-		r.Delete("/years/{id}", s.DeleteAcademicYear)
 		r.Get("/terms", s.ListTerms)
 		r.Post("/terms", s.CreateTerm)
 		r.Put("/terms/{id}", s.EditTerm)
@@ -99,7 +99,6 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Get("/classes", s.ListClasses)
 		r.Post("/classes", s.CreateClass)
 		r.Put("/classes/{id}", s.EditClass)
-		r.Delete("/classes/{id}", s.DeleteClass)
 
 		r.Get("/assignments", s.ListAssignments)
 		r.Post("/assignments", s.CreateAssignment)
