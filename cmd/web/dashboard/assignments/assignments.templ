@@ -7,8 +7,8 @@ import (
 // templ AssignmentsList renders a list of assignments.
 templ AssignmentsList(assignments []database.ListAssignmentsRow) {
 	<div class="container mx-auto p-6">
-		<div class="flex items-center justify-between mb-4">
-			<h2 class="text-xl font-bold">Teacher Assignments</h2>
+		<div class="flex items-center justify-between mb-6">
+			<h2 class="text-2xl font-bold">Teacher Assignments</h2>
 			<button
 				class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none"
 				hx-get="/academics/assignments/create"
@@ -18,42 +18,40 @@ templ AssignmentsList(assignments []database.ListAssignmentsRow) {
 				<i class="fas fa-plus mr-2"></i> Create Assignment
 			</button>
 		</div>
-		<section>
-			<ul id="assignments-list" class="space-y-4">
-				for _, assignment := range assignments {
-					<li class="p-4 bg-gray-100 rounded shadow">
-						<div class="flex items-center justify-between">
-							<div>
-								<p class="text-lg font-semibold">
-									Class: { assignment.Classroom } - Subject: { assignment.Subject }
-								</p>
-								<p class="text-sm text-gray-600">
-									Teacher: { assignment.TeacherLastname + assignment.TeacherFirstname }
-								</p>
-							</div>
-							<div class="flex space-x-2">
-								<button
-									class="flex items-center px-3 py-1 text-sm text-white bg-yellow-500 rounded-md hover:bg-yellow-600"
-									hx-get={ "/academics/assignments/" + assignment.ID.String() + "/edit" }
-									hx-target="#content-area"
-									hx-swap="innerHTML"
-								>
-									<i class="fas fa-edit mr-1"></i> Edit
-								</button>
-								<button
-									class="flex items-center px-3 py-1 text-sm text-white bg-red-500 rounded-md hover:bg-red-600"
-									hx-delete={ "/academics/assignments/" + assignment.ID.String() }
-									hx-target="#content-area"
-									hx-swap="outerHTML"
-								>
-									<i class="fas fa-trash mr-1"></i> Delete
-								</button>
-							</div>
+		<div class="grid grid-cols-1 gap-4">
+			for _, assignment := range assignments {
+				<div class="p-4 bg-white rounded-lg shadow hover:shadow-lg transition-shadow duration-200">
+					<div class="flex items-center justify-between">
+						<div>
+							<p class="text-lg font-semibold">
+								Class: { assignment.Classroom } – Subject: { assignment.Subject }
+							</p>
+							<p class="text-sm text-gray-600">
+								Teacher: { assignment.TeacherLastname } { assignment.TeacherFirstname }
+							</p>
 						</div>
-					</li>
-				}
-			</ul>
-		</section>
+						<div class="flex space-x-2">
+							<button
+								class="flex items-center px-3 py-1 text-sm text-white bg-yellow-500 rounded-md hover:bg-yellow-600"
+								hx-get={ "/academics/assignments/" + assignment.ID.String() + "/edit" }
+								hx-target="#content-area"
+								hx-swap="innerHTML"
+							>
+								<i class="fas fa-edit mr-1"></i> Edit
+							</button>
+							<button
+								class="flex items-center px-3 py-1 text-sm text-white bg-red-500 rounded-md hover:bg-red-600"
+								hx-delete={ "/academics/assignments/" + assignment.ID.String() }
+								hx-target="#content-area"
+								hx-swap="outerHTML"
+							>
+								<i class="fas fa-trash mr-1"></i> Delete
+							</button>
+						</div>
+					</div>
+				</div>
+			}
+		</div>
 	</div>
 }
 
@@ -79,6 +77,9 @@ templ AssignmentForm(teachers []database.ListUsersRow, subjects []database.ListA
 							class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
 						>
 							for _, teacher := range teachers {
+								if teacher.Role == "admin" ||teacher.Role == "accountant" {
+									continue
+								}
 								<option value={ teacher.UserID.String() }>
 									{ teacher.FirstName } { teacher.LastName }
 								</option>
