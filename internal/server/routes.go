@@ -100,16 +100,25 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Put("/terms/{id}", s.EditTerm)
 		r.Get("/year/{id}/terms", s.ListTerms)
 
-		r.Get("/classes", s.ListClasses)
+		r.Get("/classes/create", s.ShowCreateClassForm)
 		r.Post("/classes", s.CreateClass)
+		r.Get("/classes", s.ListClasses)
+		r.Get("/classes/{id}/edit", s.ShowEditClass)
 		r.Put("/classes/{id}", s.EditClass)
+		r.Delete("/classes/{id}", s.DeleteClass)
+		r.Get("/classes/{id}/subjects", s.ListSubjects)
+
+		r.Get("/subjects/{id}/create", s.ShowCreateSubjectForm)
+		r.Post("/subjects/{id}", s.CreateSubject)
+		r.Get("/subjects/{id}/edit", s.ShowEditSubject)
+		r.Put("/subjects/{id}", s.EditSubject)
+		r.Delete("/subjects/{id}", s.DeleteSubject)
 
 		r.Get("/assignments", s.ListAssignments)
 		r.Post("/assignments", s.CreateAssignment)
 		r.Get("/assignments/{id}", s.EditAssignment)
 		r.Delete("/assignments/{id}", s.DeleteAssignment)
 
-		r.Get("/subjects", nil)
 		// More URLs
 	})
 

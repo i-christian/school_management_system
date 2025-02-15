@@ -4,6 +4,9 @@ INSERT INTO
 VALUES ($1, $2)
 ON CONFLICT ON CONSTRAINT unique_subject_name_per_class DO NOTHING;
 
+-- name: GetSubject :one
+SELECT * FROM subjects WHERE subject_id = $1;
+
 -- name: ListSubjects :many
 SELECT
     subjects.subject_id,
@@ -12,7 +15,7 @@ SELECT
 FROM subjects
 INNER JOIN classes
     ON subjects.class_id = classes.class_id
-GROUP BY classes.name
+WHERE classes.class_id = $1
 ORDER BY subjects.name;
 
 -- name: EditSubject :exec

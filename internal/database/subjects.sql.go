@@ -53,6 +53,17 @@ func (q *Queries) EditSubject(ctx context.Context, arg EditSubjectParams) error 
 	return err
 }
 
+const getSubject = `-- name: GetSubject :one
+SELECT subject_id, class_id, name FROM subjects WHERE subject_id = $1
+`
+
+func (q *Queries) GetSubject(ctx context.Context, subjectID uuid.UUID) (Subject, error) {
+	row := q.db.QueryRow(ctx, getSubject, subjectID)
+	var i Subject
+	err := row.Scan(&i.SubjectID, &i.ClassID, &i.Name)
+	return i, err
+}
+
 const listSubjects = `-- name: ListSubjects :many
 SELECT
     subjects.subject_id,
@@ -61,7 +72,7 @@ SELECT
 FROM subjects
 INNER JOIN classes
     ON subjects.class_id = classes.class_id
-GROUP BY classes.name
+WHERE classes.class_id = $1
 ORDER BY subjects.name
 `
 
@@ -71,8 +82,8 @@ type ListSubjectsRow struct {
 	Classname   string    `json:"classname"`
 }
 
-func (q *Queries) ListSubjects(ctx context.Context) ([]ListSubjectsRow, error) {
-	rows, err := q.db.Query(ctx, listSubjects)
+func (q *Queries) ListSubjects(ctx context.Context, classID uuid.UUID) ([]ListSubjectsRow, error) {
+	rows, err := q.db.Query(ctx, listSubjects, classID)
 	if err != nil {
 		return nil, err
 	}

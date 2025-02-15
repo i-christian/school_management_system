@@ -49,11 +49,11 @@ func (q *Queries) EditClass(ctx context.Context, arg EditClassParams) error {
 }
 
 const getClass = `-- name: GetClass :one
-SELECT class_id, name FROM classes WHERE name = $1
+SELECT class_id, name FROM classes WHERE class_id = $1
 `
 
-func (q *Queries) GetClass(ctx context.Context, name string) (Class, error) {
-	row := q.db.QueryRow(ctx, getClass, name)
+func (q *Queries) GetClass(ctx context.Context, classID uuid.UUID) (Class, error) {
+	row := q.db.QueryRow(ctx, getClass, classID)
 	var i Class
 	err := row.Scan(&i.ClassID, &i.Name)
 	return i, err
