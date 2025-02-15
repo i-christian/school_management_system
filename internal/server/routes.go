@@ -115,11 +115,11 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Delete("/subjects/{id}", s.DeleteSubject)
 
 		r.Get("/assignments", s.ListAssignments)
+		r.Get("/assignments/create", s.ShowCreateAssignmentForm)
 		r.Post("/assignments", s.CreateAssignment)
-		r.Get("/assignments/{id}", s.EditAssignment)
-		r.Delete("/assignments/{id}", s.DeleteAssignment)
-
-		// More URLs
+		r.Get("/assignments/{id}/edit", s.ShowEditAssignment)
+		r.Put("/assignments/{id}", s.EditAssignment)
+		r.Delete("/assignment/{id}", s.DeleteAssignment)
 	})
 
 	// STUDENT MANAGEMENT (ADMIN)

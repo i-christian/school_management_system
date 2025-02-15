@@ -85,7 +85,7 @@ INNER JOIN subjects
     ON assignments.subject_id = subjects.subject_id
 INNER JOIN users
     ON assignments.teacher_id = users.user_id
-WHERE users.user_id = $1
+WHERE assignments.id = $1
 `
 
 type GetAssignmentRow struct {
@@ -96,8 +96,8 @@ type GetAssignmentRow struct {
 	TeacherFirstname string    `json:"teacher_firstname"`
 }
 
-func (q *Queries) GetAssignment(ctx context.Context, userID uuid.UUID) (GetAssignmentRow, error) {
-	row := q.db.QueryRow(ctx, getAssignment, userID)
+func (q *Queries) GetAssignment(ctx context.Context, id uuid.UUID) (GetAssignmentRow, error) {
+	row := q.db.QueryRow(ctx, getAssignment, id)
 	var i GetAssignmentRow
 	err := row.Scan(
 		&i.ID,
@@ -123,7 +123,6 @@ INNER JOIN subjects
     ON assignments.subject_id = subjects.subject_id
 INNER JOIN users
     ON assignments.teacher_id = users.user_id
-GROUP BY users.last_name
 ORDER BY classes.name
 `
 

@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"school_management_system/cmd/web/dashboard/assignments"
 	"school_management_system/internal/database"
 
 	"github.com/google/uuid"
@@ -12,166 +13,191 @@ import (
 
 func convertStringToUUID(id string) (uuid.UUID, error) {
 	if id == "" {
-		return uuid.Nil, errors.New("an empty string can not be converted to a UUID")
+		return uuid.Nil, errors.New("an empty string cannot be converted to a UUID")
 	}
-
-	newID, err := uuid.Parse(id)
-	if err != nil {
-		return uuid.Nil, err
-	}
-	return newID, nil
+	return uuid.Parse(id)
 }
 
-// CreateAssignment handler method
-// A method accepts: classID, subjecID, and teacherID(userID)
-// Uses these parameters to assign a teacher to a unique class plus subject combination.
+// ShowCreateAssignmentForm renders the form to create a new assignment with dropdowns.
+func (s *Server) ShowCreateAssignmentForm(w http.ResponseWriter, r *http.Request) {
+	teachers, err := s.queries.ListUsers(r.Context())
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to retrieve teachers")
+		return
+	}
+
+	subjects, err := s.queries.ListAllSubjects(r.Context())
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to retrieve subjects")
+		return
+	}
+
+	s.renderComponent(w, r, assignments.AssignmentForm(teachers, subjects))
+}
+
+// CreateAssignment handles POST requests to create an assignment.
+// It reads form values for teacher_id, class_id, and subject_id.
 func (s *Server) CreateAssignment(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
 		return
 	}
+	if err := r.ParseForm(); err != nil {
+		writeError(w, http.StatusUnprocessableEntity, "failed to parse form")
+		return
+	}
 
-	query := r.URL.Query()
-	teacherID := query.Get("teacher_id")
-	classID := query.Get("class_id")
-	subjectID := query.Get("subject_id")
+	teacherID := r.FormValue("teacher_id")
+	classID := r.FormValue("class_id")
+	subjectID := r.FormValue("subject_id")
 
-	if teacherID == "" || classID == "" || subjectID == " " {
-		writeError(w, http.StatusUnprocessableEntity, "missing query parameters")
+	if teacherID == "" || classID == "" || subjectID == "" {
+		writeError(w, http.StatusUnprocessableEntity, "missing required fields")
 		return
 	}
 
 	parsedTeacherID, err := convertStringToUUID(teacherID)
 	if err != nil {
-		writeError(w, http.StatusBadRequest, "wrong teacher ID")
+		writeError(w, http.StatusBadRequest, "invalid teacher ID")
 		return
 	}
-
 	parsedClassID, err := convertStringToUUID(classID)
 	if err != nil {
-		writeError(w, http.StatusBadRequest, "wrong class ID")
+		writeError(w, http.StatusBadRequest, "invalid class ID")
 		return
 	}
-
 	parsedSubjectID, err := convertStringToUUID(subjectID)
 	if err != nil {
-		writeError(w, http.StatusBadRequest, "wrong subject ID")
+		writeError(w, http.StatusBadRequest, "invalid subject ID")
 		return
 	}
 
 	params := database.CreateAssignmentsParams{
+		TeacherID: parsedTeacherID,
 		ClassID:   parsedClassID,
 		SubjectID: parsedSubjectID,
-		TeacherID: parsedTeacherID,
 	}
 	_, err = s.queries.CreateAssignments(r.Context(), params)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "internal server error")
-		slog.Error("failed to assign teacher to class", "Message:", err.Error())
+		slog.Error("failed to create assignment", "error", err.Error())
 		return
 	}
+
+	if r.Header.Get("HX-Request") != "" {
+		w.Header().Set("HX-Redirect", "/assignments")
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+	http.Redirect(w, r, "/assignments", http.StatusFound)
 }
 
-// ListAssignments handler method
-// params: no parameters
-// returns: a list of various teachers assignments
+// ListAssignments retrieves a list of assignments and renders them.
 func (s *Server) ListAssignments(w http.ResponseWriter, r *http.Request) {
-	// TODO: assignmentsData
-	_, err := s.queries.ListAssignments(r.Context())
+	assigns, err := s.queries.ListAssignments(r.Context())
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "internal server error")
-		slog.Error("failed to retrieve teacher class assignments", "Message:", err.Error())
+		slog.Error("failed to list assignments", "error", err.Error())
 		return
 	}
+	component := assignments.AssignmentsList(assigns)
+	s.renderComponent(w, r, component)
 }
 
-// GetAssignment handler function
-// Accepts a userID/teacherID
-// Returns classes plus subjects assigned to said teacher
-func (s *Server) GetAssignment(w http.ResponseWriter, r *http.Request) {
-	id := r.PathValue("id")
-	userID, err := convertStringToUUID(id)
+// ShowEditAssignment renders the edit form for a specific assignment.
+func (s *Server) ShowEditAssignment(w http.ResponseWriter, r *http.Request) {
+	assignmentID, err := convertStringToUUID(r.PathValue("id"))
 	if err != nil {
-		writeError(w, http.StatusBadRequest, "wrong parameters")
+		writeError(w, http.StatusBadRequest, "invalid assignment ID")
 		return
 	}
 
-	// TODO: add assignments list here
-	_, err = s.queries.GetAssignment(r.Context(), userID)
+	assignment, err := s.queries.GetAssignment(r.Context(), assignmentID)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "internal server error")
-		slog.Error("failed to retrieve assignments", "message:", err.Error())
+		slog.Error("failed to retrieve assignment", "error", err.Error())
 		return
 	}
+
+	s.renderComponent(w, r, assignments.EditAssignmentForm(assignment))
 }
 
-// EditAssignment handler method
-// Accepts an assignment id param
-// accepts query parameters
+// EditAssignment handles form submission to update an assignment.
 func (s *Server) EditAssignment(w http.ResponseWriter, r *http.Request) {
-	id := r.PathValue("id")
-	parsedassignID, err := convertStringToUUID(id)
+	assignmentID, err := convertStringToUUID(r.PathValue("id"))
 	if err != nil {
-		writeError(w, http.StatusBadRequest, "wrong parameters")
+		writeError(w, http.StatusBadRequest, "invalid assignment ID")
+		return
+	}
+	if err := r.ParseForm(); err != nil {
+		writeError(w, http.StatusUnprocessableEntity, "failed to parse form")
 		return
 	}
 
-	query := r.URL.Query()
-	teacherID := query.Get("teacher_id")
-	classID := query.Get("class_id")
-	subjectID := query.Get("subject_id")
+	teacherID := r.FormValue("teacher_id")
+	classID := r.FormValue("class_id")
+	subjectID := r.FormValue("subject_id")
 
-	if teacherID == "" || classID == "" || subjectID == " " {
-		writeError(w, http.StatusUnprocessableEntity, "missing query parameters")
+	if teacherID == "" || classID == "" || subjectID == "" {
+		writeError(w, http.StatusUnprocessableEntity, "missing required fields")
 		return
 	}
 
 	parsedTeacherID, err := convertStringToUUID(teacherID)
 	if err != nil {
-		writeError(w, http.StatusBadRequest, "wrong teacher ID")
+		writeError(w, http.StatusBadRequest, "invalid teacher ID")
 		return
 	}
-
 	parsedClassID, err := convertStringToUUID(classID)
 	if err != nil {
-		writeError(w, http.StatusBadRequest, "wrong class ID")
+		writeError(w, http.StatusBadRequest, "invalid class ID")
 		return
 	}
-
 	parsedSubjectID, err := convertStringToUUID(subjectID)
 	if err != nil {
-		writeError(w, http.StatusBadRequest, "wrong subject ID")
+		writeError(w, http.StatusBadRequest, "invalid subject ID")
 		return
 	}
 
 	params := database.EditAssignmentsParams{
-		ID:        parsedassignID,
+		ID:        assignmentID,
+		TeacherID: parsedTeacherID,
 		ClassID:   parsedClassID,
 		SubjectID: parsedSubjectID,
-		TeacherID: parsedTeacherID,
 	}
-
 	err = s.queries.EditAssignments(r.Context(), params)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "internal server error")
-		slog.Error("failed to update assignment", "message:", err.Error())
+		slog.Error("failed to edit assignment", "error", err.Error())
 		return
 	}
+
+	if r.Header.Get("HX-Request") != "" {
+		w.Header().Set("HX-Redirect", "/academics/assignments")
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+	http.Redirect(w, r, "/academics/assignments", http.StatusFound)
 }
 
-// DeleteAssignment handler method
-// Accepts id path param
+// DeleteAssignment removes an assignment.
 func (s *Server) DeleteAssignment(w http.ResponseWriter, r *http.Request) {
-	assignID, err := uuid.Parse(r.PathValue("id"))
+	assignmentID, err := convertStringToUUID(r.PathValue("id"))
 	if err != nil {
-		writeError(w, http.StatusBadRequest, "invalid user id")
+		writeError(w, http.StatusBadRequest, "invalid assignment ID")
+		return
+	}
+	err = s.queries.DeleteAssignments(r.Context(), assignmentID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		slog.Error("failed to delete assignment", "error", err.Error())
 		return
 	}
 
-	err = s.queries.DeleteAssignments(r.Context(), assignID)
-	if err != nil {
-		writeError(w, http.StatusInternalServerError, "internal server error")
-		slog.Error("failed to remove assignment", "message:", err.Error())
+	if r.Header.Get("HX-Request") != "" {
+		w.Header().Set("HX-Redirect", "/academics/assignments")
+		w.WriteHeader(http.StatusOK)
 		return
 	}
+	http.Redirect(w, r, "/academics/assignments", http.StatusFound)
 }

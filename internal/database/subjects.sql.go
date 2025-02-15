@@ -64,6 +64,50 @@ func (q *Queries) GetSubject(ctx context.Context, subjectID uuid.UUID) (Subject,
 	return i, err
 }
 
+const listAllSubjects = `-- name: ListAllSubjects :many
+SELECT
+    subjects.subject_id AS SubjectID,
+    subjects.class_id AS ClassID,
+    subjects.name AS SubjectName,
+    classes.name AS ClassName
+FROM subjects
+INNER JOIN classes
+    ON subjects.class_id = classes.class_id
+ORDER BY subjects.name
+`
+
+type ListAllSubjectsRow struct {
+	Subjectid   uuid.UUID `json:"subjectid"`
+	Classid     uuid.UUID `json:"classid"`
+	Subjectname string    `json:"subjectname"`
+	Classname   string    `json:"classname"`
+}
+
+func (q *Queries) ListAllSubjects(ctx context.Context) ([]ListAllSubjectsRow, error) {
+	rows, err := q.db.Query(ctx, listAllSubjects)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListAllSubjectsRow{}
+	for rows.Next() {
+		var i ListAllSubjectsRow
+		if err := rows.Scan(
+			&i.Subjectid,
+			&i.Classid,
+			&i.Subjectname,
+			&i.Classname,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listSubjects = `-- name: ListSubjects :many
 SELECT
     subjects.subject_id,
