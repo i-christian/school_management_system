@@ -1,0 +1,309 @@
+package classes
+
+import "school_management_system/internal/database"
+import "strconv"
+
+templ ClassesSubjectsList(classes []database.Class) {
+	<div class="container mx-auto p-6">
+		<div class="flex items-center justify-between mb-4">
+			<h2 class="text-xl font-bold">Classes & Subjects</h2>
+			<button
+				class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none"
+				hx-get="/academics/classes/create"
+				hx-target="#content-area"
+				hx-swap="innerHTML"
+			>
+				<i class="fas fa-plus mr-2"></i> Create Class
+			</button>
+		</div>
+		<section>
+			<ul id="classes-list" class="space-y-4">
+				for _, class := range classes {
+					<li class="p-4 bg-gray-100 rounded shadow">
+						<div class="flex items-center justify-between">
+							<div>
+								<h3 class="text-lg font-semibold">{ class.Name }</h3>
+							</div>
+							<div class="flex space-x-2">
+								<button
+									class="flex items-center px-3 py-1 text-sm text-white bg-yellow-500 rounded-md hover:bg-yellow-600"
+									hx-get={ "/academics/classes/" + class.ClassID.String() + "/edit" }
+									hx-target="#content-area"
+									hx-swap="innerHTML"
+								>
+									<i class="fas fa-edit mr-1"></i> Edit
+								</button>
+								<button
+									class="flex items-center px-3 py-1 text-sm text-white bg-red-500 rounded-md hover:bg-red-600"
+									hx-delete={ "/academics/classes/" + class.ClassID.String() }
+									hx-target="#content-area"
+									hx-swap="outerHTML"
+								>
+									<i class="fas fa-trash mr-1"></i> Delete
+								</button>
+								<button
+									class="flex items-center px-3 py-1 text-sm text-white bg-green-500 rounded-md hover:bg-green-600"
+									hx-get={ "/academics/subjects/" + class.ClassID.String() + "/create" }
+									hx-target="#content-area"
+									hx-swap="innerHTML"
+								>
+									<i class="fas fa-plus mr-1"></i> Add Subject
+								</button>
+							</div>
+						</div>
+						<section class="mt-4">
+							<h4 class="text-md font-medium">Subjects</h4>
+							<ul id={ "subjects-list-" + class.ClassID.String() } class="space-y-2">
+								<li class="p-2 bg-gray-200 rounded text-center text-sm">
+									<div
+										hx-get={ "/academics/classes/" + class.ClassID.String() + "/subjects" }
+										hx-target={ "#subjects-list-" + class.ClassID.String() }
+										hx-trigger="load"
+										hx-swap="innerHTML"
+									>
+										Loading...
+									</div>
+								</li>
+							</ul>
+						</section>
+					</li>
+				}
+			</ul>
+		</section>
+	</div>
+}
+
+templ SubjectsList(subjects []database.ListSubjectsRow) {
+	for idx, subject := range subjects {
+		<li class="p-3 bg-white rounded shadow flex justify-between items-center">
+			<div class="flex flex-row gap-1">
+				<h5 class="text-sm font-medium">{ strconv.Itoa(idx + 1) + "." } </h5>
+				<h5 class="text-sm font-medium">{ subject.Subjectname }</h5>
+			</div>
+			<div class="flex space-x-2">
+				<button
+					class="flex items-center px-3 py-1 text-sm text-white bg-yellow-500 rounded-md hover:bg-yellow-600"
+					hx-get={ "/academics/subjects/" + subject.SubjectID.String() + "/edit" }
+					hx-target="#content-area"
+					hx-swap="innerHTML"
+				>
+					<i class="fas fa-edit mr-1"></i> Edit
+				</button>
+				<button
+					class="flex items-center px-3 py-1 text-sm text-white bg-red-500 rounded-md hover:bg-red-600"
+					hx-delete={ "/academics/subjects/" + subject.SubjectID.String() }
+					hx-target="#content-area"
+					hx-swap="outerHTML"
+				>
+					<i class="fas fa-trash mr-1"></i> Delete
+				</button>
+			</div>
+		</li>
+	}
+}
+
+templ ClassForm() {
+	<div class="max-w-3xl mx-auto p-6">
+		<div class="bg-white rounded-lg shadow-lg overflow-hidden">
+			<header class="bg-blue-600 px-6 py-4">
+				<h2 class="text-white text-xl font-bold">Create Class</h2>
+			</header>
+			<form
+				hx-post="/academics/classes"
+				hx-target="#content-area"
+				hx-swap="innerHTML"
+				class="px-6 py-6"
+			>
+				<div class="grid grid-cols-1 gap-6">
+					<section>
+						<label class="block text-gray-700 font-semibold mb-2">
+							Class Name
+						</label>
+						<input
+							type="text"
+							name="class_name"
+							placeholder="e.g. Form 1"
+							required
+							minlength="4"
+							maxlength="10"
+							class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+						/>
+					</section>
+				</div>
+				<section class="flex justify-end mt-8 space-x-4">
+					<button
+						type="button"
+						hx-get="/academics/classes"
+						hx-push-url="true"
+						hx-target="#content-area"
+						hx-swap="innerHTML"
+						class="bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-gray-400"
+					>
+						Cancel
+					</button>
+					<button
+						type="submit"
+						class="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+					>
+						Save
+					</button>
+				</section>
+			</form>
+		</div>
+	</div>
+}
+
+templ EditClassForm(class database.Class) {
+	<div class="max-w-3xl mx-auto p-6">
+		<div class="bg-white rounded-lg shadow-lg overflow-hidden">
+			<header class="bg-blue-600 px-6 py-4">
+				<h2 class="text-white text-xl font-bold">Edit Class</h2>
+			</header>
+			<form
+				hx-put={ "/academics/classes/" + class.ClassID.String() }
+				hx-target="#content-area"
+				hx-swap="innerHTML"
+				class="px-6 py-6"
+			>
+				<div class="grid grid-cols-1 gap-6">
+					<section>
+						<label class="block text-gray-700 font-semibold mb-2">
+							Class Name
+						</label>
+						<input
+							type="text"
+							name="class_name"
+							value={ class.Name }
+							placeholder="e.g. Form 1"
+							required
+							minlength="4"
+							maxlength="10"
+							class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+						/>
+					</section>
+				</div>
+				<section class="flex justify-end mt-8 space-x-4">
+					<button
+						type="button"
+						hx-get="/academics/classes"
+						hx-push-url="true"
+						hx-target="#content-area"
+						hx-swap="innerHTML"
+						class="bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-gray-400"
+					>
+						Cancel
+					</button>
+					<button
+						type="submit"
+						class="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+					>
+						Save
+					</button>
+				</section>
+			</form>
+		</div>
+	</div>
+}
+
+templ CreateSubjectForm(classID string) {
+	<div class="max-w-3xl mx-auto p-6">
+		<div class="bg-white rounded-lg shadow-lg overflow-hidden">
+			<header class="bg-blue-600 px-6 py-4">
+				<h2 class="text-white text-xl font-bold">Create Subject</h2>
+			</header>
+			<form
+				hx-post={ "/academics/subjects/" + classID }
+				hx-target="#content-area"
+				hx-swap="innerHTML"
+				class="px-6 py-6"
+			>
+				<div class="grid grid-cols-1 gap-6">
+					<section>
+						<label class="block text-gray-700 font-semibold mb-2">
+							Subject Name
+						</label>
+						<input
+							type="text"
+							name="subject_name"
+							placeholder="e.g. Mathematics"
+							required
+							minlength="4"
+							maxlength="20"
+							class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+						/>
+					</section>
+				</div>
+				<section class="flex justify-end mt-8 space-x-4">
+					<button
+						type="button"
+						hx-get="/academics/classes"
+						hx-push-url="true"
+						hx-target="#content-area"
+						hx-swap="innerHTML"
+						class="bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-gray-400"
+					>
+						Cancel
+					</button>
+					<button
+						type="submit"
+						class="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+					>
+						Save
+					</button>
+				</section>
+			</form>
+		</div>
+	</div>
+}
+
+templ EditSubjectForm(subject database.Subject) {
+	<div class="max-w-3xl mx-auto p-6">
+		<div class="bg-white rounded-lg shadow-lg overflow-hidden">
+			<header class="bg-blue-600 px-6 py-4">
+				<h2 class="text-white text-xl font-bold">Edit Subject</h2>
+			</header>
+			<form
+				hx-put={ "/academics/subjects/" + subject.SubjectID.String() }
+				hx-target="#content-area"
+				hx-swap="innerHTML"
+				class="px-6 py-6"
+			>
+				<div class="grid grid-cols-1 gap-6">
+					<section>
+						<label class="block text-gray-700 font-semibold mb-2">
+							Subject Name
+						</label>
+						<input
+							type="text"
+							name="subject_name"
+							value={ subject.Name }
+							placeholder="e.g. Mathematics"
+							required
+							minlength="4"
+							maxlength="20"
+							class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+						/>
+					</section>
+				</div>
+				<section class="flex justify-end mt-8 space-x-4">
+					<button
+						type="button"
+						hx-get="/academics/classes"
+						hx-push-url="true"
+						hx-target="#content-area"
+						hx-swap="innerHTML"
+						class="bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-gray-400"
+					>
+						Cancel
+					</button>
+					<button
+						type="submit"
+						class="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+					>
+						Save
+					</button>
+				</section>
+			</form>
+		</div>
+	</div>
+}
