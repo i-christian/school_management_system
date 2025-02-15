@@ -11,11 +11,6 @@ import (
 
 // CreateClass handler method
 func (s *Server) CreateClass(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
-		return
-	}
-
 	err := r.ParseForm()
 	if err != nil {
 		writeError(w, http.StatusUnprocessableEntity, "wrong parameters")

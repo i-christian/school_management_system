@@ -47,14 +47,14 @@ templ AcademicYearsTermsList(years []database.AcademicYear) {
 							<h4 class="text-md font-medium">Terms</h4>
 							<ul id={ "terms-list-" + year.AcademicYearID.String() } class="space-y-2">
 								<li class="p-2 bg-gray-200 rounded text-center text-sm">
-									<button
-										class="text-blue-600 hover:underline"
+									<div
 										hx-get={ "/academics/year/" + year.AcademicYearID.String() + "/terms" }
 										hx-target={ "#terms-list-" + year.AcademicYearID.String() }
+										hx-trigger="load"
 										hx-swap="innerHTML"
 									>
-										Load Terms
-									</button>
+										Loading...
+									</div>
 								</li>
 							</ul>
 						</section>
