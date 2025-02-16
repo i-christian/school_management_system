@@ -3,10 +3,11 @@ package academics
 import "school_management_system/internal/database"
 import "time"
 
+// templ AcademicYearsTermsList renders a list of academic years with collapsible terms.
 templ AcademicYearsTermsList(years []database.AcademicYear) {
 	<div class="container mx-auto p-6">
 		<div class="flex items-center justify-between mb-4">
-			<h2 class="text-xl font-bold">Academic Years & Terms</h2>
+			<h2 class="text-xl font-bold">Academic Years &amp; Terms</h2>
 			<button
 				class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none"
 				hx-get="/academics/create"
@@ -20,45 +21,51 @@ templ AcademicYearsTermsList(years []database.AcademicYear) {
 			<ul id="academic-years-list" class="space-y-4">
 				for _, year := range years {
 					<li class="p-4 bg-gray-100 rounded shadow">
-						<div class="flex items-center justify-between">
-							<div>
-								<h3 class="text-lg font-semibold">{ year.Name }</h3>
-								<p class="text-sm text-gray-600">{ year.StartDate.Time.Format("Jan 2, 2006") } - { year.EndDate.Time.Format("Jan 2, 2006") }</p>
-							</div>
-							<div class="flex space-x-2">
-								<button
-									class="flex items-center px-3 py-1 text-sm text-white bg-yellow-500 rounded-md hover:bg-yellow-600"
-									hx-get={ "/academics/years/" + year.AcademicYearID.String() + "/edit" }
-									hx-target="#content-area"
-									hx-swap="innerHTML"
-								>
-									<i class="fas fa-edit mr-1"></i> Edit
-								</button>
-								<button
-									class="flex items-center px-3 py-1 text-sm text-white bg-green-500 rounded-md hover:bg-green-600"
-									hx-get={ "/academics/terms/" + year.AcademicYearID.String() + "/create" }
-									hx-target="#content-area"
-									hx-swap="innerHTML"
-								>
-									<i class="fas fa-plus mr-1"></i> Add Term
-								</button>
-							</div>
-						</div>
-						<section class="mt-4">
-							<h4 class="text-md font-medium">Terms</h4>
-							<ul id={ "terms-list-" + year.AcademicYearID.String() } class="space-y-2">
-								<li class="p-2 bg-gray-200 rounded text-center text-sm">
-									<div
-										hx-get={ "/academics/year/" + year.AcademicYearID.String() + "/terms" }
-										hx-target={ "#terms-list-" + year.AcademicYearID.String() }
-										hx-trigger="load"
+						<details>
+							<summary class="flex items-center justify-between cursor-pointer">
+								<div>
+									<h3 class="text-lg font-semibold">{ year.Name }</h3>
+									<p class="text-sm text-gray-600">
+										{ year.StartDate.Time.Format("Jan 2, 2006") } - { year.EndDate.Time.Format("Jan 2, 2006") }
+									</p>
+								</div>
+								<div class="flex items-center space-x-2">
+									<button
+										class="flex items-center px-3 py-1 text-sm text-white bg-yellow-500 rounded-md hover:bg-yellow-600"
+										hx-get={ "/academics/years/" + year.AcademicYearID.String() + "/edit" }
+										hx-target="#content-area"
 										hx-swap="innerHTML"
+										onclick="event.stopPropagation()"
 									>
-										Loading...
-									</div>
-								</li>
-							</ul>
-						</section>
+										<i class="fas fa-edit mr-1"></i> Edit
+									</button>
+									<button
+										class="flex items-center px-3 py-1 text-sm text-white bg-green-500 rounded-md hover:bg-green-600"
+										hx-get={ "/academics/terms/" + year.AcademicYearID.String() + "/create" }
+										hx-target="#content-area"
+										hx-swap="innerHTML"
+										onclick="event.stopPropagation()"
+									>
+										<i class="fas fa-plus mr-1"></i> Add Term
+									</button>
+								</div>
+							</summary>
+							<div class="mt-4">
+								<h4 class="text-md font-medium mb-2">Terms</h4>
+								<ul id={ "terms-list-" + year.AcademicYearID.String() } class="space-y-2">
+									<li class="p-2 bg-gray-200 rounded text-center text-sm">
+										<div
+											hx-get={ "/academics/year/" + year.AcademicYearID.String() + "/terms" }
+											hx-target={ "#terms-list-" + year.AcademicYearID.String() }
+											hx-trigger="revealed"
+											hx-swap="innerHTML"
+										>
+											Loading...
+										</div>
+									</li>
+								</ul>
+							</div>
+						</details>
 					</li>
 				}
 			</ul>
@@ -66,12 +73,15 @@ templ AcademicYearsTermsList(years []database.AcademicYear) {
 	</div>
 }
 
+// templ TermsList renders the list of terms for an academic year.
 templ TermsList(terms []database.ListTermsRow) {
 	for _, term := range terms {
 		<li class="p-3 bg-white rounded shadow flex justify-between items-center">
 			<div>
 				<h5 class="text-sm font-medium">{ term.AcademicTerm }</h5>
-				<p class="text-xs text-gray-600">{ term.OpeningDate.Time.Format("Jan 2, 2006") } - { term.ClosingDate.Time.Format("Jan 2, 2006") }</p>
+				<p class="text-xs text-gray-600">
+					{ term.OpeningDate.Time.Format("Jan 2, 2006") } - { term.ClosingDate.Time.Format("Jan 2, 2006") }
+				</p>
 			</div>
 			<button
 				class="flex items-center px-3 py-1 text-sm text-white bg-yellow-500 rounded-md hover:bg-yellow-600"
