@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
+	"strings"
 
 	"school_management_system/cmd/web/dashboard/assignments"
 	"school_management_system/internal/database"
@@ -48,10 +49,15 @@ func (s *Server) CreateAssignment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	teacherID := r.FormValue("teacher_id")
-	classID := r.FormValue("class_id")
-	subjectID := r.FormValue("subject_id")
+	subjectClass := r.FormValue("subject_class")
 
-	if teacherID == "" || classID == "" || subjectID == "" {
+	parts := strings.Split(subjectClass, "=")
+	if len(parts) != 2 {
+		writeError(w, http.StatusBadRequest, "invalid subject and class selection")
+		return
+	}
+
+	if teacherID == "" || subjectClass == "" {
 		writeError(w, http.StatusUnprocessableEntity, "missing required fields")
 		return
 	}
@@ -61,14 +67,15 @@ func (s *Server) CreateAssignment(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "invalid teacher ID")
 		return
 	}
-	parsedClassID, err := convertStringToUUID(classID)
-	if err != nil {
-		writeError(w, http.StatusBadRequest, "invalid class ID")
-		return
-	}
-	parsedSubjectID, err := convertStringToUUID(subjectID)
+	parsedSubjectID, err := convertStringToUUID(parts[0])
 	if err != nil {
 		writeError(w, http.StatusBadRequest, "invalid subject ID")
+		return
+	}
+
+	parsedClassID, err := convertStringToUUID(parts[1])
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "invalid class ID")
 		return
 	}
 
@@ -85,11 +92,29 @@ func (s *Server) CreateAssignment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Header.Get("HX-Request") != "" {
-		w.Header().Set("HX-Redirect", "/assignments")
+		w.Header().Set("HX-Redirect", "/academics/assignments")
 		w.WriteHeader(http.StatusOK)
 		return
 	}
-	http.Redirect(w, r, "/assignments", http.StatusFound)
+	http.Redirect(w, r, "/academics/assignments", http.StatusFound)
+}
+
+// Function to group assignments by teacher and then by class
+func groupAssignments(assignments []database.ListAssignmentsRow) map[string]map[string][]database.ListAssignmentsRow {
+	grouped := make(map[string]map[string][]database.ListAssignmentsRow)
+
+	for _, assignment := range assignments {
+		teacherKey := assignment.TeacherFirstname + " " + assignment.TeacherLastname
+		classKey := assignment.Classroom
+
+		if _, exists := grouped[teacherKey]; !exists {
+			grouped[teacherKey] = make(map[string][]database.ListAssignmentsRow)
+		}
+
+		grouped[teacherKey][classKey] = append(grouped[teacherKey][classKey], assignment)
+	}
+
+	return grouped
 }
 
 // ListAssignments retrieves a list of assignments and renders them.
@@ -100,7 +125,9 @@ func (s *Server) ListAssignments(w http.ResponseWriter, r *http.Request) {
 		slog.Error("failed to list assignments", "error", err.Error())
 		return
 	}
-	component := assignments.AssignmentsList(assigns)
+
+	passedAssignments := groupAssignments(assigns)
+	component := assignments.AssignmentsList(passedAssignments)
 	s.renderComponent(w, r, component)
 }
 
