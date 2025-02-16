@@ -21,6 +21,9 @@ INNER JOIN users
     ON assignments.teacher_id = users.user_id
 ORDER BY classes.name;
 
+-- name: GetAssignmentDetails :one
+SELECT * FROM assignments WHERE id = $1;
+
 -- name: GetAssignment :one
 SELECT
     assignments.id,

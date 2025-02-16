@@ -109,6 +109,22 @@ func (q *Queries) GetAssignment(ctx context.Context, id uuid.UUID) (GetAssignmen
 	return i, err
 }
 
+const getAssignmentDetails = `-- name: GetAssignmentDetails :one
+SELECT id, class_id, subject_id, teacher_id FROM assignments WHERE id = $1
+`
+
+func (q *Queries) GetAssignmentDetails(ctx context.Context, id uuid.UUID) (Assignment, error) {
+	row := q.db.QueryRow(ctx, getAssignmentDetails, id)
+	var i Assignment
+	err := row.Scan(
+		&i.ID,
+		&i.ClassID,
+		&i.SubjectID,
+		&i.TeacherID,
+	)
+	return i, err
+}
+
 const listAssignments = `-- name: ListAssignments :many
 SELECT
     assignments.id,

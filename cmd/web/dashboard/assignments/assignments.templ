@@ -139,8 +139,8 @@ templ AssignmentForm(teachers []database.ListUsersRow, subjects []database.ListA
 	</div>
 }
 
-// templ EditAssignmentForm renders the edit-assignment form with pre-filled values.
-templ EditAssignmentForm(assignment database.GetAssignmentRow) {
+// templ EditAssignmentForm renders the edit-assignment form using dropdowns like the create form.
+templ EditAssignmentForm(assignment database.Assignment, teachers []database.ListUsersRow, subjects []database.ListAllSubjectsRow) {
 	<div class="max-w-3xl mx-auto p-6">
 		<div class="bg-white rounded-lg shadow-lg overflow-hidden">
 			<header class="bg-blue-600 px-6 py-4">
@@ -154,31 +154,35 @@ templ EditAssignmentForm(assignment database.GetAssignmentRow) {
 			>
 				<div class="grid grid-cols-1 gap-6">
 					<section>
-						<label class="block text-gray-700 font-semibold mb-2">Teacher ID</label>
-						<input
-							type="text"
-							placeholder="Teacher UUID"
+						<label class="block text-gray-700 font-semibold mb-2">Teacher</label>
+						<select
+							name="teacher_id"
 							required
 							class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-						/>
+						>
+							for _, teacher := range teachers {
+								if teacher.Role != "admin" && teacher.Role != "accountant" {
+									<option value={ teacher.UserID.String() } selected={ assignment.TeacherID.String() }>
+										{ teacher.FirstName } { teacher.LastName }
+									</option>
+								}
+							}
+						</select>
 					</section>
 					<section>
-						<label class="block text-gray-700 font-semibold mb-2">Class ID</label>
-						<input
-							type="text"
-							placeholder="Class UUID"
+						<label class="block text-gray-700 font-semibold mb-2">Subject &amp; Class</label>
+						<select
+							name="subject_class"
 							required
 							class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-						/>
-					</section>
-					<section>
-						<label class="block text-gray-700 font-semibold mb-2">Subject ID</label>
-						<input
-							type="text"
-							placeholder="Subject UUID"
-							required
-							class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-						/>
+						>
+							for _, subject := range subjects {
+								selected := (subject.Subjectid == assignment.SubjectID) && (subject.Classid == assignment.ClassID)
+								<option value={ subject.Subjectid.String() + "=" + subject.Classid.String() } selected={ assignment.SubjectID.String() }>
+									{ subject.Classname } - { subject.Subjectname }
+								</option>
+							}
+						</select>
 					</section>
 				</div>
 				<section class="flex justify-end mt-8 space-x-4">

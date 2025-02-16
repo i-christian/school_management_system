@@ -139,14 +139,26 @@ func (s *Server) ShowEditAssignment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	assignment, err := s.queries.GetAssignment(r.Context(), assignmentID)
+	assignment, err := s.queries.GetAssignmentDetails(r.Context(), assignmentID)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "internal server error")
 		slog.Error("failed to retrieve assignment", "error", err.Error())
 		return
 	}
 
-	s.renderComponent(w, r, assignments.EditAssignmentForm(assignment))
+	teachers, err := s.queries.ListUsers(r.Context())
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to retrieve teachers")
+		return
+	}
+
+	subjects, err := s.queries.ListAllSubjects(r.Context())
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to retrieve subjects")
+		return
+	}
+
+	s.renderComponent(w, r, assignments.EditAssignmentForm(assignment, teachers, subjects))
 }
 
 // EditAssignment handles form submission to update an assignment.
@@ -162,10 +174,15 @@ func (s *Server) EditAssignment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	teacherID := r.FormValue("teacher_id")
-	classID := r.FormValue("class_id")
-	subjectID := r.FormValue("subject_id")
+	subjectClass := r.FormValue("subject_class")
 
-	if teacherID == "" || classID == "" || subjectID == "" {
+	parts := strings.Split(subjectClass, "=")
+	if len(parts) != 2 {
+		writeError(w, http.StatusBadRequest, "invalid subject and class selection")
+		return
+	}
+
+	if teacherID == "" || subjectClass == "" {
 		writeError(w, http.StatusUnprocessableEntity, "missing required fields")
 		return
 	}
@@ -175,14 +192,15 @@ func (s *Server) EditAssignment(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "invalid teacher ID")
 		return
 	}
-	parsedClassID, err := convertStringToUUID(classID)
-	if err != nil {
-		writeError(w, http.StatusBadRequest, "invalid class ID")
-		return
-	}
-	parsedSubjectID, err := convertStringToUUID(subjectID)
+	parsedSubjectID, err := convertStringToUUID(parts[0])
 	if err != nil {
 		writeError(w, http.StatusBadRequest, "invalid subject ID")
+		return
+	}
+
+	parsedClassID, err := convertStringToUUID(parts[1])
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "invalid class ID")
 		return
 	}
 
