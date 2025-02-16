@@ -65,26 +65,31 @@ WHERE term_id = $1;
 DELETE FROM term
 WHERE term_id = $1;
 
+-- name: DeactivateAcademicYear :exec
+UPDATE academic_year
+SET active = FALSE
+WHERE active = TRUE;
+
 -- name: SetCurrentAcademicYear :exec
 UPDATE academic_year
-SET active = CASE
-    WHEN academic_year_id = $1 THEN TRUE
-    ELSE FALSE
-END;
+SET active = TRUE
+WHERE academic_year_id = $1;
+
+-- name: DeactivateTerm :exec
+UPDATE term
+SET active = FALSE
+WHERE active = TRUE;
 
 -- name: SetCurrentTerm :exec
 UPDATE term
-SET active = CASE
-    WHEN term_id = $1 THEN TRUE
-    ELSE FALSE
-END;
+SET active = TRUE
+WHERE term_id = $1;
 
 -- name: GetCurrentAcademicYear :one
 SELECT *
 FROM academic_year
 WHERE active = TRUE
 LIMIT 1;
-
 
 -- name: GetCurrentTerm :one
 SELECT

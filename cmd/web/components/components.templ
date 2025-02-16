@@ -1,6 +1,7 @@
 package components
 
 import "github.com/google/uuid"
+import "school_management_system/internal/database"
 
 type User struct {
 	UserID      uuid.UUID
@@ -20,6 +21,13 @@ templ UserDetails(user User) {
 		const data = JSON.parse(document.getElementById('user').textContent);
 		localStorage.setItem("userData", JSON.stringify(data));
 	</script>
+}
+
+templ AcademicsDetails(details database.GetCurrentAcademicYearAndTermRow) {
+	<section>
+		<span>{ details.AcademicYear }</span>, 
+		<span>{ details.AcademicTerm.String }</span>
+	</section>
 }
 
 templ SucessModal(message string, user User) {

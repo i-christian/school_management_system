@@ -1,10 +1,12 @@
 package server
 
 import (
+	"context"
 	"log/slog"
 	"net/http"
 	"time"
 
+	"school_management_system/cmd/web/components"
 	"school_management_system/cmd/web/dashboard/academics"
 	"school_management_system/internal/database"
 
@@ -334,4 +336,56 @@ func (s *Server) EditTerm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(w, r, "/academics/years", http.StatusFound)
+}
+
+// toggleAcademicYear method sets the current academic year
+func (s *Server) toggleAcademicYear(ctx context.Context, academicID uuid.UUID) error {
+	tx, err := s.conn.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+	qtx := s.queries.WithTx(tx)
+	err = qtx.DeactivateAcademicYear(ctx)
+	if err != nil {
+		return err
+	}
+	if err := qtx.SetCurrentAcademicYear(ctx, academicID); err != nil {
+		return err
+	}
+
+	return tx.Commit(ctx)
+}
+
+// toggleTerm method sets the current academic year
+func (s *Server) toggleTerm(ctx context.Context, termID uuid.UUID) error {
+	tx, err := s.conn.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+	qtx := s.queries.WithTx(tx)
+	err = qtx.DeactivateTerm(ctx)
+	if err != nil {
+		return err
+	}
+	if err := qtx.SetCurrentTerm(ctx, termID); err != nil {
+		return err
+	}
+
+	return tx.Commit(ctx)
+}
+
+// GetAcademicsDetails method handler gets the current
+// academic year and academic term
+func (s *Server) GetAcademicsDetails(w http.ResponseWriter, r *http.Request) {
+	details, err := s.queries.GetCurrentAcademicYearAndTerm(r.Context())
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		slog.Error("Failed to retrive current academic year and term", "Message:", err.Error())
+		return
+	}
+
+	component := components.AcademicsDetails(details)
+	s.renderComponent(w, r, component)
 }

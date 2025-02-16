@@ -58,6 +58,28 @@ func (q *Queries) CreateTerm(ctx context.Context, arg CreateTermParams) (uuid.UU
 	return term_id, err
 }
 
+const deactivateAcademicYear = `-- name: DeactivateAcademicYear :exec
+UPDATE academic_year
+SET active = FALSE
+WHERE active = TRUE
+`
+
+func (q *Queries) DeactivateAcademicYear(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, deactivateAcademicYear)
+	return err
+}
+
+const deactivateTerm = `-- name: DeactivateTerm :exec
+UPDATE term
+SET active = FALSE
+WHERE active = TRUE
+`
+
+func (q *Queries) DeactivateTerm(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, deactivateTerm)
+	return err
+}
+
 const deleteAcademicYear = `-- name: DeleteAcademicYear :exec
 DELETE FROM academic_year
 WHERE academic_year_id = $1
@@ -368,14 +390,9 @@ func (q *Queries) ListTerms(ctx context.Context, academicYearID uuid.UUID) ([]Li
 }
 
 const setCurrentAcademicYear = `-- name: SetCurrentAcademicYear :exec
-WITH deactive AS (
-    UPDATE academic_year
-    SET active = FALSE
-    WHERE active = TRUE
-)
 UPDATE academic_year
 SET active = TRUE
-WHERE academic_year.academic_year_id = $1
+WHERE academic_year_id = $1
 `
 
 func (q *Queries) SetCurrentAcademicYear(ctx context.Context, academicYearID uuid.UUID) error {
@@ -384,14 +401,9 @@ func (q *Queries) SetCurrentAcademicYear(ctx context.Context, academicYearID uui
 }
 
 const setCurrentTerm = `-- name: SetCurrentTerm :exec
-WITH deactive AS (
-    UPDATE term
-    SET active = FALSE
-    WHERE active = TRUE
-)
 UPDATE term
 SET active = TRUE
-WHERE term.term_id = $1
+WHERE term_id = $1
 `
 
 func (q *Queries) SetCurrentTerm(ctx context.Context, termID uuid.UUID) error {
