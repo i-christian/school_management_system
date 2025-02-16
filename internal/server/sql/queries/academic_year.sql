@@ -66,26 +66,18 @@ DELETE FROM term
 WHERE term_id = $1;
 
 -- name: SetCurrentAcademicYear :exec
-WITH deactive AS (
-    UPDATE academic_year
-    SET active = FALSE
-    WHERE active = TRUE
-)
 UPDATE academic_year
-SET active = TRUE
-WHERE academic_year.academic_year_id = $1;
-
+SET active = CASE
+    WHEN academic_year_id = $1 THEN TRUE
+    ELSE FALSE
+END;
 
 -- name: SetCurrentTerm :exec
-WITH deactive AS (
-    UPDATE term
-    SET active = FALSE
-    WHERE active = TRUE
-)
 UPDATE term
-SET active = TRUE
-WHERE term.term_id = $1;
-
+SET active = CASE
+    WHEN term_id = $1 THEN TRUE
+    ELSE FALSE
+END;
 
 -- name: GetCurrentAcademicYear :one
 SELECT *
