@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS sessions (
     CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
+CREATE EXTENSION IF NOT EXISTS btree_gist;
 -- ACADEMIC_YEAR TABLE
 CREATE TABLE IF NOT EXISTS academic_year (
     academic_year_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
