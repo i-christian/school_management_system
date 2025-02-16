@@ -10,10 +10,12 @@ import (
 )
 
 type AcademicYear struct {
-	AcademicYearID uuid.UUID   `json:"academic_year_id"`
-	Name           string      `json:"name"`
-	StartDate      pgtype.Date `json:"start_date"`
-	EndDate        pgtype.Date `json:"end_date"`
+	AcademicYearID uuid.UUID                 `json:"academic_year_id"`
+	Name           string                    `json:"name"`
+	StartDate      pgtype.Date               `json:"start_date"`
+	EndDate        pgtype.Date               `json:"end_date"`
+	Active         bool                      `json:"active"`
+	Period         pgtype.Range[pgtype.Date] `json:"period"`
 }
 
 type Assignment struct {
@@ -134,11 +136,13 @@ type Subject struct {
 }
 
 type Term struct {
-	TermID         uuid.UUID   `json:"term_id"`
-	AcademicYearID uuid.UUID   `json:"academic_year_id"`
-	Name           string      `json:"name"`
-	StartDate      pgtype.Date `json:"start_date"`
-	EndDate        pgtype.Date `json:"end_date"`
+	TermID         uuid.UUID                 `json:"term_id"`
+	AcademicYearID uuid.UUID                 `json:"academic_year_id"`
+	Name           string                    `json:"name"`
+	StartDate      pgtype.Date               `json:"start_date"`
+	EndDate        pgtype.Date               `json:"end_date"`
+	Active         bool                      `json:"active"`
+	Period         pgtype.Range[pgtype.Date] `json:"period"`
 }
 
 type User struct {

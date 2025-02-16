@@ -129,7 +129,7 @@ func (q *Queries) EditTerm(ctx context.Context, arg EditTermParams) error {
 }
 
 const getAcademicYear = `-- name: GetAcademicYear :one
-SELECT academic_year_id, name, start_date, end_date FROM academic_year WHERE academic_year_id = $1
+SELECT academic_year_id, name, start_date, end_date, active, period FROM academic_year WHERE academic_year_id = $1
 `
 
 func (q *Queries) GetAcademicYear(ctx context.Context, academicYearID uuid.UUID) (AcademicYear, error) {
@@ -140,6 +140,112 @@ func (q *Queries) GetAcademicYear(ctx context.Context, academicYearID uuid.UUID)
 		&i.Name,
 		&i.StartDate,
 		&i.EndDate,
+		&i.Active,
+		&i.Period,
+	)
+	return i, err
+}
+
+const getCurrentAcademicYear = `-- name: GetCurrentAcademicYear :one
+SELECT academic_year_id, name, start_date, end_date, active, period
+FROM academic_year
+WHERE active = TRUE
+LIMIT 1
+`
+
+func (q *Queries) GetCurrentAcademicYear(ctx context.Context) (AcademicYear, error) {
+	row := q.db.QueryRow(ctx, getCurrentAcademicYear)
+	var i AcademicYear
+	err := row.Scan(
+		&i.AcademicYearID,
+		&i.Name,
+		&i.StartDate,
+		&i.EndDate,
+		&i.Active,
+		&i.Period,
+	)
+	return i, err
+}
+
+const getCurrentAcademicYearAndTerm = `-- name: GetCurrentAcademicYearAndTerm :one
+SELECT
+    ay.academic_year_id,
+    ay.name AS Academic_Year,
+    ay.start_date,
+    ay.end_date,
+    t.term_id,
+    t.name AS Academic_Term,
+    t.start_date AS Term_Opening_date,
+    t.end_date AS Term_Closing_date
+FROM academic_year ay
+LEFT JOIN term t
+    ON ay.academic_year_id = t.academic_year_id
+    AND t.active = TRUE
+WHERE ay.active = TRUE
+LIMIT 1
+`
+
+type GetCurrentAcademicYearAndTermRow struct {
+	AcademicYearID  uuid.UUID   `json:"academic_year_id"`
+	AcademicYear    string      `json:"academic_year"`
+	StartDate       pgtype.Date `json:"start_date"`
+	EndDate         pgtype.Date `json:"end_date"`
+	TermID          pgtype.UUID `json:"term_id"`
+	AcademicTerm    pgtype.Text `json:"academic_term"`
+	TermOpeningDate pgtype.Date `json:"term_opening_date"`
+	TermClosingDate pgtype.Date `json:"term_closing_date"`
+}
+
+func (q *Queries) GetCurrentAcademicYearAndTerm(ctx context.Context) (GetCurrentAcademicYearAndTermRow, error) {
+	row := q.db.QueryRow(ctx, getCurrentAcademicYearAndTerm)
+	var i GetCurrentAcademicYearAndTermRow
+	err := row.Scan(
+		&i.AcademicYearID,
+		&i.AcademicYear,
+		&i.StartDate,
+		&i.EndDate,
+		&i.TermID,
+		&i.AcademicTerm,
+		&i.TermOpeningDate,
+		&i.TermClosingDate,
+	)
+	return i, err
+}
+
+const getCurrentTerm = `-- name: GetCurrentTerm :one
+SELECT
+    t.term_id,
+    ay.academic_year_id,
+    ay.name AS Academic_Year,
+    t.name AS Academic_Term,
+    t.start_date AS Opening_date,
+    t.end_date AS Closing_date
+FROM term t
+INNER JOIN academic_year ay
+    ON t.academic_year_id = ay.academic_year_id
+WHERE t.active = TRUE
+LIMIT 1
+`
+
+type GetCurrentTermRow struct {
+	TermID         uuid.UUID   `json:"term_id"`
+	AcademicYearID uuid.UUID   `json:"academic_year_id"`
+	AcademicYear   string      `json:"academic_year"`
+	AcademicTerm   string      `json:"academic_term"`
+	OpeningDate    pgtype.Date `json:"opening_date"`
+	ClosingDate    pgtype.Date `json:"closing_date"`
+}
+
+func (q *Queries) GetCurrentTerm(ctx context.Context) (GetCurrentTermRow, error) {
+	row := q.db.QueryRow(ctx, getCurrentTerm)
+	var i GetCurrentTermRow
+	err := row.Scan(
+		&i.TermID,
+		&i.AcademicYearID,
+		&i.AcademicYear,
+		&i.AcademicTerm,
+		&i.OpeningDate,
+		&i.ClosingDate,
 	)
 	return i, err
 }
@@ -183,7 +289,7 @@ func (q *Queries) GetTerm(ctx context.Context, termID uuid.UUID) (GetTermRow, er
 }
 
 const listAcademicYear = `-- name: ListAcademicYear :many
-SELECT academic_year_id, name, start_date, end_date FROM academic_year
+SELECT academic_year_id, name, start_date, end_date, active, period FROM academic_year
 `
 
 func (q *Queries) ListAcademicYear(ctx context.Context) ([]AcademicYear, error) {
@@ -200,6 +306,8 @@ func (q *Queries) ListAcademicYear(ctx context.Context) ([]AcademicYear, error) 
 			&i.Name,
 			&i.StartDate,
 			&i.EndDate,
+			&i.Active,
+			&i.Period,
 		); err != nil {
 			return nil, err
 		}
@@ -257,4 +365,36 @@ func (q *Queries) ListTerms(ctx context.Context, academicYearID uuid.UUID) ([]Li
 		return nil, err
 	}
 	return items, nil
+}
+
+const setCurrentAcademicYear = `-- name: SetCurrentAcademicYear :exec
+WITH deactive AS (
+    UPDATE academic_year
+    SET active = FALSE
+    WHERE active = TRUE
+)
+UPDATE academic_year
+SET active = TRUE
+WHERE academic_year.academic_year_id = $1
+`
+
+func (q *Queries) SetCurrentAcademicYear(ctx context.Context, academicYearID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, setCurrentAcademicYear, academicYearID)
+	return err
+}
+
+const setCurrentTerm = `-- name: SetCurrentTerm :exec
+WITH deactive AS (
+    UPDATE term
+    SET active = FALSE
+    WHERE active = TRUE
+)
+UPDATE term
+SET active = TRUE
+WHERE term.term_id = $1
+`
+
+func (q *Queries) SetCurrentTerm(ctx context.Context, termID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, setCurrentTerm, termID)
+	return err
 }

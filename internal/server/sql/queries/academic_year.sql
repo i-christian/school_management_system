@@ -64,3 +64,64 @@ WHERE term_id = $1;
 -- name: DeleteTerm :exec
 DELETE FROM term
 WHERE term_id = $1;
+
+-- name: SetCurrentAcademicYear :exec
+WITH deactive AS (
+    UPDATE academic_year
+    SET active = FALSE
+    WHERE active = TRUE
+)
+UPDATE academic_year
+SET active = TRUE
+WHERE academic_year.academic_year_id = $1;
+
+
+-- name: SetCurrentTerm :exec
+WITH deactive AS (
+    UPDATE term
+    SET active = FALSE
+    WHERE active = TRUE
+)
+UPDATE term
+SET active = TRUE
+WHERE term.term_id = $1;
+
+
+-- name: GetCurrentAcademicYear :one
+SELECT *
+FROM academic_year
+WHERE active = TRUE
+LIMIT 1;
+
+
+-- name: GetCurrentTerm :one
+SELECT
+    t.term_id,
+    ay.academic_year_id,
+    ay.name AS Academic_Year,
+    t.name AS Academic_Term,
+    t.start_date AS Opening_date,
+    t.end_date AS Closing_date
+FROM term t
+INNER JOIN academic_year ay
+    ON t.academic_year_id = ay.academic_year_id
+WHERE t.active = TRUE
+LIMIT 1;
+
+
+-- name: GetCurrentAcademicYearAndTerm :one
+SELECT
+    ay.academic_year_id,
+    ay.name AS Academic_Year,
+    ay.start_date,
+    ay.end_date,
+    t.term_id,
+    t.name AS Academic_Term,
+    t.start_date AS Term_Opening_date,
+    t.end_date AS Term_Closing_date
+FROM academic_year ay
+LEFT JOIN term t
+    ON ay.academic_year_id = t.academic_year_id
+    AND t.active = TRUE
+WHERE ay.active = TRUE
+LIMIT 1;

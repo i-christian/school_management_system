@@ -38,8 +38,16 @@ CREATE TABLE IF NOT EXISTS academic_year (
     academic_year_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(50) NOT NULL UNIQUE,
     start_date DATE NOT NULL,
-    end_date DATE NOT NULL CHECK (end_date > start_date)
+    end_date DATE NOT NULL CHECK (end_date > start_date),
+    active BOOLEAN NOT NULL DEFAULT FALSE,
+    period DATERANGE GENERATED ALWAYS AS (daterange(start_date, end_date, '[]')) STORED,
+    CONSTRAINT academic_year_no_overlap EXCLUDE USING gist (period WITH &&)
 );
+
+-- Partial unique index to ensure only one active academic year exists.
+CREATE UNIQUE INDEX unique_active_academic_year
+    ON academic_year(active)
+    WHERE active = TRUE;
 
 -- TERM TABLE
 CREATE TABLE IF NOT EXISTS term (
@@ -48,9 +56,21 @@ CREATE TABLE IF NOT EXISTS term (
     name VARCHAR(50) NOT NULL,
     start_date DATE NOT NULL,
     end_date DATE NOT NULL CHECK (end_date > start_date),
+    active BOOLEAN NOT NULL DEFAULT FALSE,
+    period DATERANGE GENERATED ALWAYS AS (daterange(start_date, end_date, '[]')) STORED,
     CONSTRAINT term_name_on_academic_year UNIQUE (academic_year_id, name),
-    CONSTRAINT fk_academic_year FOREIGN KEY (academic_year_id) REFERENCES academic_year(academic_year_id) ON DELETE CASCADE
+    CONSTRAINT fk_academic_year FOREIGN KEY (academic_year_id)
+        REFERENCES academic_year(academic_year_id) ON DELETE CASCADE,
+    CONSTRAINT term_no_overlap EXCLUDE USING gist (
+        academic_year_id WITH =,
+        period WITH &&
+    )
 );
+
+-- Partial unique index to ensure only one active term exists.
+CREATE UNIQUE INDEX unique_active_term
+    ON term(active)
+    WHERE active = TRUE;
 
 -- Index for filtering terms by academic year
 CREATE INDEX idx_term_academic_year_id ON term(academic_year_id);
