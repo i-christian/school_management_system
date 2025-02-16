@@ -74,6 +74,9 @@ func (q *Queries) EditAssignments(ctx context.Context, arg EditAssignmentsParams
 const getAssignment = `-- name: GetAssignment :one
 SELECT
     assignments.id,
+    assignments.class_id,
+    assignments.subject_id,
+    assignments.teacher_id,
     classes.name AS ClassRoom,
     subjects.name AS Subject,
     users.last_name AS Teacher_LastName,
@@ -90,6 +93,9 @@ WHERE assignments.id = $1
 
 type GetAssignmentRow struct {
 	ID               uuid.UUID `json:"id"`
+	ClassID          uuid.UUID `json:"class_id"`
+	SubjectID        uuid.UUID `json:"subject_id"`
+	TeacherID        uuid.UUID `json:"teacher_id"`
 	Classroom        string    `json:"classroom"`
 	Subject          string    `json:"subject"`
 	TeacherLastname  string    `json:"teacher_lastname"`
@@ -101,26 +107,13 @@ func (q *Queries) GetAssignment(ctx context.Context, id uuid.UUID) (GetAssignmen
 	var i GetAssignmentRow
 	err := row.Scan(
 		&i.ID,
+		&i.ClassID,
+		&i.SubjectID,
+		&i.TeacherID,
 		&i.Classroom,
 		&i.Subject,
 		&i.TeacherLastname,
 		&i.TeacherFirstname,
-	)
-	return i, err
-}
-
-const getAssignmentDetails = `-- name: GetAssignmentDetails :one
-SELECT id, class_id, subject_id, teacher_id FROM assignments WHERE id = $1
-`
-
-func (q *Queries) GetAssignmentDetails(ctx context.Context, id uuid.UUID) (Assignment, error) {
-	row := q.db.QueryRow(ctx, getAssignmentDetails, id)
-	var i Assignment
-	err := row.Scan(
-		&i.ID,
-		&i.ClassID,
-		&i.SubjectID,
-		&i.TeacherID,
 	)
 	return i, err
 }

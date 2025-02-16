@@ -139,7 +139,7 @@ func (s *Server) ShowEditAssignment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	assignment, err := s.queries.GetAssignmentDetails(r.Context(), assignmentID)
+	assignment, err := s.queries.GetAssignment(r.Context(), assignmentID)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "internal server error")
 		slog.Error("failed to retrieve assignment", "error", err.Error())

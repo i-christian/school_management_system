@@ -21,12 +21,12 @@ INNER JOIN users
     ON assignments.teacher_id = users.user_id
 ORDER BY classes.name;
 
--- name: GetAssignmentDetails :one
-SELECT * FROM assignments WHERE id = $1;
-
 -- name: GetAssignment :one
 SELECT
     assignments.id,
+    assignments.class_id,
+    assignments.subject_id,
+    assignments.teacher_id,
     classes.name AS ClassRoom,
     subjects.name AS Subject,
     users.last_name AS Teacher_LastName,
