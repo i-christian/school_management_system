@@ -357,6 +357,27 @@ func (s *Server) toggleAcademicYear(ctx context.Context, academicID uuid.UUID) e
 	return tx.Commit(ctx)
 }
 
+// setActiveYear handler method is used to switch
+// current active academic year
+func (s *Server) setActiveYear(w http.ResponseWriter, r *http.Request) {
+	yearID, err := convertStringToUUID(r.PathValue("id"))
+	if err != nil {
+		writeError(w, http.StatusUnprocessableEntity, "wrong academic year")
+		slog.Error("Failed to parse academic year", "details:", err.Error())
+		return
+	}
+
+	err = s.toggleAcademicYear(r.Context(), yearID)
+
+	if r.Header.Get("HX-Request") != "" {
+		w.Header().Set("HX-Redirect", "/academics/years")
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	http.Redirect(w, r, "/academics/years", http.StatusFound)
+}
+
 // toggleTerm method sets the current academic year
 func (s *Server) toggleTerm(ctx context.Context, termID uuid.UUID) error {
 	tx, err := s.conn.Begin(ctx)
@@ -374,6 +395,27 @@ func (s *Server) toggleTerm(ctx context.Context, termID uuid.UUID) error {
 	}
 
 	return tx.Commit(ctx)
+}
+
+// setActiveYear handler method is used to switch
+// current active academic year
+func (s *Server) setActiveTerm(w http.ResponseWriter, r *http.Request) {
+	termID, err := convertStringToUUID(r.PathValue("id"))
+	if err != nil {
+		writeError(w, http.StatusUnprocessableEntity, "wrong academic year")
+		slog.Error("Failed to parse academic year", "details:", err.Error())
+		return
+	}
+
+	err = s.toggleTerm(r.Context(), termID)
+
+	if r.Header.Get("HX-Request") != "" {
+		w.Header().Set("HX-Redirect", "/academics/years")
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	http.Redirect(w, r, "/academics/years", http.StatusFound)
 }
 
 // GetAcademicsDetails method handler gets the current

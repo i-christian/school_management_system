@@ -5,7 +5,8 @@ ON CONFLICT (name) DO NOTHING
 RETURNING academic_year_id;
 
 -- name: ListAcademicYear :many
-SELECT * FROM academic_year;
+SELECT * FROM academic_year
+ORDER BY active DESC;
 
 -- name: GetAcademicYear :one
 SELECT * FROM academic_year WHERE academic_year_id = $1;
@@ -39,7 +40,8 @@ FROM term
 INNER JOIN academic_year
 ON
 term.academic_year_id = academic_year.academic_year_id
-WHERE academic_year.academic_year_id = $1;
+WHERE academic_year.academic_year_id = $1
+ORDER BY term.active DESC;
 
 -- name: GetTerm :one
 SELECT

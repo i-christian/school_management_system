@@ -312,6 +312,7 @@ func (q *Queries) GetTerm(ctx context.Context, termID uuid.UUID) (GetTermRow, er
 
 const listAcademicYear = `-- name: ListAcademicYear :many
 SELECT academic_year_id, name, start_date, end_date, active, period FROM academic_year
+ORDER BY active DESC
 `
 
 func (q *Queries) ListAcademicYear(ctx context.Context) ([]AcademicYear, error) {
@@ -354,6 +355,7 @@ INNER JOIN academic_year
 ON
 term.academic_year_id = academic_year.academic_year_id
 WHERE academic_year.academic_year_id = $1
+ORDER BY term.active DESC
 `
 
 type ListTermsRow struct {
