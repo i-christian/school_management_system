@@ -40,6 +40,19 @@ templ AcademicYearsTermsList(years []database.AcademicYear) {
 										<i class="fas fa-edit mr-1"></i> Edit
 									</button>
 									<button
+										class="flex items-center px-3 py-1 text-sm text-white bg-gray-500 rounded-md hover:bg-gray-600"
+										hx-put={ "/academics/years/" + year.AcademicYearID.String() + "/toggle" }
+										hx-target="#content-area"
+										hx-swap="outerHTML"
+										onclick="event.stopPropagation()"
+									>
+										if year.Active == true {
+											<i class="fas fa-toggle-on mr-1"></i> Active 
+										} else {
+											<i class="fas fa-toggle-off mr-1"></i> Inactive
+										}
+									</button>
+									<button
 										class="flex items-center px-3 py-1 text-sm text-white bg-green-500 rounded-md hover:bg-green-600"
 										hx-get={ "/academics/terms/" + year.AcademicYearID.String() + "/create" }
 										hx-target="#content-area"
@@ -83,14 +96,30 @@ templ TermsList(terms []database.ListTermsRow) {
 					{ term.OpeningDate.Time.Format("Jan 2, 2006") } - { term.ClosingDate.Time.Format("Jan 2, 2006") }
 				</p>
 			</div>
-			<button
-				class="flex items-center px-3 py-1 text-sm text-white bg-yellow-500 rounded-md hover:bg-yellow-600"
-				hx-get={ "/academics/terms/" + term.TermID.String() + "/edit" }
-				hx-target="#content-area"
-				hx-swap="innerHTML"
-			>
-				<i class="fas fa-edit mr-1"></i> Edit
-			</button>
+			<div class="flex space-x-2">
+				<!-- Edit Button -->
+				<button
+					class="flex items-center px-3 py-1 text-sm text-white bg-yellow-500 rounded-md hover:bg-yellow-600"
+					hx-get={ "/academics/terms/" + term.TermID.String() + "/edit" }
+					hx-target="#content-area"
+					hx-swap="innerHTML"
+				>
+					<i class="fas fa-edit mr-1"></i> Edit
+				</button>
+				<!-- Toggle Status Button -->
+				<button
+					class="flex items-center px-3 py-1 text-sm text-white bg-gray-500 rounded-md hover:bg-gray-600"
+					hx-put={ "/academics/terms/" + term.TermID.String() + "/toggle" }
+					hx-target="#content-area"
+					hx-swap="outerHTML"
+				>
+					if term.Active == true {
+						<i class="fas fa-toggle-on mr-1"></i> Active
+					} else {
+						<i class="fas fa-toggle-off mr-1"></i> Inactive
+					}
+				</button>
+			</div>
 		</li>
 	}
 }

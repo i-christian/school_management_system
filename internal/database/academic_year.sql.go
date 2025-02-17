@@ -347,7 +347,8 @@ term.term_id,
 academic_year.name AS Academic_Year,
 term.name AS Academic_Term,
 term.start_date AS Opening_date,
-term.end_date AS Closing_date
+term.end_date AS Closing_date,
+term.active
 FROM term
 INNER JOIN academic_year
 ON
@@ -361,6 +362,7 @@ type ListTermsRow struct {
 	AcademicTerm string      `json:"academic_term"`
 	OpeningDate  pgtype.Date `json:"opening_date"`
 	ClosingDate  pgtype.Date `json:"closing_date"`
+	Active       bool        `json:"active"`
 }
 
 func (q *Queries) ListTerms(ctx context.Context, academicYearID uuid.UUID) ([]ListTermsRow, error) {
@@ -378,6 +380,7 @@ func (q *Queries) ListTerms(ctx context.Context, academicYearID uuid.UUID) ([]Li
 			&i.AcademicTerm,
 			&i.OpeningDate,
 			&i.ClosingDate,
+			&i.Active,
 		); err != nil {
 			return nil, err
 		}

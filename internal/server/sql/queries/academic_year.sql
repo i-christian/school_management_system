@@ -33,7 +33,8 @@ term.term_id,
 academic_year.name AS Academic_Year,
 term.name AS Academic_Term,
 term.start_date AS Opening_date,
-term.end_date AS Closing_date
+term.end_date AS Closing_date,
+term.active
 FROM term
 INNER JOIN academic_year
 ON
