@@ -1,7 +1,6 @@
 package server
 
 import (
-	"errors"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -9,16 +8,7 @@ import (
 	"school_management_system/cmd/web/components"
 	"school_management_system/cmd/web/dashboard/assignments"
 	"school_management_system/internal/database"
-
-	"github.com/google/uuid"
 )
-
-func convertStringToUUID(id string) (uuid.UUID, error) {
-	if id == "" {
-		return uuid.Nil, errors.New("an empty string cannot be converted to a UUID")
-	}
-	return uuid.Parse(id)
-}
 
 // ShowCreateAssignmentForm renders the form to create a new assignment with dropdowns.
 func (s *Server) ShowCreateAssignmentForm(w http.ResponseWriter, r *http.Request) {
