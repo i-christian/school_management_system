@@ -17,14 +17,24 @@ DELETE FROM student_guardians
 WHERE student_guardians.guardian_id = (SELECT deleted_guardian.guardian_id FROM deleted_guardian);
 
 -- name: GetStudentAndLinkedGuardians :many
-SELECT s.last_name AS student_first_name, s.first_name AS student_last_name, s.gender AS student_gender, g.*
+SELECT
+    s.last_name AS student_first_name,
+    s.first_name AS student_last_name,
+    s.gender AS student_gender, g.*
 FROM students s
 LEFT JOIN student_guardians sg ON s.student_id = sg.student_id
 LEFT JOIN guardians g ON sg.guardian_id = g.guardian_id
 WHERE s.student_id = $1;
 
 -- name: GetAllStudentGuardianLinks :many
-SELECT s.last_name AS student_first_name, s.first_name AS student_last_name, g.guardian_name AS guardian_name, g.phone_number_1, g.phone_number_2, g.gender AS guardian_gender, g.profession AS guardian_profession
+SELECT
+    s.last_name AS student_first_name,
+    s.first_name AS student_last_name,
+    g.guardian_name AS guardian_name,
+    g.phone_number_1,
+    g.phone_number_2,
+    g.gender AS guardian_gender,
+    g.profession AS guardian_profession
 FROM students s
 INNER JOIN student_guardians sg ON s.student_id = sg.student_id
 INNER JOIN guardians g ON sg.guardian_id = g.guardian_id

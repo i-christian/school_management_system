@@ -12,82 +12,6 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const createStudent = `-- name: CreateStudent :one
-WITH new_student AS (
-    INSERT INTO students (academic_year_id, last_name, first_name, middle_name, gender, date_of_birth)
-    VALUES
-    ($1, $2, $3, $4, $5, $6)
-    ON CONFLICT (first_name, last_name, middle_name, date_of_birth, academic_year_id)
-    DO NOTHING
-    RETURNING student_id
-), existing_guardian AS (
-    SELECT guardian_id
-    FROM guardians
-    WHERE guardians.phone_number_1 = $7
-    OR guardians.phone_number_2 = $9
-    LIMIT 1
-), new_guardian AS (
-    INSERT INTO guardians (guardian_name, phone_number_1, phone_number_2, gender, profession)
-    SELECT $8, $7, $9, $10, $11
-    WHERE NOT EXISTS (SELECT 1 FROM existing_guardian)
-    RETURNING guardian_id
-)
-INSERT INTO student_guardians (student_id, guardian_id)
-SELECT student_id, guardian_id
-FROM (
-    SELECT 
-        COALESCE(
-            (SELECT student_id FROM new_student LIMIT 1),
-            (SELECT student_id FROM students 
-             WHERE students.first_name = $3 
-               AND students.last_name = $2 
-               AND (students.middle_name = $4 OR students.middle_name IS NULL) 
-               AND students.academic_year_id = $1 
-             LIMIT 1)
-        ) AS student_id,
-        COALESCE(
-            (SELECT guardian_id FROM existing_guardian LIMIT 1),
-            (SELECT guardian_id FROM new_guardian LIMIT 1)
-        ) AS guardian_id
-) AS sg
-WHERE sg.student_id IS NOT NULL AND sg.guardian_id IS NOT NULL
-ON CONFLICT (student_id, guardian_id) DO NOTHING
-RETURNING student_id, guardian_id
-`
-
-type CreateStudentParams struct {
-	AcademicYearID uuid.UUID   `json:"academic_year_id"`
-	LastName       string      `json:"last_name"`
-	FirstName      string      `json:"first_name"`
-	MiddleName     pgtype.Text `json:"middle_name"`
-	Gender         string      `json:"gender"`
-	DateOfBirth    pgtype.Date `json:"date_of_birth"`
-	PhoneNumber1   pgtype.Text `json:"phone_number_1"`
-	GuardianName   string      `json:"guardian_name"`
-	PhoneNumber2   pgtype.Text `json:"phone_number_2"`
-	Gender_2       string      `json:"gender_2"`
-	Profession     pgtype.Text `json:"profession"`
-}
-
-func (q *Queries) CreateStudent(ctx context.Context, arg CreateStudentParams) (StudentGuardian, error) {
-	row := q.db.QueryRow(ctx, createStudent,
-		arg.AcademicYearID,
-		arg.LastName,
-		arg.FirstName,
-		arg.MiddleName,
-		arg.Gender,
-		arg.DateOfBirth,
-		arg.PhoneNumber1,
-		arg.GuardianName,
-		arg.PhoneNumber2,
-		arg.Gender_2,
-		arg.Profession,
-	)
-	var i StudentGuardian
-	err := row.Scan(&i.StudentID, &i.GuardianID)
-	return i, err
-}
-
 const deleteStudent = `-- name: DeleteStudent :exec
 DELETE FROM students WHERE student_id = $1
 `
@@ -185,6 +109,61 @@ func (q *Queries) GetStudent(ctx context.Context, studentID uuid.UUID) (GetStude
 	return i, err
 }
 
+const insertStudent = `-- name: InsertStudent :one
+INSERT INTO students (
+    academic_year_id, 
+    last_name, 
+    first_name, 
+    middle_name, 
+    gender, 
+    date_of_birth
+)
+VALUES
+    ($1, $2, $3, $4, $5, $6)
+ON CONFLICT (first_name, last_name, middle_name, date_of_birth, academic_year_id)
+DO NOTHING
+RETURNING student_id
+`
+
+type InsertStudentParams struct {
+	AcademicYearID uuid.UUID   `json:"academic_year_id"`
+	LastName       string      `json:"last_name"`
+	FirstName      string      `json:"first_name"`
+	MiddleName     pgtype.Text `json:"middle_name"`
+	Gender         string      `json:"gender"`
+	DateOfBirth    pgtype.Date `json:"date_of_birth"`
+}
+
+func (q *Queries) InsertStudent(ctx context.Context, arg InsertStudentParams) (uuid.UUID, error) {
+	row := q.db.QueryRow(ctx, insertStudent,
+		arg.AcademicYearID,
+		arg.LastName,
+		arg.FirstName,
+		arg.MiddleName,
+		arg.Gender,
+		arg.DateOfBirth,
+	)
+	var student_id uuid.UUID
+	err := row.Scan(&student_id)
+	return student_id, err
+}
+
+const linkStudentGuardian = `-- name: LinkStudentGuardian :exec
+INSERT INTO student_guardians (student_id, guardian_id)
+VALUES ($1, $2)
+ON CONFLICT (student_id, guardian_id) DO NOTHING
+`
+
+type LinkStudentGuardianParams struct {
+	StudentID  uuid.UUID `json:"student_id"`
+	GuardianID uuid.UUID `json:"guardian_id"`
+}
+
+func (q *Queries) LinkStudentGuardian(ctx context.Context, arg LinkStudentGuardianParams) error {
+	_, err := q.db.Exec(ctx, linkStudentGuardian, arg.StudentID, arg.GuardianID)
+	return err
+}
+
 const listStudents = `-- name: ListStudents :many
 SELECT DISTINCT ON (students.student_id)
     students.student_id,
@@ -246,4 +225,43 @@ func (q *Queries) ListStudents(ctx context.Context) ([]ListStudentsRow, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const upsertGuardian = `-- name: UpsertGuardian :one
+INSERT INTO guardians (
+    guardian_name, 
+    phone_number_1, 
+    phone_number_2, 
+    gender, 
+    profession
+)
+VALUES
+    ($1, $2, $3, $4, $5)
+ON CONFLICT (phone_number_1, phone_number_2)
+DO UPDATE
+    SET guardian_name = EXCLUDED.guardian_name,
+        gender = EXCLUDED.gender,
+        profession = EXCLUDED.profession
+RETURNING guardian_id
+`
+
+type UpsertGuardianParams struct {
+	GuardianName string      `json:"guardian_name"`
+	PhoneNumber1 pgtype.Text `json:"phone_number_1"`
+	PhoneNumber2 pgtype.Text `json:"phone_number_2"`
+	Gender       string      `json:"gender"`
+	Profession   pgtype.Text `json:"profession"`
+}
+
+func (q *Queries) UpsertGuardian(ctx context.Context, arg UpsertGuardianParams) (uuid.UUID, error) {
+	row := q.db.QueryRow(ctx, upsertGuardian,
+		arg.GuardianName,
+		arg.PhoneNumber1,
+		arg.PhoneNumber2,
+		arg.Gender,
+		arg.Profession,
+	)
+	var guardian_id uuid.UUID
+	err := row.Scan(&guardian_id)
+	return guardian_id, err
 }
