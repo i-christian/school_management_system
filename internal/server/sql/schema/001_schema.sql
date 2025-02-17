@@ -167,16 +167,21 @@ CREATE TABLE IF NOT EXISTS student_guardians (
 CREATE TABLE IF NOT EXISTS student_classes (
     student_class_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     student_id UUID NOT NULL,
+    previous_class_id UUID NULL,
     class_id UUID NOT NULL,
     term_id UUID NOT NULL,
     CONSTRAINT fk_student FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE,
     CONSTRAINT fk_class FOREIGN KEY (class_id) REFERENCES classes(class_id) ON DELETE CASCADE,
-    CONSTRAINT fk_term FOREIGN KEY (term_id) REFERENCES term(term_id) ON DELETE CASCADE
+    CONSTRAINT fk_term FOREIGN KEY (term_id) REFERENCES term(term_id) ON DELETE CASCADE,
+    CONSTRAINT fk_previous_class FOREIGN KEY (previous_class_id) REFERENCES classes(class_id) ON DELETE SET NULL
 );
 
 -- Index for filtering by student or class
 CREATE INDEX idx_student_classes_student_id ON student_classes(student_id);
 CREATE INDEX idx_student_classes_class_id ON student_classes(class_id);
+CREATE UNIQUE INDEX unique_student_term_class 
+ON student_classes(student_id, term_id) WHERE class_id IS NOT NULL;
+
 
 -- GRADES TABLE
 CREATE TABLE IF NOT EXISTS grades (

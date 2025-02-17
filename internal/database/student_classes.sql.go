@@ -13,7 +13,7 @@ import (
 
 const createStudentClasses = `-- name: CreateStudentClasses :one
 INSERT INTO student_classes (student_id, class_id, term_id)
-VALUES ($1, $2, $3) RETURNING student_class_id, student_id, class_id, term_id
+VALUES ($1, $2, $3) RETURNING student_class_id, student_id, previous_class_id, class_id, term_id
 `
 
 type CreateStudentClassesParams struct {
@@ -28,6 +28,7 @@ func (q *Queries) CreateStudentClasses(ctx context.Context, arg CreateStudentCla
 	err := row.Scan(
 		&i.StudentClassID,
 		&i.StudentID,
+		&i.PreviousClassID,
 		&i.ClassID,
 		&i.TermID,
 	)

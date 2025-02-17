@@ -118,10 +118,11 @@ type Student struct {
 }
 
 type StudentClass struct {
-	StudentClassID uuid.UUID `json:"student_class_id"`
-	StudentID      uuid.UUID `json:"student_id"`
-	ClassID        uuid.UUID `json:"class_id"`
-	TermID         uuid.UUID `json:"term_id"`
+	StudentClassID  uuid.UUID   `json:"student_class_id"`
+	StudentID       uuid.UUID   `json:"student_id"`
+	PreviousClassID pgtype.UUID `json:"previous_class_id"`
+	ClassID         uuid.UUID   `json:"class_id"`
+	TermID          uuid.UUID   `json:"term_id"`
 }
 
 type StudentGuardian struct {
