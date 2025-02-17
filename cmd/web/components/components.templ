@@ -2,6 +2,7 @@ package components
 
 import "github.com/google/uuid"
 import "school_management_system/internal/database"
+import "strconv"
 
 type User struct {
 	UserID      uuid.UUID
@@ -28,6 +29,21 @@ templ AcademicsDetails(details database.GetCurrentAcademicYearAndTermRow) {
 		<span>{ details.AcademicYear }</span>, 
 		<span>{ details.AcademicTerm.String }</span>
 	</section>
+}
+
+templ AssignedClasses(classes []database.GetAssignedClassesRow) {
+	<details class="bg-white rounded-md shadow-inner">
+		<summary class="cursor-pointer px-4 py-2 text-md font-semibold text-gray-800">
+			Assigned Classes (<span class="text-blue-600">{ strconv.Itoa(len(classes)) }</span>)
+		</summary>
+		<ol class="list-decimal ml-6 mt-2">
+			for _, class := range classes {
+				<li class="py-1">
+					<span class="text-sm font-bold">{ class.Classroom }</span> - <span class="text-sm">{ class.Subject }</span>
+				</li>
+			}
+		</ol>
+	</details>
 }
 
 templ SucessModal(message string, user User) {

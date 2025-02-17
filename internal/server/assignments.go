@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"school_management_system/cmd/web/components"
 	"school_management_system/cmd/web/dashboard/assignments"
 	"school_management_system/internal/database"
 
@@ -249,4 +250,20 @@ func (s *Server) DeleteAssignment(w http.ResponseWriter, r *http.Request) {
 
 // getAssignedClasses returns classes assigned to a particular teacher
 func (s *Server) getAssignedClasses(w http.ResponseWriter, r *http.Request) {
+	user, ok := r.Context().Value(userContextKey).(User)
+	if !ok {
+		writeError(w, http.StatusUnauthorized, "unauthorized")
+		slog.Error("Failed to get user context")
+		return
+	}
+
+	classes, err := s.queries.GetAssignedClasses(r.Context(), user.UserID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		slog.Error("internal server error", "message", err.Error())
+		return
+	}
+
+	component := components.AssignedClasses(classes)
+	s.renderComponent(w, r, component)
 }
