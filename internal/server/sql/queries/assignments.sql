@@ -40,6 +40,19 @@ INNER JOIN users
     ON assignments.teacher_id = users.user_id
 WHERE assignments.id = $1;
 
+-- name: GetAssignedClasses :many
+SELECT
+    assignments.id,
+    classes.name AS ClassRoom,
+    subjects.name AS Subject
+FROM assignments
+INNER JOIN classes
+    ON assignments.class_id = classes.class_id
+INNER JOIN subjects
+    ON assignments.subject_id = subjects.subject_id
+WHERE teacher_id = $1
+ORDER BY classes.name;
+
 -- name: EditAssignments :exec
 UPDATE assignments
 SET class_id = COALESCE($2, class_id),

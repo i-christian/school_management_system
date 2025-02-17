@@ -246,3 +246,7 @@ func (s *Server) DeleteAssignment(w http.ResponseWriter, r *http.Request) {
 	}
 	http.Redirect(w, r, "/academics/assignments", http.StatusFound)
 }
+
+// getAssignedClasses returns classes assigned to a particular teacher
+func (s *Server) getAssignedClasses(w http.ResponseWriter, r *http.Request) {
+}

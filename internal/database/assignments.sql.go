@@ -71,6 +71,46 @@ func (q *Queries) EditAssignments(ctx context.Context, arg EditAssignmentsParams
 	return err
 }
 
+const getAssignedClasses = `-- name: GetAssignedClasses :many
+SELECT
+    assignments.id,
+    classes.name AS ClassRoom,
+    subjects.name AS Subject
+FROM assignments
+INNER JOIN classes
+    ON assignments.class_id = classes.class_id
+INNER JOIN subjects
+    ON assignments.subject_id = subjects.subject_id
+WHERE teacher_id = $1
+ORDER BY classes.name
+`
+
+type GetAssignedClassesRow struct {
+	ID        uuid.UUID `json:"id"`
+	Classroom string    `json:"classroom"`
+	Subject   string    `json:"subject"`
+}
+
+func (q *Queries) GetAssignedClasses(ctx context.Context, teacherID uuid.UUID) ([]GetAssignedClassesRow, error) {
+	rows, err := q.db.Query(ctx, getAssignedClasses, teacherID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetAssignedClassesRow{}
+	for rows.Next() {
+		var i GetAssignedClassesRow
+		if err := rows.Scan(&i.ID, &i.Classroom, &i.Subject); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getAssignment = `-- name: GetAssignment :one
 SELECT
     assignments.id,
