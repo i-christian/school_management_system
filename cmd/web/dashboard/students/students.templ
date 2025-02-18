@@ -71,7 +71,7 @@ templ StudentsList(studentList []database.ListStudentsRow) {
 
 // templ CreateStudentForm renders a form for creating a new student along with guardian information.
 // The academicYearID is pre-rendered.
-templ CreateStudentForm(academicYear database.AcademicYear) {
+templ CreateStudentForm(academicYear database.GetCurrentAcademicYearAndTermRow, classes []database.Class) {
 	<div class="max-w-3xl mx-auto p-6">
 		<div class="bg-white rounded-lg shadow-lg overflow-hidden">
 			<div class="bg-green-600 px-6 py-4">
@@ -83,16 +83,28 @@ templ CreateStudentForm(academicYear database.AcademicYear) {
 				hx-swap="innerHTML"
 				class="px-6 py-6"
 			>
-				<select
-					required
-					class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-					name="academic_year_id"
-				>
-					<option value={ academicYear.AcademicYearID.String() }>
-						{ academicYear.Name }
-					</option>
+				<section class="flex flex-row gap-1">
+					<select
+						required
+						class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+						name="year_term_id"
 					>
-				</select>
+						<option value={ academicYear.AcademicYearID.String() + "=" + academicYear.TermID.String() }>
+							{ academicYear.AcademicYear } - { academicYear.AcademicTerm.String }
+						</option>
+					</select>
+					<select
+						required
+						class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+						name="class_id"
+					>
+						for _, class := range classes {
+							<option value={ class.ClassID.String() }>
+								{ class.Name }
+							</option>
+						}
+					</select>
+				</section>
 				<section>
 					<h3 class="text-lg font-bold mb-4">Student Information</h3>
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
