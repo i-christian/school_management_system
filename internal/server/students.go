@@ -2,8 +2,10 @@ package server
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"net/http"
+	"strings"
 	"time"
 
 	"school_management_system/cmd/web/dashboard/students"
@@ -17,13 +19,21 @@ import (
 
 // ShowCreateStudent renders the create student form
 func (s *Server) ShowCreateStudent(w http.ResponseWriter, r *http.Request) {
-	academicYear, err := s.queries.GetCurrentAcademicYear(r.Context())
+	academicYear, err := s.queries.GetCurrentAcademicYearAndTerm(r.Context())
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "internal server error")
 		slog.Error("internal server error", "message:", err.Error())
 		return
 	}
-	component := students.CreateStudentForm(academicYear)
+
+	classes, err := s.queries.ListClasses(r.Context())
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		slog.Error("internal server error", "message", err.Error())
+		return
+	}
+
+	component := students.CreateStudentForm(academicYear, classes)
 	s.renderComponent(w, r, component)
 }
 
@@ -102,6 +112,32 @@ func insertGuardian(ctx context.Context, qtx *database.Queries, guardianName, ph
 	return guardianID, nil
 }
 
+// createStudentClass function adds a student to a particular
+func createStudentClass(ctx context.Context, qtx *database.Queries, classID, academicTermID string, studentID uuid.UUID) error {
+	parsedClassID, err := uuid.Parse(classID)
+	if err != nil {
+		return errors.New("failed to parse class ID")
+	}
+
+	parsedTermID, err := uuid.Parse(academicTermID)
+	if err != nil {
+		return errors.New("failed to parse term ID")
+	}
+
+	classParams := database.CreateStudentClassesParams{
+		StudentID: studentID,
+		ClassID:   parsedClassID,
+		TermID:    parsedTermID,
+	}
+
+	_, err = qtx.CreateStudentClasses(ctx, classParams)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // CreateStudent handler method accepts a form of values
 // creates a student and guardian.
 func (s *Server) CreateStudent(w http.ResponseWriter, r *http.Request) {
@@ -110,7 +146,8 @@ func (s *Server) CreateStudent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	academicYearID := r.FormValue("academic_year_id")
+	yearPlusTerm := r.FormValue("year_term_id")
+	classID := r.FormValue("class_id")
 	firstName := r.FormValue("first_name")
 	lastName := r.FormValue("last_name")
 	middleName := r.FormValue("middle_name")
@@ -122,10 +159,19 @@ func (s *Server) CreateStudent(w http.ResponseWriter, r *http.Request) {
 	guardianGender := r.FormValue("guardian_gender")
 	profession := r.FormValue("profession")
 
-	if academicYearID == "" || firstName == "" || lastName == "" || gender == "" || dateOfBirth == "" || guardianName == "" || phoneOne == "" || guardianGender == "" {
+	if yearPlusTerm == "" || classID == "" || firstName == "" || lastName == "" || gender == "" || dateOfBirth == "" || guardianName == "" || phoneOne == "" || guardianGender == "" {
 		writeError(w, http.StatusBadRequest, "missing some fields")
 		return
 	}
+
+	parts := strings.Split(yearPlusTerm, "=")
+	if len(parts) != 2 {
+		writeError(w, http.StatusBadRequest, "invalid subject and class selection")
+		return
+	}
+
+	academicYearID := parts[0]
+	academicTermID := parts[1]
 
 	// Start of transaction
 	tx, err := s.conn.Begin(r.Context())
@@ -159,6 +205,8 @@ func (s *Server) CreateStudent(w http.ResponseWriter, r *http.Request) {
 		slog.Error("internal server error", "message", err.Error())
 		return
 	}
+
+	err = createStudentClass(r.Context(), qtx, classID, academicTermID, studentID)
 
 	tx.Commit(r.Context())
 	// end of transaction
