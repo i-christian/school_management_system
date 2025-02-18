@@ -68,3 +68,158 @@ templ StudentsList(studentList []database.ListStudentsRow) {
 		</div>
 	</section>
 }
+
+// templ CreateStudentForm renders a form for creating a new student along with guardian information.
+// The academicYearID is pre-rendered.
+templ CreateStudentForm(academicYear database.AcademicYear) {
+	<div class="max-w-3xl mx-auto p-6">
+		<div class="bg-white rounded-lg shadow-lg overflow-hidden">
+			<div class="bg-green-600 px-6 py-4">
+				<h2 class="text-white text-xl font-bold">Create New Student</h2>
+			</div>
+			<form
+				hx-post="/students"
+				hx-target="#content-area"
+				hx-swap="innerHTML"
+				class="px-6 py-6"
+			>
+				<select
+					required
+					class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+					name="academic_year_id"
+				>
+					<option value={ academicYear.AcademicYearID.String() }>
+						{ academicYear.Name }
+					</option>
+					>
+				</select>
+				<section>
+					<h3 class="text-lg font-bold mb-4">Student Information</h3>
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+						<div>
+							<label class="block text-gray-700 font-semibold mb-2">First Name</label>
+							<input
+								type="text"
+								name="first_name"
+								required
+								class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-green-500"
+							/>
+						</div>
+						<div>
+							<label class="block text-gray-700 font-semibold mb-2">Last Name</label>
+							<input
+								type="text"
+								name="last_name"
+								required
+								class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-green-500"
+							/>
+						</div>
+						<div>
+							<label class="block text-gray-700 font-semibold mb-2">Middle Name</label>
+							<input
+								type="text"
+								name="middle_name"
+								placeholder="Optional"
+								class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-green-500"
+							/>
+						</div>
+						<div>
+							<label class="block text-gray-700 font-semibold mb-2">Gender</label>
+							<select
+								name="gender"
+								required
+								class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-green-500"
+							>
+								<option value="">Select</option>
+								<option value="M">Male</option>
+								<option value="F">Female</option>
+							</select>
+						</div>
+						<div class="md:col-span-2">
+							<label class="block text-gray-700 font-semibold mb-2">Date of Birth</label>
+							<input
+								type="date"
+								name="date_of_birth"
+								required
+								class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-green-500"
+							/>
+						</div>
+					</div>
+				</section>
+				<hr class="my-6"/>
+				<section>
+					<h3 class="text-lg font-bold mb-4">Guardian Information</h3>
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+						<div class="md:col-span-2">
+							<label class="block text-gray-700 font-semibold mb-2">Guardian Name</label>
+							<input
+								type="text"
+								name="guardian_name"
+								required
+								class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-green-500"
+							/>
+						</div>
+						<div>
+							<label class="block text-gray-700 font-semibold mb-2">Phone Number 1</label>
+							<input
+								type="tel"
+								name="phone_number_1"
+								required
+								class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-green-500"
+							/>
+						</div>
+						<div>
+							<label class="block text-gray-700 font-semibold mb-2">Phone Number 2 (optional)</label>
+							<input
+								type="tel"
+								name="phone_number_2"
+								placeholder="Optional"
+								class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-green-500"
+							/>
+						</div>
+						<div>
+							<label class="block text-gray-700 font-semibold mb-2">Guardian Gender</label>
+							<select
+								name="guardian_gender"
+								required
+								class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-green-500"
+							>
+								<option value="">Select</option>
+								<option value="M">Male</option>
+								<option value="F">Female</option>
+							</select>
+						</div>
+						<div class="md:col-span-2">
+							<label class="block text-gray-700 font-semibold mb-2">Profession</label>
+							<input
+								type="text"
+								name="profession"
+								placeholder="Optional"
+								class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-green-500"
+							/>
+						</div>
+					</div>
+				</section>
+				<!-- Form Actions -->
+				<div class="flex justify-end mt-8 space-x-4">
+					<button
+						type="button"
+						hx-get="/students"
+						hx-push-url="true"
+						hx-target="#content-area"
+						hx-swap="innerHTML"
+						class="bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-gray-400"
+					>
+						Cancel
+					</button>
+					<button
+						type="submit"
+						class="bg-green-600 hover:bg-green-700 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-green-500"
+					>
+						Save
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+}

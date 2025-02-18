@@ -7,6 +7,18 @@ import (
 	"school_management_system/cmd/web/dashboard/students"
 )
 
+// ShowCreateStudent renders the create student form
+func (s *Server) ShowCreateStudent(w http.ResponseWriter, r *http.Request) {
+	academicYear, err := s.queries.GetCurrentAcademicYear(r.Context())
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		slog.Error("internal server error", "message:", err.Error())
+		return
+	}
+	component := students.CreateStudentForm(academicYear)
+	s.renderComponent(w, r, component)
+}
+
 // CreateStudent handler method accepts a form of values
 // creates a student and guardian.
 func (s *Server) CreateStudent(w http.ResponseWriter, r *http.Request) {

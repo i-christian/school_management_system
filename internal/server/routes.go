@@ -134,6 +134,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 		// r.Use(s.RequireRoles("admin"))
 
 		r.Get("/", s.ListStudents)
+		r.Get("/create", s.ShowCreateStudent)
 		r.Post("/", s.CreateStudent)
 		r.Get("/{id}", nil)
 		r.Put("/{id}", nil)
