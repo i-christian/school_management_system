@@ -138,11 +138,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Post("/", s.CreateStudent)
 		r.Get("/{id}/edit", s.ShowEditStudent)
 		r.Put("/{id}", s.EditStudent)
-		r.Delete("/{id}", nil)
-
-		r.Get("/student-classes", nil)
-		r.Post("/student-classes", nil)
-		r.Delete("/student-classes/{id}", nil)
+		r.Get("/{id}/delete", s.ShowDeleteStudent)
+		r.Delete("/{id}", s.DeleteStudent)
 
 		r.Post("/students/promotions", nil)
 		r.Get("/guardians", nil)

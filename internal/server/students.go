@@ -344,3 +344,32 @@ func (s *Server) EditStudent(w http.ResponseWriter, r *http.Request) {
 	}
 	http.Redirect(w, r, "/students", http.StatusFound)
 }
+
+// ShowDeleteStudent handler parse the `DeleteStudentModal`
+func (s *Server) ShowDeleteStudent(w http.ResponseWriter, r *http.Request) {
+	studentID := r.PathValue("id")
+	s.renderComponent(w, r, students.DeleteStudentModal(studentID))
+}
+
+// DeleteStudent handler method removes a student from the database
+func (s *Server) DeleteStudent(w http.ResponseWriter, r *http.Request) {
+	studentID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		writeError(w, http.StatusUnprocessableEntity, "wrong student id")
+		return
+	}
+
+	err = s.queries.DeleteStudent(r.Context(), studentID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		slog.Error("failed to delete student", "message", err.Error())
+		return
+	}
+
+	if r.Header.Get("HX-Request") != "" {
+		w.Header().Set("HX-Redirect", "/students")
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+	http.Redirect(w, r, "/students", http.StatusFound)
+}
