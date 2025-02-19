@@ -78,11 +78,10 @@ ORDER BY students.student_id, students.last_name ASC;
 
 -- name: EditStudent :exec
 UPDATE students
-SET academic_year_id = COALESCE($2, academic_year_id),
-    last_name = COALESCE($3, last_name),
-    first_name = COALESCE($4, first_name),
-    gender = COALESCE($5, gender),
-    date_of_birth = COALESCE($6, date_of_birth)
+SET last_name = COALESCE($2, last_name),
+    first_name = COALESCE($3, first_name),
+    gender = COALESCE($4, gender),
+    date_of_birth = COALESCE($5, date_of_birth)
 WHERE student_id = $1
 AND (
     $2 IS NOT NULL OR 

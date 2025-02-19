@@ -239,7 +239,7 @@ templ CreateStudentForm(academicYear database.GetCurrentAcademicYearAndTermRow, 
 	</div>
 }
 
-templ EditStudentModal(student database.GetStudentRow, terms []database.ListTermsRow, classes []database.Class) {
+templ EditStudentModal(student database.GetStudentRow, classes []database.Class) {
 	<div class="max-w-3xl mx-auto p-6">
 		<div class="bg-white rounded-lg shadow-lg overflow-hidden">
 			<div class="bg-green-600 px-6 py-4">
@@ -251,36 +251,6 @@ templ EditStudentModal(student database.GetStudentRow, terms []database.ListTerm
 				hx-swap="innerHTML"
 				class="px-6 py-6"
 			>
-				<section class="flex flex-row gap-1">
-					<select
-						required
-						class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-						name="year_term_id"
-					>
-						for _, term := range terms {
-							<option
-								value={ term.AcademicYearID.String() + "=" + term.TermID.String() }
-								selected={ student.Academicyear }
-							>
-								{ term.AcademicYear } - { term.AcademicTerm }
-							</option>
-						}
-					</select>
-					<select
-						required
-						class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-						name="class_id"
-					>
-						for _, class := range classes {
-							<option
-								value={ class.ClassID.String() }
-								selected={ student.Classname.String }
-							>
-								{ class.Name }
-							</option>
-						}
-					</select>
-				</section>
 				<section>
 					<h3 class="text-lg font-bold mb-4">Student Information</h3>
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -336,6 +306,24 @@ templ EditStudentModal(student database.GetStudentRow, terms []database.ListTerm
 										selected="F"
 									}
 								>Female</option>
+							</select>
+						</div>
+						<div>
+							<label for="class" class="block text-gray-700 font-semibold mb-2">Class</label>
+							<select
+								id="class"
+								required
+								class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+								name="class_id"
+							>
+								for _, class := range classes {
+									<option
+										value={ class.ClassID.String() }
+										selected={ student.Classname.String }
+									>
+										{ class.Name }
+									</option>
+								}
 							</select>
 						</div>
 						<div class="md:col-span-2">

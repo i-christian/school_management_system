@@ -237,3 +237,41 @@ func (s *Server) ListStudents(w http.ResponseWriter, r *http.Request) {
 	component := students.StudentsList(studentsList)
 	s.renderComponent(w, r, component)
 }
+
+// ShowEditStudent handler method renders the EditStudentModal templ component
+func (s *Server) ShowEditStudent(w http.ResponseWriter, r *http.Request) {
+	studentID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "invalid student id")
+		return
+	}
+
+	student, err := s.queries.GetStudent(r.Context(), studentID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		return
+	}
+
+	classes, err := s.queries.ListClasses(r.Context())
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		return
+	}
+	s.renderComponent(w, r, students.EditStudentModal(student, classes))
+
+	if r.Header.Get("HX-Request") != "" {
+		w.Header().Set("HX-Redirect", "/students")
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+	http.Redirect(w, r, "/students", http.StatusFound)
+}
+
+// EditStudent handler method recieves form data and update student
+func (s *Server) EditStudent(w http.ResponseWriter, r *http.Request) {
+	_, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "invalid student id")
+		return
+	}
+}

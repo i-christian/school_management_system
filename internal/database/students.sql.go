@@ -23,11 +23,10 @@ func (q *Queries) DeleteStudent(ctx context.Context, studentID uuid.UUID) error 
 
 const editStudent = `-- name: EditStudent :exec
 UPDATE students
-SET academic_year_id = COALESCE($2, academic_year_id),
-    last_name = COALESCE($3, last_name),
-    first_name = COALESCE($4, first_name),
-    gender = COALESCE($5, gender),
-    date_of_birth = COALESCE($6, date_of_birth)
+SET last_name = COALESCE($2, last_name),
+    first_name = COALESCE($3, first_name),
+    gender = COALESCE($4, gender),
+    date_of_birth = COALESCE($5, date_of_birth)
 WHERE student_id = $1
 AND (
     $2 IS NOT NULL OR 
@@ -39,22 +38,22 @@ AND (
 `
 
 type EditStudentParams struct {
-	StudentID      uuid.UUID   `json:"student_id"`
-	AcademicYearID uuid.UUID   `json:"academic_year_id"`
-	LastName       string      `json:"last_name"`
-	FirstName      string      `json:"first_name"`
-	Gender         string      `json:"gender"`
-	DateOfBirth    pgtype.Date `json:"date_of_birth"`
+	StudentID   uuid.UUID   `json:"student_id"`
+	LastName    string      `json:"last_name"`
+	FirstName   string      `json:"first_name"`
+	Gender      string      `json:"gender"`
+	DateOfBirth pgtype.Date `json:"date_of_birth"`
+	Column6     interface{} `json:"column_6"`
 }
 
 func (q *Queries) EditStudent(ctx context.Context, arg EditStudentParams) error {
 	_, err := q.db.Exec(ctx, editStudent,
 		arg.StudentID,
-		arg.AcademicYearID,
 		arg.LastName,
 		arg.FirstName,
 		arg.Gender,
 		arg.DateOfBirth,
+		arg.Column6,
 	)
 	return err
 }
