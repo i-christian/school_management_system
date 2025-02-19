@@ -213,6 +213,11 @@ func (s *Server) CreateStudent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = createStudentClass(r.Context(), qtx, classID, academicTermID, studentID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		slog.Error("failed to create student class", "message", err.Error())
+		return
+	}
 
 	tx.Commit(r.Context())
 	// end of transaction
@@ -258,6 +263,79 @@ func (s *Server) ShowEditStudent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	s.renderComponent(w, r, students.EditStudentModal(student, classes))
+}
+
+// EditStudent handler method recieves form data and update student
+func (s *Server) EditStudent(w http.ResponseWriter, r *http.Request) {
+	studentID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "invalid student id")
+		return
+	}
+
+	classID := r.FormValue("class_id")
+	firstName := r.FormValue("first_name")
+	lastName := r.FormValue("last_name")
+	middleName := r.FormValue("middle_name")
+	gender := r.FormValue("gender")
+	dateOfBirth := r.FormValue("date_of_birth")
+
+	if classID == "" || firstName == "" || lastName == "" || gender == "" || dateOfBirth == "" {
+		writeError(w, http.StatusBadRequest, "missing some fields")
+		return
+	}
+
+	parsedClassID, err := uuid.Parse(classID)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "wrong form values")
+		slog.Error("failed to parsed classID", "message", err.Error())
+		return
+	}
+
+	caser := cases.Title(language.English)
+	var middleNameValue pgtype.Text
+	if middleName != "" {
+		middleNameValue = pgtype.Text{String: caser.String(middleName), Valid: true}
+	} else {
+		middleNameValue = pgtype.Text{Valid: false}
+	}
+
+	// Start transaction
+	tx, err := s.conn.Begin(r.Context())
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		return
+	}
+
+	defer tx.Rollback(r.Context())
+	qtx := s.queries.WithTx(tx)
+	params := database.EditStudentParams{
+		StudentID:  studentID,
+		LastName:   caser.String(lastName),
+		FirstName:  caser.String(firstName),
+		MiddleName: middleNameValue,
+		Gender:     gender,
+	}
+	err = qtx.EditStudent(r.Context(), params)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		slog.Error("failed to update student", "message", err.Error())
+		return
+	}
+
+	classParams := database.EditStudentClassesParams{
+		StudentID: studentID,
+		ClassID:   parsedClassID,
+	}
+	err = qtx.EditStudentClasses(r.Context(), classParams)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		slog.Error("failed to change student class", "message", err.Error())
+		return
+	}
+
+	tx.Commit(r.Context())
+	// end transaction
 
 	if r.Header.Get("HX-Request") != "" {
 		w.Header().Set("HX-Redirect", "/students")
@@ -265,13 +343,4 @@ func (s *Server) ShowEditStudent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.Redirect(w, r, "/students", http.StatusFound)
-}
-
-// EditStudent handler method recieves form data and update student
-func (s *Server) EditStudent(w http.ResponseWriter, r *http.Request) {
-	_, err := uuid.Parse(r.PathValue("id"))
-	if err != nil {
-		writeError(w, http.StatusBadRequest, "invalid student id")
-		return
-	}
 }

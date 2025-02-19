@@ -319,7 +319,9 @@ templ EditStudentModal(student database.GetStudentRow, classes []database.Class)
 								for _, class := range classes {
 									<option
 										value={ class.ClassID.String() }
-										selected={ student.Classname.String }
+										if student.Classname.String == class.Name {
+											selected={ class.Name }
+										}
 									>
 										{ class.Name }
 									</option>

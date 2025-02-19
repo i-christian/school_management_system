@@ -25,16 +25,10 @@ const editStudent = `-- name: EditStudent :exec
 UPDATE students
 SET last_name = COALESCE($2, last_name),
     first_name = COALESCE($3, first_name),
+    middle_name = COALESCE($6, middle_name),
     gender = COALESCE($4, gender),
     date_of_birth = COALESCE($5, date_of_birth)
 WHERE student_id = $1
-AND (
-    $2 IS NOT NULL OR 
-    $3 IS NOT NULL OR 
-    $4 IS NOT NULL OR 
-    $5 IS NOT NULL OR 
-    $6 IS NOT NULL
-)
 `
 
 type EditStudentParams struct {
@@ -43,7 +37,7 @@ type EditStudentParams struct {
 	FirstName   string      `json:"first_name"`
 	Gender      string      `json:"gender"`
 	DateOfBirth pgtype.Date `json:"date_of_birth"`
-	Column6     interface{} `json:"column_6"`
+	MiddleName  pgtype.Text `json:"middle_name"`
 }
 
 func (q *Queries) EditStudent(ctx context.Context, arg EditStudentParams) error {
@@ -53,7 +47,7 @@ func (q *Queries) EditStudent(ctx context.Context, arg EditStudentParams) error 
 		arg.FirstName,
 		arg.Gender,
 		arg.DateOfBirth,
-		arg.Column6,
+		arg.MiddleName,
 	)
 	return err
 }

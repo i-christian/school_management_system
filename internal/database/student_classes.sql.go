@@ -46,26 +46,17 @@ func (q *Queries) DeleteStudentClasses(ctx context.Context, studentClassID uuid.
 
 const editStudentClasses = `-- name: EditStudentClasses :exec
 UPDATE student_classes
-SET student_id = COALESCE($2, student_id),
-class_id = COALESCE($3, class_id),
-term_id = COALESCE($4, term_id)
-WHERE student_class_id = $1
+SET class_id = COALESCE($2, class_id)
+WHERE student_id = $1
 `
 
 type EditStudentClassesParams struct {
-	StudentClassID uuid.UUID `json:"student_class_id"`
-	StudentID      uuid.UUID `json:"student_id"`
-	ClassID        uuid.UUID `json:"class_id"`
-	TermID         uuid.UUID `json:"term_id"`
+	StudentID uuid.UUID `json:"student_id"`
+	ClassID   uuid.UUID `json:"class_id"`
 }
 
 func (q *Queries) EditStudentClasses(ctx context.Context, arg EditStudentClassesParams) error {
-	_, err := q.db.Exec(ctx, editStudentClasses,
-		arg.StudentClassID,
-		arg.StudentID,
-		arg.ClassID,
-		arg.TermID,
-	)
+	_, err := q.db.Exec(ctx, editStudentClasses, arg.StudentID, arg.ClassID)
 	return err
 }
 
