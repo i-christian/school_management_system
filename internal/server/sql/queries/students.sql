@@ -80,16 +80,10 @@ ORDER BY students.student_id, students.last_name ASC;
 UPDATE students
 SET last_name = COALESCE($2, last_name),
     first_name = COALESCE($3, first_name),
+    middle_name = COALESCE($6, middle_name),
     gender = COALESCE($4, gender),
     date_of_birth = COALESCE($5, date_of_birth)
-WHERE student_id = $1
-AND (
-    $2 IS NOT NULL OR 
-    $3 IS NOT NULL OR 
-    $4 IS NOT NULL OR 
-    $5 IS NOT NULL OR 
-    $6 IS NOT NULL
-);
+WHERE student_id = $1;
 
 -- name: DeleteStudent :exec
 DELETE FROM students WHERE student_id = $1;
