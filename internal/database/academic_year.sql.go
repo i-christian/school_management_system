@@ -345,6 +345,7 @@ func (q *Queries) ListAcademicYear(ctx context.Context) ([]AcademicYear, error) 
 const listTerms = `-- name: ListTerms :many
 SELECT
 term.term_id,
+academic_year.academic_year_id,
 academic_year.name AS Academic_Year,
 term.name AS Academic_Term,
 term.start_date AS Opening_date,
@@ -359,12 +360,13 @@ ORDER BY term.active DESC
 `
 
 type ListTermsRow struct {
-	TermID       uuid.UUID   `json:"term_id"`
-	AcademicYear string      `json:"academic_year"`
-	AcademicTerm string      `json:"academic_term"`
-	OpeningDate  pgtype.Date `json:"opening_date"`
-	ClosingDate  pgtype.Date `json:"closing_date"`
-	Active       bool        `json:"active"`
+	TermID         uuid.UUID   `json:"term_id"`
+	AcademicYearID uuid.UUID   `json:"academic_year_id"`
+	AcademicYear   string      `json:"academic_year"`
+	AcademicTerm   string      `json:"academic_term"`
+	OpeningDate    pgtype.Date `json:"opening_date"`
+	ClosingDate    pgtype.Date `json:"closing_date"`
+	Active         bool        `json:"active"`
 }
 
 func (q *Queries) ListTerms(ctx context.Context, academicYearID uuid.UUID) ([]ListTermsRow, error) {
@@ -378,6 +380,7 @@ func (q *Queries) ListTerms(ctx context.Context, academicYearID uuid.UUID) ([]Li
 		var i ListTermsRow
 		if err := rows.Scan(
 			&i.TermID,
+			&i.AcademicYearID,
 			&i.AcademicYear,
 			&i.AcademicTerm,
 			&i.OpeningDate,

@@ -7,16 +7,7 @@ SET guardian_name = COALESCE($2, guardian_name),
     profession = COALESCE($6, profession)
 WHERE guardian_id = $1;
 
--- name: DeleteGuardianAndUnlink :exec
-WITH deleted_guardian AS (
-    DELETE FROM guardians
-    WHERE guardians.guardian_id = $1
-    RETURNING guardians.guardian_id
-)
-DELETE FROM student_guardians
-WHERE student_guardians.guardian_id = (SELECT deleted_guardian.guardian_id FROM deleted_guardian);
-
--- name: GetStudentAndLinkedGuardians :many
+-- name: GetStudentAndLinkedGuardian :one
 SELECT
     s.last_name AS student_first_name,
     s.first_name AS student_last_name,

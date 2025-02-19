@@ -31,6 +31,7 @@ RETURNING term_id;
 -- name: ListTerms :many
 SELECT
 term.term_id,
+academic_year.academic_year_id,
 academic_year.name AS Academic_Year,
 term.name AS Academic_Term,
 term.start_date AS Opening_date,

@@ -12,21 +12,6 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const deleteGuardianAndUnlink = `-- name: DeleteGuardianAndUnlink :exec
-WITH deleted_guardian AS (
-    DELETE FROM guardians
-    WHERE guardians.guardian_id = $1
-    RETURNING guardians.guardian_id
-)
-DELETE FROM student_guardians
-WHERE student_guardians.guardian_id = (SELECT deleted_guardian.guardian_id FROM deleted_guardian)
-`
-
-func (q *Queries) DeleteGuardianAndUnlink(ctx context.Context, guardianID uuid.UUID) error {
-	_, err := q.db.Exec(ctx, deleteGuardianAndUnlink, guardianID)
-	return err
-}
-
 const getAllStudentGuardianLinks = `-- name: GetAllStudentGuardianLinks :many
 SELECT
     s.last_name AS student_first_name,
@@ -80,7 +65,7 @@ func (q *Queries) GetAllStudentGuardianLinks(ctx context.Context) ([]GetAllStude
 	return items, nil
 }
 
-const getStudentAndLinkedGuardians = `-- name: GetStudentAndLinkedGuardians :many
+const getStudentAndLinkedGuardian = `-- name: GetStudentAndLinkedGuardian :one
 SELECT
     s.last_name AS student_first_name,
     s.first_name AS student_last_name,
@@ -91,7 +76,7 @@ LEFT JOIN guardians g ON sg.guardian_id = g.guardian_id
 WHERE s.student_id = $1
 `
 
-type GetStudentAndLinkedGuardiansRow struct {
+type GetStudentAndLinkedGuardianRow struct {
 	StudentFirstName string      `json:"student_first_name"`
 	StudentLastName  string      `json:"student_last_name"`
 	StudentGender    string      `json:"student_gender"`
@@ -103,34 +88,21 @@ type GetStudentAndLinkedGuardiansRow struct {
 	Profession       pgtype.Text `json:"profession"`
 }
 
-func (q *Queries) GetStudentAndLinkedGuardians(ctx context.Context, studentID uuid.UUID) ([]GetStudentAndLinkedGuardiansRow, error) {
-	rows, err := q.db.Query(ctx, getStudentAndLinkedGuardians, studentID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []GetStudentAndLinkedGuardiansRow{}
-	for rows.Next() {
-		var i GetStudentAndLinkedGuardiansRow
-		if err := rows.Scan(
-			&i.StudentFirstName,
-			&i.StudentLastName,
-			&i.StudentGender,
-			&i.GuardianID,
-			&i.GuardianName,
-			&i.PhoneNumber1,
-			&i.PhoneNumber2,
-			&i.Gender,
-			&i.Profession,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+func (q *Queries) GetStudentAndLinkedGuardian(ctx context.Context, studentID uuid.UUID) (GetStudentAndLinkedGuardianRow, error) {
+	row := q.db.QueryRow(ctx, getStudentAndLinkedGuardian, studentID)
+	var i GetStudentAndLinkedGuardianRow
+	err := row.Scan(
+		&i.StudentFirstName,
+		&i.StudentLastName,
+		&i.StudentGender,
+		&i.GuardianID,
+		&i.GuardianName,
+		&i.PhoneNumber1,
+		&i.PhoneNumber2,
+		&i.Gender,
+		&i.Profession,
+	)
+	return i, err
 }
 
 const updateGuardianAndLink = `-- name: UpdateGuardianAndLink :exec

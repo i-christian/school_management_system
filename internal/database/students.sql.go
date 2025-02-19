@@ -65,6 +65,7 @@ SELECT DISTINCT ON (students.student_id)
     students.student_no,
     students.last_name,
     students.first_name,
+    students.middle_name,
     students.gender,
     students.date_of_birth,
     students.status,
@@ -85,6 +86,7 @@ type GetStudentRow struct {
 	StudentNo    string      `json:"student_no"`
 	LastName     string      `json:"last_name"`
 	FirstName    string      `json:"first_name"`
+	MiddleName   pgtype.Text `json:"middle_name"`
 	Gender       string      `json:"gender"`
 	DateOfBirth  pgtype.Date `json:"date_of_birth"`
 	Status       string      `json:"status"`
@@ -100,6 +102,7 @@ func (q *Queries) GetStudent(ctx context.Context, studentID uuid.UUID) (GetStude
 		&i.StudentNo,
 		&i.LastName,
 		&i.FirstName,
+		&i.MiddleName,
 		&i.Gender,
 		&i.DateOfBirth,
 		&i.Status,

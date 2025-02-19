@@ -41,6 +41,7 @@ SELECT DISTINCT ON (students.student_id)
     students.student_no,
     students.last_name,
     students.first_name,
+    students.middle_name,
     students.gender,
     students.date_of_birth,
     students.status,
