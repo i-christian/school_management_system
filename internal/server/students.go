@@ -97,6 +97,11 @@ func insertGuardian(ctx context.Context, qtx *database.Queries, guardianName, ph
 		validProfession = pgtype.Text{Valid: false}
 	}
 
+	guardian, _ := qtx.GetGuardianByPhone(ctx, pgtype.Text{String: phoneOne, Valid: true})
+	if guardian.GuardianID != uuid.Nil {
+		return guardian.GuardianID, nil
+	}
+
 	params := database.UpsertGuardianParams{
 		GuardianName: caser.String(guardianName),
 		Profession:   validProfession,
@@ -104,6 +109,7 @@ func insertGuardian(ctx context.Context, qtx *database.Queries, guardianName, ph
 		PhoneNumber2: optionalPhone,
 		Gender:       guardianGender,
 	}
+
 	guardianID, err := qtx.UpsertGuardian(ctx, params)
 	if err != nil {
 		return uuid.Nil, err
