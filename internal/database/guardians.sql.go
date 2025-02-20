@@ -77,6 +77,24 @@ func (q *Queries) GetAllStudentGuardianLinks(ctx context.Context) ([]GetAllStude
 	return items, nil
 }
 
+const getGuardianByID = `-- name: GetGuardianByID :one
+SELECT guardian_id, guardian_name, phone_number_1, phone_number_2, gender, profession from guardians WHERE guardian_id = $1
+`
+
+func (q *Queries) GetGuardianByID(ctx context.Context, guardianID uuid.UUID) (Guardian, error) {
+	row := q.db.QueryRow(ctx, getGuardianByID, guardianID)
+	var i Guardian
+	err := row.Scan(
+		&i.GuardianID,
+		&i.GuardianName,
+		&i.PhoneNumber1,
+		&i.PhoneNumber2,
+		&i.Gender,
+		&i.Profession,
+	)
+	return i, err
+}
+
 const getGuardianByPhone = `-- name: GetGuardianByPhone :one
 SELECT guardian_id, guardian_name, phone_number_1, phone_number_2, gender, profession FROM guardians
 WHERE phone_number_1 = $1
