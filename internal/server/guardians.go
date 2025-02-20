@@ -26,6 +26,27 @@ func (s *Server) ListGuardians(w http.ResponseWriter, r *http.Request) {
 	s.renderComponent(w, r, students.GuardiansList(guardians))
 }
 
+// SearchGuardian handler method recievies a form value to be searched and retrieves results from the database
+// matching the search pattern
+func (s *Server) SearchGuardian(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		writeError(w, http.StatusUnprocessableEntity, "failed to parse form")
+		return
+	}
+
+	search := r.FormValue("search")
+	parsedSearch := "%" + search + "%"
+
+	searchedStudents, err := s.queries.SearchStudentGuardian(r.Context(), parsedSearch)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		slog.Error("failed to retrieve students", ":", err.Error())
+		return
+	}
+
+	s.renderComponent(w, r, students.GuardianSearch(searchedStudents))
+}
+
 // ShowEditGuardian modal is used to render guardian information to be edited
 func (s *Server) ShowEditGuardian(w http.ResponseWriter, r *http.Request) {
 	guardianID, err := uuid.Parse(r.PathValue("id"))

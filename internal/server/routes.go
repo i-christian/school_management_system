@@ -141,6 +141,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Get("/{id}/delete", s.ShowDeleteStudent)
 		r.Delete("/{id}", s.DeleteStudent)
 
+		r.Post("/search", s.SearchGuardian)
 		r.Get("/guardians", s.ListGuardians)
 		r.Get("/guardians/{id}/edit", s.ShowEditGuardian)
 		r.Put("/guardians/{id}", s.EditGuardian)

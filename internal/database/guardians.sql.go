@@ -136,8 +136,9 @@ func (q *Queries) GetStudentGuardianCount(ctx context.Context, studentID uuid.UU
 	return i, err
 }
 
-const searchStudentGuardian = `-- name: SearchStudentGuardian :one
+const searchStudentGuardian = `-- name: SearchStudentGuardian :many
 SELECT
+    g.guardian_id,
     s.last_name AS student_first_name,
     s.first_name AS student_last_name,
     g.guardian_name AS guardian_name,
@@ -148,11 +149,12 @@ SELECT
 FROM students s
 INNER JOIN student_guardians sg ON s.student_id = sg.student_id
 INNER JOIN guardians g ON sg.guardian_id = g.guardian_id
-WHERE s.student_id = $1
+WHERE s.first_name ILIKE $1 OR s.last_name ILIKE $1
 ORDER BY s.last_name, s.first_name
 `
 
 type SearchStudentGuardianRow struct {
+	GuardianID         uuid.UUID   `json:"guardian_id"`
 	StudentFirstName   string      `json:"student_first_name"`
 	StudentLastName    string      `json:"student_last_name"`
 	GuardianName       string      `json:"guardian_name"`
@@ -162,19 +164,33 @@ type SearchStudentGuardianRow struct {
 	GuardianProfession pgtype.Text `json:"guardian_profession"`
 }
 
-func (q *Queries) SearchStudentGuardian(ctx context.Context, studentID uuid.UUID) (SearchStudentGuardianRow, error) {
-	row := q.db.QueryRow(ctx, searchStudentGuardian, studentID)
-	var i SearchStudentGuardianRow
-	err := row.Scan(
-		&i.StudentFirstName,
-		&i.StudentLastName,
-		&i.GuardianName,
-		&i.PhoneNumber1,
-		&i.PhoneNumber2,
-		&i.GuardianGender,
-		&i.GuardianProfession,
-	)
-	return i, err
+func (q *Queries) SearchStudentGuardian(ctx context.Context, firstName string) ([]SearchStudentGuardianRow, error) {
+	rows, err := q.db.Query(ctx, searchStudentGuardian, firstName)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []SearchStudentGuardianRow{}
+	for rows.Next() {
+		var i SearchStudentGuardianRow
+		if err := rows.Scan(
+			&i.GuardianID,
+			&i.StudentFirstName,
+			&i.StudentLastName,
+			&i.GuardianName,
+			&i.PhoneNumber1,
+			&i.PhoneNumber2,
+			&i.GuardianGender,
+			&i.GuardianProfession,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const updateGuardian = `-- name: UpdateGuardian :exec

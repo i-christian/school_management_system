@@ -38,8 +38,9 @@ INNER JOIN student_guardians sg ON s.student_id = sg.student_id
 INNER JOIN guardians g ON sg.guardian_id = g.guardian_id
 ORDER BY s.last_name, s.first_name;
 
--- name: SearchStudentGuardian :one
+-- name: SearchStudentGuardian :many
 SELECT
+    g.guardian_id,
     s.last_name AS student_first_name,
     s.first_name AS student_last_name,
     g.guardian_name AS guardian_name,
@@ -50,7 +51,7 @@ SELECT
 FROM students s
 INNER JOIN student_guardians sg ON s.student_id = sg.student_id
 INNER JOIN guardians g ON sg.guardian_id = g.guardian_id
-WHERE s.student_id = $1
+WHERE s.first_name ILIKE $1 OR s.last_name ILIKE $1
 ORDER BY s.last_name, s.first_name;
 
 -- name: DeleteGuardian :exec
