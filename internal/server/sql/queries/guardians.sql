@@ -7,6 +7,9 @@ SET guardian_name = COALESCE($2, guardian_name),
     profession = COALESCE($6, profession)
 WHERE guardian_id = $1;
 
+-- name: GetGuardianByID :one
+SELECT * from guardians WHERE guardian_id = $1;
+
 -- name: GetGuardianByPhone :one
 SELECT * FROM guardians
 WHERE phone_number_1 = $1
