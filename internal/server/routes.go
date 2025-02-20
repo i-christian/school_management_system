@@ -143,6 +143,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 		r.Get("/guardians", s.ListGuardians)
 		r.Get("/guardians/{id}/edit", s.ShowEditGuardian)
+		r.Put("/guardians/{id}", s.EditGuardian)
 
 		r.Post("/promotions", nil)
 	})

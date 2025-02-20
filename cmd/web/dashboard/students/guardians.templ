@@ -14,7 +14,7 @@ templ GuardiansList(guardianList []database.GetAllStudentGuardianLinksRow) {
 					name="search"
 					placeholder="Search by Student..."
 					hx-post="/students/search"
-					hx-trigger="input changed delay:500ms, keyup[key=='Enter'], load"
+					hx-trigger="input changed delay:500ms, keyup[key=='Enter']"
 					hx-target="#content-area"
 					hx-indicator=".htmx-indicator"
 				/>

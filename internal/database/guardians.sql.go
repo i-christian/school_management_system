@@ -177,7 +177,7 @@ func (q *Queries) SearchStudentGuardian(ctx context.Context, studentID uuid.UUID
 	return i, err
 }
 
-const updateGuardianAndLink = `-- name: UpdateGuardianAndLink :exec
+const updateGuardian = `-- name: UpdateGuardian :exec
 UPDATE guardians
 SET guardian_name = COALESCE($2, guardian_name),
     phone_number_1 = COALESCE($3, phone_number_1),
@@ -187,7 +187,7 @@ SET guardian_name = COALESCE($2, guardian_name),
 WHERE guardian_id = $1
 `
 
-type UpdateGuardianAndLinkParams struct {
+type UpdateGuardianParams struct {
 	GuardianID   uuid.UUID   `json:"guardian_id"`
 	GuardianName string      `json:"guardian_name"`
 	PhoneNumber1 pgtype.Text `json:"phone_number_1"`
@@ -196,8 +196,8 @@ type UpdateGuardianAndLinkParams struct {
 	Profession   pgtype.Text `json:"profession"`
 }
 
-func (q *Queries) UpdateGuardianAndLink(ctx context.Context, arg UpdateGuardianAndLinkParams) error {
-	_, err := q.db.Exec(ctx, updateGuardianAndLink,
+func (q *Queries) UpdateGuardian(ctx context.Context, arg UpdateGuardianParams) error {
+	_, err := q.db.Exec(ctx, updateGuardian,
 		arg.GuardianID,
 		arg.GuardianName,
 		arg.PhoneNumber1,

@@ -1,4 +1,4 @@
--- name: UpdateGuardianAndLink :exec
+-- name: UpdateGuardian :exec
 UPDATE guardians
 SET guardian_name = COALESCE($2, guardian_name),
     phone_number_1 = COALESCE($3, phone_number_1),
