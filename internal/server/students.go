@@ -359,12 +359,38 @@ func (s *Server) DeleteStudent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = s.queries.DeleteStudent(r.Context(), studentID)
+	tx, err := s.conn.Begin(r.Context())
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		return
+	}
+
+	defer tx.Rollback(r.Context())
+	qtx := s.queries.WithTx(tx)
+	guardian, err := qtx.GetStudentGuardianCount(r.Context(), studentID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		slog.Error("failed to get guardian,", "message", err.Error())
+		return
+	}
+
+	err = qtx.DeleteStudent(r.Context(), studentID)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "internal server error")
 		slog.Error("failed to delete student", "message", err.Error())
 		return
 	}
+
+	if guardian.Count <= 1 {
+		err = qtx.DeleteGuardian(r.Context(), guardian.GuardianID)
+		if err != nil {
+			writeError(w, http.StatusInternalServerError, "internal server error")
+			slog.Error("failed to delete guardian", ":", err.Error())
+			return
+		}
+	}
+
+	tx.Commit(r.Context())
 
 	if r.Header.Get("HX-Request") != "" {
 		w.Header().Set("HX-Redirect", "/students")

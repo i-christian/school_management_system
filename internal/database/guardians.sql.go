@@ -12,6 +12,15 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const deleteGuardian = `-- name: DeleteGuardian :exec
+DELETE FROM guardians WHERE guardian_id = $1
+`
+
+func (q *Queries) DeleteGuardian(ctx context.Context, guardianID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteGuardian, guardianID)
+	return err
+}
+
 const getAllStudentGuardianLinks = `-- name: GetAllStudentGuardianLinks :many
 SELECT
     s.last_name AS student_first_name,
@@ -85,43 +94,24 @@ func (q *Queries) GetGuardianByPhone(ctx context.Context, phoneNumber1 pgtype.Te
 	return i, err
 }
 
-const getStudentAndLinkedGuardian = `-- name: GetStudentAndLinkedGuardian :one
-SELECT
-    s.last_name AS student_first_name,
-    s.first_name AS student_last_name,
-    s.gender AS student_gender, g.guardian_id, g.guardian_name, g.phone_number_1, g.phone_number_2, g.gender, g.profession
-FROM students s
-LEFT JOIN student_guardians sg ON s.student_id = sg.student_id
-LEFT JOIN guardians g ON sg.guardian_id = g.guardian_id
-WHERE s.student_id = $1
+const getStudentGuardianCount = `-- name: GetStudentGuardianCount :one
+WITH student_guardian AS (
+    SELECT guardian_id FROM student_guardians
+    WHERE  student_guardians.student_id = $1
+)
+SELECT COUNT(guardian_id), guardian_id FROM student_guardians   WHERE guardian_id = (SELECT student_guardian.guardian_id FROM student_guardian)
+GROUP BY student_guardians.guardian_id
 `
 
-type GetStudentAndLinkedGuardianRow struct {
-	StudentFirstName string      `json:"student_first_name"`
-	StudentLastName  string      `json:"student_last_name"`
-	StudentGender    string      `json:"student_gender"`
-	GuardianID       pgtype.UUID `json:"guardian_id"`
-	GuardianName     pgtype.Text `json:"guardian_name"`
-	PhoneNumber1     pgtype.Text `json:"phone_number_1"`
-	PhoneNumber2     pgtype.Text `json:"phone_number_2"`
-	Gender           pgtype.Text `json:"gender"`
-	Profession       pgtype.Text `json:"profession"`
+type GetStudentGuardianCountRow struct {
+	Count      int64     `json:"count"`
+	GuardianID uuid.UUID `json:"guardian_id"`
 }
 
-func (q *Queries) GetStudentAndLinkedGuardian(ctx context.Context, studentID uuid.UUID) (GetStudentAndLinkedGuardianRow, error) {
-	row := q.db.QueryRow(ctx, getStudentAndLinkedGuardian, studentID)
-	var i GetStudentAndLinkedGuardianRow
-	err := row.Scan(
-		&i.StudentFirstName,
-		&i.StudentLastName,
-		&i.StudentGender,
-		&i.GuardianID,
-		&i.GuardianName,
-		&i.PhoneNumber1,
-		&i.PhoneNumber2,
-		&i.Gender,
-		&i.Profession,
-	)
+func (q *Queries) GetStudentGuardianCount(ctx context.Context, studentID uuid.UUID) (GetStudentGuardianCountRow, error) {
+	row := q.db.QueryRow(ctx, getStudentGuardianCount, studentID)
+	var i GetStudentGuardianCountRow
+	err := row.Scan(&i.Count, &i.GuardianID)
 	return i, err
 }
 

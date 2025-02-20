@@ -12,16 +12,14 @@ SELECT * FROM guardians
 WHERE phone_number_1 = $1
 OR phone_number_2 = $1;
 
--- name: GetStudentAndLinkedGuardian :one
-SELECT
-    s.last_name AS student_first_name,
-    s.first_name AS student_last_name,
-    s.gender AS student_gender, g.*
-FROM students s
-LEFT JOIN student_guardians sg ON s.student_id = sg.student_id
-LEFT JOIN guardians g ON sg.guardian_id = g.guardian_id
-WHERE s.student_id = $1;
-
+-- name: GetStudentGuardianCount :one
+WITH student_guardian AS (
+    SELECT guardian_id FROM student_guardians
+    WHERE  student_guardians.student_id = $1
+)
+SELECT COUNT(guardian_id), guardian_id FROM student_guardians   WHERE guardian_id = (SELECT student_guardian.guardian_id FROM student_guardian)
+GROUP BY student_guardians.guardian_id;
+ 
 -- name: GetAllStudentGuardianLinks :many
 SELECT
     s.last_name AS student_first_name,
@@ -35,3 +33,6 @@ FROM students s
 INNER JOIN student_guardians sg ON s.student_id = sg.student_id
 INNER JOIN guardians g ON sg.guardian_id = g.guardian_id
 ORDER BY s.last_name;
+
+-- name: DeleteGuardian :exec
+DELETE FROM guardians WHERE guardian_id = $1;
