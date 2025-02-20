@@ -22,6 +22,7 @@ GROUP BY student_guardians.guardian_id;
  
 -- name: GetAllStudentGuardianLinks :many
 SELECT
+    g.guardian_id,
     s.last_name AS student_first_name,
     s.first_name AS student_last_name,
     g.guardian_name AS guardian_name,
@@ -32,7 +33,22 @@ SELECT
 FROM students s
 INNER JOIN student_guardians sg ON s.student_id = sg.student_id
 INNER JOIN guardians g ON sg.guardian_id = g.guardian_id
-ORDER BY s.last_name;
+ORDER BY s.last_name, s.first_name;
+
+-- name: SearchStudentGuardian :one
+SELECT
+    s.last_name AS student_first_name,
+    s.first_name AS student_last_name,
+    g.guardian_name AS guardian_name,
+    g.phone_number_1,
+    g.phone_number_2,
+    g.gender AS guardian_gender,
+    g.profession AS guardian_profession
+FROM students s
+INNER JOIN student_guardians sg ON s.student_id = sg.student_id
+INNER JOIN guardians g ON sg.guardian_id = g.guardian_id
+WHERE s.student_id = $1
+ORDER BY s.last_name, s.first_name;
 
 -- name: DeleteGuardian :exec
 DELETE FROM guardians WHERE guardian_id = $1;

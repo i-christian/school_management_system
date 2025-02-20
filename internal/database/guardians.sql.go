@@ -23,6 +23,7 @@ func (q *Queries) DeleteGuardian(ctx context.Context, guardianID uuid.UUID) erro
 
 const getAllStudentGuardianLinks = `-- name: GetAllStudentGuardianLinks :many
 SELECT
+    g.guardian_id,
     s.last_name AS student_first_name,
     s.first_name AS student_last_name,
     g.guardian_name AS guardian_name,
@@ -33,10 +34,11 @@ SELECT
 FROM students s
 INNER JOIN student_guardians sg ON s.student_id = sg.student_id
 INNER JOIN guardians g ON sg.guardian_id = g.guardian_id
-ORDER BY s.last_name
+ORDER BY s.last_name, s.first_name
 `
 
 type GetAllStudentGuardianLinksRow struct {
+	GuardianID         uuid.UUID   `json:"guardian_id"`
 	StudentFirstName   string      `json:"student_first_name"`
 	StudentLastName    string      `json:"student_last_name"`
 	GuardianName       string      `json:"guardian_name"`
@@ -56,6 +58,7 @@ func (q *Queries) GetAllStudentGuardianLinks(ctx context.Context) ([]GetAllStude
 	for rows.Next() {
 		var i GetAllStudentGuardianLinksRow
 		if err := rows.Scan(
+			&i.GuardianID,
 			&i.StudentFirstName,
 			&i.StudentLastName,
 			&i.GuardianName,
@@ -112,6 +115,47 @@ func (q *Queries) GetStudentGuardianCount(ctx context.Context, studentID uuid.UU
 	row := q.db.QueryRow(ctx, getStudentGuardianCount, studentID)
 	var i GetStudentGuardianCountRow
 	err := row.Scan(&i.Count, &i.GuardianID)
+	return i, err
+}
+
+const searchStudentGuardian = `-- name: SearchStudentGuardian :one
+SELECT
+    s.last_name AS student_first_name,
+    s.first_name AS student_last_name,
+    g.guardian_name AS guardian_name,
+    g.phone_number_1,
+    g.phone_number_2,
+    g.gender AS guardian_gender,
+    g.profession AS guardian_profession
+FROM students s
+INNER JOIN student_guardians sg ON s.student_id = sg.student_id
+INNER JOIN guardians g ON sg.guardian_id = g.guardian_id
+WHERE s.student_id = $1
+ORDER BY s.last_name, s.first_name
+`
+
+type SearchStudentGuardianRow struct {
+	StudentFirstName   string      `json:"student_first_name"`
+	StudentLastName    string      `json:"student_last_name"`
+	GuardianName       string      `json:"guardian_name"`
+	PhoneNumber1       pgtype.Text `json:"phone_number_1"`
+	PhoneNumber2       pgtype.Text `json:"phone_number_2"`
+	GuardianGender     string      `json:"guardian_gender"`
+	GuardianProfession pgtype.Text `json:"guardian_profession"`
+}
+
+func (q *Queries) SearchStudentGuardian(ctx context.Context, studentID uuid.UUID) (SearchStudentGuardianRow, error) {
+	row := q.db.QueryRow(ctx, searchStudentGuardian, studentID)
+	var i SearchStudentGuardianRow
+	err := row.Scan(
+		&i.StudentFirstName,
+		&i.StudentLastName,
+		&i.GuardianName,
+		&i.PhoneNumber1,
+		&i.PhoneNumber2,
+		&i.GuardianGender,
+		&i.GuardianProfession,
+	)
 	return i, err
 }
 
