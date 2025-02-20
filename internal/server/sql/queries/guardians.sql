@@ -26,8 +26,8 @@ GROUP BY student_guardians.guardian_id;
 -- name: GetAllStudentGuardianLinks :many
 SELECT
     g.guardian_id,
-    s.last_name AS student_first_name,
-    s.first_name AS student_last_name,
+    s.first_name AS student_first_name,
+    s.last_name AS student_last_name,
     g.guardian_name AS guardian_name,
     g.phone_number_1,
     g.phone_number_2,
