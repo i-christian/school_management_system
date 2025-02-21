@@ -69,8 +69,12 @@ UPDATE users
     gender = COALESCE($4, gender),
     phone_number = COALESCE($5, phone_number),
     email = COALESCE($6, email),
-    password = COALESCE($7, password),
-    role_id = COALESCE((SELECT role_id FROM roles WHERE name = $8), role_id)
+    role_id = COALESCE((SELECT role_id FROM roles WHERE name = $7), role_id)
+WHERE user_id = $1;
+
+-- name: EditPassword :exec
+UPDATE users
+    set password = COALESCE($2, password)
 WHERE user_id = $1;
 
 -- name: DeleteUser :exec

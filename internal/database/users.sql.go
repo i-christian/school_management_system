@@ -74,6 +74,22 @@ func (q *Queries) DeleteUser(ctx context.Context, userID uuid.UUID) error {
 	return err
 }
 
+const editPassword = `-- name: EditPassword :exec
+UPDATE users
+    set password = COALESCE($2, password)
+WHERE user_id = $1
+`
+
+type EditPasswordParams struct {
+	UserID   uuid.UUID `json:"user_id"`
+	Password string    `json:"password"`
+}
+
+func (q *Queries) EditPassword(ctx context.Context, arg EditPasswordParams) error {
+	_, err := q.db.Exec(ctx, editPassword, arg.UserID, arg.Password)
+	return err
+}
+
 const editUser = `-- name: EditUser :exec
 UPDATE users
     set first_name = COALESCE($2, first_name),
@@ -81,8 +97,7 @@ UPDATE users
     gender = COALESCE($4, gender),
     phone_number = COALESCE($5, phone_number),
     email = COALESCE($6, email),
-    password = COALESCE($7, password),
-    role_id = COALESCE((SELECT role_id FROM roles WHERE name = $8), role_id)
+    role_id = COALESCE((SELECT role_id FROM roles WHERE name = $7), role_id)
 WHERE user_id = $1
 `
 
@@ -93,7 +108,6 @@ type EditUserParams struct {
 	Gender      string      `json:"gender"`
 	PhoneNumber pgtype.Text `json:"phone_number"`
 	Email       pgtype.Text `json:"email"`
-	Password    string      `json:"password"`
 	Name        string      `json:"name"`
 }
 
@@ -105,7 +119,6 @@ func (q *Queries) EditUser(ctx context.Context, arg EditUserParams) error {
 		arg.Gender,
 		arg.PhoneNumber,
 		arg.Email,
-		arg.Password,
 		arg.Name,
 	)
 	return err

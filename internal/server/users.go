@@ -212,7 +212,7 @@ func (s *Server) EditUser(w http.ResponseWriter, r *http.Request) {
 	email := r.FormValue("email")
 	gender := r.FormValue("gender")
 	password := r.FormValue("password")
-	name := r.FormValue("role")
+	role := r.FormValue("role")
 
 	var emailValue pgtype.Text
 	if email != "" {
@@ -221,11 +221,14 @@ func (s *Server) EditUser(w http.ResponseWriter, r *http.Request) {
 		emailValue = pgtype.Text{Valid: false}
 	}
 
-	hashedPassword, err := hashPassword(password)
+	tx, err := s.conn.Begin(r.Context())
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "internal server error")
 		return
 	}
+
+	defer tx.Rollback(r.Context())
+	qtx := s.queries.WithTx(tx)
 
 	updateInfo := database.EditUserParams{
 		UserID:      userID,
@@ -234,15 +237,36 @@ func (s *Server) EditUser(w http.ResponseWriter, r *http.Request) {
 		Gender:      gender,
 		PhoneNumber: pgtype.Text{String: phoneNumber, Valid: true},
 		Email:       emailValue,
-		Password:    string(hashedPassword),
-		Name:        name,
+		Name:        role,
 	}
 
-	err = s.queries.EditUser(r.Context(), updateInfo)
+	err = qtx.EditUser(r.Context(), updateInfo)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "internal server error")
 		return
 	}
+
+	if len(strings.TrimSpace(password)) > 0 {
+		hashedPassword, err := hashPassword(password)
+		if err != nil {
+			writeError(w, http.StatusInternalServerError, "internal server error")
+			return
+		}
+
+		changePasswdParams := database.EditPasswordParams{
+			UserID:   userID,
+			Password: string(hashedPassword),
+		}
+
+		err = qtx.EditPassword(r.Context(), changePasswdParams)
+		if err != nil {
+			writeError(w, http.StatusInternalServerError, "internal server error")
+			slog.Error("failed to change password", ":", err.Error())
+			return
+		}
+	}
+
+	tx.Commit(r.Context())
 
 	if r.Header.Get("HX-Request") != "" {
 		w.Header().Set("HX-Redirect", "/dashboard/userlist")
