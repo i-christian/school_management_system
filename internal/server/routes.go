@@ -73,10 +73,10 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Delete("/{id}", s.DeleteUser)
 	})
 
-	// DASHBOARD (ADMIN)
+	// DASHBOARD
 	r.Route("/dashboard", func(r chi.Router) {
 		r.Use(s.AuthMiddleware)
-		r.Use(s.RequireRoles("admin", "teacher", "headteacher", "accountant"))
+		r.Use(s.RequireRoles("admin", "teacher", "classteacher", "headteacher", "accountant"))
 		r.Get("/academics", s.GetAcademicsDetails)
 		r.Get("/assigned_classes", s.getAssignedClasses)
 		r.Get("/", s.Dashboard)
@@ -89,7 +89,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	// ACADEMIC ADMINISTRATION (ADMIN)
 	r.Route("/academics", func(r chi.Router) {
 		r.Use(s.AuthMiddleware)
-		// r.Use(s.RequireRoles("admin"))
+		r.Use(s.RequireRoles("admin"))
 
 		r.Get("/years", s.ListAcademicYears)
 		r.Get("/create", templ.Handler(academics.AcademicYearForm()).ServeHTTP)
@@ -131,7 +131,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	// STUDENT MANAGEMENT (ADMIN)
 	r.Route("/students", func(r chi.Router) {
 		r.Use(s.AuthMiddleware)
-		// r.Use(s.RequireRoles("admin"))
+		r.Use(s.RequireRoles("admin"))
 
 		r.Get("/", s.ListStudents)
 		r.Get("/create", s.ShowCreateStudent)
