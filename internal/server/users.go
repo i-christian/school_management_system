@@ -18,6 +18,16 @@ import (
 	"golang.org/x/text/language"
 )
 
+// hashPassword accepts a string and returns a hashed password
+func hashPassword(password string) ([]byte, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, err
+	}
+
+	return hashedPassword, nil
+}
+
 // An endpoint to create a new user account
 func (s *Server) Register(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -50,7 +60,7 @@ func (s *Server) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	hashedPassword, err := hashPassword(password)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "internal server error")
 		return
@@ -211,6 +221,12 @@ func (s *Server) EditUser(w http.ResponseWriter, r *http.Request) {
 		emailValue = pgtype.Text{Valid: false}
 	}
 
+	hashedPassword, err := hashPassword(password)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		return
+	}
+
 	updateInfo := database.EditUserParams{
 		UserID:      userID,
 		FirstName:   firstName,
@@ -218,7 +234,7 @@ func (s *Server) EditUser(w http.ResponseWriter, r *http.Request) {
 		Gender:      gender,
 		PhoneNumber: pgtype.Text{String: phoneNumber, Valid: true},
 		Email:       emailValue,
-		Password:    password,
+		Password:    string(hashedPassword),
 		Name:        name,
 	}
 
