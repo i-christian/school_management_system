@@ -193,7 +193,8 @@ CREATE TABLE IF NOT EXISTS grades (
     remark TEXT,
     CONSTRAINT fk_student FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE,
     CONSTRAINT fk_subject FOREIGN KEY (subject_id) REFERENCES subjects(subject_id) ON DELETE CASCADE,
-    CONSTRAINT fk_term FOREIGN KEY (term_id) REFERENCES term(term_id) ON DELETE CASCADE
+    CONSTRAINT fk_term FOREIGN KEY (term_id) REFERENCES term(term_id) ON DELETE CASCADE,
+    CONSTRAINT unique_grade UNIQUE (student_id, subject_id, term_id)
 );
 
 -- Index for filtering grades by student, subject, or term

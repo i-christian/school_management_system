@@ -12,40 +12,6 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const createGrade = `-- name: CreateGrade :one
-INSERT INTO grades (student_id, subject_id, term_id, score, remark) 
-VALUES ($1, $2, $3, $4, $5)
-RETURNING grade_id, student_id, subject_id, term_id, score, remark
-`
-
-type CreateGradeParams struct {
-	StudentID uuid.UUID      `json:"student_id"`
-	SubjectID uuid.UUID      `json:"subject_id"`
-	TermID    uuid.UUID      `json:"term_id"`
-	Score     pgtype.Numeric `json:"score"`
-	Remark    pgtype.Text    `json:"remark"`
-}
-
-func (q *Queries) CreateGrade(ctx context.Context, arg CreateGradeParams) (Grade, error) {
-	row := q.db.QueryRow(ctx, createGrade,
-		arg.StudentID,
-		arg.SubjectID,
-		arg.TermID,
-		arg.Score,
-		arg.Remark,
-	)
-	var i Grade
-	err := row.Scan(
-		&i.GradeID,
-		&i.StudentID,
-		&i.SubjectID,
-		&i.TermID,
-		&i.Score,
-		&i.Remark,
-	)
-	return i, err
-}
-
 const deleteGrade = `-- name: DeleteGrade :exec
 DELETE FROM grades WHERE grade_id = $1
 `
@@ -99,7 +65,7 @@ FROM grades
 INNER JOIN students
     ON grades.student_id = students.student_id
 INNER JOIN subjects
-    ON grades.subject_id =  students.student_id
+    ON grades.subject_id = subjects.subject_id
 INNER JOIN term
     ON grades.term_id = term.term_id
 WHERE students.student_id = $1
@@ -143,7 +109,7 @@ FROM grades
 INNER JOIN students
     ON grades.student_id = students.student_id
 INNER JOIN subjects
-    ON grades.subject_id =  students.student_id
+    ON grades.subject_id = subjects.subject_id
 INNER JOIN term
     ON grades.term_id = term.term_id
 `
@@ -184,4 +150,172 @@ func (q *Queries) ListGrades(ctx context.Context) ([]ListGradesRow, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const listStudentSubjects = `-- name: ListStudentSubjects :many
+SELECT
+    sc.term_id,
+    s.student_id,
+    subj.subject_id,
+    s.last_name,
+    s.first_name,
+    s.middle_name,
+    c.name AS className,
+    subj.name AS Subject
+FROM student_classes sc
+INNER JOIN students s
+    ON sc.student_id = s.student_id
+INNER JOIN classes c
+    ON sc.class_id = c.class_id
+INNER JOIN subjects subj
+    ON subj.class_id = sc.class_id
+ORDER BY c.class_id, subj.name
+`
+
+type ListStudentSubjectsRow struct {
+	TermID     uuid.UUID   `json:"term_id"`
+	StudentID  uuid.UUID   `json:"student_id"`
+	SubjectID  uuid.UUID   `json:"subject_id"`
+	LastName   string      `json:"last_name"`
+	FirstName  string      `json:"first_name"`
+	MiddleName pgtype.Text `json:"middle_name"`
+	Classname  string      `json:"classname"`
+	Subject    string      `json:"subject"`
+}
+
+func (q *Queries) ListStudentSubjects(ctx context.Context) ([]ListStudentSubjectsRow, error) {
+	rows, err := q.db.Query(ctx, listStudentSubjects)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListStudentSubjectsRow{}
+	for rows.Next() {
+		var i ListStudentSubjectsRow
+		if err := rows.Scan(
+			&i.TermID,
+			&i.StudentID,
+			&i.SubjectID,
+			&i.LastName,
+			&i.FirstName,
+			&i.MiddleName,
+			&i.Classname,
+			&i.Subject,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listStudentSubjectsByTeacher = `-- name: ListStudentSubjectsByTeacher :many
+SELECT
+    sc.term_id,
+    s.student_id,
+    subj.subject_id,
+    s.last_name,
+    s.first_name,
+    s.middle_name,
+    c.name AS className,
+    subj.name AS Subject
+FROM student_classes sc
+INNER JOIN students s
+    ON sc.student_id = s.student_id
+INNER JOIN classes c
+    ON sc.class_id = c.class_id
+INNER JOIN subjects subj
+    ON subj.class_id = sc.class_id
+INNER JOIN assignments a
+    ON a.class_id = sc.class_id
+    AND a.subject_id = subj.subject_id
+WHERE c.class_id = $2
+  AND a.teacher_id = $1
+ORDER BY c.class_id
+`
+
+type ListStudentSubjectsByTeacherParams struct {
+	TeacherID uuid.UUID `json:"teacher_id"`
+	ClassID   uuid.UUID `json:"class_id"`
+}
+
+type ListStudentSubjectsByTeacherRow struct {
+	TermID     uuid.UUID   `json:"term_id"`
+	StudentID  uuid.UUID   `json:"student_id"`
+	SubjectID  uuid.UUID   `json:"subject_id"`
+	LastName   string      `json:"last_name"`
+	FirstName  string      `json:"first_name"`
+	MiddleName pgtype.Text `json:"middle_name"`
+	Classname  string      `json:"classname"`
+	Subject    string      `json:"subject"`
+}
+
+func (q *Queries) ListStudentSubjectsByTeacher(ctx context.Context, arg ListStudentSubjectsByTeacherParams) ([]ListStudentSubjectsByTeacherRow, error) {
+	rows, err := q.db.Query(ctx, listStudentSubjectsByTeacher, arg.TeacherID, arg.ClassID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListStudentSubjectsByTeacherRow{}
+	for rows.Next() {
+		var i ListStudentSubjectsByTeacherRow
+		if err := rows.Scan(
+			&i.TermID,
+			&i.StudentID,
+			&i.SubjectID,
+			&i.LastName,
+			&i.FirstName,
+			&i.MiddleName,
+			&i.Classname,
+			&i.Subject,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const upsertGrade = `-- name: UpsertGrade :one
+INSERT INTO grades (student_id, subject_id, term_id, score, remark)
+VALUES ($1, $2, $3, $4, $5)
+ON CONFLICT (student_id, subject_id, term_id)
+DO UPDATE SET 
+    score = EXCLUDED.score,
+    remark = EXCLUDED.remark
+RETURNING grade_id, student_id, subject_id, term_id, score, remark
+`
+
+type UpsertGradeParams struct {
+	StudentID uuid.UUID      `json:"student_id"`
+	SubjectID uuid.UUID      `json:"subject_id"`
+	TermID    uuid.UUID      `json:"term_id"`
+	Score     pgtype.Numeric `json:"score"`
+	Remark    pgtype.Text    `json:"remark"`
+}
+
+func (q *Queries) UpsertGrade(ctx context.Context, arg UpsertGradeParams) (Grade, error) {
+	row := q.db.QueryRow(ctx, upsertGrade,
+		arg.StudentID,
+		arg.SubjectID,
+		arg.TermID,
+		arg.Score,
+		arg.Remark,
+	)
+	var i Grade
+	err := row.Scan(
+		&i.GradeID,
+		&i.StudentID,
+		&i.SubjectID,
+		&i.TermID,
+		&i.Score,
+		&i.Remark,
+	)
+	return i, err
 }
