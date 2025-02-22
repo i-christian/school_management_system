@@ -23,105 +23,97 @@ func (q *Queries) DeleteGrade(ctx context.Context, gradeID uuid.UUID) error {
 
 const editGrade = `-- name: EditGrade :exec
 UPDATE grades
-SET student_id = COALESCE($2, student_id),
-subject_id = COALESCE($3, subject_id),
-term_id = COALESCE($4, term_id),
-score = COALESCE($5, score),
-remark = COALESCE($6, remark)
+SET score = COALESCE($2, score),
+    remark = COALESCE($3, remark)
 WHERE grade_id = $1
 `
 
 type EditGradeParams struct {
-	GradeID   uuid.UUID      `json:"grade_id"`
-	StudentID uuid.UUID      `json:"student_id"`
-	SubjectID uuid.UUID      `json:"subject_id"`
-	TermID    uuid.UUID      `json:"term_id"`
-	Score     pgtype.Numeric `json:"score"`
-	Remark    pgtype.Text    `json:"remark"`
+	GradeID uuid.UUID      `json:"grade_id"`
+	Score   pgtype.Numeric `json:"score"`
+	Remark  pgtype.Text    `json:"remark"`
 }
 
 func (q *Queries) EditGrade(ctx context.Context, arg EditGradeParams) error {
-	_, err := q.db.Exec(ctx, editGrade,
-		arg.GradeID,
-		arg.StudentID,
-		arg.SubjectID,
-		arg.TermID,
-		arg.Score,
-		arg.Remark,
-	)
+	_, err := q.db.Exec(ctx, editGrade, arg.GradeID, arg.Score, arg.Remark)
 	return err
 }
 
-const getGrade = `-- name: GetGrade :one
+const getGrades = `-- name: GetGrades :one
 SELECT
-    grades.grade_id,
-    students.last_name,
-    students.first_name,
-    subjects.name AS Subject,
-    term.name AS AcademicTerm,
-    grades.score,
-    grades.remark
-FROM grades
-INNER JOIN students
-    ON grades.student_id = students.student_id
-INNER JOIN subjects
-    ON grades.subject_id = subjects.subject_id
-INNER JOIN term
-    ON grades.term_id = term.term_id
-WHERE students.student_id = $1
+    s.student_no,
+    s.last_name,
+    s.first_name,
+    s.middle_name,
+    jsonb_object_agg(
+        sub.name,
+        jsonb_build_object(
+            'grade_id', g.grade_id,
+            'score', g.score,
+            'remark', g.remark
+        )
+    ) AS grades
+FROM students s
+JOIN student_classes sc ON s.student_id = sc.student_id
+JOIN subjects sub ON sc.class_id = sub.class_id
+LEFT JOIN grades g ON s.student_id = g.student_id
+                   AND sub.subject_id = g.subject_id
+                   AND sc.term_id = g.term_id
+WHERE s.student_id = $1
+GROUP BY s.student_no, s.last_name, s.first_name, s.middle_name
 `
 
-type GetGradeRow struct {
-	GradeID      uuid.UUID      `json:"grade_id"`
-	LastName     string         `json:"last_name"`
-	FirstName    string         `json:"first_name"`
-	Subject      string         `json:"subject"`
-	Academicterm string         `json:"academicterm"`
-	Score        pgtype.Numeric `json:"score"`
-	Remark       pgtype.Text    `json:"remark"`
+type GetGradesRow struct {
+	StudentNo  string      `json:"student_no"`
+	LastName   string      `json:"last_name"`
+	FirstName  string      `json:"first_name"`
+	MiddleName pgtype.Text `json:"middle_name"`
+	Grades     []byte      `json:"grades"`
 }
 
-func (q *Queries) GetGrade(ctx context.Context, studentID uuid.UUID) (GetGradeRow, error) {
-	row := q.db.QueryRow(ctx, getGrade, studentID)
-	var i GetGradeRow
+func (q *Queries) GetGrades(ctx context.Context, studentID uuid.UUID) (GetGradesRow, error) {
+	row := q.db.QueryRow(ctx, getGrades, studentID)
+	var i GetGradesRow
 	err := row.Scan(
-		&i.GradeID,
+		&i.StudentNo,
 		&i.LastName,
 		&i.FirstName,
-		&i.Subject,
-		&i.Academicterm,
-		&i.Score,
-		&i.Remark,
+		&i.MiddleName,
+		&i.Grades,
 	)
 	return i, err
 }
 
 const listGrades = `-- name: ListGrades :many
 SELECT
-    grades.grade_id,
-    students.last_name,
-    students.first_name,
-    subjects.name AS Subject,
-    term.name AS AcademicTerm,
-    grades.score,
-    grades.remark
-FROM grades
-INNER JOIN students
-    ON grades.student_id = students.student_id
-INNER JOIN subjects
-    ON grades.subject_id = subjects.subject_id
-INNER JOIN term
-    ON grades.term_id = term.term_id
+    s.student_no,
+    s.last_name,
+    s.first_name,
+    s.middle_name,
+    jsonb_object_agg(
+        sub.name,
+        jsonb_build_object(
+            'grade_id', g.grade_id,
+            'score', g.score,
+            'remark', g.remark
+        )
+    ) AS grades
+FROM students s
+JOIN student_classes sc ON s.student_id = sc.student_id
+JOIN subjects sub ON sc.class_id = sub.class_id
+LEFT JOIN grades g ON s.student_id = g.student_id
+                   AND sub.subject_id = g.subject_id
+                   AND sc.term_id = g.term_id
+GROUP BY s.student_no, s.last_name, s.first_name, s.middle_name
+ORDER BY s.student_no
 `
 
 type ListGradesRow struct {
-	GradeID      uuid.UUID      `json:"grade_id"`
-	LastName     string         `json:"last_name"`
-	FirstName    string         `json:"first_name"`
-	Subject      string         `json:"subject"`
-	Academicterm string         `json:"academicterm"`
-	Score        pgtype.Numeric `json:"score"`
-	Remark       pgtype.Text    `json:"remark"`
+	StudentNo  string      `json:"student_no"`
+	LastName   string      `json:"last_name"`
+	FirstName  string      `json:"first_name"`
+	MiddleName pgtype.Text `json:"middle_name"`
+	Grades     []byte      `json:"grades"`
 }
 
 func (q *Queries) ListGrades(ctx context.Context) ([]ListGradesRow, error) {
@@ -134,143 +126,11 @@ func (q *Queries) ListGrades(ctx context.Context) ([]ListGradesRow, error) {
 	for rows.Next() {
 		var i ListGradesRow
 		if err := rows.Scan(
-			&i.GradeID,
-			&i.LastName,
-			&i.FirstName,
-			&i.Subject,
-			&i.Academicterm,
-			&i.Score,
-			&i.Remark,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const listStudentSubjects = `-- name: ListStudentSubjects :many
-SELECT
-    sc.term_id,
-    s.student_id,
-    subj.subject_id,
-    s.last_name,
-    s.first_name,
-    s.middle_name,
-    c.name AS className,
-    subj.name AS Subject
-FROM student_classes sc
-INNER JOIN students s
-    ON sc.student_id = s.student_id
-INNER JOIN classes c
-    ON sc.class_id = c.class_id
-INNER JOIN subjects subj
-    ON subj.class_id = sc.class_id
-ORDER BY c.class_id, subj.name
-`
-
-type ListStudentSubjectsRow struct {
-	TermID     uuid.UUID   `json:"term_id"`
-	StudentID  uuid.UUID   `json:"student_id"`
-	SubjectID  uuid.UUID   `json:"subject_id"`
-	LastName   string      `json:"last_name"`
-	FirstName  string      `json:"first_name"`
-	MiddleName pgtype.Text `json:"middle_name"`
-	Classname  string      `json:"classname"`
-	Subject    string      `json:"subject"`
-}
-
-func (q *Queries) ListStudentSubjects(ctx context.Context) ([]ListStudentSubjectsRow, error) {
-	rows, err := q.db.Query(ctx, listStudentSubjects)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []ListStudentSubjectsRow{}
-	for rows.Next() {
-		var i ListStudentSubjectsRow
-		if err := rows.Scan(
-			&i.TermID,
-			&i.StudentID,
-			&i.SubjectID,
+			&i.StudentNo,
 			&i.LastName,
 			&i.FirstName,
 			&i.MiddleName,
-			&i.Classname,
-			&i.Subject,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const listStudentSubjectsByTeacher = `-- name: ListStudentSubjectsByTeacher :many
-SELECT
-    sc.term_id,
-    s.student_id,
-    subj.subject_id,
-    s.last_name,
-    s.first_name,
-    s.middle_name,
-    c.name AS className,
-    subj.name AS Subject
-FROM student_classes sc
-INNER JOIN students s
-    ON sc.student_id = s.student_id
-INNER JOIN classes c
-    ON sc.class_id = c.class_id
-INNER JOIN subjects subj
-    ON subj.class_id = sc.class_id
-INNER JOIN assignments a
-    ON a.class_id = sc.class_id
-    AND a.subject_id = subj.subject_id
-WHERE c.class_id = $2
-  AND a.teacher_id = $1
-ORDER BY c.class_id
-`
-
-type ListStudentSubjectsByTeacherParams struct {
-	TeacherID uuid.UUID `json:"teacher_id"`
-	ClassID   uuid.UUID `json:"class_id"`
-}
-
-type ListStudentSubjectsByTeacherRow struct {
-	TermID     uuid.UUID   `json:"term_id"`
-	StudentID  uuid.UUID   `json:"student_id"`
-	SubjectID  uuid.UUID   `json:"subject_id"`
-	LastName   string      `json:"last_name"`
-	FirstName  string      `json:"first_name"`
-	MiddleName pgtype.Text `json:"middle_name"`
-	Classname  string      `json:"classname"`
-	Subject    string      `json:"subject"`
-}
-
-func (q *Queries) ListStudentSubjectsByTeacher(ctx context.Context, arg ListStudentSubjectsByTeacherParams) ([]ListStudentSubjectsByTeacherRow, error) {
-	rows, err := q.db.Query(ctx, listStudentSubjectsByTeacher, arg.TeacherID, arg.ClassID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []ListStudentSubjectsByTeacherRow{}
-	for rows.Next() {
-		var i ListStudentSubjectsByTeacherRow
-		if err := rows.Scan(
-			&i.TermID,
-			&i.StudentID,
-			&i.SubjectID,
-			&i.LastName,
-			&i.FirstName,
-			&i.MiddleName,
-			&i.Classname,
-			&i.Subject,
+			&i.Grades,
 		); err != nil {
 			return nil, err
 		}

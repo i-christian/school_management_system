@@ -180,6 +180,12 @@ func (s *Server) CreateTerm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !academicYear.Active {
+		writeError(w, http.StatusBadRequest, "can not create a new term on an inactive academic year")
+		slog.Error("failed to create term, academic year is marked as inactive")
+		return
+	}
+
 	name := r.FormValue("name")
 	start := r.FormValue("start")
 	end := r.FormValue("end")
