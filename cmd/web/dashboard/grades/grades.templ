@@ -1,21 +1,24 @@
 package grades
 
-import "strconv"
-import "school_management_system/internal/database"
+import (
+	"strconv"
 
-// GradesData is the structure passed to the templ component.
-// It contains a list of subjects (columns) and the student grade data.
-type GradesData struct {
-	Subjects []string
-	Students []database.StudentGradesView
+	"school_management_system/internal/database"
+)
+
+// ClassGradesData groups the subjects and students for a single class.
+type ClassGradesData struct {
+	ClassName string
+	Subjects  []database.ListAllSubjectsRow
+	Students  []database.StudentGradesView
 }
 
-templ GradesList(gradesData GradesData) {
+templ GradesList(classData []ClassGradesData) {
 	<section id="grades-list" class="container mx-auto p-4">
 		<div class="flex items-center justify-between mb-4">
 			<h2 class="text-xl font-bold">Student Grades</h2>
 		</div>
-		for _, data := range gradesData.Students {
+		for _, data := range classData {
 			<details class="mb-8">
 				<summary class="text-lg font-semibold mb-2 cursor-pointer">{ data.ClassName }</summary>
 				<div class="overflow-x-auto">
@@ -26,43 +29,41 @@ templ GradesList(gradesData GradesData) {
 								<th class="border border-gray-200 px-4 py-2 text-left">Last Name</th>
 								<th class="border border-gray-200 px-4 py-2 text-left">First Name</th>
 								<th class="border border-gray-200 px-4 py-2 text-left">Middle Name</th>
-								for _, subject := range gradesData.Subjects {
-									<th class="border border-gray-200 px-4 py-2 text-left">{ subject }</th>
+								for _, subj := range data.Subjects {
+									<th class="border border-gray-200 px-4 py-2 text-left">{ subj.Subjectname }</th>
 								}
 							</tr>
 						</thead>
 						<tbody class="divide-y text-sm divide-gray-200">
-							for _, student := range gradesData.Students {
-								if student.ClassName == data.ClassName {
-									<tr>
-										<td class="border border-gray-200 px-4 py-2">{ student.StudentNo }</td>
-										<td class="border border-gray-200 px-4 py-2">{ student.LastName }</td>
-										<td class="border border-gray-200 px-4 py-2">{ student.FirstName }</td>
+							for _, student := range data.Students {
+								<tr>
+									<td class="border border-gray-200 px-4 py-2">{ student.StudentNo }</td>
+									<td class="border border-gray-200 px-4 py-2">{ student.LastName }</td>
+									<td class="border border-gray-200 px-4 py-2">{ student.FirstName }</td>
+									<td class="border border-gray-200 px-4 py-2">
+										if student.MiddleName.Valid {
+											{ student.MiddleName.String }
+										} else {
+											N/A
+										}
+									</td>
+									for _, subj := range data.Subjects {
 										<td class="border border-gray-200 px-4 py-2">
-											if student.MiddleName.Valid {
-												{ student.MiddleName.String }
+											if grade, exists := student.Grades[subj.Subjectid]; exists {
+												if grade.Score > 0 {
+													{ strconv.FormatFloat(grade.Score, 'f', 2, 64) }
+												} else {
+													N/A
+												}
+												if grade.Remark != "" {
+													({ grade.Remark })
+												}
 											} else {
 												N/A
 											}
 										</td>
-										for _, subject := range gradesData.Subjects {
-											<td class="border border-gray-200 px-4 py-2">
-												if grade, exists := student.Grades[subject]; exists {
-													if grade.Score != nil {
-														{ strconv.FormatFloat(*grade.Score, 'f', 2, 64) }
-													} else {
-														N/A
-													}
-													if grade.Remark != nil {
-														({ *grade.Remark })
-													}
-												} else {
-													N/A
-												}
-											</td>
-										}
-									</tr>
-								}
+									}
+								</tr>
 							}
 						</tbody>
 					</table>

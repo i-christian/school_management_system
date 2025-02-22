@@ -1,11 +1,13 @@
 package dto
 
+import "github.com/google/uuid"
+
 // Grade represents the grade details for a subject.
 type Grade struct {
-	GradeID *int     `json:"grade_id"`
-	Score   *float64 `json:"score"`
-	Remark  *string  `json:"remark"`
+	Remark  string    `json:"remark"`
+	Score   float64   `json:"score"`
+	GradeID uuid.UUID `json:"grade_id"`
 }
 
 // GradesMap maps subject names to their corresponding grade details.
-type GradesMap map[string]Grade
+type GradesMap map[uuid.UUID]Grade

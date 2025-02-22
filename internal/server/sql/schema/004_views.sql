@@ -8,7 +8,7 @@ SELECT
     s.middle_name,
     c.name AS class_name,
     jsonb_object_agg(
-        sub.name,
+        sub.subject_id,
         jsonb_build_object(
             'grade_id', g.grade_id,
             'score', g.score,
