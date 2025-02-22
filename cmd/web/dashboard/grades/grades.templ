@@ -14,52 +14,54 @@ type ClassGradesData struct {
 }
 
 templ GradesList(classData []ClassGradesData) {
-	<section id="grades-list" class="container mx-auto p-4">
-		<div class="flex items-center justify-between mb-4">
-			<h2 class="text-xl font-bold">Student Grades</h2>
+	<section id="grades-list" class="mx-auto p-6">
+		<div class="flex items-center justify-between mb-6">
+			<h2 class="text-2xl font-bold text-gray-800">Student Grades</h2>
 		</div>
 		for _, data := range classData {
-			<details class="mb-8">
-				<summary class="text-lg font-semibold mb-2 cursor-pointer">{ data.ClassName }</summary>
-				<div class="overflow-x-auto">
-					<table class="min-w-full table-auto border-collapse border border-gray-200">
-						<thead class="bg-gray-100">
+			<details class="mb-6 border border-gray-300 rounded-lg shadow-sm">
+				<summary class="bg-gray-200 px-5 py-3 font-semibold text-lg cursor-pointer hover:bg-gray-300 rounded-t-lg transition">
+					{ data.ClassName }
+				</summary>
+				<div class="overflow-x-auto bg-white p-4 rounded-b-lg">
+					<table class="min-w-full table-auto border border-gray-300 rounded-lg shadow-sm">
+						<thead class="bg-blue-500 text-white text-sm uppercase">
 							<tr>
-								<th class="border border-gray-200 px-4 py-2 text-left">Student No</th>
-								<th class="border border-gray-200 px-4 py-2 text-left">Last Name</th>
-								<th class="border border-gray-200 px-4 py-2 text-left">First Name</th>
-								<th class="border border-gray-200 px-4 py-2 text-left">Middle Name</th>
+								<th class="border border-gray-300 px-4 py-2 text-left">Student No</th>
+								<th class="border border-gray-300 px-4 py-2 text-left">Last Name</th>
+								<th class="border border-gray-300 px-4 py-2 text-left">First Name</th>
+								<th class="border border-gray-300 px-4 py-2 text-left">Middle Name</th>
 								for _, subj := range data.Subjects {
-									<th class="border border-gray-200 px-4 py-2 text-left">{ subj.Subjectname }</th>
+									<th class="border border-gray-300 px-4 py-2 text-left">{ subj.Subjectname }</th>
 								}
 							</tr>
 						</thead>
-						<tbody class="divide-y text-sm divide-gray-200">
+						<tbody class="divide-y divide-gray-200 text-sm">
 							for _, student := range data.Students {
-								<tr>
-									<td class="border border-gray-200 px-4 py-2">{ student.StudentNo }</td>
-									<td class="border border-gray-200 px-4 py-2">{ student.LastName }</td>
-									<td class="border border-gray-200 px-4 py-2">{ student.FirstName }</td>
-									<td class="border border-gray-200 px-4 py-2">
+								<tr class="bg-gray-50">
+									<td class="border border-gray-300 px-4 py-2">{ student.StudentNo }</td>
+									<td class="border border-gray-300 px-4 py-2">{ student.LastName }</td>
+									<td class="border border-gray-300 px-4 py-2">{ student.FirstName }</td>
+									<td class="border border-gray-300 px-4 py-2">
 										if student.MiddleName.Valid {
 											{ student.MiddleName.String }
 										} else {
-											N/A
+											<span class="text-gray-400">N/A</span>
 										}
 									</td>
 									for _, subj := range data.Subjects {
-										<td class="border border-gray-200 px-4 py-2">
-											if grade, exists := student.Grades[subj.Subjectid]; exists {
+										<td class="border border-gray-300 px-4 py-2">
+											if grade, ok := student.Grades[subj.Subjectid]; ok {
 												if grade.Score > 0 {
 													{ strconv.FormatFloat(grade.Score, 'f', 2, 64) }
 												} else {
-													N/A
+													<span class="text-gray-400">N/A</span>
 												}
 												if grade.Remark != "" {
-													({ grade.Remark })
+													<span class="text-xs text-gray-500">({ grade.Remark })</span>
 												}
 											} else {
-												N/A
+												<span class="text-gray-400">N/A</span>
 											}
 										</td>
 									}
