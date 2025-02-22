@@ -7,6 +7,7 @@ package database
 import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
+	dto "school_management_system/internal/dto"
 )
 
 type AcademicYear struct {
@@ -123,6 +124,16 @@ type StudentClass struct {
 	PreviousClassID pgtype.UUID `json:"previous_class_id"`
 	ClassID         uuid.UUID   `json:"class_id"`
 	TermID          uuid.UUID   `json:"term_id"`
+}
+
+type StudentGradesView struct {
+	StudentID  uuid.UUID     `json:"student_id"`
+	StudentNo  string        `json:"student_no"`
+	LastName   string        `json:"last_name"`
+	FirstName  string        `json:"first_name"`
+	MiddleName pgtype.Text   `json:"middle_name"`
+	ClassName  string        `json:"class_name"`
+	Grades     dto.GradesMap `json:"grades"`
 }
 
 type StudentGuardian struct {

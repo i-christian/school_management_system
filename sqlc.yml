@@ -18,3 +18,8 @@ sql:
             go_type:
               import: "github.com/google/uuid"
               type: "UUID"
+          - column: "student_grades_view.grades"
+            go_type:
+              import: "school_management_system/internal/dto"
+              package: "dto"
+              type: "GradesMap"

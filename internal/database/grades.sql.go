@@ -40,96 +40,48 @@ func (q *Queries) EditGrade(ctx context.Context, arg EditGradeParams) error {
 }
 
 const getGrades = `-- name: GetGrades :one
-SELECT
-    s.student_no,
-    s.last_name,
-    s.first_name,
-    s.middle_name,
-    jsonb_object_agg(
-        sub.name,
-        jsonb_build_object(
-            'grade_id', g.grade_id,
-            'score', g.score,
-            'remark', g.remark
-        )
-    ) AS grades
-FROM students s
-JOIN student_classes sc ON s.student_id = sc.student_id
-JOIN subjects sub ON sc.class_id = sub.class_id
-LEFT JOIN grades g ON s.student_id = g.student_id
-                   AND sub.subject_id = g.subject_id
-                   AND sc.term_id = g.term_id
-WHERE s.student_id = $1
-GROUP BY s.student_no, s.last_name, s.first_name, s.middle_name
+SELECT student_id, student_no, last_name, first_name, middle_name, class_name, grades
+FROM student_grades_view
+WHERE student_id = $1
 `
 
-type GetGradesRow struct {
-	StudentNo  string      `json:"student_no"`
-	LastName   string      `json:"last_name"`
-	FirstName  string      `json:"first_name"`
-	MiddleName pgtype.Text `json:"middle_name"`
-	Grades     []byte      `json:"grades"`
-}
-
-func (q *Queries) GetGrades(ctx context.Context, studentID uuid.UUID) (GetGradesRow, error) {
+func (q *Queries) GetGrades(ctx context.Context, studentID uuid.UUID) (StudentGradesView, error) {
 	row := q.db.QueryRow(ctx, getGrades, studentID)
-	var i GetGradesRow
+	var i StudentGradesView
 	err := row.Scan(
+		&i.StudentID,
 		&i.StudentNo,
 		&i.LastName,
 		&i.FirstName,
 		&i.MiddleName,
+		&i.ClassName,
 		&i.Grades,
 	)
 	return i, err
 }
 
 const listGrades = `-- name: ListGrades :many
-SELECT
-    s.student_no,
-    s.last_name,
-    s.first_name,
-    s.middle_name,
-    jsonb_object_agg(
-        sub.name,
-        jsonb_build_object(
-            'grade_id', g.grade_id,
-            'score', g.score,
-            'remark', g.remark
-        )
-    ) AS grades
-FROM students s
-JOIN student_classes sc ON s.student_id = sc.student_id
-JOIN subjects sub ON sc.class_id = sub.class_id
-LEFT JOIN grades g ON s.student_id = g.student_id
-                   AND sub.subject_id = g.subject_id
-                   AND sc.term_id = g.term_id
-GROUP BY s.student_no, s.last_name, s.first_name, s.middle_name
-ORDER BY s.student_no
+SELECT student_id, student_no, last_name, first_name, middle_name, class_name, grades
+FROM student_grades_view
+ORDER BY class_name, student_no
 `
 
-type ListGradesRow struct {
-	StudentNo  string      `json:"student_no"`
-	LastName   string      `json:"last_name"`
-	FirstName  string      `json:"first_name"`
-	MiddleName pgtype.Text `json:"middle_name"`
-	Grades     []byte      `json:"grades"`
-}
-
-func (q *Queries) ListGrades(ctx context.Context) ([]ListGradesRow, error) {
+func (q *Queries) ListGrades(ctx context.Context) ([]StudentGradesView, error) {
 	rows, err := q.db.Query(ctx, listGrades)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []ListGradesRow{}
+	items := []StudentGradesView{}
 	for rows.Next() {
-		var i ListGradesRow
+		var i StudentGradesView
 		if err := rows.Scan(
+			&i.StudentID,
 			&i.StudentNo,
 			&i.LastName,
 			&i.FirstName,
 			&i.MiddleName,
+			&i.ClassName,
 			&i.Grades,
 		); err != nil {
 			return nil, err
