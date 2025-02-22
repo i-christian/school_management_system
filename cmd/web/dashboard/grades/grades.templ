@@ -1,0 +1,73 @@
+package grades
+
+import "strconv"
+import "school_management_system/internal/database"
+
+// GradesData is the structure passed to the templ component.
+// It contains a list of subjects (columns) and the student grade data.
+type GradesData struct {
+	Subjects []string
+	Students []database.StudentGradesView
+}
+
+templ GradesList(gradesData GradesData) {
+	<section id="grades-list" class="container mx-auto p-4">
+		<div class="flex items-center justify-between mb-4">
+			<h2 class="text-xl font-bold">Student Grades</h2>
+		</div>
+		for _, data := range gradesData.Students {
+			<details class="mb-8">
+				<summary class="text-lg font-semibold mb-2 cursor-pointer">{ data.ClassName }</summary>
+				<div class="overflow-x-auto">
+					<table class="min-w-full table-auto border-collapse border border-gray-200">
+						<thead class="bg-gray-100">
+							<tr>
+								<th class="border border-gray-200 px-4 py-2 text-left">Student No</th>
+								<th class="border border-gray-200 px-4 py-2 text-left">Last Name</th>
+								<th class="border border-gray-200 px-4 py-2 text-left">First Name</th>
+								<th class="border border-gray-200 px-4 py-2 text-left">Middle Name</th>
+								for _, subject := range gradesData.Subjects {
+									<th class="border border-gray-200 px-4 py-2 text-left">{ subject }</th>
+								}
+							</tr>
+						</thead>
+						<tbody class="divide-y text-sm divide-gray-200">
+							for _, student := range gradesData.Students {
+								if student.ClassName == data.ClassName {
+									<tr>
+										<td class="border border-gray-200 px-4 py-2">{ student.StudentNo }</td>
+										<td class="border border-gray-200 px-4 py-2">{ student.LastName }</td>
+										<td class="border border-gray-200 px-4 py-2">{ student.FirstName }</td>
+										<td class="border border-gray-200 px-4 py-2">
+											if student.MiddleName.Valid {
+												{ student.MiddleName.String }
+											} else {
+												N/A
+											}
+										</td>
+										for _, subject := range gradesData.Subjects {
+											<td class="border border-gray-200 px-4 py-2">
+												if grade, exists := student.Grades[subject]; exists {
+													if grade.Score != nil {
+														{ strconv.FormatFloat(*grade.Score, 'f', 2, 64) }
+													} else {
+														N/A
+													}
+													if grade.Remark != nil {
+														({ *grade.Remark })
+													}
+												} else {
+													N/A
+												}
+											</td>
+										}
+									</tr>
+								}
+							}
+						</tbody>
+					</table>
+				</div>
+			</details>
+		}
+	</section>
+}
