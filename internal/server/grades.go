@@ -34,25 +34,45 @@ func (s *Server) SubmitGrades(w http.ResponseWriter, r *http.Request) {
 	var submission GradeSubmission
 
 	if err := json.NewDecoder(r.Body).Decode(&submission); err != nil {
-		writeError(w, http.StatusBadRequest, "invalid request format")
+		writeError(w, http.StatusBadRequest, "Invalid request format")
 		return
 	}
 
+	// Begin transaction
+	tx, err := s.conn.Begin(r.Context())
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "Failed to start transaction")
+		slog.Error("failed to begin transaction", "error", err.Error())
+		return
+	}
+	defer tx.Rollback(r.Context())
+
 	for _, student := range submission.Grades {
 		for _, grade := range student.Grades {
-			_, err := s.conn.Exec(r.Context(),
+			_, err := tx.Exec(r.Context(),
 				`INSERT INTO grades (student_id, subject_id, term_id, score, remark)
-	                VALUES ($1, $2, $3, $4, $5)
-	                ON CONFLICT (student_id, subject_id, term_id)
-	                DO UPDATE SET score = EXCLUDED.score, remark = EXCLUDED.remark`,
+                 VALUES ($1, $2, $3, $4, $5)
+                 ON CONFLICT (student_id, subject_id, term_id)
+                 DO UPDATE SET score = EXCLUDED.score, remark = EXCLUDED.remark`,
 				student.StudentID, grade.SubjectID, submission.TermID, grade.Score, grade.Remark,
 			)
 			if err != nil {
-				writeError(w, http.StatusInternalServerError, "failed to save grades")
-				slog.Error("failed to save grades", "error", err.Error())
+				writeError(w, http.StatusInternalServerError, "Failed to save grade")
+				slog.Error("failed to save grade",
+					"student_id", student.StudentID,
+					"subject_id", grade.SubjectID,
+					"error", err.Error(),
+				)
 				return
 			}
 		}
+	}
+
+	// Commit transaction
+	if err := tx.Commit(r.Context()); err != nil {
+		writeError(w, http.StatusInternalServerError, "Failed to commit transaction")
+		slog.Error("failed to commit transaction", "error", err.Error())
+		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
