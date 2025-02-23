@@ -101,89 +101,109 @@ type Student struct {
 
 // templ EnterGradesForm renders a table-based form for bulk grade entry.
 templ EnterGradesForm(classRoom []GradeEntryData) {
-	<div class="max-w-6xl mx-auto p-6 space-y-6">
-		for _, class := range classRoom {
-			<div class="bg-white rounded-lg shadow-lg overflow-hidden">
-				<header class="bg-green-600 px-6 py-4 flex justify-between items-center">
-					<h2 class="text-white text-xl font-bold">
-						{ class.ClassName } (Term: { class.TermName })
-					</h2>
-				</header>
-				<form
-					hx-post="/grades/submit"
+	<div class="mx-auto p-6">
+		<nav class="mb-6 bg-gray-100 p-4 rounded-lg shadow">
+			<ul class="flex space-x-4 overflow-x-auto">
+				for _, class := range classRoom {
+					<li>
+						<button
+							hx-get={ "/grades/form/" + class.ClassID.String() }
+							hx-target="#grades-form-container"
+							hx-swap="innerHTML"
+							class="px-4 py-2 bg-white border border-gray-300 rounded-md text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500"
+						>
+							{ class.ClassName }
+						</button>
+					</li>
+				}
+			</ul>
+		</nav>
+		<div id="grades-form-container">
+			{ children... }
+		</div>
+	</div>
+}
+
+templ EnterGradesFormSingle(class GradeEntryData) {
+	<div class="bg-white rounded-lg shadow-lg overflow-hidden">
+		<header class="bg-green-600 px-6 py-4 flex justify-between items-center">
+			<h2 class="text-white text-xl font-bold">
+				{ class.ClassName } (Term: { class.TermName })
+			</h2>
+		</header>
+		<form
+			hx-post="/grades/submit"
+			hx-target="#content-area"
+			hx-swap="innerHTML"
+			class="px-6 py-6 space-y-6"
+		>
+			<input type="hidden" name="class_id" value={ class.ClassID.String() }/>
+			<input type="hidden" name="term_id" value={ class.TermID.String() }/>
+			<div class="overflow-x-auto">
+				<table class="min-w-full border border-gray-300 rounded-lg shadow-xs">
+					<thead class="bg-gray-100">
+						<tr>
+							<th class="border border-gray-300 px-4 py-2 text-left">Student</th>
+							for _, subj := range class.Subjects {
+								<th class="border border-gray-300 px-4 py-2 text-left">{ subj.SubjectName }</th>
+							}
+						</tr>
+					</thead>
+					<tbody class="divide-y divide-gray-200 text-sm">
+						for _, student := range class.Students {
+							<tr class="bg-white">
+								<td class="border border-gray-300 px-4 py-2 font-semibold">
+									{ student.StudentName } ({ student.StudentNo })
+									<input type="hidden" name="student_ids[]" value={ student.StudentID.String() }/>
+								</td>
+								for _, subj := range class.Subjects {
+									<td class="border border-gray-300 px-2 py-2 align-top">
+										<div class="mb-2">
+											<label class="block text-xs text-gray-500 mb-1">Score</label>
+											<input
+												type="number"
+												name={ "grades[" + student.StudentID.String() + "][" + subj.SubjectID.String() + "][score]" }
+												min="0"
+												max="100"
+												step="0.1"
+												class="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+												placeholder="e.g. 75"
+											/>
+										</div>
+										<div>
+											<label class="block text-xs text-gray-500 mb-1">Remark (Optional)</label>
+											<input
+												type="text"
+												name={ "grades[" + student.StudentID.String() + "][" + subj.SubjectID.String() + "][remark]" }
+												class="w-full border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+												placeholder="e.g. Good work"
+											/>
+										</div>
+									</td>
+								}
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+			<section class="flex justify-end mt-4 space-x-4">
+				<button
+					type="button"
+					hx-get="/grades"
+					hx-push-url="true"
 					hx-target="#content-area"
 					hx-swap="innerHTML"
-					class="px-6 py-6 space-y-6"
+					class="bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-gray-400"
 				>
-					<input type="hidden" name="class_id" value={ class.ClassID.String() }/>
-					<input type="hidden" name="term_id" value={ class.TermID.String() }/>
-					<div class="overflow-x-auto">
-						<table class="min-w-full border border-gray-300 rounded-lg shadow-xs">
-							<thead class="bg-gray-100">
-								<tr>
-									<th class="border border-gray-300 px-4 py-2 text-left">Student</th>
-									for _, subj := range class.Subjects {
-										<th class="border border-gray-300 px-4 py-2 text-left">{ subj.SubjectName }</th>
-									}
-								</tr>
-							</thead>
-							<tbody class="divide-y divide-gray-200 text-sm">
-								for _, student := range class.Students {
-									<tr class="bg-white">
-										<td class="border border-gray-300 px-4 py-2 font-semibold">
-											{ student.StudentName } ({ student.StudentNo })
-											<input type="hidden" name="student_ids[]" value={ student.StudentID.String() }/>
-										</td>
-										for _, subj := range class.Subjects {
-											<td class="border border-gray-300 px-2 py-2 align-top">
-												<div class="mb-2">
-													<label class="block text-xs text-gray-500 mb-1">Score</label>
-													<input
-														type="number"
-														name={ "grades[" + student.StudentID.String() + "][" + subj.SubjectID.String() + "][score]" }
-														min="0"
-														max="100"
-														step="0.1"
-														class="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-														placeholder="e.g. 75"
-													/>
-												</div>
-												<div>
-													<label class="block text-xs text-gray-500 mb-1">Remark (Optional)</label>
-													<input
-														type="text"
-														name={ "grades[" + student.StudentID.String() + "][" + subj.SubjectID.String() + "][remark]" }
-														class="w-full border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-														placeholder="e.g. Good work"
-													/>
-												</div>
-											</td>
-										}
-									</tr>
-								}
-							</tbody>
-						</table>
-					</div>
-					<section class="flex justify-end mt-4 space-x-4">
-						<button
-							type="button"
-							hx-get="/grades"
-							hx-push-url="true"
-							hx-target="#content-area"
-							hx-swap="innerHTML"
-							class="bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-gray-400"
-						>
-							Cancel
-						</button>
-						<button
-							type="submit"
-							class="bg-green-600 hover:bg-green-700 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-green-500"
-						>
-							Save Grades for { class.ClassName }
-						</button>
-					</section>
-				</form>
-			</div>
-		}
+					Cancel
+				</button>
+				<button
+					type="submit"
+					class="bg-green-600 hover:bg-green-700 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-green-500"
+				>
+					Save Grades for { class.ClassName }
+				</button>
+			</section>
+		</form>
 	</div>
 }

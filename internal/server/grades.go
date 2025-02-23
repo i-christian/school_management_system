@@ -104,6 +104,7 @@ func PivotClassRoom(rows []database.RetrieveClassRoomRow) []grades.GradeEntryDat
 	for _, v := range classMap {
 		results = append(results, *v)
 	}
+
 	return results
 }
 
@@ -125,4 +126,37 @@ func (s *Server) MyClasses(w http.ResponseWriter, r *http.Request) {
 
 	GradeEntryData := PivotClassRoom(classRoom)
 	s.renderComponent(w, r, grades.EnterGradesForm(GradeEntryData))
+}
+
+// GetClassForm handler: Serves a specific class form dynamically
+func (s *Server) GetClassForm(w http.ResponseWriter, r *http.Request) {
+	classID, err := uuid.Parse(r.PathValue("classID"))
+	if err != nil {
+		http.Error(w, "Invalid class ID", http.StatusBadRequest)
+		return
+	}
+
+	teacherID, ok := r.Context().Value(userContextKey).(User)
+	if !ok {
+		writeError(w, http.StatusForbidden, "forbidden")
+		slog.Error("failed to read user ID from context")
+		return
+	}
+
+	classRoom, err := s.queries.RetrieveClassRoom(r.Context(), teacherID.UserID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		slog.Error("failed to get classroom data", "error", err.Error())
+		return
+	}
+
+	gradeEntryData := PivotClassRoom(classRoom)
+	for _, class := range gradeEntryData {
+		if class.ClassID == classID {
+			s.renderComponent(w, r, grades.EnterGradesFormSingle(class))
+			return
+		}
+	}
+
+	writeError(w, http.StatusNotFound, "class not found")
 }

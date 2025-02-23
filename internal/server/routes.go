@@ -154,6 +154,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Use(s.AuthMiddleware)
 		r.Use(s.RequireRoles("teacher", "classteacher", "headteacher", "admin"))
 		r.Get("/myclasses", s.MyClasses)
+		r.Get("/form/{classID}", s.GetClassForm)
 		r.Get("/", s.ListGrades)
 		r.Get("/student/{id}", nil)
 		r.Post("/", nil)
