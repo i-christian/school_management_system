@@ -35,10 +35,10 @@ func (s *Server) ListGrades(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var classData []grades.ClassGradesData
-	for className, stuList := range classStudentMap {
+	for class, stuList := range classStudentMap {
 		classData = append(classData, grades.ClassGradesData{
-			ClassName: className,
-			Subjects:  classSubjectMap[className],
+			ClassName: class,
+			Subjects:  classSubjectMap[class],
 			Students:  stuList,
 		})
 	}

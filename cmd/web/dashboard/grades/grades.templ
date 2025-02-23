@@ -17,14 +17,12 @@ templ GradesList(classData []ClassGradesData) {
 	<section id="grades-list" class="mx-auto p-6">
 		<div class="flex items-center justify-between mb-6">
 			<h2 class="text-2xl font-bold text-gray-800">Student Grades</h2>
-			<button
-				hx-get="/grades/create"
-				hx-target="#content-area"
-				hx-swap="innerHTML"
+			<a
+				href="/grades/create"
 				class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
 			>
 				Enter Grades
-			</button>
+			</a>
 		</div>
 		for _, data := range classData {
 			<details class="mb-6 border border-gray-300 rounded-lg shadow-sm">

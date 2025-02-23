@@ -6,6 +6,7 @@ SELECT
     s.last_name,
     s.first_name,
     s.middle_name,
+    c.class_id,
     c.name AS class_name,
     jsonb_object_agg(
         sub.subject_id,
@@ -22,7 +23,7 @@ JOIN subjects sub ON sc.class_id = sub.class_id
 LEFT JOIN grades g ON s.student_id = g.student_id
                    AND sub.subject_id = g.subject_id
                    AND sc.term_id = g.term_id
-GROUP BY s.student_id, s.student_no, s.last_name, s.first_name, s.middle_name, c.name;
+GROUP BY s.student_id, s.student_no, s.last_name, s.first_name, s.middle_name, c.name, c.class_id;
 
 -- +goose Down
 DROP VIEW student_grades_view;

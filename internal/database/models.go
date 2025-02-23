@@ -132,6 +132,7 @@ type StudentGradesView struct {
 	LastName   string        `json:"last_name"`
 	FirstName  string        `json:"first_name"`
 	MiddleName pgtype.Text   `json:"middle_name"`
+	ClassID    uuid.UUID     `json:"class_id"`
 	ClassName  string        `json:"class_name"`
 	Grades     dto.GradesMap `json:"grades"`
 }

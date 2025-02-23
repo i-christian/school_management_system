@@ -40,7 +40,7 @@ func (q *Queries) EditGrade(ctx context.Context, arg EditGradeParams) error {
 }
 
 const getGrades = `-- name: GetGrades :one
-SELECT student_id, student_no, last_name, first_name, middle_name, class_name, grades
+SELECT student_id, student_no, last_name, first_name, middle_name, class_id, class_name, grades
 FROM student_grades_view
 WHERE student_id = $1
 `
@@ -54,6 +54,7 @@ func (q *Queries) GetGrades(ctx context.Context, studentID uuid.UUID) (StudentGr
 		&i.LastName,
 		&i.FirstName,
 		&i.MiddleName,
+		&i.ClassID,
 		&i.ClassName,
 		&i.Grades,
 	)
@@ -61,7 +62,7 @@ func (q *Queries) GetGrades(ctx context.Context, studentID uuid.UUID) (StudentGr
 }
 
 const listGrades = `-- name: ListGrades :many
-SELECT student_id, student_no, last_name, first_name, middle_name, class_name, grades
+SELECT student_id, student_no, last_name, first_name, middle_name, class_id, class_name, grades
 FROM student_grades_view
 ORDER BY class_name, student_no
 `
@@ -81,6 +82,7 @@ func (q *Queries) ListGrades(ctx context.Context) ([]StudentGradesView, error) {
 			&i.LastName,
 			&i.FirstName,
 			&i.MiddleName,
+			&i.ClassID,
 			&i.ClassName,
 			&i.Grades,
 		); err != nil {
