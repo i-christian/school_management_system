@@ -1,3 +1,21 @@
+-- name: RetrieveClassRoom :many
+SELECT
+    vc.class_id,
+    vc.class_name,
+    vc.subject_id,
+    vc.subject_name,
+    vc.student_id,
+    vc.student_no,
+    vc.student_name,
+    vc.teacher_id,
+    vc.teacher_name,
+    vc.term_id,
+    vc.term_name,
+    vc.academic_year_id
+FROM virtual_classroom vc
+WHERE vc.teacher_id = $1
+ORDER BY vc.class_name, vc.student_no;
+
 -- name: UpsertGrade :one
 INSERT INTO grades (student_id, subject_id, term_id, score, remark)
 VALUES ($1, $2, $3, $4, $5)
@@ -6,11 +24,6 @@ DO UPDATE SET
     score = EXCLUDED.score,
     remark = EXCLUDED.remark
 RETURNING *;
-
--- name: GetGrades :one
-SELECT *
-FROM student_grades_view
-WHERE student_id = $1;
 
 -- name: ListGrades :many
 SELECT *
