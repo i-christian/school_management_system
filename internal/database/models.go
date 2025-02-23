@@ -171,3 +171,18 @@ type User struct {
 	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
 	RoleID      uuid.UUID          `json:"role_id"`
 }
+
+type VirtualClassroom struct {
+	StudentID      uuid.UUID   `json:"student_id"`
+	StudentNo      string      `json:"student_no"`
+	StudentName    interface{} `json:"student_name"`
+	SubjectID      uuid.UUID   `json:"subject_id"`
+	SubjectName    string      `json:"subject_name"`
+	ClassID        uuid.UUID   `json:"class_id"`
+	ClassName      string      `json:"class_name"`
+	TeacherID      uuid.UUID   `json:"teacher_id"`
+	TeacherName    interface{} `json:"teacher_name"`
+	TermID         uuid.UUID   `json:"term_id"`
+	TermName       string      `json:"term_name"`
+	AcademicYearID uuid.UUID   `json:"academic_year_id"`
+}

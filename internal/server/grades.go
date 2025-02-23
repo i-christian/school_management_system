@@ -1,11 +1,14 @@
 package server
 
 import (
+	"fmt"
 	"log/slog"
 	"net/http"
 
 	"school_management_system/cmd/web/dashboard/grades"
 	"school_management_system/internal/database"
+
+	"github.com/google/uuid"
 )
 
 // ListGrades handles HTTP requests and renders an HTML table displaying student grades.
@@ -46,28 +49,83 @@ func (s *Server) ListGrades(w http.ResponseWriter, r *http.Request) {
 	s.renderComponent(w, r, grades.GradesList(classData))
 }
 
+func PivotClassRoom(rows []database.RetrieveClassRoomRow) []grades.GradeEntryData {
+	classMap := make(map[uuid.UUID]*grades.GradeEntryData)
+
+	for _, row := range rows {
+		// Check if we've already created an entry for this class.
+		entry, exists := classMap[row.ClassID]
+		if !exists {
+			entry = &grades.GradeEntryData{
+				ClassID:        row.ClassID,
+				ClassName:      row.ClassName,
+				TermID:         row.TermID,
+				TermName:       row.TermName,
+				AcademicYearID: row.AcademicYearID,
+				TeacherID:      row.TeacherID,
+				TeacherName:    fmt.Sprintf("%v", row.TeacherName),
+				Subjects:       []grades.Subject{},
+				Students:       []grades.Student{},
+			}
+			classMap[row.ClassID] = entry
+		}
+
+		// Add subject if not already in list.
+		subjectExists := false
+		for _, subj := range entry.Subjects {
+			if subj.SubjectID == row.SubjectID {
+				subjectExists = true
+				break
+			}
+		}
+		if !subjectExists {
+			entry.Subjects = append(entry.Subjects, grades.Subject{
+				SubjectID:   row.SubjectID,
+				SubjectName: row.SubjectName,
+			})
+		}
+
+		// Add student if not already in list.
+		studentExists := false
+		for _, stu := range entry.Students {
+			if stu.StudentID == row.StudentID {
+				studentExists = true
+				break
+			}
+		}
+		if !studentExists {
+			entry.Students = append(entry.Students, grades.Student{
+				StudentID:   row.StudentID,
+				StudentNo:   row.StudentNo,
+				StudentName: fmt.Sprintf("%v", row.StudentName),
+			})
+		}
+	}
+
+	// Convert map to slice.
+	results := make([]grades.GradeEntryData, 0, len(classMap))
+	for _, v := range classMap {
+		results = append(results, *v)
+	}
+	return results
+}
+
 // EnterGrades handler method displays a form for entering grades
 func (s *Server) EnterGrades(w http.ResponseWriter, r *http.Request) {
-	students, err := s.queries.ListStudents(r.Context())
-	if err != nil {
-		writeError(w, http.StatusInternalServerError, "internal server error")
-		slog.Error("failed to retriev students", "message", err.Error())
+	teacher_id, ok := r.Context().Value(userContextKey).(User)
+	if !ok {
+		writeError(w, http.StatusForbidden, "forbidden")
+		slog.Error("failed to read user ID from context")
 		return
 	}
 
-	subjects, err := s.queries.ListAllSubjects(r.Context())
+	classRoom, err := s.queries.RetrieveClassRoom(r.Context(), teacher_id.UserID)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "internal server error")
-		slog.Error("failed to load subjects", "message", err.Error())
+		slog.Error("failed to get classroom data", "error", err.Error())
 		return
 	}
 
-	currentTerm, err := s.queries.GetCurrentTerm(r.Context())
-	if err != nil {
-		writeError(w, http.StatusInternalServerError, "internal server error")
-		slog.Error("failed to get current academic year and term", "message", err.Error())
-		return
-	}
-
-	s.renderComponent(w, r, grades.EnterGradesForm(students, subjects, currentTerm))
+	GradeEntryData := PivotClassRoom(classRoom)
+	s.renderComponent(w, r, grades.EnterGradesForm(GradeEntryData))
 }
