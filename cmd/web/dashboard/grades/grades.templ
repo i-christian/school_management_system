@@ -131,14 +131,9 @@ templ EnterGradesFormSingle(class GradeEntryData) {
 				{ class.ClassName } (Term: { class.TermName })
 			</h2>
 		</header>
-		<form
-			hx-post="/grades/submit"
-			hx-target="#content-area"
-			hx-swap="innerHTML"
-			class="px-6 py-6 space-y-6"
-		>
-			<input type="hidden" name="class_id" value={ class.ClassID.String() }/>
-			<input type="hidden" name="term_id" value={ class.TermID.String() }/>
+		<form id="grades-form" class="px-6 py-6 space-y-6">
+			<input type="hidden" id="class_id" value={ class.ClassID.String() }/>
+			<input type="hidden" id="term_id" value={ class.TermID.String() }/>
 			<div class="overflow-x-auto">
 				<table class="min-w-full border border-gray-300 rounded-lg shadow-xs">
 					<thead class="bg-gray-100">
@@ -151,10 +146,9 @@ templ EnterGradesFormSingle(class GradeEntryData) {
 					</thead>
 					<tbody class="divide-y divide-gray-200 text-sm">
 						for _, student := range class.Students {
-							<tr class="bg-white">
+							<tr class="bg-white student-row" data-student-id={ student.StudentID.String() }>
 								<td class="border border-gray-300 px-4 py-2 font-semibold">
 									{ student.StudentName } ({ student.StudentNo })
-									<input type="hidden" name="student_ids[]" value={ student.StudentID.String() }/>
 								</td>
 								for _, subj := range class.Subjects {
 									<td class="border border-gray-300 px-2 py-2 align-top">
@@ -162,11 +156,11 @@ templ EnterGradesFormSingle(class GradeEntryData) {
 											<label class="block text-xs text-gray-500 mb-1">Score</label>
 											<input
 												type="number"
-												name={ "grades[" + student.StudentID.String() + "][" + subj.SubjectID.String() + "][score]" }
+												data-subject-id={ subj.SubjectID.String() }
 												min="0"
 												max="100"
 												step="0.1"
-												class="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+												class="score-input w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-green-500"
 												placeholder="e.g. 75"
 											/>
 										</div>
@@ -174,8 +168,8 @@ templ EnterGradesFormSingle(class GradeEntryData) {
 											<label class="block text-xs text-gray-500 mb-1">Remark (Optional)</label>
 											<input
 												type="text"
-												name={ "grades[" + student.StudentID.String() + "][" + subj.SubjectID.String() + "][remark]" }
-												class="w-full border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+												data-subject-id={ subj.SubjectID.String() }
+												class="remark-input w-full border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
 												placeholder="e.g. Good work"
 											/>
 										</div>
@@ -189,10 +183,7 @@ templ EnterGradesFormSingle(class GradeEntryData) {
 			<section class="flex justify-end mt-4 space-x-4">
 				<button
 					type="button"
-					hx-get="/grades"
-					hx-push-url="true"
-					hx-target="#content-area"
-					hx-swap="innerHTML"
+					onclick="window.location.href='/grades/myclasses'"
 					class="bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-gray-400"
 				>
 					Cancel
@@ -206,4 +197,55 @@ templ EnterGradesFormSingle(class GradeEntryData) {
 			</section>
 		</form>
 	</div>
+	<script>
+		document.getElementById("grades-form").addEventListener("submit", async function (e) {
+			e.preventDefault();
+
+			const classId = document.getElementById("class_id").value;
+			const termId = document.getElementById("term_id").value;
+			const grades = [];
+
+			document.querySelectorAll(".student-row").forEach(row => {
+				const studentId = row.dataset.studentId;
+				const studentGrades = { student_id: studentId, grades: [] };
+
+				row.querySelectorAll(".score-input").forEach(scoreInput => {
+					const subjectId = scoreInput.dataset.subjectId;
+					const score = parseFloat(scoreInput.value) || 0;
+					const remarkInput = row.querySelector(`.remark-input[data-subject-id="${subjectId}"]`);
+					const remark = remarkInput ? remarkInput.value.trim() : "";
+
+					studentGrades.grades.push({
+						subject_id: subjectId,
+						score: score,
+						remark: remark
+					});
+				});
+
+				grades.push(studentGrades);
+			});
+
+			const payload = {
+				class_id: classId,
+				term_id: termId,
+				grades: grades
+			};
+
+			try {
+				const response = await fetch("/grades/submit", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(payload)
+				});
+
+				if (response.status === 201) {
+					window.location.href = "/grades/myclasses";
+				} else {
+					console.log("failed to save grades");
+				}
+			} catch (error) {
+				console.error("Submission failed", error);
+			}
+		});
+	</script>
 }

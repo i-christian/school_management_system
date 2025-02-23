@@ -155,6 +155,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Use(s.RequireRoles("teacher", "classteacher", "headteacher", "admin"))
 		r.Get("/myclasses", s.MyClasses)
 		r.Get("/form/{classID}", s.GetClassForm)
+		r.Post("/submit", s.SubmitGrades)
 		r.Get("/", s.ListGrades)
 		r.Get("/student/{id}", nil)
 		r.Post("/", nil)

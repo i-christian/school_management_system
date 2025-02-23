@@ -1,6 +1,7 @@
 package server
 
 import (
+	"encoding/json"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -10,6 +11,52 @@ import (
 
 	"github.com/google/uuid"
 )
+
+type GradeEntry struct {
+	Remark    string  `json:"remark"`
+	SubjectID string  `json:"subject_id"`
+	Score     float64 `json:"score"`
+}
+
+type StudentGrades struct {
+	StudentID string       `json:"student_id"`
+	Grades    []GradeEntry `json:"grades"`
+}
+
+type GradeSubmission struct {
+	ClassID string          `json:"class_id"`
+	TermID  string          `json:"term_id"`
+	Grades  []StudentGrades `json:"grades"`
+}
+
+// SubmitGrades method handler inserts/updates student's grades
+func (s *Server) SubmitGrades(w http.ResponseWriter, r *http.Request) {
+	var submission GradeSubmission
+
+	if err := json.NewDecoder(r.Body).Decode(&submission); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid request format")
+		return
+	}
+
+	for _, student := range submission.Grades {
+		for _, grade := range student.Grades {
+			_, err := s.conn.Exec(r.Context(),
+				`INSERT INTO grades (student_id, subject_id, term_id, score, remark)
+	                VALUES ($1, $2, $3, $4, $5)
+	                ON CONFLICT (student_id, subject_id, term_id)
+	                DO UPDATE SET score = EXCLUDED.score, remark = EXCLUDED.remark`,
+				student.StudentID, grade.SubjectID, submission.TermID, grade.Score, grade.Remark,
+			)
+			if err != nil {
+				writeError(w, http.StatusInternalServerError, "failed to save grades")
+				slog.Error("failed to save grades", "error", err.Error())
+				return
+			}
+		}
+	}
+
+	w.WriteHeader(http.StatusCreated)
+}
 
 // ListGrades handles HTTP requests and renders an HTML table displaying student grades.
 func (s *Server) ListGrades(w http.ResponseWriter, r *http.Request) {

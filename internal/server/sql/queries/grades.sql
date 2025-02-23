@@ -29,12 +29,3 @@ RETURNING *;
 SELECT *
 FROM student_grades_view
 ORDER BY class_name, student_no;
-
--- name: EditGrade :exec
-UPDATE grades
-SET score = COALESCE($2, score),
-    remark = COALESCE($3, remark)
-WHERE grade_id = $1;
-
--- name: DeleteGrade :exec
-DELETE FROM grades WHERE grade_id = $1;
