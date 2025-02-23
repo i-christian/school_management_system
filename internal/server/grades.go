@@ -45,3 +45,29 @@ func (s *Server) ListGrades(w http.ResponseWriter, r *http.Request) {
 
 	s.renderComponent(w, r, grades.GradesList(classData))
 }
+
+// EnterGrades handler method displays a form for entering grades
+func (s *Server) EnterGrades(w http.ResponseWriter, r *http.Request) {
+	students, err := s.queries.ListStudents(r.Context())
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		slog.Error("failed to retriev students", "message", err.Error())
+		return
+	}
+
+	subjects, err := s.queries.ListAllSubjects(r.Context())
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		slog.Error("failed to load subjects", "message", err.Error())
+		return
+	}
+
+	currentTerm, err := s.queries.GetCurrentTerm(r.Context())
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		slog.Error("failed to get current academic year and term", "message", err.Error())
+		return
+	}
+
+	s.renderComponent(w, r, grades.EnterGradesForm(students, subjects, currentTerm))
+}
