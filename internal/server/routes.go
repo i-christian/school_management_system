@@ -153,8 +153,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.Route("/grades", func(r chi.Router) {
 		r.Use(s.AuthMiddleware)
 		r.Use(s.RequireRoles("teacher", "classteacher", "headteacher", "admin"))
+		r.Get("/myclasses", s.MyClasses)
 		r.Get("/", s.ListGrades)
-		r.Get("/create", s.EnterGrades)
 		r.Get("/student/{id}", nil)
 		r.Post("/", nil)
 		r.Put("/{id}", nil)

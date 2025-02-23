@@ -53,7 +53,6 @@ func PivotClassRoom(rows []database.RetrieveClassRoomRow) []grades.GradeEntryDat
 	classMap := make(map[uuid.UUID]*grades.GradeEntryData)
 
 	for _, row := range rows {
-		// Check if we've already created an entry for this class.
 		entry, exists := classMap[row.ClassID]
 		if !exists {
 			entry = &grades.GradeEntryData{
@@ -85,7 +84,6 @@ func PivotClassRoom(rows []database.RetrieveClassRoomRow) []grades.GradeEntryDat
 			})
 		}
 
-		// Add student if not already in list.
 		studentExists := false
 		for _, stu := range entry.Students {
 			if stu.StudentID == row.StudentID {
@@ -102,7 +100,6 @@ func PivotClassRoom(rows []database.RetrieveClassRoomRow) []grades.GradeEntryDat
 		}
 	}
 
-	// Convert map to slice.
 	results := make([]grades.GradeEntryData, 0, len(classMap))
 	for _, v := range classMap {
 		results = append(results, *v)
@@ -111,7 +108,7 @@ func PivotClassRoom(rows []database.RetrieveClassRoomRow) []grades.GradeEntryDat
 }
 
 // EnterGrades handler method displays a form for entering grades
-func (s *Server) EnterGrades(w http.ResponseWriter, r *http.Request) {
+func (s *Server) MyClasses(w http.ResponseWriter, r *http.Request) {
 	teacher_id, ok := r.Context().Value(userContextKey).(User)
 	if !ok {
 		writeError(w, http.StatusForbidden, "forbidden")
