@@ -29,7 +29,10 @@ type GradeSubmission struct {
 	Grades  []StudentGrades `json:"grades"`
 }
 
-// SubmitGrades method handler inserts/updates student's grades
+// SubmitGrades handles the HTTP request for submitting student grades.
+// It decodes the incoming JSON payload, then inserts or updates the grade record for each student-subject combination.
+// The function uses a transaction to ensure atomicity. On success, it returns a 201 Created status.
+// On failure, it writes an appropriate error message and logs the error.
 func (s *Server) SubmitGrades(w http.ResponseWriter, r *http.Request) {
 	var submission GradeSubmission
 
@@ -78,7 +81,9 @@ func (s *Server) SubmitGrades(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-// ListGrades handles HTTP requests and renders an HTML table displaying student grades.
+// ListGrades handles HTTP requests for displaying student grades.
+// It retrieves class subjects and student grade views from the database, organizes them into maps,
+// and then builds a slice of ClassGradesData to render an HTML table of grades.
 func (s *Server) ListGrades(w http.ResponseWriter, r *http.Request) {
 	classSubjects, err := s.queries.ListAllSubjects(r.Context())
 	if err != nil {
@@ -116,6 +121,9 @@ func (s *Server) ListGrades(w http.ResponseWriter, r *http.Request) {
 	s.renderComponent(w, r, grades.GradesList(classData))
 }
 
+// PivotClassRoom pivots classroom data from the database into a slice of GradeEntryData.
+// It aggregates subjects and students per class from the given rows, ensuring no duplicates in the lists.
+// This transformed data is then used to render the grade entry form.
 func PivotClassRoom(rows []database.RetrieveClassRoomRow) []grades.GradeEntryData {
 	classMap := make(map[uuid.UUID]*grades.GradeEntryData)
 
@@ -175,7 +183,9 @@ func PivotClassRoom(rows []database.RetrieveClassRoomRow) []grades.GradeEntryDat
 	return results
 }
 
-// EnterGrades handler method displays a form for entering grades
+// MyClasses handles HTTP requests for displaying the teacher's classes for grade entry.
+// It extracts the teacher's user ID from the context, retrieves classroom data, pivots the data into a suitable format,
+// and renders the grade entry form component.
 func (s *Server) MyClasses(w http.ResponseWriter, r *http.Request) {
 	teacher_id, ok := r.Context().Value(userContextKey).(User)
 	if !ok {
@@ -195,7 +205,9 @@ func (s *Server) MyClasses(w http.ResponseWriter, r *http.Request) {
 	s.renderComponent(w, r, grades.EnterGradesForm(GradeEntryData))
 }
 
-// GetClassForm handler: Serves a specific class form dynamically
+// GetClassForm serves the grade entry form for a specific class.
+// It parses the classID from the URL, validates the teacher's context, and retrieves both classroom data and the current grades for the class.
+// If a matching class is found, it renders the grade entry form pre-populated with existing grade data; otherwise, it returns a 404 error.
 func (s *Server) GetClassForm(w http.ResponseWriter, r *http.Request) {
 	classID, err := uuid.Parse(r.PathValue("classID"))
 	if err != nil {
