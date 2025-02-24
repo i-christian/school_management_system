@@ -1,6 +1,12 @@
--- name: CreateDisciplinaryRecord :one
+-- name: UpsertDisciplinaryRecord :one
 INSERT INTO discipline_records (student_id, term_id, date, description, action_taken, reported_by, notes)
-VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+ON CONFLICT (student_id, term_id, date) DO UPDATE
+  SET description  = EXCLUDED.description,
+      action_taken = EXCLUDED.action_taken,
+      reported_by  = EXCLUDED.reported_by,
+      notes        = EXCLUDED.notes
+RETURNING *;
 
 -- name: GetDisciplinaryRecord :one
 SELECT 
@@ -46,13 +52,6 @@ discipline_records.reported_by = users.user_id
 INNER JOIN term
 ON
 discipline_records.term_id = term.term_id;
-
--- name: EditDisciplinaryRecord :exec
-UPDATE discipline_records
-SET description = COALESCE($2, description),
-action_taken = COALESCE($3, action_taken),
-notes = COALESCE($4, notes)
-WHERE discipline_id = $1;
 
 -- name: DeleteDisciplinaryRecord :exec
 DELETE FROM discipline_records WHERE discipline_id = $1;

@@ -222,6 +222,11 @@ func (s *Server) GetClassForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if teacher.Role == "admin" {
+		writeError(w, http.StatusForbidden, "user does not teach any class")
+		return
+	}
+
 	classRoom, err := s.queries.RetrieveClassRoom(r.Context(), teacher.UserID)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "internal server error")

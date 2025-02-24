@@ -12,76 +12,12 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const createDisciplinaryRecord = `-- name: CreateDisciplinaryRecord :one
-INSERT INTO discipline_records (student_id, term_id, date, description, action_taken, reported_by, notes)
-VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING discipline_id, student_id, term_id, date, description, action_taken, reported_by, notes
-`
-
-type CreateDisciplinaryRecordParams struct {
-	StudentID   uuid.UUID   `json:"student_id"`
-	TermID      uuid.UUID   `json:"term_id"`
-	Date        pgtype.Date `json:"date"`
-	Description string      `json:"description"`
-	ActionTaken pgtype.Text `json:"action_taken"`
-	ReportedBy  uuid.UUID   `json:"reported_by"`
-	Notes       pgtype.Text `json:"notes"`
-}
-
-func (q *Queries) CreateDisciplinaryRecord(ctx context.Context, arg CreateDisciplinaryRecordParams) (DisciplineRecord, error) {
-	row := q.db.QueryRow(ctx, createDisciplinaryRecord,
-		arg.StudentID,
-		arg.TermID,
-		arg.Date,
-		arg.Description,
-		arg.ActionTaken,
-		arg.ReportedBy,
-		arg.Notes,
-	)
-	var i DisciplineRecord
-	err := row.Scan(
-		&i.DisciplineID,
-		&i.StudentID,
-		&i.TermID,
-		&i.Date,
-		&i.Description,
-		&i.ActionTaken,
-		&i.ReportedBy,
-		&i.Notes,
-	)
-	return i, err
-}
-
 const deleteDisciplinaryRecord = `-- name: DeleteDisciplinaryRecord :exec
 DELETE FROM discipline_records WHERE discipline_id = $1
 `
 
 func (q *Queries) DeleteDisciplinaryRecord(ctx context.Context, disciplineID uuid.UUID) error {
 	_, err := q.db.Exec(ctx, deleteDisciplinaryRecord, disciplineID)
-	return err
-}
-
-const editDisciplinaryRecord = `-- name: EditDisciplinaryRecord :exec
-UPDATE discipline_records
-SET description = COALESCE($2, description),
-action_taken = COALESCE($3, action_taken),
-notes = COALESCE($4, notes)
-WHERE discipline_id = $1
-`
-
-type EditDisciplinaryRecordParams struct {
-	DisciplineID uuid.UUID   `json:"discipline_id"`
-	Description  string      `json:"description"`
-	ActionTaken  pgtype.Text `json:"action_taken"`
-	Notes        pgtype.Text `json:"notes"`
-}
-
-func (q *Queries) EditDisciplinaryRecord(ctx context.Context, arg EditDisciplinaryRecordParams) error {
-	_, err := q.db.Exec(ctx, editDisciplinaryRecord,
-		arg.DisciplineID,
-		arg.Description,
-		arg.ActionTaken,
-		arg.Notes,
-	)
 	return err
 }
 
@@ -201,4 +137,49 @@ func (q *Queries) ListDisciplinaryRecords(ctx context.Context) ([]ListDisciplina
 		return nil, err
 	}
 	return items, nil
+}
+
+const upsertDisciplinaryRecord = `-- name: UpsertDisciplinaryRecord :one
+INSERT INTO discipline_records (student_id, term_id, date, description, action_taken, reported_by, notes)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+ON CONFLICT (student_id, term_id, date) DO UPDATE
+  SET description  = EXCLUDED.description,
+      action_taken = EXCLUDED.action_taken,
+      reported_by  = EXCLUDED.reported_by,
+      notes        = EXCLUDED.notes
+RETURNING discipline_id, student_id, term_id, date, description, action_taken, reported_by, notes
+`
+
+type UpsertDisciplinaryRecordParams struct {
+	StudentID   uuid.UUID   `json:"student_id"`
+	TermID      uuid.UUID   `json:"term_id"`
+	Date        pgtype.Date `json:"date"`
+	Description string      `json:"description"`
+	ActionTaken pgtype.Text `json:"action_taken"`
+	ReportedBy  uuid.UUID   `json:"reported_by"`
+	Notes       pgtype.Text `json:"notes"`
+}
+
+func (q *Queries) UpsertDisciplinaryRecord(ctx context.Context, arg UpsertDisciplinaryRecordParams) (DisciplineRecord, error) {
+	row := q.db.QueryRow(ctx, upsertDisciplinaryRecord,
+		arg.StudentID,
+		arg.TermID,
+		arg.Date,
+		arg.Description,
+		arg.ActionTaken,
+		arg.ReportedBy,
+		arg.Notes,
+	)
+	var i DisciplineRecord
+	err := row.Scan(
+		&i.DisciplineID,
+		&i.StudentID,
+		&i.TermID,
+		&i.Date,
+		&i.Description,
+		&i.ActionTaken,
+		&i.ReportedBy,
+		&i.Notes,
+	)
+	return i, err
 }

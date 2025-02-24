@@ -12,71 +12,12 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const createRemark = `-- name: CreateRemark :one
-INSERT INTO remarks (student_id, term_id, content_class_teacher, content_head_teacher) 
-VALUES ($1, $2, $3, $4) RETURNING remarks_id, student_id, term_id, content_class_teacher, content_head_teacher, updated_at
-`
-
-type CreateRemarkParams struct {
-	StudentID           uuid.UUID   `json:"student_id"`
-	TermID              uuid.UUID   `json:"term_id"`
-	ContentClassTeacher pgtype.Text `json:"content_class_teacher"`
-	ContentHeadTeacher  pgtype.Text `json:"content_head_teacher"`
-}
-
-func (q *Queries) CreateRemark(ctx context.Context, arg CreateRemarkParams) (Remark, error) {
-	row := q.db.QueryRow(ctx, createRemark,
-		arg.StudentID,
-		arg.TermID,
-		arg.ContentClassTeacher,
-		arg.ContentHeadTeacher,
-	)
-	var i Remark
-	err := row.Scan(
-		&i.RemarksID,
-		&i.StudentID,
-		&i.TermID,
-		&i.ContentClassTeacher,
-		&i.ContentHeadTeacher,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
 const deleteRemark = `-- name: DeleteRemark :exec
 DELETE FROM remarks WHERE remarks_id = $1
 `
 
 func (q *Queries) DeleteRemark(ctx context.Context, remarksID uuid.UUID) error {
 	_, err := q.db.Exec(ctx, deleteRemark, remarksID)
-	return err
-}
-
-const editRemark = `-- name: EditRemark :exec
-UPDATE remarks
-SET term_id = COALESCE($2, term_id),
-content_class_teacher = COALESCE($3, content_class_teacher),
-content_head_teacher = COALESCE($4, content_head_teacher),
-updated_at = COALESCE($5, updated_at)
-WHERE remarks_id = $1
-`
-
-type EditRemarkParams struct {
-	RemarksID           uuid.UUID          `json:"remarks_id"`
-	TermID              uuid.UUID          `json:"term_id"`
-	ContentClassTeacher pgtype.Text        `json:"content_class_teacher"`
-	ContentHeadTeacher  pgtype.Text        `json:"content_head_teacher"`
-	UpdatedAt           pgtype.Timestamptz `json:"updated_at"`
-}
-
-func (q *Queries) EditRemark(ctx context.Context, arg EditRemarkParams) error {
-	_, err := q.db.Exec(ctx, editRemark,
-		arg.RemarksID,
-		arg.TermID,
-		arg.ContentClassTeacher,
-		arg.ContentHeadTeacher,
-		arg.UpdatedAt,
-	)
 	return err
 }
 
@@ -127,6 +68,7 @@ SELECT
     remarks.remarks_id,
     students.last_name,
     students.first_name,
+    students.middle_name,
     term.name AS AcademicTerm,
     remarks.content_class_teacher AS ClassTeacherRemarks,
     remarks.content_head_teacher AS HeadTeacherRemarks,
@@ -142,6 +84,7 @@ type ListRemarksRow struct {
 	RemarksID           uuid.UUID          `json:"remarks_id"`
 	LastName            string             `json:"last_name"`
 	FirstName           string             `json:"first_name"`
+	MiddleName          pgtype.Text        `json:"middle_name"`
 	Academicterm        string             `json:"academicterm"`
 	Classteacherremarks pgtype.Text        `json:"classteacherremarks"`
 	Headteacherremarks  pgtype.Text        `json:"headteacherremarks"`
@@ -161,6 +104,7 @@ func (q *Queries) ListRemarks(ctx context.Context) ([]ListRemarksRow, error) {
 			&i.RemarksID,
 			&i.LastName,
 			&i.FirstName,
+			&i.MiddleName,
 			&i.Academicterm,
 			&i.Classteacherremarks,
 			&i.Headteacherremarks,
@@ -174,4 +118,40 @@ func (q *Queries) ListRemarks(ctx context.Context) ([]ListRemarksRow, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const upsertRemark = `-- name: UpsertRemark :one
+INSERT INTO remarks (student_id, term_id, content_class_teacher, content_head_teacher)
+VALUES ($1, $2, $3, $4)
+ON CONFLICT (student_id, term_id) DO UPDATE
+  SET content_class_teacher = EXCLUDED.content_class_teacher,
+      content_head_teacher   = EXCLUDED.content_head_teacher,
+      updated_at           = CURRENT_TIMESTAMP
+RETURNING remarks_id, student_id, term_id, content_class_teacher, content_head_teacher, updated_at
+`
+
+type UpsertRemarkParams struct {
+	StudentID           uuid.UUID   `json:"student_id"`
+	TermID              uuid.UUID   `json:"term_id"`
+	ContentClassTeacher pgtype.Text `json:"content_class_teacher"`
+	ContentHeadTeacher  pgtype.Text `json:"content_head_teacher"`
+}
+
+func (q *Queries) UpsertRemark(ctx context.Context, arg UpsertRemarkParams) (Remark, error) {
+	row := q.db.QueryRow(ctx, upsertRemark,
+		arg.StudentID,
+		arg.TermID,
+		arg.ContentClassTeacher,
+		arg.ContentHeadTeacher,
+	)
+	var i Remark
+	err := row.Scan(
+		&i.RemarksID,
+		&i.StudentID,
+		&i.TermID,
+		&i.ContentClassTeacher,
+		&i.ContentHeadTeacher,
+		&i.UpdatedAt,
+	)
+	return i, err
 }
