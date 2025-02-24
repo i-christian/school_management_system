@@ -7,38 +7,31 @@ ON CONFLICT (student_id, term_id) DO UPDATE
       updated_at           = CURRENT_TIMESTAMP
 RETURNING *;
 
--- name: GetRemark :one
-SELECT
-    remarks.remarks_id,
-    students.last_name,
-    students.first_name,
-    term.name AS AcademicTerm,
-    remarks.content_class_teacher AS ClassTeacherRemarks,
-    remarks.content_head_teacher AS HeadTeacherRemarks,
-    remarks.updated_at
-FROM remarks
-INNER JOIN students 
-    ON remarks.student_id = students.student_id
-INNER JOIN term
-    ON remarks.term_id = term.term_id
-WHERE students.student_id = $1;
 
--- name: ListRemarks :many
+-- name: ListRemarksByClass :many
 SELECT
-    remarks.remarks_id,
-    students.last_name,
-    students.first_name,
-    students.middle_name,
-    term.name AS AcademicTerm,
-    remarks.content_class_teacher AS ClassTeacherRemarks,
-    remarks.content_head_teacher AS HeadTeacherRemarks,
-    remarks.updated_at
-FROM remarks
-INNER JOIN students 
-    ON remarks.student_id = students.student_id
-INNER JOIN term
-    ON remarks.term_id = term.term_id
-;
+  c.name AS class_name,
+  s.student_no,
+  s.student_id,
+  s.last_name,
+  s.first_name,
+  s.middle_name,
+  t.name AS academic_term,
+  r.remarks_id,
+  r.content_class_teacher AS class_teacher_remarks,
+  r.content_head_teacher AS head_teacher_remarks,
+  r.updated_at
+FROM student_classes sc
+INNER JOIN students s 
+    ON sc.student_id = s.student_id
+INNER JOIN classes c 
+    ON sc.class_id = c.class_id
+INNER JOIN term t 
+    ON sc.term_id = t.term_id
+LEFT JOIN remarks r 
+    ON s.student_id = r.student_id 
+   AND sc.term_id = r.term_id
+ORDER BY c.name, s.last_name, s.first_name;
 
 -- name: DeleteRemark :exec
 DELETE FROM remarks WHERE remarks_id = $1;

@@ -21,92 +21,38 @@ func (q *Queries) DeleteDisciplinaryRecord(ctx context.Context, disciplineID uui
 	return err
 }
 
-const getDisciplinaryRecord = `-- name: GetDisciplinaryRecord :one
-SELECT 
-    students.last_name,
-    students.first_name,
-    discipline_records.date,
-    discipline_records.description AS offense,
-    discipline_records.action_taken,
-    discipline_records.notes,
-    term.name AS term_name,
-    users.last_name As reporter_last_name,
-    users.first_name As reporter_first_name  
-FROM discipline_records
-INNER JOIN students
-ON
-discipline_records.student_id = students.student_id
-INNER JOIN users
-ON
-discipline_records.reported_by = users.user_id
-INNER JOIN term
-ON
-discipline_records.term_id = term.term_id
-WHERE students.student_id = $1
-`
-
-type GetDisciplinaryRecordRow struct {
-	LastName          string      `json:"last_name"`
-	FirstName         string      `json:"first_name"`
-	Date              pgtype.Date `json:"date"`
-	Offense           string      `json:"offense"`
-	ActionTaken       pgtype.Text `json:"action_taken"`
-	Notes             pgtype.Text `json:"notes"`
-	TermName          string      `json:"term_name"`
-	ReporterLastName  string      `json:"reporter_last_name"`
-	ReporterFirstName string      `json:"reporter_first_name"`
-}
-
-func (q *Queries) GetDisciplinaryRecord(ctx context.Context, studentID uuid.UUID) (GetDisciplinaryRecordRow, error) {
-	row := q.db.QueryRow(ctx, getDisciplinaryRecord, studentID)
-	var i GetDisciplinaryRecordRow
-	err := row.Scan(
-		&i.LastName,
-		&i.FirstName,
-		&i.Date,
-		&i.Offense,
-		&i.ActionTaken,
-		&i.Notes,
-		&i.TermName,
-		&i.ReporterLastName,
-		&i.ReporterFirstName,
-	)
-	return i, err
-}
-
 const listDisciplinaryRecords = `-- name: ListDisciplinaryRecords :many
 SELECT 
-    students.last_name,
-    students.first_name,
-    discipline_records.date,
-    discipline_records.description AS offense,
-    discipline_records.action_taken,
-    discipline_records.notes,
-    term.name AS term_name,
-    users.last_name As reporter_last_name,
-    users.first_name As reporter_first_name  
-FROM discipline_records
-INNER JOIN students
-ON
-discipline_records.student_id = students.student_id
-INNER JOIN users
-ON
-discipline_records.reported_by = users.user_id
-INNER JOIN term
-ON
-discipline_records.term_id = term.term_id
+    dr.discipline_id,
+    s.last_name,
+    s.middle_name,
+    s.first_name,
+    dr.date,
+    dr.description AS offense,
+    dr.action_taken,
+    dr.notes,
+    t.name AS term_name,
+    u.last_name AS reporter_last_name,
+    u.first_name AS reporter_first_name  
+FROM discipline_records dr
+INNER JOIN students s ON dr.student_id = s.student_id
+LEFT JOIN users u ON dr.reported_by = u.user_id
+INNER JOIN term t ON dr.term_id = t.term_id
+ORDER BY dr.date DESC
 `
 
 type ListDisciplinaryRecordsRow struct {
+	DisciplineID      uuid.UUID   `json:"discipline_id"`
 	LastName          string      `json:"last_name"`
+	MiddleName        pgtype.Text `json:"middle_name"`
 	FirstName         string      `json:"first_name"`
 	Date              pgtype.Date `json:"date"`
 	Offense           string      `json:"offense"`
 	ActionTaken       pgtype.Text `json:"action_taken"`
 	Notes             pgtype.Text `json:"notes"`
 	TermName          string      `json:"term_name"`
-	ReporterLastName  string      `json:"reporter_last_name"`
-	ReporterFirstName string      `json:"reporter_first_name"`
+	ReporterLastName  pgtype.Text `json:"reporter_last_name"`
+	ReporterFirstName pgtype.Text `json:"reporter_first_name"`
 }
 
 func (q *Queries) ListDisciplinaryRecords(ctx context.Context) ([]ListDisciplinaryRecordsRow, error) {
@@ -119,7 +65,9 @@ func (q *Queries) ListDisciplinaryRecords(ctx context.Context) ([]ListDisciplina
 	for rows.Next() {
 		var i ListDisciplinaryRecordsRow
 		if err := rows.Scan(
+			&i.DisciplineID,
 			&i.LastName,
+			&i.MiddleName,
 			&i.FirstName,
 			&i.Date,
 			&i.Offense,
