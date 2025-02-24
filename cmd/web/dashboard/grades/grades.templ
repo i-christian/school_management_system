@@ -5,6 +5,7 @@ import (
 
 	"school_management_system/internal/database"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 // ClassGradesData groups the subjects and students for a single class.
@@ -124,7 +125,23 @@ templ EnterGradesForm(classRoom []GradeEntryData) {
 	</div>
 }
 
-templ EnterGradesFormSingle(class GradeEntryData) {
+// EnterGradesFormSingle renders a form for entering or updating grades for a specific class and term.
+//
+// @param class GradeEntryData - Contains the class information, including class name, ID, term details,
+//        the list of subjects, and the enrolled students.
+// @param currentGrades []database.ListGradesForClassRow - A list of existing grade records used to pre-populate
+//        the form. For each student and subject combination, if a matching grade exists, its score and remark
+//        are displayed in the corresponding input fields.
+//
+// The component ensures that each input field is pre-filled with either the available grade data or a default
+// value (e.g., "0" for scores), thereby preventing the submission of an empty form that might overwrite valid
+// data in the database.
+//
+templ EnterGradesFormSingle(class GradeEntryData, currentGrades []database.ListGradesForClassRow) {
+	{{
+		var matchingGrade pgtype.Float8
+		var matchingRemark string
+	}}
 	<div class="bg-white rounded-lg shadow-lg overflow-hidden">
 		<header class="bg-green-600 px-6 py-4 flex justify-between items-center">
 			<h2 class="text-white text-xl font-bold">
@@ -154,12 +171,22 @@ templ EnterGradesFormSingle(class GradeEntryData) {
 									<td class="border border-gray-300 px-2 py-2 align-top">
 										<div class="mb-2">
 											<label class="block text-xs text-gray-500 mb-1">Score</label>
+											for _, grade := range currentGrades {
+												if grade.StudentID == student.StudentID && grade.SubjectID == subj.SubjectID {
+													{{
+														matchingGrade, _ = grade.Score.Float64Value()
+														matchingRemark = grade.Remark.String
+														break
+													}}
+												}
+											}
 											<input
 												type="number"
 												data-subject-id={ subj.SubjectID.String() }
 												min="0"
 												max="100"
 												step="0.1"
+												value={ strconv.FormatFloat(matchingGrade.Float64, 'f', 2, 64) }
 												class="score-input w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-green-500"
 												placeholder="e.g. 75"
 											/>
@@ -169,6 +196,7 @@ templ EnterGradesFormSingle(class GradeEntryData) {
 											<input
 												type="text"
 												data-subject-id={ subj.SubjectID.String() }
+												value={ matchingRemark }
 												class="remark-input w-full border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
 												placeholder="e.g. Good work"
 											/>

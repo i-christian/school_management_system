@@ -217,10 +217,17 @@ func (s *Server) GetClassForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	currentGrades, err := s.queries.ListGradesForClass(r.Context(), classID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		slog.Error("failed to get grades", "error", err.Error())
+		return
+	}
+
 	gradeEntryData := PivotClassRoom(classRoom)
 	for _, class := range gradeEntryData {
 		if class.ClassID == classID {
-			s.renderComponent(w, r, grades.EnterGradesFormSingle(class))
+			s.renderComponent(w, r, grades.EnterGradesFormSingle(class, currentGrades))
 			return
 		}
 	}

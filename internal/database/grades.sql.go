@@ -12,33 +12,6 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const deleteGrade = `-- name: DeleteGrade :exec
-DELETE FROM grades WHERE grade_id = $1
-`
-
-func (q *Queries) DeleteGrade(ctx context.Context, gradeID uuid.UUID) error {
-	_, err := q.db.Exec(ctx, deleteGrade, gradeID)
-	return err
-}
-
-const editGrade = `-- name: EditGrade :exec
-UPDATE grades
-SET score = COALESCE($2, score),
-    remark = COALESCE($3, remark)
-WHERE grade_id = $1
-`
-
-type EditGradeParams struct {
-	GradeID uuid.UUID      `json:"grade_id"`
-	Score   pgtype.Numeric `json:"score"`
-	Remark  pgtype.Text    `json:"remark"`
-}
-
-func (q *Queries) EditGrade(ctx context.Context, arg EditGradeParams) error {
-	_, err := q.db.Exec(ctx, editGrade, arg.GradeID, arg.Score, arg.Remark)
-	return err
-}
-
 const listGrades = `-- name: ListGrades :many
 SELECT student_id, student_no, last_name, first_name, middle_name, class_id, class_name, grades
 FROM student_grades_view
@@ -63,6 +36,60 @@ func (q *Queries) ListGrades(ctx context.Context) ([]StudentGradesView, error) {
 			&i.ClassID,
 			&i.ClassName,
 			&i.Grades,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listGradesForClass = `-- name: ListGradesForClass :many
+SELECT 
+    sc.class_id,
+    s.student_id,
+    subj.subject_id,
+    g.score,
+    g.remark,
+    sc.term_id
+FROM student_classes sc
+JOIN students s ON sc.student_id = s.student_id
+JOIN subjects subj ON subj.class_id = sc.class_id
+LEFT JOIN grades g 
+  ON g.student_id = s.student_id 
+  AND g.subject_id = subj.subject_id 
+  AND g.term_id = sc.term_id
+WHERE sc.class_id = $1
+`
+
+type ListGradesForClassRow struct {
+	ClassID   uuid.UUID      `json:"class_id"`
+	StudentID uuid.UUID      `json:"student_id"`
+	SubjectID uuid.UUID      `json:"subject_id"`
+	Score     pgtype.Numeric `json:"score"`
+	Remark    pgtype.Text    `json:"remark"`
+	TermID    uuid.UUID      `json:"term_id"`
+}
+
+func (q *Queries) ListGradesForClass(ctx context.Context, classID uuid.UUID) ([]ListGradesForClassRow, error) {
+	rows, err := q.db.Query(ctx, listGradesForClass, classID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListGradesForClassRow{}
+	for rows.Next() {
+		var i ListGradesForClassRow
+		if err := rows.Scan(
+			&i.ClassID,
+			&i.StudentID,
+			&i.SubjectID,
+			&i.Score,
+			&i.Remark,
+			&i.TermID,
 		); err != nil {
 			return nil, err
 		}
