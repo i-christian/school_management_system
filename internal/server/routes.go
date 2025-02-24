@@ -159,7 +159,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Get("/", s.ListGrades)
 	})
 
-	// Remarks & Discipline
+	// Remarks
 	r.Route("/remarks", func(r chi.Router) {
 		r.Use(s.AuthMiddleware)
 		// r.Use(s.RequireRoles("teacher", "classteacher", "headteacher", "admin"))
@@ -175,11 +175,13 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Get("/student/{id}", nil)
 	})
 
+	// Discipline
 	r.Route("/discipline", func(r chi.Router) {
 		r.Use(s.AuthMiddleware)
-		r.Use(s.RequireRoles("headteacher", "teacher", "classteacher"))
+		// r.Use(s.RequireRoles("headteacher", "teacher", "classteacher"))
 
-		r.Get("/", nil)
+		r.Get("/", s.StudentsDisciplinary)
+		r.Get("/new", nil)
 		r.Post("/", nil)
 		r.Put("/{id}", nil)
 		r.Delete("/{id}", nil)

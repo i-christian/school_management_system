@@ -18,3 +18,15 @@ func (s *Server) StudentsRemarks(w http.ResponseWriter, r *http.Request) {
 
 	s.renderComponent(w, r, remarks.RemarksPage(remarksData))
 }
+
+// StudentsDisciplinary handler method renders StudentsDisciplinary component
+func (s *Server) StudentsDisciplinary(w http.ResponseWriter, r *http.Request) {
+	disciplineData, err := s.queries.ListDisciplinaryRecords(r.Context())
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to get disciplinary data")
+		slog.Error("failed to get disciplinary data", "error", err.Error())
+		return
+	}
+
+	s.renderComponent(w, r, remarks.DisciplinePage(disciplineData))
+}
