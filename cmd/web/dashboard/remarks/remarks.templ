@@ -3,64 +3,63 @@ package remarks
 import "school_management_system/internal/database"
 
 templ RemarksPage(RemarksData []database.ListRemarksByClassRow) {
-	<section id="remarks-page" class="mx-auto p-6">
+	<section id="remarks-page" class="max-w-7xl mx-auto p-6 space-y-8">
 		for _, data := range RemarksData {
-			<header class="mb-6">
+			<header class="mb-4">
 				<h2 class="text-2xl font-bold text-gray-800">
-					Remarks for { data.ClassName } (Term: { data.AcademicTerm })
+					Remarks for { data.ClassName } <span class="text-base font-normal text-gray-600">(Term: { data.AcademicTerm })</span>
 				</h2>
 			</header>
-			<form
-				id="remarks-form"
-				hx-post="/remarks/submit"
-			>
-				<table class="min-w-full table-auto border border-gray-300 rounded-lg shadow-sm">
-					<thead class="bg-blue-500 text-white text-sm uppercase">
-						<tr>
-							<th class="border px-4 py-2">Student No</th>
-							<th class="border px-4 py-2">Last Name</th>
-							<th class="border px-4 py-2">First Name</th>
-							<th class="border px-4 py-2">Middle Name</th>
-							<th class="border px-4 py-2">Class Teacher Remark</th>
-							<th class="border px-4 py-2">Head Teacher Remark</th>
-						</tr>
-					</thead>
-					<tbody class="divide-y divide-gray-200 text-sm">
-						<tr>
-							<td class="border px-4 py-2">{ data.StudentNo }</td>
-							<td class="border px-4 py-2">{ data.LastName }</td>
-							<td class="border px-4 py-2">{ data.FirstName }</td>
-							<td class="border px-4 py-2">
-								if data.MiddleName.Valid {
-									{ data.MiddleName.String }
-								} else {
-									<span class="text-gray-400">N/A</span>
-								}
-							</td>
-							<td class="border px-4 py-2">
-								<input type="hidden" name="student_ids[]" value={ data.StudentID.String() }/>
-								<input
-									type="text"
-									name="class_teacher_remarks[]"
-									value={ data.ClassTeacherRemarks.String }
-									class="border rounded p-2 w-full"
-									placeholder="Enter remark"
-								/>
-							</td>
-							<td class="border px-4 py-2">
-								<input
-									type="text"
-									name="head_teacher_remarks[]"
-									value={ data.HeadTeacherRemarks.String }
-									class="border rounded p-2 w-full"
-									placeholder="Enter remark"
-								/>
-							</td>
-						</tr>
-					</tbody>
-				</table>
+			<form id="remarks-form" hx-post="/remarks/submit" class="bg-white rounded-lg shadow p-4">
+				<div class="overflow-x-auto">
+					<table class="min-w-full table-auto border border-gray-300 rounded-lg shadow-sm">
+						<thead class="bg-blue-500 text-white text-sm uppercase">
+							<tr>
+								<th class="border px-4 py-2">Student No</th>
+								<th class="border px-4 py-2">Last Name</th>
+								<th class="border px-4 py-2">First Name</th>
+								<th class="border px-4 py-2">Middle Name</th>
+								<th class="border px-4 py-2">Class Teacher Remark</th>
+								<th class="border px-4 py-2">Head Teacher Remark</th>
+							</tr>
+						</thead>
+						<tbody class="divide-y divide-gray-200 text-sm">
+							<tr class="hover:bg-gray-50">
+								<td class="border px-4 py-2">{ data.StudentNo }</td>
+								<td class="border px-4 py-2">{ data.LastName }</td>
+								<td class="border px-4 py-2">{ data.FirstName }</td>
+								<td class="border px-4 py-2">
+									if data.MiddleName.Valid {
+										{ data.MiddleName.String }
+									} else {
+										<span class="text-gray-400">N/A</span>
+									}
+								</td>
+								<td class="border px-4 py-2">
+									<input type="hidden" name="student_ids[]" value={ data.StudentID.String() }/>
+									<input
+										type="text"
+										name="class_teacher_remarks[]"
+										value={ data.ClassTeacherRemarks.String }
+										placeholder="Enter remark"
+										class="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+									/>
+								</td>
+								<td class="border px-4 py-2">
+									<input
+										type="text"
+										name="head_teacher_remarks[]"
+										value={ data.HeadTeacherRemarks.String }
+										placeholder="Enter remark"
+										class="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+									/>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
 				<div class="mt-4 flex justify-end">
-					<button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-md">
+					<button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors">
 						Save Remarks
 					</button>
 				</div>
@@ -70,46 +69,48 @@ templ RemarksPage(RemarksData []database.ListRemarksByClassRow) {
 }
 
 templ DisciplinePage(records []database.ListDisciplinaryRecordsRow) {
-	<section id="discipline-page" class="mx-auto p-6">
-		<div class="flex items-center justify-between mb-4">
+	<section id="discipline-page" class="max-w-7xl mx-auto p-6 space-y-6">
+		<div class="flex items-center justify-between">
 			<h2 class="text-2xl font-bold text-gray-800">Disciplinary Records</h2>
 			<button
 				hx-get="/discipline/new"
 				hx-target="#discipline-form-container"
 				hx-swap="innerHTML"
-				class="px-4 py-2 bg-blue-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+				class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors"
 			>
 				Add New Record
 			</button>
 		</div>
-		<div id="discipline-form-container"></div>
-		<table class="min-w-full table-auto border border-gray-300 rounded-lg shadow-sm">
-			<thead class="bg-red-500 text-white text-sm uppercase">
-				<tr>
-					<th class="border px-4 py-2">Student Last Name</th>
-					<th class="border px-4 py-2">First Name</th>
-					<th class="border px-4 py-2">Middle Name</th>
-					<th class="border px-4 py-2">Date</th>
-					<th class="border px-4 py-2">Offense</th>
-					<th class="border px-4 py-2">Action Taken</th>
-					<th class="border px-4 py-2">Reported By</th>
-					<th class="border px-4 py-2">Notes</th>
-				</tr>
-			</thead>
-			<tbody class="divide-y divide-gray-200 text-sm">
-				for _, record := range records {
+		<div id="discipline-form-container" class="mb-6"></div>
+		<div class="overflow-x-auto">
+			<table class="min-w-full table-auto border border-gray-300 rounded-lg shadow-sm">
+				<thead class="bg-red-500 text-white text-sm uppercase">
 					<tr>
-						<td class="border px-4 py-2">{ record.LastName }</td>
-						<td class="border px-4 py-2">{ record.MiddleName.String }</td>
-						<td class="border px-4 py-2">{ record.FirstName }</td>
-						<td class="border px-4 py-2">{ record.Date.Time.Format("2006-01-02") }</td>
-						<td class="border px-4 py-2">{ record.Offense }</td>
-						<td class="border px-4 py-2">{ record.ActionTaken.String }</td>
-						<td class="border px-4 py-2">{ record.ReporterLastName.String }</td>
-						<td class="border px-4 py-2">{ record.Notes.String }</td>
+						<th class="border px-4 py-2">Last Name</th>
+						<th class="border px-4 py-2">First Name</th>
+						<th class="border px-4 py-2">Middle Name</th>
+						<th class="border px-4 py-2">Date</th>
+						<th class="border px-4 py-2">Offense</th>
+						<th class="border px-4 py-2">Action Taken</th>
+						<th class="border px-4 py-2">Reported By</th>
+						<th class="border px-4 py-2">Notes</th>
 					</tr>
-				}
-			</tbody>
-		</table>
+				</thead>
+				<tbody class="divide-y divide-gray-200 text-sm">
+					for _, record := range records {
+						<tr class="hover:bg-gray-50">
+							<td class="border px-4 py-2">{ record.LastName }</td>
+							<td class="border px-4 py-2">{ record.FirstName }</td>
+							<td class="border px-4 py-2">{ record.MiddleName.String }</td>
+							<td class="border px-4 py-2">{ record.Date.Time.Format("2006-01-02") }</td>
+							<td class="border px-4 py-2">{ record.Offense }</td>
+							<td class="border px-4 py-2">{ record.ActionTaken.String }</td>
+							<td class="border px-4 py-2">{ record.ReporterLastName.String }</td>
+							<td class="border px-4 py-2">{ record.Notes.String }</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
 	</section>
 }
