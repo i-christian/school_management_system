@@ -225,55 +225,83 @@ templ EnterGradesFormSingle(class GradeEntryData, currentGrades []database.ListG
 			</section>
 		</form>
 	</div>
+	<div id="grades-popover" popover class="bg-white shadow-lg rounded-md p-4 w-96 text-center">
+		<p id="grades-popover-message" class="text-gray-700"></p>
+	</div>
 	<script>
-		document.getElementById("grades-form").addEventListener("submit", async function (e) {
-			e.preventDefault();
+    document.getElementById("grades-form").addEventListener("submit", async function (e) {
+        e.preventDefault();
 
-			const classId = document.getElementById("class_id").value;
-			const termId = document.getElementById("term_id").value;
-			const grades = [];
+        const classId = document.getElementById("class_id").value;
+        const termId = document.getElementById("term_id").value;
+        const grades = [];
 
-			document.querySelectorAll(".student-row").forEach(row => {
-				const studentId = row.dataset.studentId;
-				const studentGrades = { student_id: studentId, grades: [] };
+        document.querySelectorAll(".student-row").forEach(row => {
+            const studentId = row.dataset.studentId;
+            const studentGrades = { student_id: studentId, grades: [] };
 
-				row.querySelectorAll(".score-input").forEach(scoreInput => {
-					const subjectId = scoreInput.dataset.subjectId;
-					const score = parseFloat(scoreInput.value) || 0;
-					const remarkInput = row.querySelector(`.remark-input[data-subject-id="${subjectId}"]`);
-					const remark = remarkInput ? remarkInput.value.trim() : "";
+            row.querySelectorAll(".score-input").forEach(scoreInput => {
+                const subjectId = scoreInput.dataset.subjectId;
+                const score = parseFloat(scoreInput.value) || 0;
+                const remarkInput = row.querySelector(`.remark-input[data-subject-id="${subjectId}"]`);
+                const remark = remarkInput ? remarkInput.value.trim() : "";
 
-					studentGrades.grades.push({
-						subject_id: subjectId,
-						score: score,
-						remark: remark
-					});
-				});
+                studentGrades.grades.push({
+                    subject_id: subjectId,
+                    score: score,
+                    remark: remark
+                });
+            });
 
-				grades.push(studentGrades);
-			});
+            grades.push(studentGrades);
+        });
 
-			const payload = {
-				class_id: classId,
-				term_id: termId,
-				grades: grades
-			};
+        const payload = {
+            class_id: classId,
+            term_id: termId,
+            grades: grades
+        };
 
-			try {
-				const response = await fetch("/grades/submit", {
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify(payload)
-				});
+        try {
+            const response = await fetch("/grades/submit", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
 
-				if (response.status === 201) {
-					window.location.href = "/grades/myclasses";
-				} else {
-					console.log("failed to save grades");
-				}
-			} catch (error) {
-				console.error("Submission failed", error);
-			}
-		});
+            const popover = document.getElementById("grades-popover");
+            const message = document.getElementById("grades-popover-message");
+
+            if (response.status === 201) {
+                message.textContent = "✅ Grades saved successfully!";
+                popover.classList.add("show");
+                popover.showPopover();
+            } else {
+                message.textContent = "❌ Failed to save grades. Please try again.";
+                popover.classList.add("show");
+                popover.showPopover();
+            }
+
+            setTimeout(() => {
+                popover.classList.add("hide");
+                setTimeout(() => {
+                    popover.classList.remove("show", "hide");
+                    popover.hidePopover();
+                }, 500); // Wait for fade-out animation to complete
+            }, 3000);
+        } catch (error) {
+            document.getElementById("grades-popover-message").textContent = "⚠️ An error occurred!";
+            popover.classList.add("show");
+            popover.showPopover();
+
+            setTimeout(() => {
+                popover.classList.add("hide");
+                setTimeout(() => {
+                    popover.classList.remove("show", "hide");
+                    popover.hidePopover();
+                }, 500);
+            }, 3000);
+        }
+    });
 	</script>
 }
