@@ -1,1 +1,0 @@
-- Display only subjects in that class in grades table.

@@ -187,14 +187,14 @@ func PivotClassRoom(rows []database.RetrieveClassRoomRow) []grades.GradeEntryDat
 // It extracts the teacher's user ID from the context, retrieves classroom data, pivots the data into a suitable format,
 // and renders the grade entry form component.
 func (s *Server) MyClasses(w http.ResponseWriter, r *http.Request) {
-	teacher_id, ok := r.Context().Value(userContextKey).(User)
+	teacher, ok := r.Context().Value(userContextKey).(User)
 	if !ok {
 		writeError(w, http.StatusForbidden, "forbidden")
 		slog.Error("failed to read user ID from context")
 		return
 	}
 
-	classRoom, err := s.queries.RetrieveClassRoom(r.Context(), teacher_id.UserID)
+	classRoom, err := s.queries.RetrieveClassRoom(r.Context(), teacher.UserID)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "internal server error")
 		slog.Error("failed to get classroom data", "error", err.Error())
@@ -215,14 +215,14 @@ func (s *Server) GetClassForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	teacherID, ok := r.Context().Value(userContextKey).(User)
+	teacher, ok := r.Context().Value(userContextKey).(User)
 	if !ok {
 		writeError(w, http.StatusForbidden, "forbidden")
 		slog.Error("failed to read user ID from context")
 		return
 	}
 
-	classRoom, err := s.queries.RetrieveClassRoom(r.Context(), teacherID.UserID)
+	classRoom, err := s.queries.RetrieveClassRoom(r.Context(), teacher.UserID)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "internal server error")
 		slog.Error("failed to get classroom data", "error", err.Error())

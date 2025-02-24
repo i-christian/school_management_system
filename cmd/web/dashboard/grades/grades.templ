@@ -15,6 +15,25 @@ type ClassGradesData struct {
 	Students  []database.StudentGradesView
 }
 
+// TruncateString function truncates a subject name to 3 letters max
+func TruncateString(str string, length int) string {
+	if length <= 0 {
+		return ""
+	}
+
+	truncated := ""
+	count := 0
+	for _, char := range str {
+		truncated += string(char)
+		count++
+		if count >= length {
+			break
+		}
+	}
+
+	return truncated
+}
+
 templ GradesList(classData []ClassGradesData) {
 	<section id="grades-list" class="mx-auto p-6">
 		<div class="flex items-center justify-between mb-6">
@@ -34,7 +53,7 @@ templ GradesList(classData []ClassGradesData) {
 								<th class="border border-gray-300 px-4 py-2 text-left">First Name</th>
 								<th class="border border-gray-300 px-4 py-2 text-left">Middle Name</th>
 								for _, subj := range data.Subjects {
-									<th class="border border-gray-300 px-4 py-2 text-left">{ subj.Subjectname }</th>
+									<th class="border border-gray-300 px-4 py-2 text-left">{ TruncateString(subj.Subjectname, 3) }</th>
 								}
 							</tr>
 						</thead>
@@ -58,9 +77,6 @@ templ GradesList(classData []ClassGradesData) {
 													{ strconv.FormatFloat(grade.Score, 'f', 2, 64) }
 												} else {
 													<span class="text-gray-400">N/A</span>
-												}
-												if grade.Remark != "" {
-													<span class="text-xs text-gray-500">({ grade.Remark })</span>
 												}
 											} else {
 												<span class="text-gray-400">N/A</span>
