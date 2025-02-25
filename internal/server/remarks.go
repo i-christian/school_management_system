@@ -4,9 +4,13 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"time"
 
 	"school_management_system/cmd/web/dashboard/remarks"
 	"school_management_system/internal/database"
+
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 // StudentsRemarks handler method renders RemarksPage component
@@ -67,4 +71,66 @@ func (s *Server) SearchStudents(w http.ResponseWriter, r *http.Request) {
 	}
 
 	RenderStudentSearchResults(w, studentes)
+}
+
+// SubmitDisplinaryRecord handler method accepts form data and submits data to the database
+func (s *Server) SubmitDisplinaryRecord(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "Invalid form submission")
+		slog.Error("failed to parse form", "error", err.Error())
+		return
+	}
+
+	// Extract form values
+	studentID, err := uuid.Parse(r.FormValue("student_id"))
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "Invalid student ID")
+		slog.Error("invalid student ID", "error", err.Error())
+		return
+	}
+
+	date, err := time.Parse("2006-01-02", r.FormValue("date"))
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "Invalid date format")
+		slog.Error("invalid date format", "error", err.Error())
+		return
+	}
+
+	description := r.FormValue("description")
+	actionTaken := r.FormValue("action_taken")
+	notes := r.FormValue("notes")
+
+	reportedBy, ok := r.Context().Value(userContextKey).(User)
+	if !ok {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		slog.Info("failed to get user ID")
+		return
+	}
+
+	term, err := s.queries.GetCurrentTerm(r.Context())
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		slog.Error("failed to get current term", "error", err.Error())
+		return
+	}
+
+	record := database.UpsertDisciplinaryRecordParams{
+		StudentID:   studentID,
+		TermID:      term.TermID,
+		Date:        pgtype.Date{Time: date, Valid: true},
+		Description: description,
+		ActionTaken: pgtype.Text{String: actionTaken, Valid: actionTaken != ""},
+		ReportedBy:  reportedBy.UserID,
+		Notes:       pgtype.Text{String: notes, Valid: notes != ""},
+	}
+
+	_, err = s.queries.UpsertDisciplinaryRecord(r.Context(), record)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "Failed to save disciplinary record")
+		slog.Error("failed to insert disciplinary record", "error", err.Error())
+		return
+	}
+
+	http.Redirect(w, r, "/discipline", http.StatusSeeOther)
 }

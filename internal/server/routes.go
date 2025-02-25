@@ -183,6 +183,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Get("/", s.StudentsDisciplinary)
 		r.Get("/new", s.ShowDisciplineForm)
 		r.Post("/search", s.SearchStudents)
+		r.Post("/submit", s.SubmitDisplinaryRecord)
 		r.Put("/{id}", nil)
 		r.Delete("/{id}", nil)
 	})

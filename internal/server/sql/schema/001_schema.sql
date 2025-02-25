@@ -230,12 +230,14 @@ CREATE TABLE IF NOT EXISTS remarks (
     content_head_teacher TEXT,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_student FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE,
-    CONSTRAINT fk_term FOREIGN KEY (term_id) REFERENCES term(term_id) ON DELETE CASCADE
+    CONSTRAINT fk_term FOREIGN KEY (term_id) REFERENCES term(term_id) ON DELETE CASCADE,
+    CONSTRAINT unique_student_term UNIQUE (student_id, term_id) 
 );
 
 -- Index for filtering remarks by student or term
 CREATE INDEX idx_remarks_student_id ON remarks(student_id);
 CREATE INDEX idx_remarks_term_id ON remarks(term_id);
+
 
 -- DISCIPLINE_RECORDS TABLE
 CREATE TABLE IF NOT EXISTS discipline_records (
@@ -249,7 +251,8 @@ CREATE TABLE IF NOT EXISTS discipline_records (
     notes TEXT,
     CONSTRAINT fk_student FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE,
     CONSTRAINT fk_term FOREIGN KEY (term_id) REFERENCES term(term_id) ON DELETE CASCADE,
-    CONSTRAINT fk_reported_by FOREIGN KEY (reported_by) REFERENCES users(user_id) ON DELETE SET NULL
+    CONSTRAINT fk_reported_by FOREIGN KEY (reported_by) REFERENCES users(user_id) ON DELETE SET NULL,
+    CONSTRAINT unique_student_term_date UNIQUE (student_id, term_id, date)
 );
 
 -- Index for filtering discipline records by student, term, or reporter
