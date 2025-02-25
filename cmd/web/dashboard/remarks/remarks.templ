@@ -2,15 +2,22 @@ package remarks
 
 import "school_management_system/internal/database"
 
-templ RemarksPage(RemarksData []database.ListRemarksByClassRow) {
+// GroupedRemarks groups multiple remarks rows under the same class and academic term.
+type GroupedRemarks struct {
+	ClassName    string
+	AcademicTerm string
+	Remarks      []database.ListRemarksByClassRow
+}
+
+templ RemarksPage(GroupedData []GroupedRemarks) {
 	<section id="remarks-page" class="max-w-7xl mx-auto p-6 space-y-8">
-		for _, data := range RemarksData {
+		for _, group := range GroupedData {
 			<header class="mb-4">
 				<h2 class="text-2xl font-bold text-gray-800">
-					Remarks for { data.ClassName } <span class="text-base font-normal text-gray-600">(Term: { data.AcademicTerm })</span>
+					Remarks for { group.ClassName } <span class="text-base font-normal text-gray-600">(Term: { group.AcademicTerm })</span>
 				</h2>
 			</header>
-			<form id="remarks-form" hx-post="/remarks/submit" class="bg-white rounded-lg shadow p-4">
+			<form id="remarks-form-{ group.ClassName }" hx-post="/remarks/submit" class="bg-white rounded-lg shadow p-4">
 				<div class="overflow-x-auto">
 					<table class="min-w-full table-auto border border-gray-300 rounded-lg shadow-sm">
 						<thead class="bg-blue-500 text-white text-sm uppercase">
@@ -24,37 +31,39 @@ templ RemarksPage(RemarksData []database.ListRemarksByClassRow) {
 							</tr>
 						</thead>
 						<tbody class="divide-y divide-gray-200 text-sm">
-							<tr class="hover:bg-gray-50">
-								<td class="border px-4 py-2">{ data.StudentNo }</td>
-								<td class="border px-4 py-2">{ data.LastName }</td>
-								<td class="border px-4 py-2">{ data.FirstName }</td>
-								<td class="border px-4 py-2">
-									if data.MiddleName.Valid {
-										{ data.MiddleName.String }
-									} else {
-										<span class="text-gray-400">N/A</span>
-									}
-								</td>
-								<td class="border px-4 py-2">
-									<input type="hidden" name="student_ids[]" value={ data.StudentID.String() }/>
-									<input
-										type="text"
-										name="class_teacher_remarks[]"
-										value={ data.ClassTeacherRemarks.String }
-										placeholder="Enter remark"
-										class="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-									/>
-								</td>
-								<td class="border px-4 py-2">
-									<input
-										type="text"
-										name="head_teacher_remarks[]"
-										value={ data.HeadTeacherRemarks.String }
-										placeholder="Enter remark"
-										class="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-									/>
-								</td>
-							</tr>
+							for _, data := range group.Remarks {
+								<tr class="hover:bg-gray-50">
+									<td class="border px-4 py-2">{ data.StudentNo }</td>
+									<td class="border px-4 py-2">{ data.LastName }</td>
+									<td class="border px-4 py-2">{ data.FirstName }</td>
+									<td class="border px-4 py-2">
+										if data.MiddleName.Valid {
+											{ data.MiddleName.String }
+										} else {
+											<span class="text-gray-400">N/A</span>
+										}
+									</td>
+									<td class="border px-4 py-2">
+										<input type="hidden" name="student_ids[]" value={ data.StudentID.String() }/>
+										<input
+											type="text"
+											name="class_teacher_remarks[]"
+											value={ data.ClassTeacherRemarks.String }
+											placeholder="Enter remark"
+											class="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+										/>
+									</td>
+									<td class="border px-4 py-2">
+										<input
+											type="text"
+											name="head_teacher_remarks[]"
+											value={ data.HeadTeacherRemarks.String }
+											placeholder="Enter remark"
+											class="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+										/>
+									</td>
+								</tr>
+							}
 						</tbody>
 					</table>
 				</div>

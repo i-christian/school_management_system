@@ -13,6 +13,31 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+// GroupRemarksByClass accepts a slice of unsorted remarks rows and groups them by ClassName and AcademicTerm.
+func GroupRemarksByClass(rows []database.ListRemarksByClassRow) []remarks.GroupedRemarks {
+	groupsMap := make(map[string]remarks.GroupedRemarks)
+
+	for _, row := range rows {
+		key := row.ClassName + "_" + row.AcademicTerm
+		group, ok := groupsMap[key]
+		if !ok {
+			group = remarks.GroupedRemarks{
+				ClassName:    row.ClassName,
+				AcademicTerm: row.AcademicTerm,
+				Remarks:      []database.ListRemarksByClassRow{},
+			}
+		}
+		group.Remarks = append(group.Remarks, row)
+		groupsMap[key] = group
+	}
+
+	groups := make([]remarks.GroupedRemarks, 0, len(groupsMap))
+	for _, group := range groupsMap {
+		groups = append(groups, group)
+	}
+	return groups
+}
+
 // StudentsRemarks handler method renders RemarksPage component
 func (s *Server) StudentsRemarks(w http.ResponseWriter, r *http.Request) {
 	remarksData, err := s.queries.ListRemarksByClass(r.Context())
@@ -22,7 +47,69 @@ func (s *Server) StudentsRemarks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.renderComponent(w, r, remarks.RemarksPage(remarksData))
+	groupedData := GroupRemarksByClass(remarksData)
+	s.renderComponent(w, r, remarks.RemarksPage(groupedData))
+}
+
+// SubmitRemarksHandler processes the form submission from the remarks page.
+// It expects form fields: student_ids[], class_teacher_remarks[], head_teacher_remarks[].
+// The active termID is looked up within the handler.
+func (s *Server) SubmitRemarks(w http.ResponseWriter, r *http.Request) {
+	activeTerm, err := s.queries.GetCurrentTerm(r.Context())
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "unable to retrieve active term")
+		slog.Error("unable to retrieve active term", "error", err.Error())
+		return
+	}
+	termID := activeTerm.TermID
+
+	if err := r.ParseForm(); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid form submission")
+		return
+	}
+
+	studentIDs := r.Form["student_ids[]"]
+	classTeacherRemarks := r.Form["class_teacher_remarks[]"]
+	headTeacherRemarks := r.Form["head_teacher_remarks[]"]
+
+	if len(studentIDs) != len(classTeacherRemarks) || len(studentIDs) != len(headTeacherRemarks) {
+		writeError(w, http.StatusBadRequest, "inconsistent form data")
+		return
+	}
+
+	for i, sid := range studentIDs {
+		studentID, err := uuid.Parse(sid)
+		if err != nil {
+			slog.Error("invalid student id %q: %v", sid, err.Error())
+			continue
+		}
+
+		params := database.UpsertRemarkParams{
+			StudentID: studentID,
+			TermID:    termID,
+			ContentClassTeacher: pgtype.Text{
+				String: classTeacherRemarks[i],
+				Valid:  true,
+			},
+			ContentHeadTeacher: pgtype.Text{
+				String: headTeacherRemarks[i],
+				Valid:  true,
+			},
+		}
+
+		_, err = s.queries.UpsertRemark(r.Context(), params)
+		if err != nil {
+			slog.Error("failed to upsert remark for student %s: %v", sid, err.Error())
+		}
+	}
+
+	if r.Header.Get("HX-Request") != "" {
+		w.Header().Set("HX-Redirect", "/remarks")
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	http.Redirect(w, r, "/remarks", http.StatusSeeOther)
 }
 
 // StudentsDisciplinary handler method renders StudentsDisciplinary component
