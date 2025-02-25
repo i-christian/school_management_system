@@ -80,7 +80,7 @@ func (s *Server) SubmitRemarks(w http.ResponseWriter, r *http.Request) {
 	for i, sid := range studentIDs {
 		studentID, err := uuid.Parse(sid)
 		if err != nil {
-			slog.Error("invalid student id %q: %v", sid, err.Error())
+			slog.Error("invalid student id", "id", sid, "error", err.Error())
 			continue
 		}
 
@@ -99,13 +99,38 @@ func (s *Server) SubmitRemarks(w http.ResponseWriter, r *http.Request) {
 
 		_, err = s.queries.UpsertRemark(r.Context(), params)
 		if err != nil {
-			slog.Error("failed to upsert remark for student %s: %v", sid, err.Error())
+			slog.Error("failed to upsert remark for student", "id", sid, "error", err.Error())
+			if r.Header.Get("HX-Request") != "" {
+				w.Header().Set("Content-Type", "text/html")
+				_, _ = w.Write([]byte(`
+					<div id="popover" class="custom-popover show" style="background-color: #dc2626;">
+						<span>❌ Failed to save some remarks</span>
+					</div>
+					<script>
+						setTimeout(() => {
+							document.getElementById('popover').classList.add('hide');
+							setTimeout(() => document.getElementById('popover').remove(), 500);
+						}, 3000);
+					</script>
+				`))
+				return
+			}
 		}
 	}
 
 	if r.Header.Get("HX-Request") != "" {
-		w.Header().Set("HX-Redirect", "/remarks")
-		w.WriteHeader(http.StatusOK)
+		w.Header().Set("Content-Type", "text/html")
+		_, _ = w.Write([]byte(`
+			<div id="popover" class="custom-popover show" style="background-color: #16a34a;">
+				<span>✅ Remarks saved successfully</span>
+			</div>
+			<script>
+				setTimeout(() => {
+					document.getElementById('popover').classList.add('hide');
+					setTimeout(() => document.getElementById('popover').remove(), 500);
+				}, 3000);
+			</script>
+		`))
 		return
 	}
 

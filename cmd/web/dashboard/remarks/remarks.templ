@@ -10,14 +10,16 @@ type GroupedRemarks struct {
 }
 
 templ RemarksPage(GroupedData []GroupedRemarks) {
-	<section id="remarks-page" class="max-w-7xl mx-auto p-6 space-y-8">
+	<section id="remarks-page" class="max-w-7xl mx-auto p-6 space-y-8 relative">
+		<!-- Popover container -->
+		<div id="popover-container"></div>
 		for _, group := range GroupedData {
 			<header class="mb-4">
 				<h2 class="text-2xl font-bold text-gray-800">
 					Remarks for { group.ClassName } <span class="text-base font-normal text-gray-600">(Term: { group.AcademicTerm })</span>
 				</h2>
 			</header>
-			<form id="remarks-form-{ group.ClassName }" hx-post="/remarks/submit" class="bg-white rounded-lg shadow p-4">
+			<form id="remarks-form-{ group.ClassName }" hx-post="/remarks/submit" hx-target="#popover-container" hx-swap="innerHTML" class="bg-white rounded-lg shadow p-4">
 				<div class="overflow-x-auto">
 					<table class="min-w-full table-auto border border-gray-300 rounded-lg shadow-sm">
 						<thead class="bg-blue-500 text-white text-sm uppercase">
