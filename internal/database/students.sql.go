@@ -223,6 +223,50 @@ func (q *Queries) ListStudents(ctx context.Context) ([]ListStudentsRow, error) {
 	return items, nil
 }
 
+const searchStudentsByName = `-- name: SearchStudentsByName :many
+SELECT 
+    student_id, 
+    first_name, 
+    middle_name, 
+    last_name
+FROM students
+WHERE 
+    first_name ILIKE $1 OR last_name ILIKE $1
+ORDER BY last_name, first_name
+`
+
+type SearchStudentsByNameRow struct {
+	StudentID  uuid.UUID   `json:"student_id"`
+	FirstName  string      `json:"first_name"`
+	MiddleName pgtype.Text `json:"middle_name"`
+	LastName   string      `json:"last_name"`
+}
+
+func (q *Queries) SearchStudentsByName(ctx context.Context, firstName string) ([]SearchStudentsByNameRow, error) {
+	rows, err := q.db.Query(ctx, searchStudentsByName, firstName)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []SearchStudentsByNameRow{}
+	for rows.Next() {
+		var i SearchStudentsByNameRow
+		if err := rows.Scan(
+			&i.StudentID,
+			&i.FirstName,
+			&i.MiddleName,
+			&i.LastName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const upsertGuardian = `-- name: UpsertGuardian :one
 INSERT INTO guardians (
     guardian_name, 

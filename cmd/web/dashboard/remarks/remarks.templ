@@ -75,14 +75,13 @@ templ DisciplinePage(records []database.ListDisciplinaryRecordsRow) {
 			<button
 				hx-get="/discipline/new"
 				hx-target="#discipline-form-container"
-				hx-swap="innerHTML"
+				hx-swap="outerHTML"
 				class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors"
 			>
 				Add New Record
 			</button>
 		</div>
-		<div id="discipline-form-container" class="mb-6"></div>
-		<div class="overflow-x-auto">
+		<div id="discipline-form-container" class="overflow-x-auto">
 			<table class="min-w-full table-auto border border-gray-300 rounded-lg shadow-sm">
 				<thead class="bg-red-500 text-white text-sm uppercase">
 					<tr>
@@ -113,4 +112,89 @@ templ DisciplinePage(records []database.ListDisciplinaryRecordsRow) {
 			</table>
 		</div>
 	</section>
+}
+
+templ AddDisciplineRecordForm() {
+	<div class="max-w-3xl mx-auto p-6">
+		<div class="bg-white rounded-lg shadow-lg overflow-hidden">
+			<div class="bg-red-600 px-6 py-4">
+				<h2 class="text-white text-xl font-bold">New Disciplinary Record</h2>
+			</div>
+			<form
+				hx-post="/discipline/submit"
+				hx-target="#discipline-page"
+				hx-swap="outerHTML"
+				class="px-6 py-6 space-y-6"
+			>
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+					<section>
+						<label class="block text-gray-700 font-semibold mb-2">Student Name</label>
+						<input
+							type="search"
+							name="search"
+							placeholder="Search student..."
+							class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-red-500"
+							hx-post="/discipline/search"
+							hx-trigger="input changed delay:300ms, keyup[key=='Enter']"
+							hx-target="#student-search-results"
+							hx-swap="innerHTML"
+						/>
+						<div id="student-search-results" class="mt-2 bg-white shadow-md rounded-md max-h-48 overflow-auto"></div>
+						<input type="hidden" name="student_id" id="selected-student-id" required/>
+					</section>
+					<section>
+						<label class="block text-gray-700 font-semibold mb-2">Date</label>
+						<input
+							type="date"
+							name="date"
+							required
+							class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-red-500"
+						/>
+					</section>
+					<section class="col-span-2">
+						<label class="block text-gray-700 font-semibold mb-2">Offense Description</label>
+						<textarea
+							name="description"
+							required
+							class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-red-500"
+							placeholder="Describe the offense..."
+						></textarea>
+					</section>
+				</div>
+				<section class="col-span-2">
+					<label class="block text-gray-700 font-semibold mb-2">Action Taken</label>
+					<textarea
+						name="action_taken"
+						class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-red-500"
+						placeholder="Describe the action taken..."
+					></textarea>
+				</section>
+				<section class="col-span-2">
+					<label class="block text-gray-700 font-semibold mb-2">Notes (Optional)</label>
+					<textarea
+						name="notes"
+						class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-red-500"
+						placeholder="Additional remarks..."
+					></textarea>
+				</section>
+				<section class="flex justify-end mt-8 space-x-4">
+					<button
+						type="button"
+						hx-get="/discipline"
+						hx-target="#discipline-page"
+						hx-swap="innerHTML"
+						class="bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-gray-400"
+					>
+						Cancel
+					</button>
+					<button
+						type="submit"
+						class="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-red-500"
+					>
+						Save Record
+					</button>
+				</section>
+			</form>
+		</div>
+	</div>
 }

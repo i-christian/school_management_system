@@ -87,3 +87,14 @@ WHERE student_id = $1;
 
 -- name: DeleteStudent :exec
 DELETE FROM students WHERE student_id = $1;
+
+-- name: SearchStudentsByName :many
+SELECT 
+    student_id, 
+    first_name, 
+    middle_name, 
+    last_name
+FROM students
+WHERE 
+    first_name ILIKE $1 OR last_name ILIKE $1
+ORDER BY last_name, first_name;

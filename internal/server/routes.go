@@ -181,8 +181,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 		// r.Use(s.RequireRoles("headteacher", "teacher", "classteacher"))
 
 		r.Get("/", s.StudentsDisciplinary)
-		r.Get("/new", nil)
-		r.Post("/", nil)
+		r.Get("/new", s.ShowDisciplineForm)
+		r.Post("/search", s.SearchStudents)
 		r.Put("/{id}", nil)
 		r.Delete("/{id}", nil)
 	})
