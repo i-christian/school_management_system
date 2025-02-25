@@ -43,9 +43,12 @@ func RenderStudentSearchResults(w http.ResponseWriter, students []database.Searc
 	w.Header().Set("Content-Type", "text/html")
 	for _, student := range students {
 		fmt.Fprintf(w, `<div class="p-2 hover:bg-gray-200 cursor-pointer" 
-			hx-on:click="document.getElementById('selected-student-id').value='%s'; 
-			document.querySelector('input[name=search_student]').value='%s %s'; 
-			document.getElementById('student-search-results').innerHTML='';">
+			hx-on:click="
+				document.getElementById('selected-student-id').value='%s'; 
+				document.querySelector('input[name=search]').value='%s %s';
+				document.querySelector('input[name=search]').setAttribute('readonly', true);
+				document.getElementById('student-search-results').innerHTML='';
+			">
 			%s %s
 		</div>`, student.StudentID, student.FirstName, student.LastName, student.FirstName, student.LastName)
 	}
