@@ -104,7 +104,7 @@ templ DisciplinePage(records []database.ListDisciplinaryRecordsRow) {
 							<td class="border px-4 py-2">{ record.Date.Time.Format("2006-01-02") }</td>
 							<td class="border px-4 py-2">{ record.Offense }</td>
 							<td class="border px-4 py-2">{ record.ActionTaken.String }</td>
-							<td class="border px-4 py-2">{ record.ReporterLastName.String }</td>
+							<td class="border px-4 py-2">{ record.ReporterFirstName.String +" "+ record.ReporterLastName.String }</td>
 							<td class="border px-4 py-2">{ record.Notes.String }</td>
 						</tr>
 					}
@@ -114,6 +114,8 @@ templ DisciplinePage(records []database.ListDisciplinaryRecordsRow) {
 	</section>
 }
 
+// AddDisciplineRecordForm component renders and html form
+// used for creating a displinary action
 templ AddDisciplineRecordForm() {
 	<div class="max-w-3xl mx-auto p-6">
 		<div class="bg-white rounded-lg shadow-lg overflow-hidden">

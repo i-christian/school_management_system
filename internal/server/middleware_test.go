@@ -113,7 +113,7 @@ func TestSecureHeaders(t *testing.T) {
 	resp := rec.Result()
 
 	expectedHeaders := map[string]string{
-		"Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' fonts.googleapis.com; font-src 'self' data: fonts.gstatic.com",
+		"Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' fonts.googleapis.com; font-src 'self' data: fonts.gstatic.com",
 		"Referrer-Policy":         "origin-when-cross-origin",
 		"X-Content-Type-Options":  "nosniff",
 		"X-Frame-Options":         "deny",

@@ -326,7 +326,6 @@ templ EnterGradesFormSingle(class GradeEntryData, currentGrades []database.ListG
         }, 500);
       }, 3000);
     } finally {
-      // Re-enable the button and revert its style
       submitButton.disabled = false;
       submitButton.classList.remove("cursor-progress");
       submitButton.classList.add("hover:bg-green-700");
