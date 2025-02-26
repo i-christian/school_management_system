@@ -106,6 +106,13 @@ func (s *Server) GenerateStudentReportCard(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	term, err := s.queries.GetCurrentAcademicYearAndTerm(r.Context())
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to get the current term")
+		slog.Error("failed to get current academic term", "error", err.Error())
+		return
+	}
+
 	pdf := fpdf.New("P", "mm", "A4", "")
 
 	pdf.AddPage()
@@ -119,7 +126,7 @@ func (s *Server) GenerateStudentReportCard(w http.ResponseWriter, r *http.Reques
 	pdf.Ln(8)
 	pdf.Cell(190, 10, fmt.Sprintf("Name: %s %s %s", student.FirstName, student.MiddleName.String, student.LastName))
 	pdf.Ln(8)
-	pdf.Cell(190, 10, fmt.Sprintf("Class: %s", student.ClassName))
+	pdf.Cell(190, 10, fmt.Sprintf("Class: %s (%s)", student.ClassName, term.AcademicTerm.String))
 	pdf.Ln(12)
 
 	// Table Headers
