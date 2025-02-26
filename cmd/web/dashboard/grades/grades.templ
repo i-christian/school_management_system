@@ -127,7 +127,7 @@ templ EnterGradesForm(classRoom []GradeEntryData) {
 							hx-get={ "/grades/form/" + class.ClassID.String() }
 							hx-target="#grades-form-container"
 							hx-swap="innerHTML"
-							class="px-4 py-2 bg-white border border-gray-300 rounded-md text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500"
+							class="px-4 py-2 bg-white border border-gray-300 rounded-md text-gray-700 hover:bg-gray-200 hover:cursor-pointer focus:outline-none focus:ring-3 focus:ring-green-500"
 						>
 							{ class.ClassName }
 						</button>

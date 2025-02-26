@@ -13,7 +13,7 @@ type ClassRoomData struct {
 // ReportsList renders the list of students grouped by class.
 templ ReportsList(classRooms []ClassRoomData) {
 	<div class="mx-auto p-6">
-		<nav class="mb-6 bg-gray-100 p-4 rounded-lg shadow">
+		<nav class="mb-6 bg-gray-100 p-4 rounded-lg shadow-sm">
 			<ul class="flex space-x-4 overflow-x-auto">
 				for _, class := range classRooms {
 					<li>
@@ -21,7 +21,7 @@ templ ReportsList(classRooms []ClassRoomData) {
 							hx-get={ "/reports/class/" + class.ClassID.String() }
 							hx-target="#reports-container"
 							hx-swap="innerHTML"
-							class="px-4 py-2 bg-white border border-gray-300 rounded-md text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500"
+							class="px-4 py-2 bg-white border border-gray-300 rounded-md text-gray-700 hover:bg-gray-200 focus:outline-hidden hover:cursor-pointer focus:ring-3 focus:ring-green-500"
 						>
 							{ class.ClassName }
 						</button>
