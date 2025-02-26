@@ -73,14 +73,13 @@ templ ReportTableRow(student database.ListStudentsRow) {
 		<td class="table-cell">{ student.Status }</td>
 		<td class="table-cell">
 			<div class="flex space-x-2">
-				<button
-					class="btn btn-yellow hover:cursor-pointer"
-					hx-get={ "/reports/reportcards/" + student.StudentID.String() + "/show" }
-					hx-target="#content-area"
-					hx-swap="innerHTML"
+				<a
+					href={ templ.URL("/reports/reportcards/" + student.StudentID.String() + "/download") }
+					class="btn btn-green hover:cursor-pointer"
+					download
 				>
-					<i class="fas fa-file mr-1"></i> Show
-				</button>
+					<i class="fas fa-download mr-1"></i> Download
+				</a>
 			</div>
 		</td>
 	</tr>

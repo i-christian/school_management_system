@@ -53,3 +53,7 @@
 .btn-yellow {
   @apply bg-yellow-500 hover:bg-yellow-600;
 }
+
+.btn-green {
+  @apply bg-green-500 hover:bg-green-700;
+}
