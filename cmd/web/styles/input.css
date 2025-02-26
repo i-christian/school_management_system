@@ -40,3 +40,16 @@
   opacity: 0;
   transform: translateY(-10px);
 }
+
+.table-header {
+  @apply border border-gray-200 px-4 py-2;
+}
+.table-cell {
+  @apply border border-gray-200 px-4 py-2;
+}
+.btn {
+  @apply flex items-center px-2 py-1 text-sm text-white rounded-md focus:outline-none;
+}
+.btn-yellow {
+  @apply bg-yellow-500 hover:bg-yellow-600;
+}

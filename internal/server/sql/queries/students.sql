@@ -46,6 +46,7 @@ SELECT DISTINCT ON (students.student_id)
     students.date_of_birth,
     students.status,
     academic_year.name AS AcademicYear,
+    classes.class_id,
     classes.name AS ClassName
 FROM students
 INNER JOIN academic_year
@@ -66,6 +67,7 @@ SELECT DISTINCT ON (students.student_id)
     students.date_of_birth,
     students.status,
     academic_year.name AS AcademicYear,
+    student_classes.class_id,
     classes.name AS ClassName
 FROM students
 INNER JOIN academic_year

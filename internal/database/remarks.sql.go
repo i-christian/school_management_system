@@ -12,15 +12,6 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const deleteRemark = `-- name: DeleteRemark :exec
-DELETE FROM remarks WHERE remarks_id = $1
-`
-
-func (q *Queries) DeleteRemark(ctx context.Context, remarksID uuid.UUID) error {
-	_, err := q.db.Exec(ctx, deleteRemark, remarksID)
-	return err
-}
-
 const listRemarksByClass = `-- name: ListRemarksByClass :many
 SELECT
   c.name AS class_name,

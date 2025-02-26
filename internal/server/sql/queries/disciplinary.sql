@@ -26,6 +26,3 @@ INNER JOIN students s ON dr.student_id = s.student_id
 LEFT JOIN users u ON dr.reported_by = u.user_id
 INNER JOIN term t ON dr.term_id = t.term_id
 ORDER BY dr.date DESC;
-
--- name: DeleteDisciplinaryRecord :exec
-DELETE FROM discipline_records WHERE discipline_id = $1;

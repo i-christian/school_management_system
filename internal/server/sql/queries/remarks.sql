@@ -32,6 +32,3 @@ LEFT JOIN remarks r
     ON s.student_id = r.student_id 
    AND sc.term_id = r.term_id
 ORDER BY c.name, s.last_name, s.first_name;
-
--- name: DeleteRemark :exec
-DELETE FROM remarks WHERE remarks_id = $1;

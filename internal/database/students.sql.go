@@ -63,6 +63,7 @@ SELECT DISTINCT ON (students.student_id)
     students.date_of_birth,
     students.status,
     academic_year.name AS AcademicYear,
+    classes.class_id,
     classes.name AS ClassName
 FROM students
 INNER JOIN academic_year
@@ -84,6 +85,7 @@ type GetStudentRow struct {
 	DateOfBirth  pgtype.Date `json:"date_of_birth"`
 	Status       string      `json:"status"`
 	Academicyear string      `json:"academicyear"`
+	ClassID      pgtype.UUID `json:"class_id"`
 	Classname    pgtype.Text `json:"classname"`
 }
 
@@ -100,6 +102,7 @@ func (q *Queries) GetStudent(ctx context.Context, studentID uuid.UUID) (GetStude
 		&i.DateOfBirth,
 		&i.Status,
 		&i.Academicyear,
+		&i.ClassID,
 		&i.Classname,
 	)
 	return i, err
@@ -170,6 +173,7 @@ SELECT DISTINCT ON (students.student_id)
     students.date_of_birth,
     students.status,
     academic_year.name AS AcademicYear,
+    student_classes.class_id,
     classes.name AS ClassName
 FROM students
 INNER JOIN academic_year
@@ -190,6 +194,7 @@ type ListStudentsRow struct {
 	DateOfBirth  pgtype.Date `json:"date_of_birth"`
 	Status       string      `json:"status"`
 	Academicyear string      `json:"academicyear"`
+	ClassID      pgtype.UUID `json:"class_id"`
 	Classname    pgtype.Text `json:"classname"`
 }
 
@@ -211,6 +216,7 @@ func (q *Queries) ListStudents(ctx context.Context) ([]ListStudentsRow, error) {
 			&i.DateOfBirth,
 			&i.Status,
 			&i.Academicyear,
+			&i.ClassID,
 			&i.Classname,
 		); err != nil {
 			return nil, err

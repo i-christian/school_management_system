@@ -12,15 +12,6 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const deleteDisciplinaryRecord = `-- name: DeleteDisciplinaryRecord :exec
-DELETE FROM discipline_records WHERE discipline_id = $1
-`
-
-func (q *Queries) DeleteDisciplinaryRecord(ctx context.Context, disciplineID uuid.UUID) error {
-	_, err := q.db.Exec(ctx, deleteDisciplinaryRecord, disciplineID)
-	return err
-}
-
 const listDisciplinaryRecords = `-- name: ListDisciplinaryRecords :many
 SELECT 
     dr.discipline_id,

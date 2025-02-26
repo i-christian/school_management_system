@@ -167,15 +167,6 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Post("/submit", s.SubmitRemarks)
 	})
 
-	r.Route("/fees", func(r chi.Router) {
-		r.Use(s.AuthMiddleware)
-		r.Use(s.RequireRoles("accountant"))
-
-		r.Get("/", s.GetFees)
-		r.Post("/", nil)
-		r.Get("/student/{id}", nil)
-	})
-
 	// Discipline
 	r.Route("/discipline", func(r chi.Router) {
 		r.Use(s.AuthMiddleware)
@@ -185,8 +176,25 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Get("/new", s.ShowDisciplineForm)
 		r.Post("/search", s.SearchStudents)
 		r.Post("/submit", s.SubmitDisplinaryRecord)
-		r.Put("/{id}", nil)
-		r.Delete("/{id}", nil)
+	})
+
+	// Reports
+	r.Route("/reports", func(r chi.Router) {
+		r.Use(s.AuthMiddleware)
+		// r.Use(s.RequireRoles("headteacher", "teacher", "classteacher"))
+
+		r.Get("/reportcards", s.ShowStudentsReports)
+		r.Get("/class/{classID}", s.ShowClassReports)
+		r.Get("/reports/{id}/show", nil)
+	})
+
+	r.Route("/fees", func(r chi.Router) {
+		r.Use(s.AuthMiddleware)
+		r.Use(s.RequireRoles("accountant"))
+
+		r.Get("/", s.GetFees)
+		r.Post("/", nil)
+		r.Get("/student/{id}", nil)
 	})
 
 	return r
