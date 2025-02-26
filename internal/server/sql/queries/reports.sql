@@ -1,4 +1,4 @@
--- name: GetStudentReportCard :many
+-- name: GetStudentReportCard :one
 SELECT 
     sgv.student_id,
     sgv.student_no,

@@ -13,7 +13,7 @@ import (
 	dto "school_management_system/internal/dto"
 )
 
-const getStudentReportCard = `-- name: GetStudentReportCard :many
+const getStudentReportCard = `-- name: GetStudentReportCard :one
 SELECT 
     sgv.student_id,
     sgv.student_no,
@@ -44,33 +44,20 @@ type GetStudentReportCardRow struct {
 	HeadTeacherRemark  pgtype.Text   `json:"head_teacher_remark"`
 }
 
-func (q *Queries) GetStudentReportCard(ctx context.Context, studentID uuid.UUID) ([]GetStudentReportCardRow, error) {
-	rows, err := q.db.Query(ctx, getStudentReportCard, studentID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []GetStudentReportCardRow{}
-	for rows.Next() {
-		var i GetStudentReportCardRow
-		if err := rows.Scan(
-			&i.StudentID,
-			&i.StudentNo,
-			&i.LastName,
-			&i.FirstName,
-			&i.MiddleName,
-			&i.ClassID,
-			&i.ClassName,
-			&i.Grades,
-			&i.ClassTeacherRemark,
-			&i.HeadTeacherRemark,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+func (q *Queries) GetStudentReportCard(ctx context.Context, studentID uuid.UUID) (GetStudentReportCardRow, error) {
+	row := q.db.QueryRow(ctx, getStudentReportCard, studentID)
+	var i GetStudentReportCardRow
+	err := row.Scan(
+		&i.StudentID,
+		&i.StudentNo,
+		&i.LastName,
+		&i.FirstName,
+		&i.MiddleName,
+		&i.ClassID,
+		&i.ClassName,
+		&i.Grades,
+		&i.ClassTeacherRemark,
+		&i.HeadTeacherRemark,
+	)
+	return i, err
 }
