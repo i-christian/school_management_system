@@ -397,8 +397,10 @@ func (s *Server) toggleTerm(ctx context.Context, termID uuid.UUID) error {
 	defer tx.Rollback(ctx)
 	qtx := s.queries.WithTx(tx)
 
-	if previousTermID, err = qtx.DeactivateTerm(ctx); err.Error() != "no rows in result set" {
-		return err
+	if previousTermID, err = qtx.DeactivateTerm(ctx); err != nil {
+		if err.Error() != "no rows in result set" {
+			return err
+		}
 	}
 
 	if previousTermID == uuid.Nil {
