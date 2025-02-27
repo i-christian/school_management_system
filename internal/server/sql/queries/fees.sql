@@ -1,13 +1,13 @@
 -- name: UpsertFeeStructure :one
 INSERT INTO fee_structure (term_id, class_id, required)
-VALUES ($1, $2, $3)
+VALUES ('2b9fd9bb-d8a8-4d91-bf86-887148316cdf', '5eed0744-a86f-4426-9188-0a09f6d127d5', 500000)
 ON CONFLICT (term_id, class_id)
   DO UPDATE SET required = EXCLUDED.required
 RETURNING fee_structure_id;
 
 -- name: CreateFeesRecord :one
 INSERT INTO fees (fee_structure_id, student_id, paid)
-VALUES ($1, $2, $3)
+VALUES ('42edfb67-d132-4257-8460-3731d32887f5', 'fec78aac-0577-46b9-b300-905fc384d055', 200000)
 RETURNING *;
 
 -- name: GetStudentFeesRecord :one
@@ -20,6 +20,7 @@ SELECT
     classes.name AS ClassName,
     fee_structure.required AS TuitionAmount,
     fees.paid AS PaidAmount,
+    fees.arrears,
     fees.status
 FROM fees
 INNER JOIN fee_structure 
@@ -42,6 +43,7 @@ SELECT
     classes.name AS ClassName,
     fee_structure.required AS TuitionAmount,
     fees.paid AS PaidAmount,
+    fees.arrears,
     fees.status
 FROM fees
 INNER JOIN fee_structure 

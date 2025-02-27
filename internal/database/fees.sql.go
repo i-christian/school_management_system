@@ -14,18 +14,12 @@ import (
 
 const createFeesRecord = `-- name: CreateFeesRecord :one
 INSERT INTO fees (fee_structure_id, student_id, paid)
-VALUES ($1, $2, $3)
+VALUES ('42edfb67-d132-4257-8460-3731d32887f5', 'fec78aac-0577-46b9-b300-905fc384d055', 200000)
 RETURNING fees_id, fee_structure_id, student_id, paid, arrears, status
 `
 
-type CreateFeesRecordParams struct {
-	FeeStructureID uuid.UUID      `json:"fee_structure_id"`
-	StudentID      uuid.UUID      `json:"student_id"`
-	Paid           pgtype.Numeric `json:"paid"`
-}
-
-func (q *Queries) CreateFeesRecord(ctx context.Context, arg CreateFeesRecordParams) (Fee, error) {
-	row := q.db.QueryRow(ctx, createFeesRecord, arg.FeeStructureID, arg.StudentID, arg.Paid)
+func (q *Queries) CreateFeesRecord(ctx context.Context) (Fee, error) {
+	row := q.db.QueryRow(ctx, createFeesRecord)
 	var i Fee
 	err := row.Scan(
 		&i.FeesID,
@@ -64,6 +58,7 @@ SELECT
     classes.name AS ClassName,
     fee_structure.required AS TuitionAmount,
     fees.paid AS PaidAmount,
+    fees.arrears,
     fees.status
 FROM fees
 INNER JOIN fee_structure 
@@ -86,6 +81,7 @@ type GetStudentFeesRecordRow struct {
 	Classname     string         `json:"classname"`
 	Tuitionamount pgtype.Numeric `json:"tuitionamount"`
 	Paidamount    pgtype.Numeric `json:"paidamount"`
+	Arrears       pgtype.Numeric `json:"arrears"`
 	Status        string         `json:"status"`
 }
 
@@ -101,6 +97,7 @@ func (q *Queries) GetStudentFeesRecord(ctx context.Context, studentID uuid.UUID)
 		&i.Classname,
 		&i.Tuitionamount,
 		&i.Paidamount,
+		&i.Arrears,
 		&i.Status,
 	)
 	return i, err
@@ -116,6 +113,7 @@ SELECT
     classes.name AS ClassName,
     fee_structure.required AS TuitionAmount,
     fees.paid AS PaidAmount,
+    fees.arrears,
     fees.status
 FROM fees
 INNER JOIN fee_structure 
@@ -137,6 +135,7 @@ type ListStudentFeesRecordsRow struct {
 	Classname     string         `json:"classname"`
 	Tuitionamount pgtype.Numeric `json:"tuitionamount"`
 	Paidamount    pgtype.Numeric `json:"paidamount"`
+	Arrears       pgtype.Numeric `json:"arrears"`
 	Status        string         `json:"status"`
 }
 
@@ -158,6 +157,7 @@ func (q *Queries) ListStudentFeesRecords(ctx context.Context) ([]ListStudentFees
 			&i.Classname,
 			&i.Tuitionamount,
 			&i.Paidamount,
+			&i.Arrears,
 			&i.Status,
 		); err != nil {
 			return nil, err
@@ -192,20 +192,14 @@ func (q *Queries) UpdateFeesArrears(ctx context.Context, termID uuid.UUID) error
 
 const upsertFeeStructure = `-- name: UpsertFeeStructure :one
 INSERT INTO fee_structure (term_id, class_id, required)
-VALUES ($1, $2, $3)
+VALUES ('2b9fd9bb-d8a8-4d91-bf86-887148316cdf', '5eed0744-a86f-4426-9188-0a09f6d127d5', 500000)
 ON CONFLICT (term_id, class_id)
   DO UPDATE SET required = EXCLUDED.required
 RETURNING fee_structure_id
 `
 
-type UpsertFeeStructureParams struct {
-	TermID   uuid.UUID      `json:"term_id"`
-	ClassID  uuid.UUID      `json:"class_id"`
-	Required pgtype.Numeric `json:"required"`
-}
-
-func (q *Queries) UpsertFeeStructure(ctx context.Context, arg UpsertFeeStructureParams) (uuid.UUID, error) {
-	row := q.db.QueryRow(ctx, upsertFeeStructure, arg.TermID, arg.ClassID, arg.Required)
+func (q *Queries) UpsertFeeStructure(ctx context.Context) (uuid.UUID, error) {
+	row := q.db.QueryRow(ctx, upsertFeeStructure)
 	var fee_structure_id uuid.UUID
 	err := row.Scan(&fee_structure_id)
 	return fee_structure_id, err

@@ -102,8 +102,13 @@ EXECUTE FUNCTION fn_update_timestamp();
 -- +goose StatementBegin
 CREATE OR REPLACE FUNCTION fn_update_fee_status()
 RETURNS TRIGGER AS $$
+DECLARE
+    req_amount NUMERIC(10,2);
 BEGIN
-    -- Deduct arrears first
+    SELECT required INTO req_amount 
+    FROM fee_structure 
+    WHERE fee_structure_id = NEW.fee_structure_id;
+
     IF NEW.paid > 0 THEN
         IF NEW.arrears > 0 THEN
             IF NEW.paid >= NEW.arrears THEN
@@ -116,10 +121,9 @@ BEGIN
         END IF;
     END IF;
 
-    -- Set the status based on the remaining payment
-    IF NEW.paid >= NEW.required THEN
+    IF NEW.paid >= req_amount THEN
         NEW.status := 'PAID';
-    ELSIF NEW.paid > 0 AND NEW.paid < NEW.required THEN
+    ELSIF NEW.paid > 0 AND NEW.paid < req_amount THEN
         NEW.status := 'PARTIAL';
     ELSE
         NEW.status := 'OVERDUE';
