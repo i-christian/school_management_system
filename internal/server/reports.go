@@ -21,7 +21,11 @@ func getClassroomData(students []database.ListStudentsRow) []reports.ClassRoomDa
 		className := student.Classname.String
 
 		if _, ok := classMap[className]; !ok {
-			classID, _ := uuid.FromBytes(student.ClassID.Bytes[:])
+			classID, err := uuid.FromBytes(student.ClassID.Bytes[:])
+			if err != nil {
+				slog.Error("failed to parse class ID while getting classRoomData", "error", err.Error())
+				continue
+			}
 			classMap[className] = &reports.ClassRoomData{
 				ClassID:   classID,
 				ClassName: className,
@@ -84,35 +88,8 @@ func (s *Server) ShowStudentsReports(w http.ResponseWriter, r *http.Request) {
 	s.renderComponent(w, r, reports.ReportsList(classRooms))
 }
 
-// GenerateStudentReportCard generates a PDF report card for a student
-func (s *Server) GenerateStudentReportCard(w http.ResponseWriter, r *http.Request) {
-	studentID, err := uuid.Parse(r.PathValue("id"))
-	if err != nil {
-		writeError(w, http.StatusBadRequest, "Invalid student ID")
-		return
-	}
-
-	// Fetch student report data
-	student, err := s.queries.GetStudentReportCard(r.Context(), studentID)
-	if err != nil {
-		writeError(w, http.StatusNotFound, "Student not found")
-		return
-	}
-
-	studentSubjects, err := s.queries.ListSubjects(r.Context(), student.ClassID)
-	if err != nil {
-		writeError(w, http.StatusInternalServerError, "Failed to retrieve student's subjects")
-		slog.Error("Failed to get student's subjects", "error", err.Error())
-		return
-	}
-
-	term, err := s.queries.GetCurrentAcademicYearAndTerm(r.Context())
-	if err != nil {
-		writeError(w, http.StatusInternalServerError, "failed to get the current term")
-		slog.Error("failed to get current academic term", "error", err.Error())
-		return
-	}
-
+// createStudentReportPdf helper function creates a pdf file with student results, and teachers remarks
+func createStudentReportPdf(term database.GetCurrentAcademicYearAndTermRow, student database.GetStudentReportCardRow, studentSubjects []database.ListSubjectsRow) (string, *fpdf.Fpdf) {
 	pdf := fpdf.New("P", "mm", "A4", "")
 
 	pdf.AddPage()
@@ -172,10 +149,46 @@ func (s *Server) GenerateStudentReportCard(w http.ResponseWriter, r *http.Reques
 	pdf.Ln(10)
 	pdf.Cell(80, 10, "Head Teacher Signature: ______________")
 
+	fileName := student.StudentNo
+
+	return fileName, pdf
+}
+
+// GenerateStudentReportCard generates a PDF report card for a student
+func (s *Server) GenerateStudentReportCard(w http.ResponseWriter, r *http.Request) {
+	studentID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "Invalid student ID")
+		return
+	}
+
+	// Fetch student report data
+	student, err := s.queries.GetStudentReportCard(r.Context(), studentID)
+	if err != nil {
+		writeError(w, http.StatusNotFound, "Student not found")
+		return
+	}
+
+	studentSubjects, err := s.queries.ListSubjects(r.Context(), student.ClassID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "Failed to retrieve student's subjects")
+		slog.Error("Failed to get student's subjects", "error", err.Error())
+		return
+	}
+
+	term, err := s.queries.GetCurrentAcademicYearAndTerm(r.Context())
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to get the current term")
+		slog.Error("failed to get current academic term", "error", err.Error())
+		return
+	}
+
+	fileName, reportCard := createStudentReportPdf(term, student, studentSubjects)
+
 	// Serve PDF as response
 	w.Header().Set("Content-Type", "application/pdf")
-	w.Header().Set("Content-Disposition", "attachment; filename=report_card.pdf")
-	err = pdf.Output(w)
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s.pdf", fileName))
+	err = reportCard.Output(w)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "Failed to generate PDF")
 		slog.Error("PDF Generation Error:", "error", err.Error())
