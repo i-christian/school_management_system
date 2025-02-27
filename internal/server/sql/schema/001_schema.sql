@@ -221,12 +221,13 @@ CREATE TABLE fees (
   fee_structure_id UUID NOT NULL,
   student_id UUID NOT NULL,
   paid NUMERIC(10,2) NOT NULL CHECK (paid >= 0),
-  arrears NUMERIC(10,2) NOT NULL DEFAULT 0 CHECK (arrears >= 0),
+  arrears NUMERIC(10,2) NOT NULL DEFAULT 0,
   status VARCHAR(20) NOT NULL DEFAULT 'OVERDUE',
   CONSTRAINT fk_fee_structure FOREIGN KEY (fee_structure_id)
     REFERENCES fee_structure(fee_structure_id) ON DELETE CASCADE,
   CONSTRAINT fk_student FOREIGN KEY (student_id)
-    REFERENCES students(student_id) ON DELETE CASCADE
+    REFERENCES students(student_id) ON DELETE CASCADE,
+  UNIQUE(fee_structure_id, student_id)
 );
 
 -- Index for filtering fees by student, term, and class

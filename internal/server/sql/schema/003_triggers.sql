@@ -104,31 +104,46 @@ CREATE OR REPLACE FUNCTION fn_update_fee_status()
 RETURNS TRIGGER AS $$
 DECLARE
     req_amount NUMERIC(10,2);
+    remaining_payment NUMERIC(10,2);
+    new_balance NUMERIC(10,2);
 BEGIN
-    SELECT required INTO req_amount 
-    FROM fee_structure 
+    SELECT required INTO req_amount
+    FROM fee_structure
     WHERE fee_structure_id = NEW.fee_structure_id;
-
-    IF NEW.paid > 0 THEN
-        IF NEW.arrears > 0 THEN
-            IF NEW.paid >= NEW.arrears THEN
-                NEW.paid := NEW.paid - NEW.arrears;
-                NEW.arrears := 0;
-            ELSE
-                NEW.arrears := NEW.arrears - NEW.paid;
-                NEW.paid := 0;
-            END IF;
+    -- First, use any existing arrears to reduce the incoming payment
+    IF TG_OP = 'UPDATE' AND NEW.paid > OLD.paid THEN
+        -- Skip arrears deduction in this case for increasing payment updates
+    ELSIF NEW.paid > 0 AND NEW.arrears > 0 THEN
+        IF NEW.paid >= NEW.arrears THEN
+            NEW.paid := NEW.paid - NEW.arrears;
+            NEW.arrears := 0;
+        ELSE
+            NEW.arrears := NEW.arrears - NEW.paid;
+            NEW.paid := 0;
         END IF;
     END IF;
-
-    IF NEW.paid >= req_amount THEN
+    -- After deducting previous arrears, the remaining payment is applied to the current fee
+    remaining_payment := NEW.paid;
+    new_balance := req_amount - remaining_payment;
+    -- Set the status based on the remaining balance and payment
+    IF new_balance < 0 THEN
         NEW.status := 'PAID';
-    ELSIF NEW.paid > 0 AND NEW.paid < req_amount THEN
+    ELSIF new_balance = 0 THEN
+        NEW.status := 'PAID';
+    ELSIF remaining_payment > 0 THEN
         NEW.status := 'PARTIAL';
     ELSE
         NEW.status := 'OVERDUE';
     END IF;
-
+    -- If the student overpays, arrears should be negative (credit balance)
+    -- Otherwise, arrears should reflect the remaining balance due
+    IF new_balance < 0 THEN
+        NEW.arrears := new_balance;
+    ELSIF new_balance = 0 THEN
+        NEW.arrears := 0;
+    ELSE
+        NEW.arrears := new_balance;
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;

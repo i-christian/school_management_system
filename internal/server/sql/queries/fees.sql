@@ -1,13 +1,13 @@
 -- name: UpsertFeeStructure :one
 INSERT INTO fee_structure (term_id, class_id, required)
-VALUES ('2b9fd9bb-d8a8-4d91-bf86-887148316cdf', '5eed0744-a86f-4426-9188-0a09f6d127d5', 500000)
+VALUES ('bc74f6ee-027f-4d86-9f6b-50d1ac3d4eda', 'b6ceb3d0-9bb0-4c74-bd00-b4d70ac631d7', 500000)
 ON CONFLICT (term_id, class_id)
   DO UPDATE SET required = EXCLUDED.required
 RETURNING fee_structure_id;
 
 -- name: CreateFeesRecord :one
 INSERT INTO fees (fee_structure_id, student_id, paid)
-VALUES ('42edfb67-d132-4257-8460-3731d32887f5', 'fec78aac-0577-46b9-b300-905fc384d055', 200000)
+VALUES ('22bc8d9b-ba57-445d-82ab-9e2f9f90295b', '5f44f660-8bae-478b-b082-109139f2c50d', 500000)
 RETURNING *;
 
 -- name: GetStudentFeesRecord :one
@@ -57,19 +57,6 @@ INNER JOIN classes
 
 -- name: EditFeesRecord :exec
 UPDATE fees
-    SET paid = COALESCE($2, paid)
-WHERE fees_id = $1;
-
--- name: UpdateFeesArrears :exec
-WITH previous_fees_arrears AS (
-    SELECT
-        f.student_id,
-        fs.required - f.paid AS term_arrears
-    FROM fees f
-    JOIN fee_structure fs ON f.fee_structure_id = fs.fee_structure_id
-    WHERE fs.term_id = $1 -- Previous term ID
-)
-UPDATE fees AS current_fees
-SET arrears = COALESCE(current_fees.arrears, 0) + COALESCE(previous_fees_arrears.term_arrears, 0)
-FROM previous_fees_arrears
-WHERE current_fees.student_id = previous_fees_arrears.student_id;
+    SET paid = paid + 100000
+WHERE fees_id = 'aa4736c8-93e6-4f51-a104-186864a5db88'
+RETURNING *;
