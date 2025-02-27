@@ -42,7 +42,8 @@ CREATE TABLE IF NOT EXISTS academic_year (
     end_date DATE NOT NULL CHECK (end_date > start_date),
     active BOOLEAN NOT NULL DEFAULT FALSE,
     period DATERANGE GENERATED ALWAYS AS (daterange(start_date, end_date, '[]')) STORED,
-    CONSTRAINT academic_year_no_overlap EXCLUDE USING gist (period WITH &&)
+    CONSTRAINT academic_year_no_overlap EXCLUDE USING gist (period WITH &&),
+    CONSTRAINT chk_academic_year_not_in_past CHECK (start_date >= CURRENT_DATE)
 );
 
 -- Partial unique index to ensure only one active academic year exists.
@@ -54,6 +55,7 @@ CREATE UNIQUE INDEX unique_active_academic_year
 CREATE TABLE IF NOT EXISTS term (
     term_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     academic_year_id UUID NOT NULL,
+    previous_term_id UUID NULL,
     name VARCHAR(50) NOT NULL,
     start_date DATE NOT NULL,
     end_date DATE NOT NULL CHECK (end_date > start_date),
@@ -65,7 +67,9 @@ CREATE TABLE IF NOT EXISTS term (
     CONSTRAINT term_no_overlap EXCLUDE USING gist (
         academic_year_id WITH =,
         period WITH &&
-    )
+    ),
+    CONSTRAINT chk_active_term_not_expired CHECK (NOT active OR end_date >= CURRENT_DATE),
+    CONSTRAINT fk_previous_term FOREIGN KEY (previous_term_id) REFERENCES term(term_id) ON DELETE SET NULL
 );
 
 -- Partial unique index to ensure only one active term exists.
@@ -202,24 +206,33 @@ CREATE INDEX idx_grades_student_id ON grades(student_id);
 CREATE INDEX idx_grades_subject_id ON grades(subject_id);
 CREATE INDEX idx_grades_term_id ON grades(term_id);
 
+-- FEE_STRUCTURE TABLE
+CREATE TABLE fee_structure (
+  fee_structure_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  term_id UUID NOT NULL,
+  class_id UUID NOT NULL,
+  required NUMERIC(10,2) NOT NULL CHECK (required >= 0),
+  UNIQUE(term_id, class_id)
+);
+
 -- FEES TABLE
-CREATE TABLE IF NOT EXISTS fees (
-    fees_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    student_id UUID NOT NULL,
-    term_id UUID NOT NULL,
-    class_id UUID NOT NULL,
-    required NUMERIC(10, 2) NOT NULL CHECK (required >= 0),
-    paid NUMERIC(10, 2) NOT NULL CHECK (paid >= 0),
-    status VARCHAR(20) NOT NULL DEFAULT 'OVERDUE',
-    CONSTRAINT fk_student FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE,
-    CONSTRAINT fk_term FOREIGN KEY (term_id) REFERENCES term(term_id) ON DELETE CASCADE,
-    CONSTRAINT fk_class FOREIGN KEY (class_id) REFERENCES classes(class_id) ON DELETE CASCADE
+CREATE TABLE fees (
+  fees_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  fee_structure_id UUID NOT NULL,
+  student_id UUID NOT NULL,
+  paid NUMERIC(10,2) NOT NULL CHECK (paid >= 0),
+  arrears NUMERIC(10,2) NOT NULL DEFAULT 0 CHECK (arrears >= 0),
+  status VARCHAR(20) NOT NULL DEFAULT 'OVERDUE',
+  CONSTRAINT fk_fee_structure FOREIGN KEY (fee_structure_id)
+    REFERENCES fee_structure(fee_structure_id) ON DELETE CASCADE,
+  CONSTRAINT fk_student FOREIGN KEY (student_id)
+    REFERENCES students(student_id) ON DELETE CASCADE
 );
 
 -- Index for filtering fees by student, term, and class
 CREATE INDEX idx_fees_student_id ON fees(student_id);
-CREATE INDEX idx_fees_term_id ON fees(term_id);
-CREATE INDEX idx_fees_class_id ON fees(class_id);
+CREATE INDEX idx_fees_term_id ON fee_structure(term_id);
+CREATE INDEX idx_fees_class_id ON fee_structure(class_id);
 
 -- REMARKS TABLE
 CREATE TABLE IF NOT EXISTS remarks (

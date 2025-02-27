@@ -48,13 +48,19 @@ type DisciplineRecord struct {
 }
 
 type Fee struct {
-	FeesID    uuid.UUID      `json:"fees_id"`
-	StudentID uuid.UUID      `json:"student_id"`
-	TermID    uuid.UUID      `json:"term_id"`
-	ClassID   uuid.UUID      `json:"class_id"`
-	Required  pgtype.Numeric `json:"required"`
-	Paid      pgtype.Numeric `json:"paid"`
-	Status    string         `json:"status"`
+	FeesID         uuid.UUID      `json:"fees_id"`
+	FeeStructureID uuid.UUID      `json:"fee_structure_id"`
+	StudentID      uuid.UUID      `json:"student_id"`
+	Paid           pgtype.Numeric `json:"paid"`
+	Arrears        pgtype.Numeric `json:"arrears"`
+	Status         string         `json:"status"`
+}
+
+type FeeStructure struct {
+	FeeStructureID uuid.UUID      `json:"fee_structure_id"`
+	TermID         uuid.UUID      `json:"term_id"`
+	ClassID        uuid.UUID      `json:"class_id"`
+	Required       pgtype.Numeric `json:"required"`
 }
 
 type Grade struct {
@@ -151,6 +157,7 @@ type Subject struct {
 type Term struct {
 	TermID         uuid.UUID                 `json:"term_id"`
 	AcademicYearID uuid.UUID                 `json:"academic_year_id"`
+	PreviousTermID pgtype.UUID               `json:"previous_term_id"`
 	Name           string                    `json:"name"`
 	StartDate      pgtype.Date               `json:"start_date"`
 	EndDate        pgtype.Date               `json:"end_date"`

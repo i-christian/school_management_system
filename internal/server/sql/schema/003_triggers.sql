@@ -103,14 +103,29 @@ EXECUTE FUNCTION fn_update_timestamp();
 CREATE OR REPLACE FUNCTION fn_update_fee_status()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF NEW.paid >= NEW.required THEN
-      NEW.status := 'PAID';
-  ELSIF NEW.paid > 0 AND NEW.paid < NEW.required THEN
-      NEW.status := 'PARTIAL';
-  ELSE
-      NEW.status := 'OVERDUE';
-  END IF;
-  RETURN NEW;
+    -- Deduct arrears first
+    IF NEW.paid > 0 THEN
+        IF NEW.arrears > 0 THEN
+            IF NEW.paid >= NEW.arrears THEN
+                NEW.paid := NEW.paid - NEW.arrears;
+                NEW.arrears := 0;
+            ELSE
+                NEW.arrears := NEW.arrears - NEW.paid;
+                NEW.paid := 0;
+            END IF;
+        END IF;
+    END IF;
+
+    -- Set the status based on the remaining payment
+    IF NEW.paid >= NEW.required THEN
+        NEW.status := 'PAID';
+    ELSIF NEW.paid > 0 AND NEW.paid < NEW.required THEN
+        NEW.status := 'PARTIAL';
+    ELSE
+        NEW.status := 'OVERDUE';
+    END IF;
+
+    RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 -- +goose StatementEnd

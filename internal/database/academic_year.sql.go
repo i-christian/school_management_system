@@ -69,15 +69,18 @@ func (q *Queries) DeactivateAcademicYear(ctx context.Context) error {
 	return err
 }
 
-const deactivateTerm = `-- name: DeactivateTerm :exec
+const deactivateTerm = `-- name: DeactivateTerm :one
 UPDATE term
 SET active = FALSE
 WHERE active = TRUE
+RETURNING term_id
 `
 
-func (q *Queries) DeactivateTerm(ctx context.Context) error {
-	_, err := q.db.Exec(ctx, deactivateTerm)
-	return err
+func (q *Queries) DeactivateTerm(ctx context.Context) (uuid.UUID, error) {
+	row := q.db.QueryRow(ctx, deactivateTerm)
+	var term_id uuid.UUID
+	err := row.Scan(&term_id)
+	return term_id, err
 }
 
 const deleteAcademicYear = `-- name: DeleteAcademicYear :exec
@@ -410,11 +413,16 @@ func (q *Queries) SetCurrentAcademicYear(ctx context.Context, academicYearID uui
 
 const setCurrentTerm = `-- name: SetCurrentTerm :exec
 UPDATE term
-SET active = TRUE
+SET active = TRUE, previous_term_id = $2
 WHERE term_id = $1
 `
 
-func (q *Queries) SetCurrentTerm(ctx context.Context, termID uuid.UUID) error {
-	_, err := q.db.Exec(ctx, setCurrentTerm, termID)
+type SetCurrentTermParams struct {
+	TermID         uuid.UUID   `json:"term_id"`
+	PreviousTermID pgtype.UUID `json:"previous_term_id"`
+}
+
+func (q *Queries) SetCurrentTerm(ctx context.Context, arg SetCurrentTermParams) error {
+	_, err := q.db.Exec(ctx, setCurrentTerm, arg.TermID, arg.PreviousTermID)
 	return err
 }
