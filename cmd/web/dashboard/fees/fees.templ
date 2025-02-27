@@ -1,0 +1,86 @@
+package reports
+
+import "school_management_system/internal/database"
+import "github.com/google/uuid"
+
+// ClassRoomData represents a class with its list of students
+type ClassRoomData struct {
+	ClassID   uuid.UUID                  `json:"class_id"`
+	ClassName string                     `json:"class_name"`
+	Students  []database.ListStudentsRow `json:"students"`
+}
+
+// FeesList renders the list of students grouped by class.
+templ FeesList(classRooms []ClassRoomData) {
+	<div class="mx-auto p-6">
+		<nav class="mb-6 bg-gray-100 p-4 rounded-lg shadow-sm">
+			<ul class="flex space-x-4 overflow-x-auto">
+				for _, class := range classRooms {
+					<li>
+						<button
+							hx-get={ "/reports/class/" + class.ClassID.String() }
+							hx-target="#reports-container"
+							hx-swap="innerHTML"
+							class="px-4 py-2 bg-white border border-gray-300 rounded-md text-gray-700 hover:bg-gray-200 focus:outline-hidden hover:cursor-pointer focus:ring-3 focus:ring-green-500"
+						>
+							{ class.ClassName }
+						</button>
+					</li>
+				}
+			</ul>
+		</nav>
+		<div id="reports-container">
+			{ children... }
+		</div>
+	</div>
+}
+
+// ClassFeesTable renders the student fees payment status for a specific class.
+templ ClassFeesTable(class ClassRoomData) {
+	<div class="bg-white rounded-lg shadow-lg overflow-hidden mb-6">
+		<header class="bg-blue-600 px-6 py-4 flex justify-between items-center">
+			<h2 class="text-white text-xl font-bold">{ class.ClassName } Tution List</h2>
+			<h2>Required Tution: </h2>
+		</header>
+		<div class="overflow-x-auto">
+			<table class="min-w-full border border-gray-300 rounded-lg shadow-xs">
+				<thead class="bg-gray-100">
+					<tr>
+						<th class="table-header">Student No</th>
+						<th class="table-header">Last Name</th>
+						<th class="table-header">First Name</th>
+						<th class="table-header">Middle Name</th>
+						<th class="table-header">Status</th>
+						<th class="table-header">Actions</th>
+					</tr>
+				</thead>
+				<tbody class="divide-y divide-gray-200 text-sm">
+					for _, student := range class.Students {
+						@FeesTableRow(student)
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
+}
+
+// ReportTableRow renders each student row.
+templ FeesTableRow(student database.ListStudentsRow) {
+	<tr class="hover:bg-gray-50 transition">
+		<td class="table-cell">{ student.StudentNo }</td>
+		<td class="table-cell">{ student.FirstName }</td>
+		<td class="table-cell">{ student.MiddleName.String }</td>
+		<td class="table-cell">{ student.LastName }</td>
+		<td class="table-cell">{ student.Status }</td>
+		<td class="table-cell">
+			<div class="flex space-x-2">
+				<button
+					hx-get={ "/fees/" + student.StudentID.String() + "/edit" }
+					class="btn btn-green hover:cursor-pointer"
+				>
+					<i class="fas fa-edit mr-1"></i> Edit
+				</button>
+			</div>
+		</td>
+	</tr>
+}

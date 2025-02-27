@@ -386,17 +386,33 @@ func (s *Server) setActiveYear(w http.ResponseWriter, r *http.Request) {
 
 // toggleTerm method sets the current academic year
 func (s *Server) toggleTerm(ctx context.Context, termID uuid.UUID) error {
+	var params database.SetCurrentTermParams
+	var previousTermID uuid.UUID
+
+	// begin transaction
 	tx, err := s.conn.Begin(ctx)
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback(ctx)
 	qtx := s.queries.WithTx(tx)
-	err = qtx.DeactivateTerm(ctx)
-	if err != nil {
+
+	if previousTermID, err = qtx.DeactivateTerm(ctx); err.Error() != "no rows in result set" {
 		return err
 	}
-	if err := qtx.SetCurrentTerm(ctx, termID); err != nil {
+
+	if previousTermID == uuid.Nil {
+		params = database.SetCurrentTermParams{
+			TermID: termID,
+		}
+	} else {
+		params = database.SetCurrentTermParams{
+			TermID:         termID,
+			PreviousTermID: pgtype.UUID{Bytes: previousTermID, Valid: true},
+		}
+	}
+
+	if err := qtx.SetCurrentTerm(ctx, params); err != nil {
 		return err
 	}
 
