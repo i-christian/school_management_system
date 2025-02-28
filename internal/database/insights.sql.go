@@ -9,6 +9,61 @@ import (
 	"context"
 )
 
+const getAverageGradeScore = `-- name: GetAverageGradeScore :one
+SELECT AVG(score) AS average_grade
+FROM grades
+`
+
+func (q *Queries) GetAverageGradeScore(ctx context.Context) (float64, error) {
+	row := q.db.QueryRow(ctx, getAverageGradeScore)
+	var average_grade float64
+	err := row.Scan(&average_grade)
+	return average_grade, err
+}
+
+const getStudentGenderBreakdown = `-- name: GetStudentGenderBreakdown :many
+SELECT gender, COUNT(*) AS total_students
+FROM students
+GROUP BY gender
+`
+
+type GetStudentGenderBreakdownRow struct {
+	Gender        string `json:"gender"`
+	TotalStudents int64  `json:"total_students"`
+}
+
+func (q *Queries) GetStudentGenderBreakdown(ctx context.Context) ([]GetStudentGenderBreakdownRow, error) {
+	rows, err := q.db.Query(ctx, getStudentGenderBreakdown)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetStudentGenderBreakdownRow{}
+	for rows.Next() {
+		var i GetStudentGenderBreakdownRow
+		if err := rows.Scan(&i.Gender, &i.TotalStudents); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getTotalDisciplineRecords = `-- name: GetTotalDisciplineRecords :one
+SELECT COUNT(*) AS total_discipline_records
+FROM discipline_records
+`
+
+func (q *Queries) GetTotalDisciplineRecords(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, getTotalDisciplineRecords)
+	var total_discipline_records int64
+	err := row.Scan(&total_discipline_records)
+	return total_discipline_records, err
+}
+
 const getTotalFeesPaid = `-- name: GetTotalFeesPaid :one
 SELECT COALESCE(SUM(paid), 0) AS total_fees_paid
 FROM fees
@@ -19,6 +74,18 @@ func (q *Queries) GetTotalFeesPaid(ctx context.Context) (interface{}, error) {
 	var total_fees_paid interface{}
 	err := row.Scan(&total_fees_paid)
 	return total_fees_paid, err
+}
+
+const getTotalGuardians = `-- name: GetTotalGuardians :one
+SELECT COUNT(*) AS total_guardians
+FROM guardians
+`
+
+func (q *Queries) GetTotalGuardians(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, getTotalGuardians)
+	var total_guardians int64
+	err := row.Scan(&total_guardians)
+	return total_guardians, err
 }
 
 const getTotalStudents = `-- name: GetTotalStudents :one

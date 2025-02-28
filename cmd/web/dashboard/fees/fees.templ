@@ -1,27 +1,35 @@
-package reports
+package fees
 
-import "school_management_system/internal/database"
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+	"school_management_system/internal/database"
+	"github.com/jackc/pgx/v5/pgtype"
+	"strconv"
+)
 
-// ClassRoomData represents a class with its list of students
+// ClassRoomData represents a classroom along with its fee records.
 type ClassRoomData struct {
-	ClassID   uuid.UUID                  `json:"class_id"`
-	ClassName string                     `json:"class_name"`
-	Students  []database.ListStudentsRow `json:"students"`
+	ClassID         uuid.UUID                            `json:"class_id"`
+	ClassName       string                               `json:"class_name"`
+	RequiredTuition pgtype.Numeric                       `json:"required_tuition"`
+	Students        []database.ListStudentFeesRecordsRow `json:"students"`
 }
 
-// FeesList renders the list of students grouped by class.
+// FeesList renders a list of classes with their respective fee records.
 templ FeesList(classRooms []ClassRoomData) {
-	<div class="mx-auto p-6">
-		<nav class="mb-6 bg-gray-100 p-4 rounded-lg shadow-sm">
-			<ul class="flex space-x-4 overflow-x-auto">
+	<section id="fees-list" class="mx-auto p-6">
+		<div class="flex items-center justify-between mb-6">
+			<h2 class="text-xl font-bold text-gray-800">Tuition Fees</h2>
+		</div>
+		<nav class="mb-6">
+			<ul class="flex space-x-2 overflow-x-auto">
 				for _, class := range classRooms {
 					<li>
 						<button
-							hx-get={ "/reports/class/" + class.ClassID.String() }
-							hx-target="#reports-container"
+							hx-get={ "/fees/class/" + class.ClassID.String() }
+							hx-target="#fees-container"
 							hx-swap="innerHTML"
-							class="px-4 py-2 bg-white border border-gray-300 rounded-md text-gray-700 hover:bg-gray-200 focus:outline-hidden hover:cursor-pointer focus:ring-3 focus:ring-green-500"
+							class="bg-gray-200 px-2 py-1 font-semibold cursor-pointer hover:bg-gray-300 rounded-md transition border border-gray-300 shadow-xs"
 						>
 							{ class.ClassName }
 						</button>
@@ -29,29 +37,44 @@ templ FeesList(classRooms []ClassRoomData) {
 				}
 			</ul>
 		</nav>
-		<div id="reports-container">
+		<div id="fees-container">
 			{ children... }
 		</div>
-	</div>
+	</section>
 }
 
-// ClassFeesTable renders the student fees payment status for a specific class.
+// ClassFeesTable renders the fee payment details for a specific class.
 templ ClassFeesTable(class ClassRoomData) {
-	<div class="bg-white rounded-lg shadow-lg overflow-hidden mb-6">
-		<header class="bg-blue-600 px-6 py-4 flex justify-between items-center">
-			<h2 class="text-white text-xl font-bold">{ class.ClassName } Tution List</h2>
-			<h2>Required Tution: </h2>
-		</header>
-		<div class="overflow-x-auto">
-			<table class="min-w-full border border-gray-300 rounded-lg shadow-xs">
-				<thead class="bg-gray-100">
+	{{
+		tuition, _ := class.RequiredTuition.Float64Value()
+	}}
+	<div class="mb-6 border border-gray-300 rounded-lg shadow-xs">
+		<summary class="bg-gray-200 px-2 py-1 font-semibold cursor-pointer hover:bg-gray-300 rounded-md transition flex justify-between items-center">
+			{ class.ClassName }
+			<section class="text-gray-800 text-sm font-normal flex flex-row items-center justify-items-end gap-2">
+				<p class="mb-2 font-bold">Tuition: { strconv.FormatFloat(tuition.Float64, 'f', 2, 64) }</p>
+				<button
+					hx-get={ "/fees/" + class.ClassID.String() + "/create" }
+					class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded hover:cursor-pointer text-sm"
+					title="Set tuition"
+				>
+					<p class="flex gap-1">
+						<i class="fas fa-cog mr-1"></i> <span class="md:block hidden">Set Tuition</span>
+					</p>
+				</button>
+			</section>
+		</summary>
+		<div class="overflow-x-auto bg-white p-4 rounded-b-lg">
+			<table class="min-w-full table-auto border border-gray-300 rounded-lg shadow-xs">
+				<thead class="bg-blue-500 text-white text-sm uppercase">
 					<tr>
-						<th class="table-header">Student No</th>
-						<th class="table-header">Last Name</th>
-						<th class="table-header">First Name</th>
-						<th class="table-header">Middle Name</th>
-						<th class="table-header">Status</th>
-						<th class="table-header">Actions</th>
+						<th class="border border-gray-300 px-4 py-2 text-left">Last Name</th>
+						<th class="border border-gray-300 px-4 py-2 text-left">First Name</th>
+						<th class="border border-gray-300 px-4 py-2 text-left">Middle Name</th>
+						<th class="border border-gray-300 px-4 py-2 text-left">Status</th>
+						<th class="border border-gray-300 px-4 py-2 text-left">Paid</th>
+						<th class="border border-gray-300 px-4 py-2 text-left">Arrears</th>
+						<th class="border border-gray-300 px-4 py-2 text-left">Actions</th>
 					</tr>
 				</thead>
 				<tbody class="divide-y divide-gray-200 text-sm">
@@ -64,21 +87,38 @@ templ ClassFeesTable(class ClassRoomData) {
 	</div>
 }
 
-// ReportTableRow renders each student row.
-templ FeesTableRow(student database.ListStudentsRow) {
-	<tr class="hover:bg-gray-50 transition">
-		<td class="table-cell">{ student.StudentNo }</td>
-		<td class="table-cell">{ student.FirstName }</td>
-		<td class="table-cell">{ student.MiddleName.String }</td>
-		<td class="table-cell">{ student.LastName }</td>
-		<td class="table-cell">{ student.Status }</td>
-		<td class="table-cell">
+// FeesTableRow renders a single student's fee record row.
+templ FeesTableRow(student database.ListStudentFeesRecordsRow) {
+	{{
+		paid, _ := student.Paidamount.Float64Value()
+		arrears, _ := student.Arrears.Float64Value()
+	}}
+	<tr class="bg-gray-50 hover:bg-gray-100 transition">
+		<td class="border border-gray-300 px-4 py-2">{ student.LastName }</td>
+		<td class="border border-gray-300 px-4 py-2">{ student.FirstName }</td>
+		<td class="border border-gray-300 px-4 py-2">
+			if student.MiddleName.Valid {
+				{ student.MiddleName.String }
+			} else {
+				<span class="text-gray-400">N/A</span>
+			}
+		</td>
+		<td class="border border-gray-300 px-4 py-2">{ student.Status }</td>
+		<td class="border border-gray-300 px-4 py-2">{ strconv.FormatFloat(paid.Float64, 'f', 2, 64) }</td>
+		<td class="border border-gray-300 px-4 py-2">{ strconv.FormatFloat(arrears.Float64, 'f', 2, 64) }</td>
+		<td class="border border-gray-300 px-4 py-2">
 			<div class="flex space-x-2">
 				<button
-					hx-get={ "/fees/" + student.StudentID.String() + "/edit" }
-					class="btn btn-green hover:cursor-pointer"
+					hx-get={ "/fees/" + student.FeesID.String() + "/edit" }
+					class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded hover:cursor-pointer text-sm"
 				>
 					<i class="fas fa-edit mr-1"></i> Edit
+				</button>
+				<button
+					hx-get={ "/fees/" + student.StudentID.String() + "/add" }
+					class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded hover:cursor-pointer text-sm"
+				>
+					<i class="fas fa-plus mr-1"></i><span class="md:hidden">Add</span>
 				</button>
 			</div>
 		</td>

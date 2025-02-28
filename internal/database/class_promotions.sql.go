@@ -73,7 +73,7 @@ WITH promoted_students AS (
         sc.student_id,
         sc.class_id AS previous_class_id,
         cp.next_class_id,
-        '4d45c626-9d01-4bd0-b265-0483b74e44fa'::UUID AS new_term_id,
+        $1::UUID AS new_term_id,
         CASE
             WHEN cp.next_class_id IS NULL THEN TRUE
             ELSE FALSE
@@ -82,6 +82,7 @@ WITH promoted_students AS (
     JOIN students s ON sc.student_id = s.student_id
     LEFT JOIN class_promotions cp ON sc.class_id = cp.class_id
     WHERE s.status = 'active'
+      AND sc.term_id <> $1
 ),
 update_student_classes AS (
     UPDATE student_classes sc
@@ -108,7 +109,7 @@ FROM promoted_students ps
 WHERE s.student_id = ps.student_id
 `
 
-func (q *Queries) PromoteStudents(ctx context.Context) error {
-	_, err := q.db.Exec(ctx, promoteStudents)
+func (q *Queries) PromoteStudents(ctx context.Context, dollar_1 uuid.UUID) error {
+	_, err := q.db.Exec(ctx, promoteStudents, dollar_1)
 	return err
 }

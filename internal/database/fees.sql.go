@@ -14,17 +14,18 @@ import (
 
 const createFeesRecord = `-- name: CreateFeesRecord :one
 INSERT INTO fees (fee_structure_id, student_id, paid)
-VALUES ($1, $2, $2)
+VALUES ($1, $2, $3)
 RETURNING fees_id, fee_structure_id, student_id, paid, arrears, status
 `
 
 type CreateFeesRecordParams struct {
-	FeeStructureID uuid.UUID `json:"fee_structure_id"`
-	StudentID      uuid.UUID `json:"student_id"`
+	FeeStructureID uuid.UUID      `json:"fee_structure_id"`
+	StudentID      uuid.UUID      `json:"student_id"`
+	Paid           pgtype.Numeric `json:"paid"`
 }
 
 func (q *Queries) CreateFeesRecord(ctx context.Context, arg CreateFeesRecordParams) (Fee, error) {
-	row := q.db.QueryRow(ctx, createFeesRecord, arg.FeeStructureID, arg.StudentID)
+	row := q.db.QueryRow(ctx, createFeesRecord, arg.FeeStructureID, arg.StudentID, arg.Paid)
 	var i Fee
 	err := row.Scan(
 		&i.FeesID,
@@ -54,6 +55,24 @@ func (q *Queries) EditFeesRecord(ctx context.Context, arg EditFeesRecordParams) 
 	return err
 }
 
+const getFeeStructureForClass = `-- name: GetFeeStructureForClass :one
+SELECT fee_structure_id, term_id, class_id, required
+FROM fee_structure
+WHERE class_id = $1
+`
+
+func (q *Queries) GetFeeStructureForClass(ctx context.Context, classID uuid.UUID) (FeeStructure, error) {
+	row := q.db.QueryRow(ctx, getFeeStructureForClass, classID)
+	var i FeeStructure
+	err := row.Scan(
+		&i.FeeStructureID,
+		&i.TermID,
+		&i.ClassID,
+		&i.Required,
+	)
+	return i, err
+}
+
 const getStudentFeesRecord = `-- name: GetStudentFeesRecord :one
 SELECT
     fees.fees_id,
@@ -61,6 +80,7 @@ SELECT
     students.first_name,
     students.middle_name,
     term.name AS AcademicTerm,
+    classes.class_id,
     classes.name AS ClassName,
     fee_structure.required AS TuitionAmount,
     fees.paid AS PaidAmount,
@@ -84,6 +104,7 @@ type GetStudentFeesRecordRow struct {
 	FirstName     string         `json:"first_name"`
 	MiddleName    pgtype.Text    `json:"middle_name"`
 	Academicterm  string         `json:"academicterm"`
+	ClassID       uuid.UUID      `json:"class_id"`
 	Classname     string         `json:"classname"`
 	Tuitionamount pgtype.Numeric `json:"tuitionamount"`
 	Paidamount    pgtype.Numeric `json:"paidamount"`
@@ -100,6 +121,7 @@ func (q *Queries) GetStudentFeesRecord(ctx context.Context, studentID uuid.UUID)
 		&i.FirstName,
 		&i.MiddleName,
 		&i.Academicterm,
+		&i.ClassID,
 		&i.Classname,
 		&i.Tuitionamount,
 		&i.Paidamount,
@@ -112,10 +134,12 @@ func (q *Queries) GetStudentFeesRecord(ctx context.Context, studentID uuid.UUID)
 const listStudentFeesRecords = `-- name: ListStudentFeesRecords :many
 SELECT
     fees.fees_id,
+    students.student_id,
     students.last_name,
     students.first_name,
     students.middle_name,
     term.name AS AcademicTerm,
+    classes.class_id,
     classes.name AS ClassName,
     fee_structure.required AS TuitionAmount,
     fees.paid AS PaidAmount,
@@ -130,14 +154,17 @@ INNER JOIN term
     ON fee_structure.term_id = term.term_id
 INNER JOIN classes
     ON fee_structure.class_id = classes.class_id
+ORDER BY classes.name
 `
 
 type ListStudentFeesRecordsRow struct {
 	FeesID        uuid.UUID      `json:"fees_id"`
+	StudentID     uuid.UUID      `json:"student_id"`
 	LastName      string         `json:"last_name"`
 	FirstName     string         `json:"first_name"`
 	MiddleName    pgtype.Text    `json:"middle_name"`
 	Academicterm  string         `json:"academicterm"`
+	ClassID       uuid.UUID      `json:"class_id"`
 	Classname     string         `json:"classname"`
 	Tuitionamount pgtype.Numeric `json:"tuitionamount"`
 	Paidamount    pgtype.Numeric `json:"paidamount"`
@@ -156,10 +183,12 @@ func (q *Queries) ListStudentFeesRecords(ctx context.Context) ([]ListStudentFees
 		var i ListStudentFeesRecordsRow
 		if err := rows.Scan(
 			&i.FeesID,
+			&i.StudentID,
 			&i.LastName,
 			&i.FirstName,
 			&i.MiddleName,
 			&i.Academicterm,
+			&i.ClassID,
 			&i.Classname,
 			&i.Tuitionamount,
 			&i.Paidamount,

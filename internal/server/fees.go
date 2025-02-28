@@ -1,84 +1,80 @@
 package server
 
-// import (
-// 	"log/slog"
+import (
+	"log/slog"
+	"net/http"
+	"sort"
 
-// 	"school_management_system/internal/database"
+	"school_management_system/cmd/web/dashboard/fees"
+	"school_management_system/internal/database"
 
-// 	"github.com/google/uuid"
-// )
+	"github.com/google/uuid"
+)
 
-// // getClassroomData groups students by class and returns structured data.
-// func getFeesData(students []database.ListStudentsRow) []fees.ClassRoomData {
-// 	classMap := make(map[string]*fees.ClassRoomData)
+// getFeesData groups fee records by class.
+func getFeesData(records []database.ListStudentFeesRecordsRow) []fees.ClassRoomData {
+	classMap := make(map[string]*fees.ClassRoomData)
 
-// 	for _, student := range students {
-// 		className := student.Classname.String
+	for _, record := range records {
+		key := record.Classname
+		if _, exists := classMap[key]; !exists {
+			classMap[key] = &fees.ClassRoomData{
+				ClassID:         record.ClassID,
+				ClassName:       key,
+				RequiredTuition: record.Tuitionamount,
+				Students:        []database.ListStudentFeesRecordsRow{},
+			}
+		}
+		classMap[key].Students = append(classMap[key].Students, record)
+	}
 
-// 		if _, ok := classMap[className]; !ok {
-// 			classID, err := uuid.FromBytes(student.ClassID.Bytes[:])
-// 			if err != nil {
-// 				slog.Error("failed to parse class ID while getting classRoomData", "error", err.Error())
-// 				continue
-// 			}
-// 			classMap[className] = &reports.ClassRoomData{
-// 				ClassID:   classID,
-// 				ClassName: className,
-// 				Students:  []database.ListStudentsRow{},
-// 			}
-// 		}
+	classRooms := make([]fees.ClassRoomData, 0, len(classMap))
+	for _, cr := range classMap {
+		classRooms = append(classRooms, *cr)
+	}
 
-// 		classMap[className].Students = append(classMap[className].Students, student)
-// 	}
+	sort.Slice(classRooms, func(i, j int) bool {
+		return classRooms[i].ClassName < classRooms[j].ClassName
+	})
 
-// 	classRooms := make([]reports.ClassRoomData, 0, len(classMap))
-// 	for _, classData := range classMap {
-// 		classRooms = append(classRooms, *classData)
-// 	}
+	return classRooms
+}
 
-// 	sort.Slice(classRooms, func(i, j int) bool {
-// 		return classRooms[i].ClassName < classRooms[j].ClassName
-// 	})
+// ShowClassFees renders the fee records for a specific class.
+func (s *Server) ShowClassFees(w http.ResponseWriter, r *http.Request) {
+	classID, err := uuid.Parse(r.PathValue("classID"))
+	if err != nil {
+		http.Error(w, "Invalid class ID", http.StatusBadRequest)
+		return
+	}
 
-// 	return classRooms
-// }
+	records, err := s.queries.ListStudentFeesRecords(r.Context())
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to retrieve fee records")
+		slog.Error("failed to retrieve fee records", "error", err.Error())
+		return
+	}
 
-// // ShowClassReports renders a report for a specific class.
-// func (s *Server) ShowClassReports(w http.ResponseWriter, r *http.Request) {
-// 	classID, err := uuid.Parse(r.PathValue("classID"))
-// 	if err != nil {
-// 		http.Error(w, "Invalid class ID", http.StatusBadRequest)
-// 		return
-// 	}
+	classRooms := getFeesData(records)
+	for _, classData := range classRooms {
+		if classData.ClassID == classID {
+			s.renderComponent(w, r, fees.ClassFeesTable(classData))
+			return
+		}
+	}
 
-// 	students, err := s.queries.ListStudents(r.Context())
-// 	if err != nil {
-// 		writeError(w, http.StatusInternalServerError, "failed to retrieve students")
-// 		slog.Error("failed to retrieve students", "error", err.Error())
-// 		return
-// 	}
+	writeError(w, http.StatusNotFound, "class not found or has no fee records")
+}
 
-// 	classRooms := getClassroomData(students)
+// ShowFeesList renders fee records for all classes.
+func (s *Server) ShowFeesList(w http.ResponseWriter, r *http.Request) {
+	records, err := s.queries.ListStudentFeesRecords(r.Context())
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to retrieve fee records")
+		slog.Error("failed to retrieve fee records", "error", err.Error())
+		return
+	}
 
-// 	for _, classData := range classRooms {
-// 		if classData.ClassID == classID {
-// 			s.renderComponent(w, r, reports.ClassReportTable(classData))
-// 			return
-// 		}
-// 	}
-
-// 	writeError(w, http.StatusNotFound, "class not found or has no students")
-// }
-
-// // ShowStudentsReports renders all students grouped by class.
-// func (s *Server) ShowStudentsReports(w http.ResponseWriter, r *http.Request) {
-// 	students, err := s.queries.ListStudents(r.Context())
-// 	if err != nil {
-// 		writeError(w, http.StatusInternalServerError, "failed to retrieve students")
-// 		slog.Error("failed to retrieve students", "error", err.Error())
-// 		return
-// 	}
-
-// 	classRooms := getClassroomData(students)
-// 	s.renderComponent(w, r, reports.ReportsList(classRooms))
-// }
+	classRooms := getFeesData(records)
+	s.renderComponent(w, r, fees.FeesList(classRooms))
+}
