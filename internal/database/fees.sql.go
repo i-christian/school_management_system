@@ -14,12 +14,17 @@ import (
 
 const createFeesRecord = `-- name: CreateFeesRecord :one
 INSERT INTO fees (fee_structure_id, student_id, paid)
-VALUES ('42edfb67-d132-4257-8460-3731d32887f5', 'fec78aac-0577-46b9-b300-905fc384d055', 200000)
+VALUES ($1, $2, $2)
 RETURNING fees_id, fee_structure_id, student_id, paid, arrears, status
 `
 
-func (q *Queries) CreateFeesRecord(ctx context.Context) (Fee, error) {
-	row := q.db.QueryRow(ctx, createFeesRecord)
+type CreateFeesRecordParams struct {
+	FeeStructureID uuid.UUID `json:"fee_structure_id"`
+	StudentID      uuid.UUID `json:"student_id"`
+}
+
+func (q *Queries) CreateFeesRecord(ctx context.Context, arg CreateFeesRecordParams) (Fee, error) {
+	row := q.db.QueryRow(ctx, createFeesRecord, arg.FeeStructureID, arg.StudentID)
 	var i Fee
 	err := row.Scan(
 		&i.FeesID,
@@ -34,8 +39,9 @@ func (q *Queries) CreateFeesRecord(ctx context.Context) (Fee, error) {
 
 const editFeesRecord = `-- name: EditFeesRecord :exec
 UPDATE fees
-    SET paid = COALESCE($2, paid)
+    SET paid = paid + $2
 WHERE fees_id = $1
+RETURNING fees_id, fee_structure_id, student_id, paid, arrears, status
 `
 
 type EditFeesRecordParams struct {
@@ -170,36 +176,22 @@ func (q *Queries) ListStudentFeesRecords(ctx context.Context) ([]ListStudentFees
 	return items, nil
 }
 
-const updateFeesArrears = `-- name: UpdateFeesArrears :exec
-WITH previous_fees_arrears AS (
-    SELECT
-        f.student_id,
-        fs.required - f.paid AS term_arrears
-    FROM fees f
-    JOIN fee_structure fs ON f.fee_structure_id = fs.fee_structure_id
-    WHERE fs.term_id = $1 -- Previous term ID
-)
-UPDATE fees AS current_fees
-SET arrears = COALESCE(current_fees.arrears, 0) + COALESCE(previous_fees_arrears.term_arrears, 0)
-FROM previous_fees_arrears
-WHERE current_fees.student_id = previous_fees_arrears.student_id
-`
-
-func (q *Queries) UpdateFeesArrears(ctx context.Context, termID uuid.UUID) error {
-	_, err := q.db.Exec(ctx, updateFeesArrears, termID)
-	return err
-}
-
 const upsertFeeStructure = `-- name: UpsertFeeStructure :one
 INSERT INTO fee_structure (term_id, class_id, required)
-VALUES ('2b9fd9bb-d8a8-4d91-bf86-887148316cdf', '5eed0744-a86f-4426-9188-0a09f6d127d5', 500000)
+VALUES ($1, $2, $3)
 ON CONFLICT (term_id, class_id)
   DO UPDATE SET required = EXCLUDED.required
 RETURNING fee_structure_id
 `
 
-func (q *Queries) UpsertFeeStructure(ctx context.Context) (uuid.UUID, error) {
-	row := q.db.QueryRow(ctx, upsertFeeStructure)
+type UpsertFeeStructureParams struct {
+	TermID   uuid.UUID      `json:"term_id"`
+	ClassID  uuid.UUID      `json:"class_id"`
+	Required pgtype.Numeric `json:"required"`
+}
+
+func (q *Queries) UpsertFeeStructure(ctx context.Context, arg UpsertFeeStructureParams) (uuid.UUID, error) {
+	row := q.db.QueryRow(ctx, upsertFeeStructure, arg.TermID, arg.ClassID, arg.Required)
 	var fee_structure_id uuid.UUID
 	err := row.Scan(&fee_structure_id)
 	return fee_structure_id, err
