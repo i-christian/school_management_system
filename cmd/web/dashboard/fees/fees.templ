@@ -20,6 +20,16 @@ templ FeesList(classRooms []ClassRoomData) {
 	<section id="fees-list" class="mx-auto p-6">
 		<div class="flex items-center justify-between mb-6">
 			<h2 class="text-xl font-bold text-gray-800">Tuition Fees</h2>
+			<button
+				hx-get="/fees/structure"
+				hx-target="#content-area"
+				class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded hover:cursor-pointer text-sm"
+				title="Set tuition"
+			>
+				<p class="flex gap-1 items-center justify-center">
+					<i class="fas fa-cog mr-1"></i> <span class="md:block hidden">Set Tuition</span>
+				</p>
+			</button>
 		</div>
 		<nav class="mb-6">
 			<ul class="flex space-x-2 overflow-x-auto">
@@ -63,12 +73,12 @@ templ ClassFeesTable(class ClassRoomData) {
 			<section class="text-gray-800 text-sm font-normal flex flex-row items-center justify-items-end gap-2">
 				<p class="font-bold">Tuition: { strconv.FormatFloat(tuition.Float64, 'f', 2, 64) }</p>
 				<button
-					hx-get={ "/fees/" + class.ClassID.String() + "/create" }
+					hx-get={ "/fees/" + class.ClassID.String() + "/edit" }
 					class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded hover:cursor-pointer text-sm"
-					title="Set tuition"
+					title="edit tuition"
 				>
 					<p class="flex gap-1 items-center justify-center">
-						<i class="fas fa-cog mr-1"></i> <span class="md:block hidden">Set Tuition</span>
+						<i class="fas fa-edit mr-1"></i> <span class="md:block hidden">Edit Tuition</span>
 					</p>
 				</button>
 			</section>
@@ -129,4 +139,70 @@ templ FeesTableRow(student database.ListStudentFeesRecordsRow) {
 			</div>
 		</td>
 	</tr>
+}
+
+//Sets up a a fees structure for the selected class and given tuition amount
+templ CreateStructure(classes []database.Class) {
+	<div class="max-w-3xl mx-auto p-6">
+		<div class="bg-white rounded-lg shadow-lg overflow-hidden">
+			<header class="bg-blue-600 px-6 py-4">
+				<h2 class="text-white text-xl font-bold">Create Fees Structure</h2>
+			</header>
+			<form
+				hx-post="/fees/structure"
+				hx-target="#content-area"
+				hx-swap="innerHTML"
+				class="px-6 py-6"
+			>
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+					<section>
+						<label class="block text-gray-700 font-semibold mb-2">
+							Class
+						</label>
+						<select
+							type="text"
+							name="class_id"
+							required
+							class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+						>
+							for _, class := range classes {
+								<option value={ class.ClassID.String() }>
+									{ 
+									class.Name }
+								</option>
+							}
+						</select>
+					</section>
+					<section>
+						<label class="block text-gray-700 font-semibold mb-2">Tuition</label>
+						<input
+							type="decimal"
+							name="required"
+							min="0"
+							max="10000000000000"
+							required
+							class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-green-500"
+						/>
+					</section>
+					<section class="flex justify-end mt-8 space-x-4">
+						<button
+							type="button"
+							hx-get="/fees"
+							hx-target="#content-area"
+							hx-swap="innerHTML"
+							class="bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-gray-400"
+						>
+							Cancel
+						</button>
+						<button
+							type="submit"
+							class="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+						>
+							Save
+						</button>
+					</section>
+				</div>
+			</form>
+		</div>
+	</div>
 }

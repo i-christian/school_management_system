@@ -192,6 +192,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Use(s.AuthMiddleware)
 		r.Use(s.RequireRoles("accountant", "admin"))
 
+		r.Get("/structure", s.ShowSetTuition)
+		r.Post("/structure", s.SetFeesStructure)
 		r.Get("/", s.ShowFeesList)
 		r.Get("/class/{classID}", s.ShowClassFees)
 		r.Get("/details", s.GetFees)

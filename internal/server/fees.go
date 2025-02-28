@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"net/http"
 	"sort"
+	"strconv"
 
 	"school_management_system/cmd/web/dashboard/fees"
 	"school_management_system/internal/database"
@@ -77,4 +78,69 @@ func (s *Server) ShowFeesList(w http.ResponseWriter, r *http.Request) {
 
 	classRooms := getFeesData(records)
 	s.renderComponent(w, r, fees.FeesList(classRooms))
+}
+
+// ShowSetTuition handler method used to create a fees structure for a given
+func (s *Server) ShowSetTuition(w http.ResponseWriter, r *http.Request) {
+	classes, err := s.queries.ListClasses(r.Context())
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to get class list")
+		slog.Error("failed to get class list", "error", err.Error())
+		return
+	}
+
+	s.renderComponent(w, r, fees.CreateStructure(classes))
+}
+
+// SetFeesStructure handler method creates a fees structure for a given class using the current academic term
+func (s *Server) SetFeesStructure(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		writeError(w, http.StatusUnprocessableEntity, "wrong parameters")
+		slog.Error("failed to parse form data", "error", err.Error())
+		return
+	}
+
+	classID := r.FormValue("class_id")
+	required := r.FormValue("required")
+
+	parsedClassID, err := uuid.Parse(classID)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "bad class ID")
+		slog.Error("failed to parse class ID", "error", err.Error())
+		return
+	}
+
+	parsedRequired, err := strconv.ParseFloat(required, 64)
+	if err != nil {
+		writeError(w, http.StatusUnprocessableEntity, "failed to parse tuition")
+		return
+	}
+
+	term, err := s.queries.GetCurrentTerm(r.Context())
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "active current term not set")
+		slog.Error("failed to find current term", "error", err.Error())
+		return
+	}
+
+	const query = `
+		INSERT INTO fee_structure (term_id, class_id, required)
+			VALUES ($1, $2, $3)
+		ON CONFLICT (term_id, class_id)
+  			DO UPDATE SET required = EXCLUDED.required`
+
+	_, err = s.conn.Exec(r.Context(), query, term.TermID, parsedClassID, parsedRequired)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to create fee structure")
+		slog.Error("failed to save grade", "termID", term.TermID, "classID", parsedClassID, "required tuition", parsedRequired, "error", err.Error())
+		return
+	}
+
+	if r.Header.Get("HX-Request") != "" {
+		w.Header().Set("HX-Redirect", "/fees")
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+	http.Redirect(w, r, "/fees", http.StatusFound)
 }
