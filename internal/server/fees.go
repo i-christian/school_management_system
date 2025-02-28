@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"log/slog"
 	"net/http"
 	"sort"
@@ -51,12 +52,13 @@ func (s *Server) ShowClassFees(w http.ResponseWriter, r *http.Request) {
 
 	records, err := s.queries.ListStudentFeesRecords(r.Context())
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "failed to retrieve fee records")
+		writeError(w, http.StatusInternalServerError, "failed to retrieve fees records")
 		slog.Error("failed to retrieve fee records", "error", err.Error())
 		return
 	}
 
 	classRooms := getFeesData(records)
+	fmt.Println(classRooms)
 	for _, classData := range classRooms {
 		if classData.ClassID == classID {
 			s.renderComponent(w, r, fees.ClassFeesTable(classData))

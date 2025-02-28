@@ -133,43 +133,47 @@ func (q *Queries) GetStudentFeesRecord(ctx context.Context, studentID uuid.UUID)
 
 const listStudentFeesRecords = `-- name: ListStudentFeesRecords :many
 SELECT
-    fees.fees_id,
-    students.student_id,
-    students.last_name,
-    students.first_name,
-    students.middle_name,
-    term.name AS AcademicTerm,
-    classes.class_id,
-    classes.name AS ClassName,
-    fee_structure.required AS TuitionAmount,
-    fees.paid AS PaidAmount,
-    fees.arrears,
-    fees.status
-FROM fees
-INNER JOIN fee_structure 
-    ON fees.fee_structure_id = fee_structure.fee_structure_id
-INNER JOIN students
-    ON fees.student_id = students.student_id
-INNER JOIN term
-    ON fee_structure.term_id = term.term_id
-INNER JOIN classes
-    ON fee_structure.class_id = classes.class_id
-ORDER BY classes.name
+    f.fees_id,
+    s.last_name,
+    s.first_name,
+    s.middle_name,
+    t.name AS AcademicTerm,
+    c.name AS ClassName,
+    fs.class_id,
+    fs.required AS TuitionAmount,
+    COALESCE(f.paid, 0.00) AS PaidAmount,
+    COALESCE(f.arrears, 0.00) AS Arrears,
+    COALESCE(f.status, 'OVERDUE') AS Status,
+    c.class_id AS ClassID,
+    fs.fee_structure_id,
+    t.term_id
+FROM fee_structure fs
+INNER JOIN term t ON fs.term_id = t.term_id
+INNER JOIN classes c ON fs.class_id = c.class_id
+LEFT JOIN student_classes sc
+    ON fs.class_id = sc.class_id
+    AND fs.term_id = sc.term_id
+LEFT JOIN students s ON sc.student_id = s.student_id
+LEFT JOIN fees f
+    ON fs.fee_structure_id = f.fee_structure_id
+    AND s.student_id = f.student_id
 `
 
 type ListStudentFeesRecordsRow struct {
-	FeesID        uuid.UUID      `json:"fees_id"`
-	StudentID     uuid.UUID      `json:"student_id"`
-	LastName      string         `json:"last_name"`
-	FirstName     string         `json:"first_name"`
-	MiddleName    pgtype.Text    `json:"middle_name"`
-	Academicterm  string         `json:"academicterm"`
-	ClassID       uuid.UUID      `json:"class_id"`
-	Classname     string         `json:"classname"`
-	Tuitionamount pgtype.Numeric `json:"tuitionamount"`
-	Paidamount    pgtype.Numeric `json:"paidamount"`
-	Arrears       pgtype.Numeric `json:"arrears"`
-	Status        string         `json:"status"`
+	FeesID         pgtype.UUID    `json:"fees_id"`
+	LastName       pgtype.Text    `json:"last_name"`
+	FirstName      pgtype.Text    `json:"first_name"`
+	MiddleName     pgtype.Text    `json:"middle_name"`
+	Academicterm   string         `json:"academicterm"`
+	Classname      string         `json:"classname"`
+	ClassID        uuid.UUID      `json:"class_id"`
+	Tuitionamount  pgtype.Numeric `json:"tuitionamount"`
+	Paidamount     pgtype.Numeric `json:"paidamount"`
+	Arrears        pgtype.Numeric `json:"arrears"`
+	Status         string         `json:"status"`
+	Classid        uuid.UUID      `json:"classid"`
+	FeeStructureID uuid.UUID      `json:"fee_structure_id"`
+	TermID         uuid.UUID      `json:"term_id"`
 }
 
 func (q *Queries) ListStudentFeesRecords(ctx context.Context) ([]ListStudentFeesRecordsRow, error) {
@@ -183,17 +187,19 @@ func (q *Queries) ListStudentFeesRecords(ctx context.Context) ([]ListStudentFees
 		var i ListStudentFeesRecordsRow
 		if err := rows.Scan(
 			&i.FeesID,
-			&i.StudentID,
 			&i.LastName,
 			&i.FirstName,
 			&i.MiddleName,
 			&i.Academicterm,
-			&i.ClassID,
 			&i.Classname,
+			&i.ClassID,
 			&i.Tuitionamount,
 			&i.Paidamount,
 			&i.Arrears,
 			&i.Status,
+			&i.Classid,
+			&i.FeeStructureID,
+			&i.TermID,
 		); err != nil {
 			return nil, err
 		}
