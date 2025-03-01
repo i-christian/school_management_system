@@ -194,11 +194,17 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 		r.Get("/structure", s.ShowSetTuition)
 		r.Post("/structure", s.SetFeesStructure)
+
 		r.Get("/", s.ShowFeesList)
 		r.Get("/class/{classID}", s.ShowClassFees)
+
 		r.Get("/details", s.GetFees)
+
 		r.Post("/create", s.SaveFeesRecord)
 		r.Get("/create/{classID}", s.ShowCreateFeesRecordForStudent)
+
+		r.Get("/{feesID}/edit", s.ShowEditFeesRecord)
+		r.Put("/edit/{feesID}", s.EditFeesRecord)
 	})
 
 	return r

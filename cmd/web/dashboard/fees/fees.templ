@@ -119,6 +119,7 @@ templ FeesTableRow(student database.ListStudentFeesRecordsRow) {
 				if hasFeesRecord {
 					<button
 						hx-get={ "/fees/" + feesID + "/edit" }
+						hx-target="#fees-container"
 						class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded hover:cursor-pointer text-sm"
 						title="Edit Fees Record"
 					>
@@ -268,6 +269,88 @@ templ CreateFeesRecordForm(feesStructureID string, students []database.Student, 
 						hx-target="#fees-container"
 						hx-swap="innerHTML"
 						class="bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-gray-400"
+					>
+						Cancel
+					</button>
+					<button
+						type="submit"
+						class="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+					>
+						Save
+					</button>
+				</section>
+			</form>
+		</div>
+	</div>
+}
+
+// EditFeesRecordForm renders a form to create a new fees record for a student.
+templ EditFeesRecordForm(fees database.GetFeesRecordRow, feesID string) {
+	{{
+		paid, _ := fees.Paidamount.Float64Value()
+		arrears, _ := fees.Arrears.Float64Value()
+	}}
+	<div class="max-w-3xl mx-auto p-6">
+		<div class="bg-white rounded-lg shadow-lg overflow-hidden">
+			<header class="bg-blue-500 px-6 py-4">
+				<h2 class="text-white text-xl font-bold">Edit Fees Record</h2>
+			</header>
+			<form
+				hx-put={ "/fees/edit/" + feesID }
+				hx-target="#content-area"
+				hx-swap="innerHTML"
+				class="px-6 py-6"
+			>
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+					<section class=" flex items-center gap-2">
+						<label class="block font-medium text-gray-700">Student Name:</label>
+						<p class="text-gray-800 font-medium">{ fees.FirstName + " "+ fees.LastName } </p>
+					</section>
+					<section class="hidden">
+						<input
+							type="hidden"
+							name="available_amount"
+							value={ strconv.FormatFloat(paid.Float64, 'f', 2, 64) }
+							required
+							class="shadow-xs w-full border border-gray-300 rounded-md p-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
+						/>
+					</section>
+					<section class="hidden">
+						<input
+							type="hidden"
+							name="arrears_amount"
+							value={ strconv.FormatFloat(arrears.Float64, 'f', 2, 64) }
+							required
+							class="shadow-xs w-full border border-gray-300 rounded-md p-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
+						/>
+					</section>
+					<section class=" flex items-center gap-2">
+						<label class="block text-sm font-medium text-gray-700">Paid Amount</label>
+						<p class="text-base font-medium text-gray-800 py-2 px-3 bg-gray-100 rounded-md">{ strconv.FormatFloat(paid.Float64, 'f', 2, 64) } </p>
+					</section>
+					<section class=" flex items-center gap-2">
+						<label class="block text-sm font-medium text-gray-700">Total Arrears</label>
+						<p class="text-base font-medium text-gray-800 py-2 px-3 bg-gray-100 rounded-md">{ strconv.FormatFloat(arrears.Float64, 'f', 2, 64) } </p>
+					</section>
+					<section>
+						<label class="block text-sm font-medium text-gray-700 mb-2">Additional Amount</label>
+						<input
+							type="number"
+							title="Enter additional payment"
+							name="additional_amount"
+							step="0.01"
+							required
+							class="shadow-sm w-full border border-gray-300 rounded-md p-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
+						/>
+					</section>
+				</div>
+				<section class="flex justify-end mt-8 space-x-4">
+					<button
+						type="button"
+						hx-get="/fees"
+						hx-target="#content-area"
+						hx-swap="innerHTML"
+						class="bg-gray-400 hover:bg-gray-500 text-white font-medium rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-gray-300"
 					>
 						Cancel
 					</button>

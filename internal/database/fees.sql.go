@@ -73,9 +73,10 @@ func (q *Queries) GetFeeStructureByTermAndClass(ctx context.Context, classID uui
 	return i, err
 }
 
-const getStudentFeesRecord = `-- name: GetStudentFeesRecord :one
+const getFeesRecord = `-- name: GetFeesRecord :one
 SELECT
     fees.fees_id,
+    students.student_id,
     students.last_name,
     students.first_name,
     students.middle_name,
@@ -95,11 +96,12 @@ INNER JOIN term
     ON fee_structure.term_id = term.term_id
 INNER JOIN classes
     ON fee_structure.class_id = classes.class_id
-WHERE students.student_id = $1
+WHERE fees.fees_id = $1
 `
 
-type GetStudentFeesRecordRow struct {
+type GetFeesRecordRow struct {
 	FeesID        uuid.UUID      `json:"fees_id"`
+	StudentID     uuid.UUID      `json:"student_id"`
 	LastName      string         `json:"last_name"`
 	FirstName     string         `json:"first_name"`
 	MiddleName    pgtype.Text    `json:"middle_name"`
@@ -112,11 +114,12 @@ type GetStudentFeesRecordRow struct {
 	Status        string         `json:"status"`
 }
 
-func (q *Queries) GetStudentFeesRecord(ctx context.Context, studentID uuid.UUID) (GetStudentFeesRecordRow, error) {
-	row := q.db.QueryRow(ctx, getStudentFeesRecord, studentID)
-	var i GetStudentFeesRecordRow
+func (q *Queries) GetFeesRecord(ctx context.Context, feesID uuid.UUID) (GetFeesRecordRow, error) {
+	row := q.db.QueryRow(ctx, getFeesRecord, feesID)
+	var i GetFeesRecordRow
 	err := row.Scan(
 		&i.FeesID,
+		&i.StudentID,
 		&i.LastName,
 		&i.FirstName,
 		&i.MiddleName,

@@ -149,12 +149,12 @@ func (s *Server) SetFeesStructure(w http.ResponseWriter, r *http.Request) {
 func (s *Server) ShowCreateFeesRecordForStudent(w http.ResponseWriter, r *http.Request) {
 	classID, err := uuid.Parse(r.PathValue("classID"))
 	if err != nil {
-		http.Error(w, "Invalid class ID", http.StatusBadRequest)
+		writeError(w, http.StatusBadRequest, "invalid class ID")
 		return
 	}
 	studentID, err := uuid.Parse(r.FormValue("student_id"))
 	if err != nil {
-		http.Error(w, "Invalid student ID", http.StatusBadRequest)
+		writeError(w, http.StatusBadRequest, "invalid student ID")
 		return
 	}
 
@@ -214,6 +214,84 @@ func (s *Server) SaveFeesRecord(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "failed to create fees record")
 		slog.Error("failed to create fees record", "parsedFeeStructureID", parsedFeeStructureID, "studentID", parsedStudentID, "paid", parsedPaid, "error", err.Error())
+		return
+	}
+
+	if r.Header.Get("HX-Request") != "" {
+		w.Header().Set("HX-Redirect", "/fees")
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	http.Redirect(w, r, "/fees", http.StatusFound)
+}
+
+// ShowEditFeesRecord renders the fees creation form, pre-filled with student and class data.
+func (s *Server) ShowEditFeesRecord(w http.ResponseWriter, r *http.Request) {
+	feesID, err := uuid.Parse(r.PathValue("feesID"))
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "invalid fees ID")
+		return
+	}
+
+	feesRecord, err := s.queries.GetFeesRecord(r.Context(), feesID)
+
+	s.renderComponent(w, r, fees.EditFeesRecordForm(feesRecord, feesID.String()))
+}
+
+// EditFeesRecord handles the submission of the create fees record form.
+func (s *Server) EditFeesRecord(w http.ResponseWriter, r *http.Request) {
+	feesID, err := uuid.Parse(r.PathValue("feesID"))
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "wrong feesID")
+		slog.Error("failed to parse ", "error", err.Error())
+		return
+	}
+
+	arrearsAmount := r.FormValue("arrears_amount")
+	availableAmount := r.FormValue("available_amount")
+	additionalAmount := r.FormValue("additional_amount")
+
+	if arrearsAmount == "" || availableAmount == "" || additionalAmount == "" {
+		writeError(w, http.StatusBadRequest, "missing fields")
+		return
+	}
+
+	parsedArrearsAmount, err := strconv.ParseFloat(arrearsAmount, 64)
+	if err != nil {
+		writeError(w, http.StatusUnprocessableEntity, "invalid paid amount")
+		slog.Error("failed to parse paid amount", "error", err.Error())
+		return
+	}
+
+	parsedAvailableAmount, err := strconv.ParseFloat(availableAmount, 64)
+	if err != nil {
+		writeError(w, http.StatusUnprocessableEntity, "invalid paid amount")
+		slog.Error("failed to parse paid amount", "error", err.Error())
+		return
+	}
+
+	parsedAmount, err := strconv.ParseFloat(additionalAmount, 64)
+	if err != nil {
+		writeError(w, http.StatusUnprocessableEntity, "invalid paid amount")
+		slog.Error("failed to parse paid amount", "error", err.Error())
+		return
+	}
+
+	if parsedAvailableAmount+parsedAmount+parsedArrearsAmount < 0 {
+		writeError(w, http.StatusBadRequest, "The additional amount is too low")
+		return
+	}
+
+	const query = `
+		UPDATE fees
+    		SET paid = paid + $1
+		WHERE fees_id = $2;
+	`
+	_, err = s.conn.Exec(r.Context(), query, parsedAmount, feesID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to edit fees record")
+		slog.Error("failed to edit fees record", "Additional Amount", parsedAmount, "feesID", feesID, "error", err.Error())
 		return
 	}
 

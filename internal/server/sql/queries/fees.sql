@@ -24,9 +24,10 @@ INNER JOIN term t ON sc.term_id = t.term_id
 INNER JOIN classes c ON sc.class_id = c.class_id
 WHERE c.class_id = $1 AND t.active = TRUE;
 
--- name: GetStudentFeesRecord :one
+-- name: GetFeesRecord :one
 SELECT
     fees.fees_id,
+    students.student_id,
     students.last_name,
     students.first_name,
     students.middle_name,
@@ -46,7 +47,7 @@ INNER JOIN term
     ON fee_structure.term_id = term.term_id
 INNER JOIN classes
     ON fee_structure.class_id = classes.class_id
-WHERE students.student_id = $1;
+WHERE fees.fees_id = $1;
 
 -- name: ListStudentFeesRecords :many
 SELECT
