@@ -51,6 +51,7 @@ WHERE students.student_id = $1;
 -- name: ListStudentFeesRecords :many
 SELECT
     f.fees_id,
+    s.student_id,
     s.last_name,
     s.first_name,
     s.middle_name,

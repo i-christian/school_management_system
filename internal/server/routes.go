@@ -198,7 +198,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Get("/class/{classID}", s.ShowClassFees)
 		r.Get("/details", s.GetFees)
 		r.Post("/create", s.SaveFeesRecord)
-		r.Get("/create/{classID}", s.ShowCreateFeesRecord)
+		r.Get("/create/{classID}", s.ShowCreateFeesRecordForStudent)
 	})
 
 	return r

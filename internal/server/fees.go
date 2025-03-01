@@ -145,11 +145,16 @@ func (s *Server) SetFeesStructure(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/fees", http.StatusFound)
 }
 
-// ShowCreateFeesRecord renders the form to create a new fees record for a class.
-func (s *Server) ShowCreateFeesRecord(w http.ResponseWriter, r *http.Request) {
+// ShowCreateFeesRecordForStudent renders the fees creation form, pre-filled with student and class data.
+func (s *Server) ShowCreateFeesRecordForStudent(w http.ResponseWriter, r *http.Request) {
 	classID, err := uuid.Parse(r.PathValue("classID"))
 	if err != nil {
-		writeError(w, http.StatusBadRequest, "invalid class ID")
+		http.Error(w, "Invalid class ID", http.StatusBadRequest)
+		return
+	}
+	studentID, err := uuid.Parse(r.FormValue("student_id"))
+	if err != nil {
+		http.Error(w, "Invalid student ID", http.StatusBadRequest)
 		return
 	}
 
@@ -167,7 +172,7 @@ func (s *Server) ShowCreateFeesRecord(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.renderComponent(w, r, fees.CreateFeesRecordForm(feeStructure.FeeStructureID.String(), students, classID.String()))
+	s.renderComponent(w, r, fees.CreateFeesRecordForm(feeStructure.FeeStructureID.String(), students, classID.String(), studentID.String()))
 }
 
 // SaveFeesRecord handles the submission of the create fees record form.

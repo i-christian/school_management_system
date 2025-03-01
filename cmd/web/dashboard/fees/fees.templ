@@ -56,37 +56,15 @@ templ FeesList(classRooms []ClassRoomData) {
 // ClassFeesTable renders the fee payment details for a specific class.
 templ ClassFeesTable(class ClassRoomData) {
 	{{
-		classID := class.ClassID.String()
 		tuition, _ := class.RequiredTuition.Float64Value()
 	}}
 	<div class="mb-6 border border-gray-300 rounded-lg shadow-xs">
 		<summary class="bg-gray-200 px-2 py-1 font-semibold cursor-pointer hover:bg-gray-300 rounded-md transition flex justify-between items-center">
 			<div class="flex gap-3 items-center justify-center">
-				<p>
-					{ class.ClassName }
-				</p>
-				<button
-					hx-get={ "/fees/create/" + classID }
-					hx-target="#fees-container"
-					class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded hover:cursor-pointer text-sm"
-					title="New Student Fees"
-				>
-					<p class="flex gap-1 items-center justify-center">
-						<i class="fas fa-plus mr-1"></i> <span class="md:block hidden">Add Fees</span>
-					</p>
-				</button>
+				{ class.ClassName }
 			</div>
 			<section class="text-gray-800 text-sm font-normal flex flex-row items-center justify-items-end gap-2">
 				<p class="font-bold">Tuition: { strconv.FormatFloat(tuition.Float64, 'f', 2, 64) }</p>
-				<button
-					hx-get={ "/fees/" + class.ClassID.String() + "/edit" }
-					class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded hover:cursor-pointer text-sm"
-					title="edit tuition"
-				>
-					<p class="flex gap-1 items-center justify-center">
-						<i class="fas fa-edit mr-1"></i> <span class="md:block hidden">Edit Tuition</span>
-					</p>
-				</button>
 			</section>
 		</summary>
 		<div class="overflow-x-auto bg-white p-4 rounded-b-lg">
@@ -117,6 +95,11 @@ templ FeesTableRow(student database.ListStudentFeesRecordsRow) {
 	{{
 		paid, _ := student.Paidamount.Float64Value()
 		arrears, _ := student.Arrears.Float64Value()
+		hasFeesRecord := student.FeesID.Valid
+		feesID := ""
+		if hasFeesRecord {
+			feesID = student.FeesID.String()
+		}
 	}}
 	<tr class="bg-gray-50 hover:bg-gray-100 transition">
 		<td class="border border-gray-300 px-4 py-2">{ student.LastName.String }</td>
@@ -133,15 +116,30 @@ templ FeesTableRow(student database.ListStudentFeesRecordsRow) {
 		<td class="border border-gray-300 px-4 py-2">{ strconv.FormatFloat(arrears.Float64, 'f', 2, 64) }</td>
 		<td class="border border-gray-300 px-4 py-2">
 			<div class="flex space-x-2">
-				<button
-					hx-get={ "/fees/" + student.FeesID.String() + "/edit" }
-					class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded hover:cursor-pointer text-sm"
-				>
-					<p class="flex gap-1 items-center justify-center">
-						<i class="fas fa-edit mr-1"></i>
-						<span class="md:block hidden">Edit</span>
-					</p>
-				</button>
+				if hasFeesRecord {
+					<button
+						hx-get={ "/fees/" + feesID + "/edit" }
+						class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded hover:cursor-pointer text-sm"
+						title="Edit Fees Record"
+					>
+						<p class="flex gap-1 items-center justify-center">
+							<i class="fas fa-edit mr-1"></i>
+							<span class="lg:block hidden">Edit Fees</span>
+						</p>
+					</button>
+				} else {
+					<button
+						hx-get={ "/fees/create/" + student.ClassID.String() + "?student_id=" + student.StudentID.String() }
+						hx-target="#fees-container"
+						class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded hover:cursor-pointer text-sm"
+						title="Add Fees Record"
+					>
+						<p class="flex gap-1 items-center justify-center">
+							<i class="fas fa-plus mr-1"></i>
+							<span class="lg:block hidden">Add Fees</span>
+						</p>
+					</button>
+				}
 			</div>
 		</td>
 	</tr>
@@ -214,7 +212,7 @@ templ CreateStructure(classes []database.Class) {
 }
 
 // CreateFeesRecordForm renders a form to create a new fees record for a student.
-templ CreateFeesRecordForm(feesStructureID string, students []database.Student, classID string) {
+templ CreateFeesRecordForm(feesStructureID string, students []database.Student, classID string, studentID string) {
 	<div class="max-w-3xl mx-auto p-6">
 		<div class="bg-white rounded-lg shadow-lg overflow-hidden">
 			<header class="bg-blue-600 px-6 py-4">
@@ -240,9 +238,14 @@ templ CreateFeesRecordForm(feesStructureID string, students []database.Student, 
 						>
 							<option value="">Select Student</option>
 							for _, student := range students {
-								<option value={ student.StudentID.String() }>
-									{ student.LastName + ", " + student.FirstName + "," + student.MiddleName.String }
-								</option>
+								if student.StudentID.String() == studentID {
+									<option
+										value={ student.StudentID.String() }
+										selected={ student.StudentID.String() }
+									>
+										{ student.LastName + ", " + student.FirstName + "," + student.MiddleName.String }
+									</option>
+								}
 							}
 						</select>
 					</section>

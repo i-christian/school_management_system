@@ -134,6 +134,7 @@ func (q *Queries) GetStudentFeesRecord(ctx context.Context, studentID uuid.UUID)
 const listStudentFeesRecords = `-- name: ListStudentFeesRecords :many
 SELECT
     f.fees_id,
+    s.student_id,
     s.last_name,
     s.first_name,
     s.middle_name,
@@ -160,6 +161,7 @@ LEFT JOIN fees f
 
 type ListStudentFeesRecordsRow struct {
 	FeesID         pgtype.UUID    `json:"fees_id"`
+	StudentID      pgtype.UUID    `json:"student_id"`
 	LastName       pgtype.Text    `json:"last_name"`
 	FirstName      pgtype.Text    `json:"first_name"`
 	MiddleName     pgtype.Text    `json:"middle_name"`
@@ -186,6 +188,7 @@ func (q *Queries) ListStudentFeesRecords(ctx context.Context) ([]ListStudentFees
 		var i ListStudentFeesRecordsRow
 		if err := rows.Scan(
 			&i.FeesID,
+			&i.StudentID,
 			&i.LastName,
 			&i.FirstName,
 			&i.MiddleName,
