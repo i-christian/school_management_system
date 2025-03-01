@@ -63,7 +63,7 @@ clean:
 	@rm -f main
 
 docker-up:
-	docker compose -f docker-compose.yml --env-file .env up \
+	docker compose -f docker-compose.yml --env-file .env up -d\
 	--remove-orphans --build
 	
 docker-down:

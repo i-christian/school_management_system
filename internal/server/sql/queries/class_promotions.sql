@@ -1,7 +1,6 @@
 -- name: CreateClassPromotions :one
-INSERT INTO class_promotions (class_id)
-VALUES ('5a2940f6-a1db-406d-b814-4271c91fa5ff') RETURNING *;
-
+INSERT INTO class_promotions (class_id, next_class_id)
+VALUES () RETURNING *;
 
 -- name: ListClassPromotions :many
 SELECT 
@@ -29,6 +28,7 @@ WITH promoted_students AS (
     LEFT JOIN class_promotions cp ON sc.class_id = cp.class_id
     WHERE s.status = 'active'
       AND sc.term_id <> $1
+      AND s.promoted = FALSE
 ),
 update_student_classes AS (
     UPDATE student_classes sc
