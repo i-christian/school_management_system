@@ -1,7 +1,6 @@
 package server
 
 import (
-	"fmt"
 	"log/slog"
 	"net/http"
 	"sort"
@@ -58,7 +57,6 @@ func (s *Server) ShowClassFees(w http.ResponseWriter, r *http.Request) {
 	}
 
 	classRooms := getFeesData(records)
-	fmt.Println(classRooms)
 	for _, classData := range classRooms {
 		if classData.ClassID == classID {
 			s.renderComponent(w, r, fees.ClassFeesTable(classData))
@@ -144,5 +142,81 @@ func (s *Server) SetFeesStructure(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		return
 	}
+	http.Redirect(w, r, "/fees", http.StatusFound)
+}
+
+// ShowCreateFeesRecord renders the form to create a new fees record for a class.
+func (s *Server) ShowCreateFeesRecord(w http.ResponseWriter, r *http.Request) {
+	classID, err := uuid.Parse(r.PathValue("classID"))
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "invalid class ID")
+		return
+	}
+
+	students, err := s.queries.ListStudentsByClassForTerm(r.Context(), classID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to get students for class")
+		slog.Error("failed to get students for class", "classID", classID, "error", err.Error())
+		return
+	}
+
+	feeStructure, err := s.queries.GetFeeStructureByTermAndClass(r.Context(), classID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to find fee structure for this class")
+		slog.Error("failed to find fee structure for this class", "error", err.Error())
+		return
+	}
+
+	s.renderComponent(w, r, fees.CreateFeesRecordForm(feeStructure.FeeStructureID.String(), students, classID.String()))
+}
+
+// SaveFeesRecord handles the submission of the create fees record form.
+func (s *Server) SaveFeesRecord(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		writeError(w, http.StatusUnprocessableEntity, "wrong parameters")
+		slog.Error("failed to parse form data", "error", err.Error())
+		return
+	}
+
+	feeStructureID := r.FormValue("fee_structure_id")
+	studentID := r.FormValue("student_id")
+	paid := r.FormValue("paid")
+
+	parsedFeeStructureID, err := uuid.Parse(feeStructureID)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "bad class ID")
+		slog.Error("failed to parse class ID", "error", err.Error())
+		return
+	}
+	parsedStudentID, err := uuid.Parse(studentID)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "bad student ID")
+		slog.Error("failed to parse student ID", "error", err.Error())
+		return
+	}
+
+	parsedPaid, err := strconv.ParseFloat(paid, 64)
+	if err != nil {
+		writeError(w, http.StatusUnprocessableEntity, "invalid paid amount")
+		slog.Error("failed to parse paid amount", "error", err.Error())
+		return
+	}
+
+	const query = `INSERT INTO fees (fee_structure_id, student_id, paid) VALUES ($1, $2, $3)`
+
+	_, err = s.conn.Exec(r.Context(), query, parsedFeeStructureID, parsedStudentID, parsedPaid)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to create fees record")
+		slog.Error("failed to create fees record", "parsedFeeStructureID", parsedFeeStructureID, "studentID", parsedStudentID, "paid", parsedPaid, "error", err.Error())
+		return
+	}
+
+	if r.Header.Get("HX-Request") != "" {
+		w.Header().Set("HX-Redirect", "/fees")
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
 	http.Redirect(w, r, "/fees", http.StatusFound)
 }

@@ -55,14 +55,14 @@ func (q *Queries) EditFeesRecord(ctx context.Context, arg EditFeesRecordParams) 
 	return err
 }
 
-const getFeeStructureForClass = `-- name: GetFeeStructureForClass :one
+const getFeeStructureByTermAndClass = `-- name: GetFeeStructureByTermAndClass :one
 SELECT fee_structure_id, term_id, class_id, required
 FROM fee_structure
 WHERE class_id = $1
 `
 
-func (q *Queries) GetFeeStructureForClass(ctx context.Context, classID uuid.UUID) (FeeStructure, error) {
-	row := q.db.QueryRow(ctx, getFeeStructureForClass, classID)
+func (q *Queries) GetFeeStructureByTermAndClass(ctx context.Context, classID uuid.UUID) (FeeStructure, error) {
+	row := q.db.QueryRow(ctx, getFeeStructureByTermAndClass, classID)
 	var i FeeStructure
 	err := row.Scan(
 		&i.FeeStructureID,
@@ -152,7 +152,6 @@ INNER JOIN term t ON fs.term_id = t.term_id
 INNER JOIN classes c ON fs.class_id = c.class_id
 LEFT JOIN student_classes sc
     ON fs.class_id = sc.class_id
-    AND fs.term_id = sc.term_id
 LEFT JOIN students s ON sc.student_id = s.student_id
 LEFT JOIN fees f
     ON fs.fee_structure_id = f.fee_structure_id
@@ -200,6 +199,49 @@ func (q *Queries) ListStudentFeesRecords(ctx context.Context) ([]ListStudentFees
 			&i.Classid,
 			&i.FeeStructureID,
 			&i.TermID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listStudentsByClassForTerm = `-- name: ListStudentsByClassForTerm :many
+SELECT
+    s.student_id, s.student_no, s.academic_year_id, s.last_name, s.middle_name, s.first_name, s.gender, s.date_of_birth, s.status, s.promoted, s.graduated, s.suspended
+FROM students s
+INNER JOIN student_classes sc ON s.student_id = sc.student_id
+INNER JOIN term t ON sc.term_id = t.term_id
+INNER JOIN classes c ON sc.class_id = c.class_id
+WHERE c.class_id = $1 AND t.active = TRUE
+`
+
+func (q *Queries) ListStudentsByClassForTerm(ctx context.Context, classID uuid.UUID) ([]Student, error) {
+	rows, err := q.db.Query(ctx, listStudentsByClassForTerm, classID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Student{}
+	for rows.Next() {
+		var i Student
+		if err := rows.Scan(
+			&i.StudentID,
+			&i.StudentNo,
+			&i.AcademicYearID,
+			&i.LastName,
+			&i.MiddleName,
+			&i.FirstName,
+			&i.Gender,
+			&i.DateOfBirth,
+			&i.Status,
+			&i.Promoted,
+			&i.Graduated,
+			&i.Suspended,
 		); err != nil {
 			return nil, err
 		}

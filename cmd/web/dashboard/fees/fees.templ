@@ -56,6 +56,7 @@ templ FeesList(classRooms []ClassRoomData) {
 // ClassFeesTable renders the fee payment details for a specific class.
 templ ClassFeesTable(class ClassRoomData) {
 	{{
+		classID := class.ClassID.String()
 		tuition, _ := class.RequiredTuition.Float64Value()
 	}}
 	<div class="mb-6 border border-gray-300 rounded-lg shadow-xs">
@@ -64,9 +65,14 @@ templ ClassFeesTable(class ClassRoomData) {
 				<p>
 					{ class.ClassName }
 				</p>
-				<button hx-get="/fees/create" hx-trigger="click" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded hover:cursor-pointer text-sm" title="New Student Fees">
+				<button
+					hx-get={ "/fees/create/" + classID }
+					hx-target="#fees-container"
+					class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded hover:cursor-pointer text-sm"
+					title="New Student Fees"
+				>
 					<p class="flex gap-1 items-center justify-center">
-						<i class="fas fa-plus mr-1"></i> <span class="md:block hidden">New</span>
+						<i class="fas fa-plus mr-1"></i> <span class="md:block hidden">Add Fees</span>
 					</p>
 				</button>
 			</div>
@@ -133,7 +139,7 @@ templ FeesTableRow(student database.ListStudentFeesRecordsRow) {
 				>
 					<p class="flex gap-1 items-center justify-center">
 						<i class="fas fa-edit mr-1"></i>
-						<span class="md:block hidden">Set Tuition</span>
+						<span class="md:block hidden">Edit</span>
 					</p>
 				</button>
 			</div>
@@ -202,6 +208,73 @@ templ CreateStructure(classes []database.Class) {
 						</button>
 					</section>
 				</div>
+			</form>
+		</div>
+	</div>
+}
+
+// CreateFeesRecordForm renders a form to create a new fees record for a student.
+templ CreateFeesRecordForm(feesStructureID string, students []database.Student, classID string) {
+	<div class="max-w-3xl mx-auto p-6">
+		<div class="bg-white rounded-lg shadow-lg overflow-hidden">
+			<header class="bg-blue-600 px-6 py-4">
+				<h2 class="text-white text-xl font-bold">Create New Fees Record</h2>
+			</header>
+			<form
+				hx-post={ "/fees/create/" }
+				hx-target="#content-area"
+				hx-swap="innerHTML"
+				class="px-6 py-6"
+			>
+				<input type="hidden" name="fee_structure_id" value={ feesStructureID }/>
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+					<section>
+						<label class="block text-gray-700 font-semibold mb-2">
+							Student
+						</label>
+						<select
+							type="text"
+							name="student_id"
+							required
+							class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+						>
+							<option value="">Select Student</option>
+							for _, student := range students {
+								<option value={ student.StudentID.String() }>
+									{ student.LastName + ", " + student.FirstName + "," + student.MiddleName.String }
+								</option>
+							}
+						</select>
+					</section>
+					<section>
+						<label class="block text-gray-700 font-semibold mb-2">Paid Amount</label>
+						<input
+							type="number"
+							name="paid"
+							step="0.01"
+							min="0"
+							required
+							class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-green-500"
+						/>
+					</section>
+				</div>
+				<section class="flex justify-end mt-8 space-x-4">
+					<button
+						type="button"
+						hx-get={ "/fees/class/" + classID }
+						hx-target="#fees-container"
+						hx-swap="innerHTML"
+						class="bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-gray-400"
+					>
+						Cancel
+					</button>
+					<button
+						type="submit"
+						class="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+					>
+						Save
+					</button>
+				</section>
 			</form>
 		</div>
 	</div>
