@@ -154,6 +154,26 @@ BEFORE INSERT OR UPDATE ON fees
 FOR EACH ROW
 EXECUTE FUNCTION fn_update_fee_status();
 
+-- +goose StatementBegin
+CREATE OR REPLACE FUNCTION reset_student_promoted_flag_term()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.active = TRUE AND OLD.active = FALSE THEN
+        UPDATE students
+        SET promoted = FALSE
+        WHERE promoted = TRUE;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+-- +goose StatementEnd
+
+CREATE TRIGGER term_active_trigger
+AFTER UPDATE OF active ON term
+FOR EACH ROW
+WHEN (NEW.active IS TRUE AND OLD.active IS FALSE)
+EXECUTE FUNCTION reset_student_promoted_flag_term();
+
 -- +goose Down
 DROP TRIGGER IF EXISTS trg_generate_student_no ON students;
 DROP FUNCTION IF EXISTS fn_generate_student_no();

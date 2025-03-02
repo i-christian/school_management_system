@@ -259,6 +259,17 @@ func (q *Queries) ListStudentsByClassForTerm(ctx context.Context, classID uuid.U
 	return items, nil
 }
 
+const transferAreas = `-- name: TransferAreas :exec
+INSERT INTO fees (fee_structure_id, student_id, paid,  arrears)
+VALUES ('3c0883ff-6bd9-4269-b303-f5a495c8f661', '7eb587d5-3d80-4a5e-95c4-2b34c4f43317', 0, 100000)
+RETURNING fees_id, fee_structure_id, student_id, paid, arrears, status
+`
+
+func (q *Queries) TransferAreas(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, transferAreas)
+	return err
+}
+
 const upsertFeeStructure = `-- name: UpsertFeeStructure :one
 INSERT INTO fee_structure (term_id, class_id, required)
 VALUES ($1, $2, $3)

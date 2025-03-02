@@ -10,6 +10,11 @@ INSERT INTO fees (fee_structure_id, student_id, paid)
 VALUES ($1, $2, $3)
 RETURNING *;
 
+-- name: TransferAreas :exec
+INSERT INTO fees (fee_structure_id, student_id, paid,  arrears)
+VALUES ('3c0883ff-6bd9-4269-b303-f5a495c8f661', '7eb587d5-3d80-4a5e-95c4-2b34c4f43317', 0, 100000)
+RETURNING *;
+
 -- name: GetFeeStructureByTermAndClass :one
 SELECT fee_structure_id, term_id, class_id, required
 FROM fee_structure
