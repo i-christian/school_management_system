@@ -191,7 +191,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 	// Graduates
 	r.Route("/graduates", func(r chi.Router) {
 		r.Use(s.AuthMiddleware)
-		r.Get("/", s.ShowGraduateClasses)
+		r.Get("/", s.ShowGraduatePage)
+		r.Post("/", s.ShowGraduatesList)
 	})
 
 	r.Route("/fees", func(r chi.Router) {

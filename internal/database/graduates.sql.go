@@ -8,6 +8,7 @@ package database
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -37,7 +38,7 @@ JOIN term t ON sc.term_id = t.term_id
 JOIN academic_year ay ON t.academic_year_id = ay.academic_year_id
 LEFT JOIN classes c ON sc.class_id = c.class_id
 WHERE s.graduated = TRUE
-  AND ay.academic_year_id = '83d7d113-4a1b-4037-a5dc-83a3a79d1e96'
+  AND ay.academic_year_id = $1
   AND c.name ILIKE 'Graduates - %'
 `
 
@@ -51,8 +52,8 @@ type ListGraduatesByAcademicYearRow struct {
 	GraduateClassName pgtype.Text `json:"graduate_class_name"`
 }
 
-func (q *Queries) ListGraduatesByAcademicYear(ctx context.Context) ([]ListGraduatesByAcademicYearRow, error) {
-	rows, err := q.db.Query(ctx, listGraduatesByAcademicYear)
+func (q *Queries) ListGraduatesByAcademicYear(ctx context.Context, academicYearID uuid.UUID) ([]ListGraduatesByAcademicYearRow, error) {
+	rows, err := q.db.Query(ctx, listGraduatesByAcademicYear, academicYearID)
 	if err != nil {
 		return nil, err
 	}
