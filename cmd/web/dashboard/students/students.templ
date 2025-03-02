@@ -1,6 +1,7 @@
 package students
 
 import "school_management_system/internal/database"
+import "strings"
 
 templ StudentsList(studentList []database.ListStudentsRow) {
 	<section id="student-list" class="container mx-auto p-4">
@@ -99,9 +100,11 @@ templ CreateStudentForm(academicYear database.GetCurrentAcademicYearAndTermRow, 
 						name="class_id"
 					>
 						for _, class := range classes {
-							<option value={ class.ClassID.String() }>
-								{ class.Name }
-							</option>
+							if !strings.HasPrefix(class.Name, "Graduates - ") {
+								<option value={ class.ClassID.String() }>
+									{ class.Name }
+								</option>
+							}
 						}
 					</select>
 				</section>
@@ -317,14 +320,16 @@ templ EditStudentModal(student database.GetStudentRow, classes []database.Class)
 								name="class_id"
 							>
 								for _, class := range classes {
-									<option
-										value={ class.ClassID.String() }
-										if student.Classname.String == class.Name {
-											selected={ class.Name }
-										}
-									>
-										{ class.Name }
-									</option>
+									if !strings.HasPrefix(class.Name, "Graduates - ") {
+										<option
+											value={ class.ClassID.String() }
+											if student.Classname.String == class.Name {
+												selected={ class.Name }
+											}
+										>
+											{ class.Name }
+										</option>
+									}
 								}
 							</select>
 						</div>

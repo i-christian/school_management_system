@@ -20,9 +20,14 @@ CREATE TABLE users (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     role_id UUID NOT NULL,
-    CONSTRAINT fk_role FOREIGN KEY (role_id) REFERENCES roles(role_id) ON DELETE SET NULL,
+    CONSTRAINT fk_role FOREIGN KEY (role_id) REFERENCES roles(role_id) ON DELETE RESTRICT,
     CONSTRAINT chk_email_or_phone CHECK (email IS NOT NULL OR phone_number IS NOT NULL)
 );
+
+-- Create indexes for frequently queried columns in USERS table
+CREATE INDEX idx_users_user_no ON users(user_no);
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_phone_number ON users(phone_number);
 
 -- SESSIONS TABLE
 CREATE TABLE IF NOT EXISTS sessions (
@@ -33,10 +38,27 @@ CREATE TABLE IF NOT EXISTS sessions (
     CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
+
+-- CLASSES TABLE
+CREATE TABLE IF NOT EXISTS classes (
+    class_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(20) NOT NULL UNIQUE
+);
+
+-- CLASS PROMOTION TABLE
+CREATE TABLE IF NOT EXISTS class_promotions (
+    class_id UUID NOT NULL,
+    next_class_id UUID,
+    CONSTRAINT fk_current_class FOREIGN KEY (class_id) REFERENCES classes(class_id) ON DELETE CASCADE,
+    CONSTRAINT fk_next_class FOREIGN KEY (next_class_id) REFERENCES classes(class_id) ON DELETE CASCADE,
+    PRIMARY KEY (class_id)
+);
+
 CREATE EXTENSION IF NOT EXISTS btree_gist;
 -- ACADEMIC_YEAR TABLE
 CREATE TABLE IF NOT EXISTS academic_year (
     academic_year_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    graduate_class_id UUID REFERENCES classes(class_id) ON DELETE SET NULL,
     name VARCHAR(50) NOT NULL UNIQUE,
     start_date DATE NOT NULL,
     end_date DATE NOT NULL CHECK (end_date > start_date),
@@ -50,6 +72,7 @@ CREATE TABLE IF NOT EXISTS academic_year (
 CREATE UNIQUE INDEX unique_active_academic_year
     ON academic_year(active)
     WHERE active = TRUE;
+CREATE INDEX idx_academic_year_graduate_class_id ON academic_year(graduate_class_id);
 
 -- TERM TABLE
 CREATE TABLE IF NOT EXISTS term (
@@ -76,24 +99,9 @@ CREATE TABLE IF NOT EXISTS term (
 CREATE UNIQUE INDEX unique_active_term
     ON term(active)
     WHERE active = TRUE;
-
 -- Index for filtering terms by academic year
 CREATE INDEX idx_term_academic_year_id ON term(academic_year_id);
 
--- CLASSES TABLE
-CREATE TABLE IF NOT EXISTS classes (
-    class_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name VARCHAR(20) NOT NULL UNIQUE
-);
-
--- CLASS PROMOTION TABLE
-CREATE TABLE IF NOT EXISTS class_promotions (
-    class_id UUID NOT NULL,
-    next_class_id UUID,
-    CONSTRAINT fk_current_class FOREIGN KEY (class_id) REFERENCES classes(class_id) ON DELETE CASCADE,
-    CONSTRAINT fk_next_class FOREIGN KEY (next_class_id) REFERENCES classes(class_id) ON DELETE CASCADE,
-    PRIMARY KEY (class_id)
-);
 
 -- SUBJECTS TABLE
 CREATE TABLE subjects (
@@ -150,8 +158,8 @@ CREATE INDEX idx_students_academic_year_id ON students(academic_year_id);
 CREATE TABLE IF NOT EXISTS guardians (
     guardian_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     guardian_name VARCHAR(50) NOT NULL,
-    phone_number_1 VARCHAR(15) UNIQUE,
-    phone_number_2 VARCHAR(15) UNIQUE,
+    phone_number_1 VARCHAR(25) UNIQUE,
+    phone_number_2 VARCHAR(25) UNIQUE,
     gender CHAR(1) NOT NULL CHECK (gender IN ('M', 'F')),
     profession VARCHAR(50),
     CONSTRAINT atleast_one_phone_number CHECK (phone_number_1 IS NOT NULL OR phone_number_2 IS NOT NULL),
@@ -261,7 +269,7 @@ CREATE TABLE IF NOT EXISTS discipline_records (
     date DATE NOT NULL,
     description TEXT NOT NULL,
     action_taken TEXT,
-    reported_by UUID NOT NULL,
+    reported_by UUID,
     notes TEXT,
     CONSTRAINT fk_student FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE,
     CONSTRAINT fk_term FOREIGN KEY (term_id) REFERENCES term(term_id) ON DELETE CASCADE,
@@ -278,9 +286,13 @@ CREATE INDEX idx_discipline_records_reported_by ON discipline_records(reported_b
 DROP TABLE IF EXISTS discipline_records;
 DROP TABLE IF EXISTS remarks;
 DROP TABLE IF EXISTS fees;
+DROP TABLE IF EXISTS fee_structure;
 DROP TABLE IF EXISTS grades;
 DROP TABLE IF EXISTS student_classes;
+DROP TABLE IF EXISTS student_guardians;
+DROP TABLE IF EXISTS assignments;
 DROP TABLE IF EXISTS subjects;
+DROP TABLE IF EXISTS class_promotions;
 DROP TABLE IF EXISTS term;
 DROP TABLE IF EXISTS academic_year;
 DROP TABLE IF EXISTS guardians;
@@ -288,4 +300,4 @@ DROP TABLE IF EXISTS students;
 DROP TABLE IF EXISTS classes;
 DROP TABLE IF EXISTS sessions;
 DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS assignments;
+DROP TABLE IF EXISTS roles;

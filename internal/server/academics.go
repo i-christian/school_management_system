@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"time"
@@ -16,11 +17,6 @@ import (
 
 // CreateAcademicYear handler method creates an academic year or school calender.
 func (s *Server) CreateAcademicYear(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
-		return
-	}
-
 	if err := r.ParseForm(); err != nil {
 		writeError(w, http.StatusUnprocessableEntity, "failed to parse form")
 		return
@@ -37,7 +33,7 @@ func (s *Server) CreateAcademicYear(w http.ResponseWriter, r *http.Request) {
 	}
 	startDate, err := time.Parse(time.DateOnly, start)
 	if err != nil {
-		writeError(w, http.StatusBadGateway, "failed to parse start date")
+		writeError(w, http.StatusBadRequest, "failed to parse start date")
 		return
 	}
 
@@ -47,13 +43,49 @@ func (s *Server) CreateAcademicYear(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	params := database.CreateAcademicYearParams{
-		Name:      name,
-		StartDate: pgtype.Date{Time: startDate, Valid: true},
-		EndDate:   pgtype.Date{Time: endDate, Valid: true},
+	ctx := r.Context()
+	tx, err := s.conn.Begin(ctx)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to start transaction")
+		return
+	}
+	defer tx.Rollback(ctx)
+
+	qtx := s.queries.WithTx(tx)
+
+	graduateClassName := fmt.Sprintf("Graduates - %d", startDate.Year())
+
+	graduateClass, err := qtx.CreateGraduateClass(ctx, graduateClassName)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to create graduate class and rollback academic year creation")
+		return
 	}
 
-	_, err = s.queries.CreateAcademicYear(r.Context(), params)
+	graduateClassBytes, err := graduateClass.ClassID.MarshalBinary()
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to marshal graduate class UUID to bytes")
+		return
+	}
+
+	params := database.CreateAcademicYearParams{
+		Name:            name,
+		StartDate:       pgtype.Date{Time: startDate, Valid: true},
+		EndDate:         pgtype.Date{Time: endDate, Valid: true},
+		GraduateClassID: pgtype.UUID{Bytes: [16]byte(graduateClassBytes), Valid: true},
+	}
+
+	_, err = qtx.CreateAcademicYear(ctx, params)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to create academic year")
+		return
+	}
+
+	err = tx.Commit(ctx)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to commit transaction")
+		return
+	}
+
 	if r.Header.Get("HX-Request") != "" {
 		w.Header().Set("HX-Redirect", "/academics/years")
 		w.WriteHeader(http.StatusOK)

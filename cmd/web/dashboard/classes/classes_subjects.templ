@@ -2,6 +2,7 @@ package classes
 
 import "school_management_system/internal/database"
 import "strconv"
+import "strings"
 
 templ ClassesSubjectsList(classes []database.Class) {
 	<div class="container mx-auto p-6">
@@ -19,54 +20,56 @@ templ ClassesSubjectsList(classes []database.Class) {
 		<section>
 			<ul id="classes-list" class="space-y-4">
 				for _, class := range classes {
-					<li class="p-4 bg-gray-100 rounded shadow">
-						<div class="flex items-center justify-between">
-							<div>
-								<h3 class="text-lg font-semibold">{ class.Name }</h3>
-							</div>
-							<div class="flex space-x-2">
-								<button
-									class="flex items-center px-3 py-1 text-sm text-white bg-yellow-500 rounded-md hover:bg-yellow-600 hover:cursor-pointer"
-									hx-get={ "/academics/classes/" + class.ClassID.String() + "/edit" }
-									hx-target="#content-area"
-									hx-swap="innerHTML"
-								>
-									<i class="fas fa-edit mr-1"></i> Edit
-								</button>
-								<button
-									class="flex items-center px-3 py-1 text-sm text-white bg-red-500 rounded-md hover:bg-red-600 hover:cursor-pointer"
-									hx-delete={ "/academics/classes/" + class.ClassID.String() }
-									hx-target="#content-area"
-									hx-swap="outerHTML"
-								>
-									<i class="fas fa-trash mr-1"></i> Delete
-								</button>
-								<button
-									class="flex items-center px-3 py-1 text-sm text-white bg-green-500 rounded-md hover:bg-green-600 hover:cursor-pointer"
-									hx-get={ "/academics/subjects/" + class.ClassID.String() + "/create" }
-									hx-target="#content-area"
-									hx-swap="innerHTML"
-								>
-									<i class="fas fa-plus mr-1"></i> Add Subject
-								</button>
-							</div>
-						</div>
-						<section class="mt-4">
-							<h4 class="text-md font-medium">Subjects</h4>
-							<ul id={ "subjects-list-" + class.ClassID.String() } class="space-y-2">
-								<li class="p-2 bg-gray-200 rounded text-center text-sm">
-									<div
-										hx-get={ "/academics/classes/" + class.ClassID.String() + "/subjects" }
-										hx-target={ "#subjects-list-" + class.ClassID.String() }
-										hx-trigger="load"
+					if !strings.HasPrefix(class.Name, "Graduates - ") {
+						<li class="p-4 bg-gray-100 rounded shadow">
+							<div class="flex items-center justify-between">
+								<div>
+									<h3 class="text-lg font-semibold">{ class.Name }</h3>
+								</div>
+								<div class="flex space-x-2">
+									<button
+										class="flex items-center px-3 py-1 text-sm text-white bg-yellow-500 rounded-md hover:bg-yellow-600 hover:cursor-pointer"
+										hx-get={ "/academics/classes/" + class.ClassID.String() + "/edit" }
+										hx-target="#content-area"
 										hx-swap="innerHTML"
 									>
-										Loading...
-									</div>
-								</li>
-							</ul>
-						</section>
-					</li>
+										<i class="fas fa-edit mr-1"></i> Edit
+									</button>
+									<button
+										class="flex items-center px-3 py-1 text-sm text-white bg-red-500 rounded-md hover:bg-red-600 hover:cursor-pointer"
+										hx-delete={ "/academics/classes/" + class.ClassID.String() }
+										hx-target="#content-area"
+										hx-swap="outerHTML"
+									>
+										<i class="fas fa-trash mr-1"></i> Delete
+									</button>
+									<button
+										class="flex items-center px-3 py-1 text-sm text-white bg-green-500 rounded-md hover:bg-green-600 hover:cursor-pointer"
+										hx-get={ "/academics/subjects/" + class.ClassID.String() + "/create" }
+										hx-target="#content-area"
+										hx-swap="innerHTML"
+									>
+										<i class="fas fa-plus mr-1"></i> Add Subject
+									</button>
+								</div>
+							</div>
+							<section class="mt-4">
+								<h4 class="text-md font-medium">Subjects</h4>
+								<ul id={ "subjects-list-" + class.ClassID.String() } class="space-y-2">
+									<li class="p-2 bg-gray-200 rounded text-center text-sm">
+										<div
+											hx-get={ "/academics/classes/" + class.ClassID.String() + "/subjects" }
+											hx-target={ "#subjects-list-" + class.ClassID.String() }
+											hx-trigger="load"
+											hx-swap="innerHTML"
+										>
+											Loading...
+										</div>
+									</li>
+								</ul>
+							</section>
+						</li>
+					}
 				}
 			</ul>
 		</section>

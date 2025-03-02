@@ -11,12 +11,13 @@ import (
 )
 
 type AcademicYear struct {
-	AcademicYearID uuid.UUID                 `json:"academic_year_id"`
-	Name           string                    `json:"name"`
-	StartDate      pgtype.Date               `json:"start_date"`
-	EndDate        pgtype.Date               `json:"end_date"`
-	Active         bool                      `json:"active"`
-	Period         pgtype.Range[pgtype.Date] `json:"period"`
+	AcademicYearID  uuid.UUID                 `json:"academic_year_id"`
+	GraduateClassID pgtype.UUID               `json:"graduate_class_id"`
+	Name            string                    `json:"name"`
+	StartDate       pgtype.Date               `json:"start_date"`
+	EndDate         pgtype.Date               `json:"end_date"`
+	Active          bool                      `json:"active"`
+	Period          pgtype.Range[pgtype.Date] `json:"period"`
 }
 
 type Assignment struct {
@@ -43,7 +44,7 @@ type DisciplineRecord struct {
 	Date         pgtype.Date `json:"date"`
 	Description  string      `json:"description"`
 	ActionTaken  pgtype.Text `json:"action_taken"`
-	ReportedBy   uuid.UUID   `json:"reported_by"`
+	ReportedBy   pgtype.UUID `json:"reported_by"`
 	Notes        pgtype.Text `json:"notes"`
 }
 

@@ -227,13 +227,19 @@ func (s *Server) SubmitDisplinaryRecord(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	reportedByBytes, err := reportedBy.UserID.MarshalBinary()
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to marshal graduate class UUID to bytes")
+		return
+	}
+
 	record := database.UpsertDisciplinaryRecordParams{
 		StudentID:   studentID,
 		TermID:      term.TermID,
 		Date:        pgtype.Date{Time: date, Valid: true},
 		Description: description,
 		ActionTaken: pgtype.Text{String: actionTaken, Valid: actionTaken != ""},
-		ReportedBy:  reportedBy.UserID,
+		ReportedBy:  pgtype.UUID{Bytes: [16]byte(reportedByBytes), Valid: true},
 		Notes:       pgtype.Text{String: notes, Valid: notes != ""},
 	}
 

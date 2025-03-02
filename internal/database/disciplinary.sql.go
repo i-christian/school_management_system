@@ -95,7 +95,7 @@ type UpsertDisciplinaryRecordParams struct {
 	Date        pgtype.Date `json:"date"`
 	Description string      `json:"description"`
 	ActionTaken pgtype.Text `json:"action_taken"`
-	ReportedBy  uuid.UUID   `json:"reported_by"`
+	ReportedBy  pgtype.UUID `json:"reported_by"`
 	Notes       pgtype.Text `json:"notes"`
 }
 

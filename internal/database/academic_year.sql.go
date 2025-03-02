@@ -13,20 +13,26 @@ import (
 )
 
 const createAcademicYear = `-- name: CreateAcademicYear :one
-INSERT INTO academic_year (name, start_date, end_date) 
-VALUES ($1, $2, $3)
+INSERT INTO academic_year (name, start_date, end_date, graduate_class_id) 
+VALUES ($1, $2, $3, $4)
 ON CONFLICT (name) DO NOTHING
 RETURNING academic_year_id
 `
 
 type CreateAcademicYearParams struct {
-	Name      string      `json:"name"`
-	StartDate pgtype.Date `json:"start_date"`
-	EndDate   pgtype.Date `json:"end_date"`
+	Name            string      `json:"name"`
+	StartDate       pgtype.Date `json:"start_date"`
+	EndDate         pgtype.Date `json:"end_date"`
+	GraduateClassID pgtype.UUID `json:"graduate_class_id"`
 }
 
 func (q *Queries) CreateAcademicYear(ctx context.Context, arg CreateAcademicYearParams) (uuid.UUID, error) {
-	row := q.db.QueryRow(ctx, createAcademicYear, arg.Name, arg.StartDate, arg.EndDate)
+	row := q.db.QueryRow(ctx, createAcademicYear,
+		arg.Name,
+		arg.StartDate,
+		arg.EndDate,
+		arg.GraduateClassID,
+	)
 	var academic_year_id uuid.UUID
 	err := row.Scan(&academic_year_id)
 	return academic_year_id, err
@@ -154,7 +160,7 @@ func (q *Queries) EditTerm(ctx context.Context, arg EditTermParams) error {
 }
 
 const getAcademicYear = `-- name: GetAcademicYear :one
-SELECT academic_year_id, name, start_date, end_date, active, period FROM academic_year WHERE academic_year_id = $1
+SELECT academic_year_id, graduate_class_id, name, start_date, end_date, active, period FROM academic_year WHERE academic_year_id = $1
 `
 
 func (q *Queries) GetAcademicYear(ctx context.Context, academicYearID uuid.UUID) (AcademicYear, error) {
@@ -162,6 +168,7 @@ func (q *Queries) GetAcademicYear(ctx context.Context, academicYearID uuid.UUID)
 	var i AcademicYear
 	err := row.Scan(
 		&i.AcademicYearID,
+		&i.GraduateClassID,
 		&i.Name,
 		&i.StartDate,
 		&i.EndDate,
@@ -172,7 +179,7 @@ func (q *Queries) GetAcademicYear(ctx context.Context, academicYearID uuid.UUID)
 }
 
 const getCurrentAcademicYear = `-- name: GetCurrentAcademicYear :one
-SELECT academic_year_id, name, start_date, end_date, active, period
+SELECT academic_year_id, graduate_class_id, name, start_date, end_date, active, period
 FROM academic_year
 WHERE active = TRUE
 LIMIT 1
@@ -183,6 +190,7 @@ func (q *Queries) GetCurrentAcademicYear(ctx context.Context) (AcademicYear, err
 	var i AcademicYear
 	err := row.Scan(
 		&i.AcademicYearID,
+		&i.GraduateClassID,
 		&i.Name,
 		&i.StartDate,
 		&i.EndDate,
@@ -314,7 +322,7 @@ func (q *Queries) GetTerm(ctx context.Context, termID uuid.UUID) (GetTermRow, er
 }
 
 const listAcademicYear = `-- name: ListAcademicYear :many
-SELECT academic_year_id, name, start_date, end_date, active, period FROM academic_year
+SELECT academic_year_id, graduate_class_id, name, start_date, end_date, active, period FROM academic_year
 ORDER BY active DESC
 `
 
@@ -329,6 +337,7 @@ func (q *Queries) ListAcademicYear(ctx context.Context) ([]AcademicYear, error) 
 		var i AcademicYear
 		if err := rows.Scan(
 			&i.AcademicYearID,
+			&i.GraduateClassID,
 			&i.Name,
 			&i.StartDate,
 			&i.EndDate,

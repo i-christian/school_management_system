@@ -1,6 +1,6 @@
 -- name: CreateAcademicYear :one
-INSERT INTO academic_year (name, start_date, end_date) 
-VALUES ($1, $2, $3)
+INSERT INTO academic_year (name, start_date, end_date, graduate_class_id) 
+VALUES ($1, $2, $3, $4)
 ON CONFLICT (name) DO NOTHING
 RETURNING academic_year_id;
 

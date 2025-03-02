@@ -1,0 +1,183 @@
+package promotions
+
+import (
+	"github.com/google/uuid"
+	"school_management_system/internal/database"
+	"github.com/jackc/pgx/v5/pgtype"
+)
+
+// PromotionsPage renders the main promotions page.
+templ PromotionsPage(classPromotions []database.ListClassPromotionsRow, classes []database.Class, terms []database.Term) {
+	<section id="promotions-page" class="mx-auto p-6">
+		<div class="flex items-center justify-between mb-6">
+			<h2 class="text-xl font-bold text-gray-800">Class Promotions</h2>
+			<button
+				hx-get="/promotions/create-form"
+				hx-target="#promotions-content"
+				hx-swap="innerHTML"
+				class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded hover:cursor-pointer text-sm"
+				title="Set Class Promotions"
+			>
+				<p class="flex gap-1 items-center justify-center">
+					<i class="fas fa-cog mr-1"></i> <span class="md:block hidden">Set Promotions</span>
+				</p>
+			</button>
+		</div>
+		<div id="promotions-content">
+			@PromotionsList(classPromotions)
+		</div>
+		<div class="mt-8 border-t pt-6">
+			<h3 class="text-lg font-semibold text-gray-800 mb-4">Promote Students</h3>
+			@PromoteStudentsSection(terms)
+		</div>
+	</section>
+}
+
+// PromotionsList renders a list of configured class promotions.
+templ PromotionsList(classPromotions []database.ListClassPromotionsRow) {
+	<div class="mb-6 border border-gray-300 rounded-lg shadow-xs">
+		<summary class="bg-gray-200 px-2 py-1 font-semibold cursor-pointer hover:bg-gray-300 rounded-md transition flex justify-between items-center">
+			<div class="flex gap-3 items-center justify-center">
+				Class Promotion Rules
+			</div>
+		</summary>
+		<div class="overflow-x-auto bg-white p-4 rounded-b-lg">
+			<table class="min-w-full table-auto border border-gray-300 rounded-lg shadow-xs">
+				<thead class="bg-blue-500 text-white text-sm uppercase">
+					<tr>
+						<th class="border border-gray-300 px-4 py-2 text-left">Current Class</th>
+						<th class="border border-gray-300 px-4 py-2 text-left">Next Class</th>
+					</tr>
+				</thead>
+				<tbody class="divide-y divide-gray-200 text-sm">
+					for _, promotion := range classPromotions {
+						@PromotionsTableRow(promotion)
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
+}
+
+// PromotionsTableRow renders a single row in the class promotions table.
+templ PromotionsTableRow(promotion database.ListClassPromotionsRow) {
+	<tr>
+		<td class="border border-gray-300 px-4 py-2">{ promotion.CurrentClassName }</td>
+		<td class="border border-gray-300 px-4 py-2">
+			if promotion.NextClassName.Valid {
+				{ promotion.NextClassName.String }
+			} else {
+				<span class="text-gray-400">Graduation</span>
+			}
+		</td>
+	</tr>
+}
+
+// CreatePromotionForm renders a form to create a new class promotion rule.
+templ CreatePromotionForm(classes []database.Class) {
+	<div class="max-w-3xl mx-auto p-6">
+		<div class="bg-white rounded-lg shadow-lg overflow-hidden">
+			<header class="bg-blue-600 px-6 py-4">
+				<h2 class="text-white text-xl font-bold">Create Class Promotion Rule</h2>
+			</header>
+			<form
+				hx-post="/promotions/create"
+				hx-target="#promotions-content"
+				hx-swap="innerHTML"
+				class="px-6 py-6"
+			>
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+					<section>
+						<label class="block text-gray-700 font-semibold mb-2">
+							Current Class
+						</label>
+						<select
+							type="text"
+							name="class_id"
+							required
+							class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+						>
+							<option value="">Select Current Class</option>
+							for _, class := range classes {
+								<option value={ class.ClassID.String() }>
+									{ class.Name }
+								</option>
+							}
+						</select>
+					</section>
+					<section>
+						<label class="block text-gray-700 font-semibold mb-2">Next Class (Optional for Graduation)</label>
+						<select
+							type="text"
+							name="next_class_id"
+							class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-green-500"
+						>
+							<option value="">Select Next Class (Leave empty for graduation)</option>
+							<option value="">Graduation</option>
+							for _, class := range classes {
+								<option value={ class.ClassID.String() }>
+									{ class.Name }
+								</option>
+							}
+						</select>
+					</section>
+				</div>
+				<section class="flex justify-end mt-8 space-x-4">
+					<button
+						type="button"
+						hx-get="/promotions"
+						hx-target="#content-area"
+						hx-swap="innerHTML"
+						class="bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-gray-400"
+					>
+						Cancel
+					</button>
+					<button
+						type="submit"
+						class="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+					>
+						Save
+					</button>
+				</section>
+			</form>
+		</div>
+	</div>
+}
+
+// PromoteStudentsSection renders a section to trigger student promotions.
+templ PromoteStudentsSection(terms []database.Term) {
+	<div class="bg-white rounded-lg shadow-lg overflow-hidden p-6">
+		<h4 class="text-lg font-semibold text-gray-800 mb-4">Initiate Student Promotion</h4>
+		<form
+			hx-post="/promotions/promote-students"
+			hx-target="#promotions-page"
+			hx-swap="outerHTML"
+			class="space-y-4"
+		>
+			<section>
+				<label class="block text-gray-700 font-semibold mb-2">
+					Select New Term
+				</label>
+				<select
+					type="text"
+					name="new_term_id"
+					required
+					class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+				>
+					<option value="">Select New Term</option>
+					for _, term := range terms {
+						<option value={ term.TermID.String() }>
+							{ term.Name } - { term.StartDate.Format("2006-01-02") }
+						</option>
+					}
+				</select>
+			</section>
+			<button
+				type="submit"
+				class="bg-green-600 hover:bg-green-700 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-green-500"
+			>
+				Promote Students
+			</button>
+		</form>
+	</div>
+}
