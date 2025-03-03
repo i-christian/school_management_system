@@ -145,8 +145,6 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Get("/guardians", s.ListGuardians)
 		r.Get("/guardians/{id}/edit", s.ShowEditGuardian)
 		r.Put("/guardians/{id}", s.EditGuardian)
-
-		r.Post("/promotions", nil)
 	})
 
 	// ACADEMIC RECORDS
@@ -195,6 +193,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Get("/", s.ShowPromotionPage)
 		r.Get("/create", s.ShowSetupPromotionPage)
 		r.Post("/create", s.SubmitPromotions)
+		r.Get("/reset", s.ShowResetPromotion)
+		r.Post("/reset", s.ResetPromotionRules)
 	})
 
 	// Graduates

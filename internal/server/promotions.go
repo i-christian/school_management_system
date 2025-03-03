@@ -177,6 +177,11 @@ func (s *Server) ShowPromotionPage(w http.ResponseWriter, r *http.Request) {
 	s.renderComponent(w, r, promotions.PromotionsPage(promotionClasses, schoolClasses, currentTerm))
 }
 
+// ShowResetPromotion confirmation modal
+func (s *Server) ShowResetPromotion(w http.ResponseWriter, r *http.Request) {
+	s.renderComponent(w, r, promotions.ConfirmationForm("Reset"))
+}
+
 // ResetPromotionRules clears all custom class promotion rules.
 func (s *Server) ResetPromotionRules(w http.ResponseWriter, r *http.Request) {
 	if err := s.queries.ResetPromotions(r.Context()); err != nil {
