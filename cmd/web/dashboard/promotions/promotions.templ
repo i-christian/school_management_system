@@ -7,12 +7,14 @@ import (
 
 // PromotionsPage renders the main promotions page.
 templ PromotionsPage(classPromotions []database.ListClassPromotionsRow, classes []database.Class, term database.GetCurrentTermRow) {
+	<!-- Popover container -->
+	<div id="popover-container"></div>
 	<section id="promotions-page" class="mx-auto p-6">
 		<div class="flex items-center justify-between mb-6">
 			<h2 class="text-xl font-bold text-gray-800">Class Promotions</h2>
 			<button
 				hx-get="/promotions/create"
-				hx-target="#promotions-page"
+				hx-target="#promotions-area"
 				hx-swap="innerHTML"
 				class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded hover:cursor-pointer text-sm"
 				title="Set Class Promotions"
@@ -22,13 +24,15 @@ templ PromotionsPage(classPromotions []database.ListClassPromotionsRow, classes 
 				</p>
 			</button>
 		</div>
-		<div id="promotions-content">
-			@PromotionsList(classPromotions)
-		</div>
-		<div class="mt-8 border-t pt-6">
-			<h3 class="text-lg font-semibold text-gray-800 mb-4">Promote Students</h3>
-			@PromoteStudentsSection(term)
-		</div>
+		<section id="promotions-area">
+			<div id="promotions-content">
+				@PromotionsList(classPromotions)
+			</div>
+			<div class="mt-8 border-t pt-6">
+				<h3 class="text-lg font-semibold text-gray-800 mb-4">Promote Students</h3>
+				@PromoteStudentsSection(term)
+			</div>
+		</section>
 	</section>
 }
 
@@ -88,7 +92,7 @@ templ CreatePromotionForm(classes []database.Class, graduateClass database.GetCu
 			</header>
 			<form
 				hx-post="/promotions/create"
-				hx-target="#promotions-content"
+				hx-target="#popover-container"
 				hx-swap="innerHTML"
 				class="px-6 py-6"
 			>
@@ -119,25 +123,14 @@ templ CreatePromotionForm(classes []database.Class, graduateClass database.GetCu
 							class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-green-500"
 						>
 							<option value="">Select Next Class</option>
+							<option value={ graduateClass.ClassID.String() }>
+								{ graduateClass.Name + "(Last Selection)" }
+							</option>
 							for _, class := range classes {
 								<option value={ class.ClassID.String() }>
 									{ class.Name }
 								</option>
 							}
-						</select>
-					</section>
-					<section>
-						<label class="block text-gray-700 font-semibold mb-2">Graduating Class</label>
-						<select
-							type="text"
-							required
-							name="graduate_class_id"
-							class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-green-500"
-						>
-							<option value="">Select Graduation Class)</option>
-							<option value={ graduateClass.ClassID.String() }>
-								{ graduateClass.Name }
-							</option>
 						</select>
 					</section>
 				</div>
@@ -147,13 +140,13 @@ templ CreatePromotionForm(classes []database.Class, graduateClass database.GetCu
 						hx-get="/promotions"
 						hx-target="#content-area"
 						hx-swap="innerHTML"
-						class="bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-gray-400"
+						class="bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-gray-400 hover:cursor-pointer"
 					>
 						Cancel
 					</button>
 					<button
 						type="submit"
-						class="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+						class="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:cursor-pointer"
 					>
 						Save
 					</button>

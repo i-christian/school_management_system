@@ -51,6 +51,7 @@ CREATE TABLE IF NOT EXISTS class_promotions (
     next_class_id UUID,
     CONSTRAINT fk_current_class FOREIGN KEY (class_id) REFERENCES classes(class_id) ON DELETE CASCADE,
     CONSTRAINT fk_next_class FOREIGN KEY (next_class_id) REFERENCES classes(class_id) ON DELETE CASCADE,
+    UNIQUE(class_id, next_class_id),
     PRIMARY KEY (class_id)
 );
 

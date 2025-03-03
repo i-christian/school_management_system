@@ -194,6 +194,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Use(s.RequireRoles("admin"))
 		r.Get("/", s.ShowPromotionPage)
 		r.Get("/create", s.ShowSetupPromotionPage)
+		r.Post("/create", s.SubmitPromotions)
 	})
 
 	// Graduates
