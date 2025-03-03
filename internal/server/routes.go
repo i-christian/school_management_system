@@ -188,6 +188,14 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Get("/reportcards/{id}/download", s.GenerateStudentReportCard)
 	})
 
+	// Promotions
+	r.Route("/promotions", func(r chi.Router) {
+		r.Use(s.AuthMiddleware)
+		r.Use(s.RequireRoles("admin"))
+		r.Get("/", s.ShowPromotionPage)
+		r.Get("/create", s.ShowSetupPromotionPage)
+	})
+
 	// Graduates
 	r.Route("/graduates", func(r chi.Router) {
 		r.Use(s.AuthMiddleware)
