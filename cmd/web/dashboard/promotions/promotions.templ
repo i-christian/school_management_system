@@ -201,7 +201,25 @@ templ PromoteStudentsSection(term database.GetCurrentTermRow) {
 			>
 				Promote Students
 			</button>
+			{  }
 		</form>
+		<div class="mt-4 pt-4 border-t">
+			<h4 class="text-lg font-semibold text-gray-800 mb-4">Undo Last Promotion</h4>
+			<form
+				hx-post="/promotions/undo"
+				hx-target="#promotions-page"
+				hx-swap="outerHTML"
+				class="space-y-4"
+			>
+				<input type="hidden" name="term_id" value={ term.PreviousTermID.String() }/>
+				<button
+					type="submit"
+					class="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-red-500"
+				>
+					Undo Promotion
+				</button>
+			</form>
+		</div>
 	</div>
 }
 
@@ -222,11 +240,11 @@ templ ConfirmationForm(action string) {
 				</button>
 				<button
 					class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 focus:outline-none hover:cursor-pointer"
-					hx-post="/promotions/reset"
+					hx-post={ "/promotions/" + action }
 					hx-target="#promotions-page"
 					hx-swap="innerHTML"
 				>
-					Delete
+					{ action }
 				</button>
 			</div>
 		</div>

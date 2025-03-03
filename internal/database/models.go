@@ -88,6 +88,13 @@ type NumberCounter struct {
 	LastVal int32  `json:"last_val"`
 }
 
+type PromotionHistory struct {
+	PromotionHistoryID uuid.UUID          `json:"promotion_history_id"`
+	StoredTermID       uuid.UUID          `json:"stored_term_id"`
+	PromotionDate      pgtype.Timestamptz `json:"promotion_date"`
+	IsUndone           bool               `json:"is_undone"`
+}
+
 type Remark struct {
 	RemarksID           uuid.UUID          `json:"remarks_id"`
 	StudentID           uuid.UUID          `json:"student_id"`
@@ -147,6 +154,17 @@ type StudentGradesView struct {
 type StudentGuardian struct {
 	StudentID  uuid.UUID `json:"student_id"`
 	GuardianID uuid.UUID `json:"guardian_id"`
+}
+
+type StudentPromotionHistoryDetail struct {
+	StudentPromotionHistoryDetailID uuid.UUID   `json:"student_promotion_history_detail_id"`
+	PromotionHistoryID              uuid.UUID   `json:"promotion_history_id"`
+	StudentID                       uuid.UUID   `json:"student_id"`
+	PreviousClassID                 pgtype.UUID `json:"previous_class_id"`
+	ClassID                         uuid.UUID   `json:"class_id"`
+	Promoted                        bool        `json:"promoted"`
+	Status                          string      `json:"status"`
+	Graduated                       bool        `json:"graduated"`
 }
 
 type Subject struct {

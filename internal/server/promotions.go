@@ -198,3 +198,41 @@ func (s *Server) ResetPromotionRules(w http.ResponseWriter, r *http.Request) {
 
 	http.Redirect(w, r, "/promotions", http.StatusSeeOther)
 }
+
+// ShowUndoPromotion confirmation modal
+func (s *Server) ShowUndoPromotion(w http.ResponseWriter, r *http.Request) {
+	s.renderComponent(w, r, promotions.ConfirmationForm("Undo"))
+}
+
+// UndoPromotion undoes the last student class promotion for a given term.
+func (s *Server) UndoPromotion(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid form submission")
+		return
+	}
+	termID := r.FormValue("term_id")
+	if termID == "" {
+		writeError(w, http.StatusBadRequest, "term ID is required")
+		return
+	}
+	parsedTermID, err := uuid.Parse(termID)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "invalid term ID format")
+		slog.Error("failed to parse term ID", "error", err.Error())
+		return
+	}
+
+	err = s.queries.UndoPromoteStudents(r.Context(), parsedTermID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to undo student promotion")
+		slog.Error("failed to undo student promotion", "error", err.Error())
+		return
+	}
+
+	if r.Header.Get("HX-Request") != "" {
+		w.Header().Set("HX-Redirect", "/promotions")
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+	http.Redirect(w, r, "/promotions", http.StatusSeeOther)
+}

@@ -248,6 +248,7 @@ func (q *Queries) GetCurrentAcademicYearAndTerm(ctx context.Context) (GetCurrent
 const getCurrentTerm = `-- name: GetCurrentTerm :one
 SELECT
     t.term_id,
+    t.previous_term_id,
     ay.academic_year_id,
     ay.name AS Academic_Year,
     t.name AS Academic_Term,
@@ -262,6 +263,7 @@ LIMIT 1
 
 type GetCurrentTermRow struct {
 	TermID         uuid.UUID   `json:"term_id"`
+	PreviousTermID pgtype.UUID `json:"previous_term_id"`
 	AcademicYearID uuid.UUID   `json:"academic_year_id"`
 	AcademicYear   string      `json:"academic_year"`
 	AcademicTerm   string      `json:"academic_term"`
@@ -274,6 +276,7 @@ func (q *Queries) GetCurrentTerm(ctx context.Context) (GetCurrentTermRow, error)
 	var i GetCurrentTermRow
 	err := row.Scan(
 		&i.TermID,
+		&i.PreviousTermID,
 		&i.AcademicYearID,
 		&i.AcademicYear,
 		&i.AcademicTerm,
