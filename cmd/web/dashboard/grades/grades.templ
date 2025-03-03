@@ -39,56 +39,63 @@ templ GradesList(classData []ClassGradesData) {
 		<div class="flex items-center justify-between mb-6">
 			<h2 class="text-2xl font-bold text-gray-800">Student Grades</h2>
 		</div>
-		for _, data := range classData {
-			<details class="mb-6 border border-gray-300 rounded-lg shadow-sm">
-				<summary class="bg-gray-200 px-5 py-3 font-semibold text-lg cursor-pointer hover:bg-gray-300 rounded-t-lg transition">
-					{ data.ClassName }
-				</summary>
-				<div class="overflow-x-auto bg-white p-4 rounded-b-lg">
-					<table class="min-w-full table-auto border border-gray-300 rounded-lg shadow-sm">
-						<thead class="bg-blue-500 text-white text-sm uppercase">
-							<tr>
-								<th class="border border-gray-300 px-4 py-2 text-left">Student No</th>
-								<th class="border border-gray-300 px-4 py-2 text-left">Last Name</th>
-								<th class="border border-gray-300 px-4 py-2 text-left">First Name</th>
-								<th class="border border-gray-300 px-4 py-2 text-left">Middle Name</th>
-								for _, subj := range data.Subjects {
-									<th class="border border-gray-300 px-4 py-2 text-left">{ TruncateString(subj.Subjectname, 3) }</th>
-								}
-							</tr>
-						</thead>
-						<tbody class="divide-y divide-gray-200 text-sm">
-							for _, student := range data.Students {
-								<tr class="bg-gray-50">
-									<td class="border border-gray-300 px-4 py-2">{ student.StudentNo }</td>
-									<td class="border border-gray-300 px-4 py-2">{ student.LastName }</td>
-									<td class="border border-gray-300 px-4 py-2">{ student.FirstName }</td>
-									<td class="border border-gray-300 px-4 py-2">
-										if student.MiddleName.Valid {
-											{ student.MiddleName.String }
-										} else {
-											<span class="text-gray-400">N/A</span>
-										}
-									</td>
+		if len(classData) == 0 {
+			<div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
+				<p class="font-bold">Nothing Found</p>
+				<p>No student's grade records found in the system</p>
+			</div>
+		} else {
+			for _, data := range classData {
+				<details class="mb-6 border border-gray-300 rounded-lg shadow-sm">
+					<summary class="bg-gray-200 px-5 py-3 font-semibold text-lg cursor-pointer hover:bg-gray-300 rounded-t-lg transition">
+						{ data.ClassName }
+					</summary>
+					<div class="overflow-x-auto bg-white p-4 rounded-b-lg">
+						<table class="min-w-full table-auto border border-gray-300 rounded-lg shadow-sm">
+							<thead class="bg-blue-500 text-white text-sm uppercase">
+								<tr>
+									<th class="border border-gray-300 px-4 py-2 text-left">Student No</th>
+									<th class="border border-gray-300 px-4 py-2 text-left">Last Name</th>
+									<th class="border border-gray-300 px-4 py-2 text-left">First Name</th>
+									<th class="border border-gray-300 px-4 py-2 text-left">Middle Name</th>
 									for _, subj := range data.Subjects {
+										<th class="border border-gray-300 px-4 py-2 text-left">{ TruncateString(subj.Subjectname, 3) }</th>
+									}
+								</tr>
+							</thead>
+							<tbody class="divide-y divide-gray-200 text-sm">
+								for _, student := range data.Students {
+									<tr class="bg-gray-50">
+										<td class="border border-gray-300 px-4 py-2">{ student.StudentNo }</td>
+										<td class="border border-gray-300 px-4 py-2">{ student.LastName }</td>
+										<td class="border border-gray-300 px-4 py-2">{ student.FirstName }</td>
 										<td class="border border-gray-300 px-4 py-2">
-											if grade, ok := student.Grades[subj.Subjectid]; ok {
-												if grade.Score > 0 {
-													{ strconv.FormatFloat(grade.Score, 'f', 2, 64) }
-												} else {
-													<span class="text-gray-400">N/A</span>
-												}
+											if student.MiddleName.Valid {
+												{ student.MiddleName.String }
 											} else {
 												<span class="text-gray-400">N/A</span>
 											}
 										</td>
-									}
-								</tr>
-							}
-						</tbody>
-					</table>
-				</div>
-			</details>
+										for _, subj := range data.Subjects {
+											<td class="border border-gray-300 px-4 py-2">
+												if grade, ok := student.Grades[subj.Subjectid]; ok {
+													if grade.Score > 0 {
+														{ strconv.FormatFloat(grade.Score, 'f', 2, 64) }
+													} else {
+														<span class="text-gray-400">N/A</span>
+													}
+												} else {
+													<span class="text-gray-400">N/A</span>
+												}
+											</td>
+										}
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				</details>
+			}
 		}
 	</section>
 }

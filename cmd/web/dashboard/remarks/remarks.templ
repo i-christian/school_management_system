@@ -92,36 +92,43 @@ templ DisciplinePage(records []database.ListDisciplinaryRecordsRow) {
 				Add New Record
 			</button>
 		</div>
-		<div id="discipline-form-container" class="overflow-x-auto">
-			<table class="min-w-full table-auto border border-gray-300 rounded-lg shadow-sm">
-				<thead class="bg-red-500 text-white text-sm uppercase">
-					<tr>
-						<th class="border px-4 py-2">Last Name</th>
-						<th class="border px-4 py-2">First Name</th>
-						<th class="border px-4 py-2">Middle Name</th>
-						<th class="border px-4 py-2">Date</th>
-						<th class="border px-4 py-2">Offense</th>
-						<th class="border px-4 py-2">Action Taken</th>
-						<th class="border px-4 py-2">Reported By</th>
-						<th class="border px-4 py-2">Notes</th>
-					</tr>
-				</thead>
-				<tbody class="divide-y divide-gray-200 text-sm">
-					for _, record := range records {
-						<tr class="hover:bg-gray-50">
-							<td class="border px-4 py-2">{ record.LastName }</td>
-							<td class="border px-4 py-2">{ record.FirstName }</td>
-							<td class="border px-4 py-2">{ record.MiddleName.String }</td>
-							<td class="border px-4 py-2">{ record.Date.Time.Format("2006-01-02") }</td>
-							<td class="border px-4 py-2">{ record.Offense }</td>
-							<td class="border px-4 py-2">{ record.ActionTaken.String }</td>
-							<td class="border px-4 py-2">{ record.ReporterFirstName.String +" "+ record.ReporterLastName.String }</td>
-							<td class="border px-4 py-2">{ record.Notes.String }</td>
+		if len(records) == 0 {
+			<div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
+				<p class="font-bold">No Records Found</p>
+				<p>No disciplinary records found in the system</p>
+			</div>
+		} else {
+			<div id="discipline-form-container" class="overflow-x-auto">
+				<table class="min-w-full table-auto border border-gray-300 rounded-lg shadow-sm">
+					<thead class="bg-red-500 text-white text-sm uppercase">
+						<tr>
+							<th class="border px-4 py-2">Last Name</th>
+							<th class="border px-4 py-2">First Name</th>
+							<th class="border px-4 py-2">Middle Name</th>
+							<th class="border px-4 py-2">Date</th>
+							<th class="border px-4 py-2">Offense</th>
+							<th class="border px-4 py-2">Action Taken</th>
+							<th class="border px-4 py-2">Reported By</th>
+							<th class="border px-4 py-2">Notes</th>
 						</tr>
-					}
-				</tbody>
-			</table>
-		</div>
+					</thead>
+					<tbody class="divide-y divide-gray-200 text-sm">
+						for _, record := range records {
+							<tr class="hover:bg-gray-50">
+								<td class="border px-4 py-2">{ record.LastName }</td>
+								<td class="border px-4 py-2">{ record.FirstName }</td>
+								<td class="border px-4 py-2">{ record.MiddleName.String }</td>
+								<td class="border px-4 py-2">{ record.Date.Time.Format("2006-01-02") }</td>
+								<td class="border px-4 py-2">{ record.Offense }</td>
+								<td class="border px-4 py-2">{ record.ActionTaken.String }</td>
+								<td class="border px-4 py-2">{ record.ReporterFirstName.String +" "+ record.ReporterLastName.String }</td>
+								<td class="border px-4 py-2">{ record.Notes.String }</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		}
 	</section>
 }
 

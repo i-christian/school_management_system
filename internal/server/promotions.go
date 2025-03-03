@@ -176,3 +176,20 @@ func (s *Server) ShowPromotionPage(w http.ResponseWriter, r *http.Request) {
 
 	s.renderComponent(w, r, promotions.PromotionsPage(promotionClasses, schoolClasses, currentTerm))
 }
+
+// ResetPromotionRules clears all custom class promotion rules.
+func (s *Server) ResetPromotionRules(w http.ResponseWriter, r *http.Request) {
+	if err := s.queries.ResetPromotions(r.Context()); err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to reset promotion rules")
+		slog.Error("failed to reset promotion rules", "error", err.Error())
+		return
+	}
+
+	if r.Header.Get("HX-Request") != "" {
+		w.Header().Set("HX-Redirect", "/promotions")
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	http.Redirect(w, r, "/promotions", http.StatusSeeOther)
+}

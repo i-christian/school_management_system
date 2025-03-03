@@ -2,6 +2,9 @@
 INSERT INTO class_promotions (class_id, next_class_id)
 VALUES ($1, $2) RETURNING *;
 
+-- name: ResetPromotions :exec
+DELETE FROM class_promotions;
+
 -- name: ListClassPromotions :many
 SELECT 
   cp.class_id,

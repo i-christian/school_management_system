@@ -127,3 +127,12 @@ func (q *Queries) PromoteStudents(ctx context.Context, dollar_1 uuid.UUID) error
 	_, err := q.db.Exec(ctx, promoteStudents, dollar_1)
 	return err
 }
+
+const resetPromotions = `-- name: ResetPromotions :exec
+DELETE FROM class_promotions
+`
+
+func (q *Queries) ResetPromotions(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, resetPromotions)
+	return err
+}
