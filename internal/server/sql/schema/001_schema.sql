@@ -45,15 +45,6 @@ CREATE TABLE IF NOT EXISTS classes (
     name VARCHAR(20) NOT NULL UNIQUE
 );
 
--- CLASS PROMOTION TABLE
-CREATE TABLE IF NOT EXISTS class_promotions (
-    class_id UUID NOT NULL,
-    next_class_id UUID,
-    CONSTRAINT fk_current_class FOREIGN KEY (class_id) REFERENCES classes(class_id) ON DELETE CASCADE,
-    CONSTRAINT fk_next_class FOREIGN KEY (next_class_id) REFERENCES classes(class_id) ON DELETE CASCADE,
-    UNIQUE(class_id, next_class_id),
-    PRIMARY KEY (class_id)
-);
 
 CREATE EXTENSION IF NOT EXISTS btree_gist;
 -- ACADEMIC_YEAR TABLE
@@ -283,6 +274,45 @@ CREATE INDEX idx_discipline_records_student_id ON discipline_records(student_id)
 CREATE INDEX idx_discipline_records_term_id ON discipline_records(term_id);
 CREATE INDEX idx_discipline_records_reported_by ON discipline_records(reported_by);
 
+
+-- CLASS PROMOTION TABLE
+CREATE TABLE IF NOT EXISTS class_promotions (
+    class_id UUID NOT NULL,
+    next_class_id UUID,
+    CONSTRAINT fk_current_class FOREIGN KEY (class_id) REFERENCES classes(class_id) ON DELETE CASCADE,
+    CONSTRAINT fk_next_class FOREIGN KEY (next_class_id) REFERENCES classes(class_id) ON DELETE CASCADE,
+    UNIQUE(class_id, next_class_id),
+    PRIMARY KEY (class_id)
+);
+
+-- PROMOTION_HISTORY TABLE
+CREATE TABLE IF NOT EXISTS promotion_history (
+    promotion_history_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    stored_term_id UUID NOT NULL,
+    promotion_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    is_undone BOOLEAN NOT NULL DEFAULT FALSE,
+    CONSTRAINT fk_term FOREIGN KEY (term_id) REFERENCES term(term_id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS student_promotion_history_details (
+    student_promotion_history_detail_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    promotion_history_id UUID NOT NULL,
+    student_id UUID NOT NULL,
+    previous_class_id UUID NULL,
+    class_id UUID NOT NULL,
+    promoted BOOLEAN NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    graduated BOOLEAN NOT NULL,
+    CONSTRAINT fk_promotion_history FOREIGN KEY (promotion_history_id) REFERENCES promotion_history(promotion_history_id) ON DELETE CASCADE,
+    CONSTRAINT fk_student FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE,
+    CONSTRAINT fk_class FOREIGN KEY (class_id) REFERENCES classes(class_id) ON DELETE CASCADE,
+    CONSTRAINT fk_previous_class FOREIGN KEY (previous_class_id) REFERENCES classes(class_id) ON DELETE SET NULL
+);
+
+-- Index for filtering promotion history by term
+CREATE INDEX idx_promotion_history_term_id ON promotion_history(term_id);
+CREATE INDEX idx_student_promotion_history_details_promotion_history_id ON student_promotion_history_details(promotion_history_id);
+
 -- +goose Down
 DROP TABLE IF EXISTS discipline_records;
 DROP TABLE IF EXISTS remarks;
@@ -302,3 +332,5 @@ DROP TABLE IF EXISTS classes;
 DROP TABLE IF EXISTS sessions;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS roles;
+DROP TABLE IF EXISTS student_promotion_history_details;
+DROP TABLE IF EXISTS promotion_history;

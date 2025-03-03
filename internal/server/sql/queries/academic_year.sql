@@ -99,6 +99,7 @@ LIMIT 1;
 -- name: GetCurrentTerm :one
 SELECT
     t.term_id,
+    t.previous_term_id,
     ay.academic_year_id,
     ay.name AS Academic_Year,
     t.name AS Academic_Term,
