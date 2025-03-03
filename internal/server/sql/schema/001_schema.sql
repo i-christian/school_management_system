@@ -291,7 +291,7 @@ CREATE TABLE IF NOT EXISTS promotion_history (
     stored_term_id UUID NOT NULL,
     promotion_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     is_undone BOOLEAN NOT NULL DEFAULT FALSE,
-    CONSTRAINT fk_term FOREIGN KEY (term_id) REFERENCES term(term_id) ON DELETE CASCADE
+    CONSTRAINT fk_term FOREIGN KEY (stored_term_id) REFERENCES term(term_id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS student_promotion_history_details (
@@ -310,7 +310,7 @@ CREATE TABLE IF NOT EXISTS student_promotion_history_details (
 );
 
 -- Index for filtering promotion history by term
-CREATE INDEX idx_promotion_history_term_id ON promotion_history(term_id);
+CREATE INDEX idx_promotion_history_term_id ON promotion_history(stored_term_id);
 CREATE INDEX idx_student_promotion_history_details_promotion_history_id ON student_promotion_history_details(promotion_history_id);
 
 -- +goose Down
