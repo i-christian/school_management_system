@@ -1,10 +1,16 @@
 package dashboard
 
+import "github.com/google/uuid"
+
 type DashboardUserRole struct {
 	Role string
 }
 
-templ NavList(user DashboardUserRole) {
+type DashboardTerm struct {
+	TermID uuid.UUID
+}
+
+templ NavList(user DashboardUserRole, term DashboardTerm) {
 	<nav class="flex-1 overflow-y-auto">
 		<ul class="space-y-1">
 			<li>
@@ -59,12 +65,14 @@ templ NavList(user DashboardUserRole) {
 						<span class="nav-text text-sm">Guardians</span>
 					</a>
 				</li>
-				<li>
-					<a href="/promotions" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Student Promotions">
-						<i class="nav-icon fas fa-level-up-alt fa-lg mr-3 text-blue-600"></i>
-						<span class="nav-text text-sm">Student Promotions</span>
-					</a>
-				</li>
+				if term.TermID != uuid.Nil {
+					<li>
+						<a href="/promotions" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Student Promotions">
+							<i class="nav-icon fas fa-level-up-alt fa-lg mr-3 text-blue-600"></i>
+							<span class="nav-text text-sm">Student Promotions</span>
+						</a>
+					</li>
+				}
 			}
 			<li class="px-4 py-1 text-xs font-bold text-gray-500 uppercase nav-text">Academic Records</li>
 			<li>
