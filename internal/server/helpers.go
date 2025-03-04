@@ -32,8 +32,15 @@ func (s *Server) renderComponent(w http.ResponseWriter, r *http.Request, childre
 		user := dashboard.DashboardUserRole{
 			Role: userRole.Role,
 		}
+
+		term, _ := s.queries.GetCurrentTerm(r.Context())
+
+		termArg := dashboard.DashboardTerm{
+			TermID: term.TermID,
+		}
+
 		ctx := templ.WithChildren(r.Context(), children)
-		if err := web.Dashboard(user).Render(ctx, w); err != nil {
+		if err := web.Dashboard(user, termArg).Render(ctx, w); err != nil {
 			writeError(w, http.StatusBadRequest, err.Error())
 			slog.Error("Failed to render dashboard layout", "error", err)
 		}

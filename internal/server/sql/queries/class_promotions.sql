@@ -15,9 +15,20 @@ FROM class_promotions cp
 JOIN classes c1 ON cp.class_id = c1.class_id
 LEFT JOIN classes c2 ON cp.next_class_id = c2.class_id;
 
+-- name: ShowLastPromotion :one
+SELECT
+    ph.promotion_date,
+    ph.is_undone,
+    ph.stored_term_id,
+    ay.name AS academic_year,
+    t.name AS term_name
+FROM promotion_history ph
+INNER JOIN term t ON ph.stored_term_id = t.term_id
+LEFT JOIN academic_year ay ON t.academic_year_id = ay.academic_year_id;
+
 -- name: PromoteStudents :exec
 WITH promotion_record AS (
-    INSERT INTO promotion_history (stored_term_id) VALUES ($1::UUID) RETURNING promotion_history_id, stored_term_id
+    INSERT INTO promotion_history (stored_term_id) VALUES ($1) RETURNING promotion_history_id, stored_term_id
 ),
 promoted_students AS (
     SELECT
@@ -98,7 +109,7 @@ WHERE s.student_id = ps.student_id;
 WITH last_promotion AS (
     SELECT promotion_history_id, stored_term_id
     FROM promotion_history
-    WHERE term_id = $1::UUID AND is_undone = FALSE
+    WHERE stored_term_id = $1::UUID AND is_undone = FALSE
     ORDER BY promotion_date DESC
     LIMIT 1
 ),

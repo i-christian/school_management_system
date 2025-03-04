@@ -74,7 +74,7 @@ func (q *Queries) ListClassPromotions(ctx context.Context) ([]ListClassPromotion
 
 const promoteStudents = `-- name: PromoteStudents :exec
 WITH promotion_record AS (
-    INSERT INTO promotion_history (stored_term_id) VALUES ($1::UUID) RETURNING promotion_history_id, stored_term_id
+    INSERT INTO promotion_history (stored_term_id) VALUES ($1) RETURNING promotion_history_id, stored_term_id
 ),
 promoted_students AS (
     SELECT
@@ -153,12 +153,12 @@ WHERE s.student_id = ps.student_id
 `
 
 type PromoteStudentsParams struct {
-	Column1 uuid.UUID `json:"column_1"`
-	Column2 uuid.UUID `json:"column_2"`
+	StoredTermID uuid.UUID `json:"stored_term_id"`
+	Column2      uuid.UUID `json:"column_2"`
 }
 
 func (q *Queries) PromoteStudents(ctx context.Context, arg PromoteStudentsParams) error {
-	_, err := q.db.Exec(ctx, promoteStudents, arg.Column1, arg.Column2)
+	_, err := q.db.Exec(ctx, promoteStudents, arg.StoredTermID, arg.Column2)
 	return err
 }
 
@@ -171,11 +171,44 @@ func (q *Queries) ResetPromotions(ctx context.Context) error {
 	return err
 }
 
+const showLastPromotion = `-- name: ShowLastPromotion :one
+SELECT
+    ph.promotion_date,
+    ph.is_undone,
+    ph.stored_term_id,
+    ay.name AS academic_year,
+    t.name AS term_name
+FROM promotion_history ph
+INNER JOIN term t ON ph.stored_term_id = t.term_id
+LEFT JOIN academic_year ay ON t.academic_year_id = ay.academic_year_id
+`
+
+type ShowLastPromotionRow struct {
+	PromotionDate pgtype.Timestamptz `json:"promotion_date"`
+	IsUndone      bool               `json:"is_undone"`
+	StoredTermID  uuid.UUID          `json:"stored_term_id"`
+	AcademicYear  pgtype.Text        `json:"academic_year"`
+	TermName      string             `json:"term_name"`
+}
+
+func (q *Queries) ShowLastPromotion(ctx context.Context) (ShowLastPromotionRow, error) {
+	row := q.db.QueryRow(ctx, showLastPromotion)
+	var i ShowLastPromotionRow
+	err := row.Scan(
+		&i.PromotionDate,
+		&i.IsUndone,
+		&i.StoredTermID,
+		&i.AcademicYear,
+		&i.TermName,
+	)
+	return i, err
+}
+
 const undoPromoteStudents = `-- name: UndoPromoteStudents :exec
 WITH last_promotion AS (
     SELECT promotion_history_id, stored_term_id
     FROM promotion_history
-    WHERE term_id = $1::UUID AND is_undone = FALSE
+    WHERE stored_term_id = $1::UUID AND is_undone = FALSE
     ORDER BY promotion_date DESC
     LIMIT 1
 ),

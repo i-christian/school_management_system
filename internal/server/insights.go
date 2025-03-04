@@ -9,6 +9,21 @@ import (
 	"school_management_system/cmd/web/dashboard"
 )
 
+// Dashboard is the index handler for the dashboard.
+func (s *Server) Dashboard(w http.ResponseWriter, r *http.Request) {
+	user, ok := r.Context().Value(userContextKey).(User)
+	if !ok {
+		writeError(w, http.StatusUnauthorized, "unauthorized")
+	}
+
+	userRole := dashboard.DashboardUserRole{
+		Role: user.Role,
+	}
+
+	contents := dashboard.DashboardCards(userRole)
+	s.renderComponent(w, r, contents)
+}
+
 func (s *Server) GetTotalUsers(w http.ResponseWriter, r *http.Request) {
 	totalUsers, err := s.queries.GetTotalUsers(r.Context())
 	if err != nil {

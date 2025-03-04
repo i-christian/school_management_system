@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"school_management_system/cmd/web/components"
-	"school_management_system/cmd/web/dashboard"
 	"school_management_system/cmd/web/dashboard/userlist"
 	"school_management_system/internal/database"
 
@@ -147,20 +146,6 @@ func (s *Server) userProfile(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 	component := components.UserDetails(user)
 	s.renderComponent(w, r, component)
-}
-
-// Dashboard is the index handler for the dashboard.
-func (s *Server) Dashboard(w http.ResponseWriter, r *http.Request) {
-	user, ok := r.Context().Value(userContextKey).(User)
-	if !ok {
-		writeError(w, http.StatusUnauthorized, "unauthorized")
-	}
-
-	userRole := dashboard.DashboardUserRole{
-		Role: user.Role,
-	}
-	contents := dashboard.DashboardCards(userRole)
-	s.renderComponent(w, r, contents)
 }
 
 // ListUsers handler retrieves all users from the database.

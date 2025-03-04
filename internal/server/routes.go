@@ -196,7 +196,10 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Get("/reset", s.ShowResetPromotion)
 		r.Post("/reset", s.ResetPromotionRules)
 		r.Get("/undo", s.ShowUndoPromotion)
-		r.Post("/undo", s.UndoPromotion)
+		r.Post("/{id}/undo", s.UndoPromotion)
+
+		r.Get("/promote-students", s.ShowPromoteStudents)
+		r.Post("/{id}/promote-students", s.PromoteStudents)
 	})
 
 	// Graduates

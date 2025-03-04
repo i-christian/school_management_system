@@ -50,6 +50,7 @@ term.term_id,
 academic_year.academic_year_id,
 academic_year.name AS Academic_Year,
 term.name AS Academic_Term,
+term.previous_term_id,
 term.start_date AS Opening_date,
 term.end_date AS Closing_date
 FROM term
