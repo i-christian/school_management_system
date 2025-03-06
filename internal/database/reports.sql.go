@@ -61,3 +61,65 @@ func (q *Queries) GetStudentReportCard(ctx context.Context, studentID uuid.UUID)
 	)
 	return i, err
 }
+
+const listStudentReportCards = `-- name: ListStudentReportCards :many
+SELECT 
+    sgv.student_id,
+    sgv.student_no,
+    sgv.last_name,
+    sgv.first_name,
+    sgv.middle_name,
+    sgv.class_id,
+    sgv.class_name,
+    sgv.grades,
+    r.content_class_teacher AS class_teacher_remark,
+    r.content_head_teacher AS head_teacher_remark
+FROM student_grades_view sgv
+LEFT JOIN remarks r 
+    ON r.student_id = sgv.student_id 
+ORDER BY sgv.class_id = $1
+`
+
+type ListStudentReportCardsRow struct {
+	StudentID          uuid.UUID     `json:"student_id"`
+	StudentNo          string        `json:"student_no"`
+	LastName           string        `json:"last_name"`
+	FirstName          string        `json:"first_name"`
+	MiddleName         pgtype.Text   `json:"middle_name"`
+	ClassID            uuid.UUID     `json:"class_id"`
+	ClassName          string        `json:"class_name"`
+	Grades             dto.GradesMap `json:"grades"`
+	ClassTeacherRemark pgtype.Text   `json:"class_teacher_remark"`
+	HeadTeacherRemark  pgtype.Text   `json:"head_teacher_remark"`
+}
+
+func (q *Queries) ListStudentReportCards(ctx context.Context, classID uuid.UUID) ([]ListStudentReportCardsRow, error) {
+	rows, err := q.db.Query(ctx, listStudentReportCards, classID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListStudentReportCardsRow{}
+	for rows.Next() {
+		var i ListStudentReportCardsRow
+		if err := rows.Scan(
+			&i.StudentID,
+			&i.StudentNo,
+			&i.LastName,
+			&i.FirstName,
+			&i.MiddleName,
+			&i.ClassID,
+			&i.ClassName,
+			&i.Grades,
+			&i.ClassTeacherRemark,
+			&i.HeadTeacherRemark,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

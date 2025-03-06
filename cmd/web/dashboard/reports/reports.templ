@@ -12,55 +12,69 @@ type ClassRoomData struct {
 
 // ReportsList renders the list of students grouped by class.
 templ ReportsList(classRooms []ClassRoomData) {
-	<div class="mx-auto p-6">
-		<nav class="mb-6 bg-gray-100 p-4 rounded-lg shadow-sm">
-			<ul class="flex space-x-4 overflow-x-auto">
-				for _, class := range classRooms {
-					<li>
-						<button
-							hx-get={ "/reports/class/" + class.ClassID.String() }
-							hx-target="#reports-container"
-							hx-swap="innerHTML"
-							class="px-4 py-2 bg-white border border-gray-300 rounded-md text-gray-700 hover:bg-gray-200 focus:outline-hidden hover:cursor-pointer focus:ring-3 focus:ring-green-500"
-						>
-							{ class.ClassName }
-						</button>
-					</li>
-				}
-			</ul>
-		</nav>
-		<div id="reports-container">
-			{ children... }
+	if len(classRooms) == 0 {
+		<div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
+			<p class="font-bold">No Students Found</p>
+			<p>No students found in any classes in the system</p>
 		</div>
-	</div>
+	} else {
+		<div class="mx-auto p-6">
+			<nav class="mb-6 bg-gray-100 p-4 rounded-lg shadow-sm">
+				<ul class="flex space-x-4 overflow-x-auto">
+					for _, class := range classRooms {
+						<li>
+							<button
+								hx-get={ "/reports/class/" + class.ClassID.String() }
+								hx-target="#reports-container"
+								hx-swap="innerHTML"
+								class="px-4 py-2 bg-white border border-gray-300 rounded-md text-gray-700 hover:bg-gray-200 focus:outline-hidden hover:cursor-pointer focus:ring-3 focus:ring-green-500"
+							>
+								{ class.ClassName }
+							</button>
+						</li>
+					}
+				</ul>
+			</nav>
+			<div id="reports-container">
+				{ children... }
+			</div>
+		</div>
+	}
 }
 
 // ClassReportTable renders the student report for a specific class.
-templ ClassReportTable(class ClassRoomData) {
-	<div class="bg-white rounded-lg shadow-lg overflow-hidden mb-6">
-		<header class="bg-blue-600 px-6 py-4 flex justify-between items-center">
-			<h2 class="text-white text-xl font-bold">{ class.ClassName } Report Cards</h2>
-		</header>
-		<div class="overflow-x-auto">
-			<table class="min-w-full border border-gray-300 rounded-lg shadow-xs">
-				<thead class="bg-gray-100">
-					<tr>
-						<th class="table-header">Student No</th>
-						<th class="table-header">Last Name</th>
-						<th class="table-header">First Name</th>
-						<th class="table-header">Gender</th>
-						<th class="table-header">Status</th>
-						<th class="table-header">Actions</th>
-					</tr>
-				</thead>
-				<tbody class="divide-y divide-gray-200 text-sm">
-					for _, student := range class.Students {
-						@ReportTableRow(student)
-					}
-				</tbody>
-			</table>
+templ ClassReportTable(class ClassRoomData, classGrades []database.ListGradesForClassRow) {
+	if len(classGrades) == 0 {
+		<div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
+			<p class="font-bold">No Grades Found</p>
+			<p>No class grades found in the system</p>
 		</div>
-	</div>
+	} else {
+		<div class="bg-white rounded-lg shadow-lg overflow-hidden mb-6">
+			<header class="bg-blue-600 px-6 py-4 flex justify-between items-center">
+				<h2 class="text-white text-xl font-bold">{ class.ClassName } Report Cards</h2>
+			</header>
+			<div class="overflow-x-auto">
+				<table class="min-w-full border border-gray-300 rounded-lg shadow-xs">
+					<thead class="bg-gray-100">
+						<tr>
+							<th class="table-header">Student No</th>
+							<th class="table-header">Last Name</th>
+							<th class="table-header">First Name</th>
+							<th class="table-header">Gender</th>
+							<th class="table-header">Status</th>
+							<th class="table-header">Actions</th>
+						</tr>
+					</thead>
+					<tbody class="divide-y divide-gray-200 text-sm">
+						for _, student := range class.Students {
+							@ReportTableRow(student)
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	}
 }
 
 // ReportTableRow renders each student row.

@@ -67,7 +67,11 @@ func (s *Server) ShowClassReports(w http.ResponseWriter, r *http.Request) {
 
 	for _, classData := range classRooms {
 		if classData.ClassID == classID {
-			s.renderComponent(w, r, reports.ClassReportTable(classData))
+			classGrades, err := s.queries.ListGradesForClass(r.Context(), classData.ClassID)
+			if err != nil {
+				writeError(w, http.StatusNotFound, "grades for this class not found")
+			}
+			s.renderComponent(w, r, reports.ClassReportTable(classData, classGrades))
 			return
 		}
 	}
@@ -166,6 +170,7 @@ func (s *Server) GenerateStudentReportCard(w http.ResponseWriter, r *http.Reques
 	student, err := s.queries.GetStudentReportCard(r.Context(), studentID)
 	if err != nil {
 		writeError(w, http.StatusNotFound, "Student not found")
+		slog.Error("Student not found", "error", err.Error())
 		return
 	}
 
