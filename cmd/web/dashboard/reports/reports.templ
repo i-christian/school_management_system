@@ -2,6 +2,7 @@ package reports
 
 import "school_management_system/internal/database"
 import "github.com/google/uuid"
+import "strings"
 
 // ClassRoomData represents a class with its list of students
 type ClassRoomData struct {
@@ -43,7 +44,7 @@ templ ReportsList(classRooms []ClassRoomData) {
 }
 
 // ClassReportTable renders the student report for a specific class.
-templ ClassReportTable(class ClassRoomData, classGrades []database.ListGradesForClassRow) {
+templ ClassReportTable(class ClassRoomData, classGrades []database.ListStudentReportCardsRow) {
 	if len(classGrades) == 0 {
 		<div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
 			<p class="font-bold">No Grades Found</p>
@@ -68,7 +69,11 @@ templ ClassReportTable(class ClassRoomData, classGrades []database.ListGradesFor
 					</thead>
 					<tbody class="divide-y divide-gray-200 text-sm">
 						for _, student := range class.Students {
-							@ReportTableRow(student)
+							for _, report := range classGrades {
+								if student.StudentID.String() == report.StudentID.String() {
+									@ReportTableRow(student, report)
+								}
+							}
 						}
 					</tbody>
 				</table>
@@ -78,7 +83,7 @@ templ ClassReportTable(class ClassRoomData, classGrades []database.ListGradesFor
 }
 
 // ReportTableRow renders each student row.
-templ ReportTableRow(student database.ListStudentsRow) {
+templ ReportTableRow(student database.ListStudentsRow, report database.ListStudentReportCardsRow) {
 	<tr class="hover:bg-gray-50 transition">
 		<td class="table-cell">{ student.StudentNo }</td>
 		<td class="table-cell">{ student.LastName }</td>
@@ -87,13 +92,15 @@ templ ReportTableRow(student database.ListStudentsRow) {
 		<td class="table-cell">{ student.Status }</td>
 		<td class="table-cell">
 			<div class="flex space-x-2">
-				<a
-					href={ templ.URL("/reports/reportcards/" + student.StudentID.String() + "/download") }
-					class="btn btn-green hover:cursor-pointer"
-					download
-				>
-					<i class="fas fa-download mr-1"></i> Download
-				</a>
+				if len(strings.TrimSpace(report.ClassTeacherRemark.String)) > 0 {
+					<a
+						href={ templ.URL("/reports/reportcards/" + student.StudentID.String() + "/download") }
+						class="btn btn-green hover:cursor-pointer"
+						download
+					>
+						<i class="fas fa-download mr-1"></i> Download
+					</a>
+				}
 			</div>
 		</td>
 	</tr>
