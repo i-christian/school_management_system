@@ -63,6 +63,10 @@ func (s *Server) GetFees(w http.ResponseWriter, r *http.Request) {
 	s.renderComponent(w, r, dashboard.TotalCount(totalFeesStr))
 }
 
+func (s *Server) showCalendarPage(w http.ResponseWriter, r *http.Request) {
+	s.renderComponent(w, r, dashboard.CalendarPage())
+}
+
 func (s *Server) academicEvents(w http.ResponseWriter, r *http.Request) {
 	currentYear, err := s.queries.GetCurrentAcademicYearAndTerm(r.Context())
 	if err != nil {

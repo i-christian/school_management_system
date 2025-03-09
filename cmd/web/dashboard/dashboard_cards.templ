@@ -58,49 +58,14 @@ templ DashboardCards(user DashboardUserRole) {
 		</div>
 		<div class="lg:w-1/2 mt-6 lg:mt-0">
 			<section
-				id="calendar_events"
 				class="bg-white p-5 shadow-lg rounded-lg hover:shadow-xl transition-shadow duration-200 h-full"
-				hx-get="/dashboard/academic_events"
-				hx-trigger="load"
-				hx-swap="none"
 			>
-				<h3 class="text-gray-800 text-sm mb-2">Calendar</h3>
-				<div id="calendar" class="rounded overflow-hidden bg-white p-2"></div>
+				<h3 class="text-gray-800 text-sm mb-2">New Card Placeholder</h3>
+				<div class="rounded overflow-hidden bg-gray-100 p-4 text-gray-600">
+					<p>This section will be replaced with a new dashboard card.</p>
+					<p class="mt-2"></p>
+				</div>
 			</section>
 		</div>
 	</div>
-	<script type="application/javascript" src="/assets/js/fullcalendar/index.global.min.js"></script>
-	<script src="/assets/js/fullcalendar/locales-all.global.min.js"></script>
-	<script src="/assets/js/fullcalendar/dayGrid/index.global.min.js"></script>
-	<script>
-		let dynamicEvents = [];
-		let calendar_events_section = document.getElementById("calendar_events");
-
-		calendar_events_section.addEventListener("htmx:afterRequest", e => {
-			const doc = new DOMParser().parseFromString(e.detail.xhr.responseText, "text/html");
-			const eventsScript = doc.getElementById("academicEvents");
-			const data = eventsScript && JSON.parse(eventsScript.textContent);
-
-			if (data) {
-				dynamicEvents = [
-					{ title: 'Academic Year', start: data.AcademicYearStart, end: data.AcademicYearEnd },
-					{ title: 'Term', start: data.TermStart, end: data.TermEnd }
-				];
-				if (calendar) {
-					calendar.setOption('events', dynamicEvents);
-					calendar.refetchEvents();
-				}
-			}
-		});
-
-		let calendar;
-		document.addEventListener('DOMContentLoaded', function() {
-			var calendarEl = document.getElementById('calendar');
-			calendar = new FullCalendar.Calendar(calendarEl, {
-				initialView: 'dayGridMonth',
-				events: dynamicEvents
-			});
-			calendar.render();
-		});
-	</script>
 }

@@ -84,6 +84,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Get("/total_users", s.GetTotalUsers)
 		r.Get("/total_students", s.GetStudentsTotal)
 		r.Get("/income", s.GetFees)
+		r.Get("/calendar", s.showCalendarPage)
 		r.Get("/academic_events", s.academicEvents)
 	})
 

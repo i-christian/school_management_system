@@ -1,0 +1,69 @@
+package dashboard
+
+templ CalendarPage() {
+	<div class="container mx-auto mt-8 p-4">
+		<section
+			id="full_calendar_page"
+			class="bg-white p-5 shadow-lg rounded-lg hover:shadow-xl transition-shadow duration-200 h-full"
+			hx-get="/dashboard/academic_events"
+			hx-trigger="load"
+			hx-swap="none"
+		>
+			<h2 class="text-gray-800 text-2xl mb-4">Academic Calendar</h2>
+			<div id="calendar-full-page" class="rounded overflow-hidden bg-white p-2"></div>
+		</section>
+	</div>
+	<script type="application/javascript" src="/assets/js/fullcalendar/index.global.min.js"></script>
+	<script src="/assets/js/fullcalendar/locales-all.global.min.js"></script>
+	<script src="/assets/js/fullcalendar/dayGrid/index.global.min.js"></script>
+	<script>
+		let dynamicEvents = [];
+		let calendar_page_section = document.getElementById("full_calendar_page");
+
+		calendar_page_section.addEventListener("htmx:afterRequest", e => {
+			const doc = new DOMParser().parseFromString(e.detail.xhr.responseText, "text/html");
+			const eventsScript = doc.getElementById("academicEvents");
+			const data = eventsScript && JSON.parse(eventsScript.textContent);
+
+			if (data) {
+				dynamicEvents = [
+					{ title: 'Academic Year', start: data.AcademicYearStart, end: data.AcademicYearEnd, classNames: ['bg-blue-500', 'text-white'] },
+					{ title: 'Term', start: data.TermStart, end: data.TermEnd, classNames: ['bg-green-500', 'text-white'] }
+				];
+				if (calendarFullPage) {
+					calendarFullPage.setOption('events', dynamicEvents);
+					calendarFullPage.refetchEvents();
+				}
+			}
+		});
+
+		let calendarFullPage;
+		document.addEventListener('DOMContentLoaded', function() {
+			var calendarEl = document.getElementById('calendar-full-page');
+			calendarFullPage = new FullCalendar.Calendar(calendarEl, {
+				initialView: 'dayGridMonth',
+				events: dynamicEvents,
+				eventClassNames: ['p-1', 'rounded-md', 'opacity-90'],
+				dayCellClassNames: 'p-0.5',
+				headerToolbar: {
+					left: 'prev,next today',
+					center: 'title',
+					right: 'dayGridMonth,dayGridWeek,dayGridDay'
+				},
+				dayCellContent: function(arg) {
+					const dayNumber = document.createElement('div');
+					dayNumber.textContent = arg.dayNumberText;
+					dayNumber.classList.add('fc-daygrid-day-number');
+
+					if (arg.isToday) {
+						dayNumber.classList.add('bg-blue-400', 'text-white', 'rounded-full', 'p-1', 'font-bold');
+						return dayNumber;
+					} else {
+						return dayNumber;
+					}
+				},
+			});
+			calendarFullPage.render();
+		});
+	</script>
+}
