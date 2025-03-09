@@ -68,9 +68,12 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Get("/{id}/edit", s.ShowEditUserForm)
 		r.Put("/{id}", s.EditUser)
 
-		// Delete routes:
+		// Delete routes
 		r.Get("/{id}/delete", s.ShowDeleteConfirmation)
 		r.Delete("/{id}", s.DeleteUser)
+
+		// Download route
+		r.Get("/download", s.userDownload)
 	})
 
 	// DASHBOARD

@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"os"
 	"strings"
 
 	"school_management_system/cmd/web/components"
 	"school_management_system/cmd/web/dashboard/userlist"
 	"school_management_system/internal/database"
 
+	"github.com/go-pdf/fpdf"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 	"golang.org/x/crypto/bcrypt"
@@ -291,4 +293,71 @@ func (s *Server) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(w, r, "/dashboard/userlist", http.StatusFound)
+}
+
+// createUsersPdf helper function creates a pdf file a list of all available users
+func createUsersPdf(users []database.ListUsersRow) (string, *fpdf.Fpdf) {
+	pdf := fpdf.New("P", "mm", "A4", "")
+	userList := os.Getenv("PROJECT_NAME")
+
+	pdf.AddPage()
+	pdf.SetMargins(10, 10, 10)
+	pdf.SetFont("Arial", "B", 18)
+	pdf.CellFormat(190, 10, fmt.Sprintf("%s User List", userList), "", 0, "C", false, 0, "")
+	pdf.Ln(15)
+
+	// Table Headers
+	pdf.SetFont("Arial", "B", 12)
+	pdf.SetFillColor(200, 200, 200)
+
+	headerWidths := map[string]float64{
+		"No.":   40,
+		"Name":  60,
+		"G":     10,
+		"Phone": 40,
+		"Role":  40,
+	}
+
+	headers := []string{"No.", "Name", "G", "Phone", "Role"}
+
+	for _, header := range headers {
+		pdf.CellFormat(headerWidths[header], 10, header, "1", 0, "C", true, 0, "")
+	}
+	pdf.Ln(-1)
+
+	// Table Content
+	pdf.SetFont("Arial", "", 12)
+	for _, user := range users {
+		pdf.CellFormat(headerWidths["No."], 10, user.UserNo, "1", 0, "L", false, 0, "")
+		pdf.CellFormat(headerWidths["Name"], 10, fmt.Sprintf("%s %s", user.LastName, user.FirstName), "1", 0, "L", false, 0, "")
+		pdf.CellFormat(headerWidths["G"], 10, user.Gender, "1", 0, "C", false, 0, "")
+		pdf.CellFormat(headerWidths["Phone"], 10, user.PhoneNumber.String, "1", 0, "L", false, 0, "")
+		pdf.CellFormat(headerWidths["Role"], 10, user.Role, "1", 0, "L", false, 0, "")
+		pdf.Ln(-1)
+	}
+
+	fileName := "user_list"
+
+	return fileName, pdf
+}
+
+// userDownload method is used to download available students into a pdf format
+func (s *Server) userDownload(w http.ResponseWriter, r *http.Request) {
+	users, err := s.queries.ListUsers(r.Context())
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to get users")
+		slog.Error("internal server error, failed to get user list", "error", err.Error())
+		return
+	}
+
+	fileName, usersPDF := createUsersPdf(users)
+
+	// Serve PDF as response
+	w.Header().Set("Content-Type", "application/pdf")
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s.pdf", fileName))
+	err = usersPDF.Output(w)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "Failed to generate PDF")
+		slog.Error("PDF Generation Error:", "error", err.Error())
+	}
 }
