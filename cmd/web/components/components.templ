@@ -31,6 +31,17 @@ templ AcademicsDetails(details database.GetCurrentAcademicYearAndTermRow) {
 	</section>
 }
 
+type AcademicEvents struct {
+	AcademicYearStart string
+	AcademicYearEnd   string
+	TermStart         string
+	TermEnd           string
+}
+
+templ AcademicEventsDetails(academicEvents AcademicEvents) {
+	@templ.JSONScript("academicEvents", academicEvents)
+}
+
 templ AssignedClasses(classes []database.GetAssignedClassesRow) {
 	<details class="bg-white rounded-md shadow-inner">
 		<summary class="cursor-pointer px-4 py-2 text-md font-semibold text-gray-800">

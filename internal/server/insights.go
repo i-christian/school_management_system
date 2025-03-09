@@ -5,7 +5,9 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
+	"time"
 
+	"school_management_system/cmd/web/components"
 	"school_management_system/cmd/web/dashboard"
 )
 
@@ -59,4 +61,18 @@ func (s *Server) GetFees(w http.ResponseWriter, r *http.Request) {
 	totalFeesStr := fmt.Sprintf("%.2f", totalFees)
 
 	s.renderComponent(w, r, dashboard.TotalCount(totalFeesStr))
+}
+
+func (s *Server) academicEvents(w http.ResponseWriter, r *http.Request) {
+	currentYear, err := s.queries.GetCurrentAcademicYearAndTerm(r.Context())
+	if err != nil {
+		slog.Error("current academic year not set")
+	}
+
+	s.renderComponent(w, r, components.AcademicEventsDetails(components.AcademicEvents{
+		AcademicYearStart: currentYear.StartDate.Time.Format(time.DateOnly),
+		AcademicYearEnd:   currentYear.EndDate.Time.Format(time.DateOnly),
+		TermStart:         currentYear.TermOpeningDate.Time.Format(time.DateOnly),
+		TermEnd:           currentYear.TermClosingDate.Time.Format(time.DateOnly),
+	}))
 }
