@@ -230,5 +230,11 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Put("/edit/{feesID}", s.EditFeesRecord)
 	})
 
+	r.Route("/settings", func(r chi.Router) {
+		r.Use(s.AuthMiddleware)
+		r.Get("/", nil)
+		r.Put("/", nil)
+	})
+
 	return r
 }

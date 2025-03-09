@@ -9,7 +9,7 @@ templ AcademicYearsTermsList(years []database.AcademicYear) {
 		<div class="flex items-center justify-between mb-4">
 			<h2 class="text-xl font-bold">Academic Years &amp; Terms</h2>
 			<button
-				class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none"
+				class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 hover: cursor-pointer focus:outline-none"
 				hx-get="/academics/create"
 				hx-target="#content-area"
 				hx-swap="innerHTML"
