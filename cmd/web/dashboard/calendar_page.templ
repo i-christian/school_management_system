@@ -1,10 +1,10 @@
 package dashboard
 
 templ CalendarPage() {
-	<div class="container mx-auto mt-8 p-4">
+	<div class="container mx-auto mt-5 p-4">
 		<section
 			id="full_calendar_page"
-			class="bg-white p-5 shadow-lg rounded-lg hover:shadow-xl transition-shadow duration-200 h-full"
+			class="p-5 max-h-svh"
 			hx-get="/dashboard/academic_events"
 			hx-trigger="load"
 			hx-swap="none"
@@ -49,18 +49,6 @@ templ CalendarPage() {
 					left: 'prev,next today',
 					center: 'title',
 					right: 'dayGridMonth,dayGridWeek,dayGridDay'
-				},
-				dayCellContent: function(arg) {
-					const dayNumber = document.createElement('div');
-					dayNumber.textContent = arg.dayNumberText;
-					dayNumber.classList.add('fc-daygrid-day-number');
-
-					if (arg.isToday) {
-						dayNumber.classList.add('bg-blue-400', 'text-white', 'rounded-full', 'p-1', 'font-bold');
-						return dayNumber;
-					} else {
-						return dayNumber;
-					}
 				},
 			});
 			calendarFullPage.render();
