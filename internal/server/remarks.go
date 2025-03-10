@@ -129,6 +129,7 @@ func (s *Server) SubmitRemarks(w http.ResponseWriter, r *http.Request) {
 					document.getElementById('popover').classList.add('hide');
 					setTimeout(() => document.getElementById('popover').remove(), 500);
 				}, 3000);
+				window.location.reload()
 			</script>
 		`))
 		return

@@ -7,7 +7,7 @@ UPDATE users
     email = COALESCE($6, email)
 WHERE user_id = $1;
 
--- name: EditMyPass :exec
+-- name: EditMyPassword :exec
 UPDATE users
     set password = COALESCE($2, password)
 WHERE user_id = $1;

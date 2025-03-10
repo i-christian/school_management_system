@@ -3,6 +3,7 @@ package settings
 import "school_management_system/internal/database"
 
 templ UserSettings(user database.GetUserDetailsRow) {
+	<div id="popover-container"></div>
 	<div class="max-w-4xl mx-auto p-6">
 		<div class="bg-white overflow-hidden">
 			<div class="bg-blue-600 px-6 py-4">
@@ -10,7 +11,7 @@ templ UserSettings(user database.GetUserDetailsRow) {
 			</div>
 			<form
 				hx-put={ "/settings/user" }
-				hx-target="#content-area"
+				hx-target="#popover-container"
 				hx-swap="innerHTML"
 				class="px-6 py-6"
 			>
@@ -95,7 +96,7 @@ templ UserSettings(user database.GetUserDetailsRow) {
 							<input
 								type="text"
 								name="current_password"
-								placeholder="Enter new password"
+								placeholder="Enter current password"
 								class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
 							/>
 						</section>
@@ -119,7 +120,7 @@ templ UserSettings(user database.GetUserDetailsRow) {
 								type="text"
 								name="confirm_password"
 								minlength="6"
-								placeholder="Enter new password"
+								placeholder="confirm new password"
 								class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
 							/>
 						</section>
