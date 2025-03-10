@@ -59,7 +59,7 @@ templ Dashboard(user dashboard.DashboardUserRole, term dashboard.DashboardTerm) 
         }
 
         let isDesktop = window.innerWidth >= 1024;
-        let expanded = isDesktop ? false : true;
+        let expanded = false;
 
         function applyLayout() {
           if (isDesktop) {
@@ -120,7 +120,6 @@ templ Dashboard(user dashboard.DashboardUserRole, term dashboard.DashboardTerm) 
 
         window.addEventListener('resize', () => {
           isDesktop = window.innerWidth >= 1024;
-          expanded = isDesktop ? true : false;
           applyLayout();
         });
 
