@@ -235,8 +235,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	r.Route("/settings", func(r chi.Router) {
 		r.Use(s.AuthMiddleware)
-		r.Get("/", nil)
-		r.Put("/", nil)
+		r.Get("/user", s.ShowUserSettings)
+		r.Put("/user", nil)
 	})
 
 	return r
