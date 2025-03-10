@@ -8,38 +8,15 @@ templ UserSettings(user database.GetUserDetailsRow) {
 		<div class="bg-white overflow-hidden">
 			<div class="bg-blue-600 px-6 py-4 flex items-center justify-between">
 				<h2 class="text-white text-xl font-bold">User Details</h2>
-				<div class="space-x-2">
-					<button
-						id="personal-details-toggle"
-						class="bg-blue-500 hover:bg-blue-700 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:cursor-pointer"
-						onclick="toggleSection('personal-details', this)"
-					>
-						Personal Details
-					</button>
-					<button
-						id="password-toggle"
-						class="bg-gray-300 hover:bg-gray-400 text-gray-700 font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-gray-400 hover:cursor-pointer"
-						onclick="toggleSection('password-section', this)"
-					>
-						Password
-					</button>
-					<button
-						id="all-toggle"
-						class="bg-gray-300 hover:bg-gray-400 text-gray-700 font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-gray-400 hover:cursor-pointer"
-						onclick="toggleSection('all', this)"
-					>
-						All
-					</button>
-				</div>
 			</div>
 			<form
-				hx-put={ "/settings/user" }
+				hx-put="/settings/user"
 				hx-target="#popover-container"
 				hx-swap="innerHTML"
 				class="px-6 py-6"
 			>
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-					<section id="personal-details" class="user-settings-section">
+					<section id="personal-details">
 						<h3 class="text-lg font-semibold text-gray-800 mb-3">Personal Details</h3>
 						<div>
 							<label class="block text-gray-700 font-semibold mb-2">
@@ -114,7 +91,7 @@ templ UserSettings(user database.GetUserDetailsRow) {
 							</select>
 						</div>
 					</section>
-					<section id="password-section" class="rounded p-5 user-settings-section hidden">
+					<section id="password-section" class="rounded p-5">
 						<h3 class="text-lg font-semibold text-gray-800 mb-3">Change Password <span class="font-normal text-gray-500">(Optional)</span></h3>
 						<p class="text-gray-600 mb-4">You can change your password here. If you don't want to change your password, leave these fields blank.</p>
 						<section>
@@ -206,45 +183,5 @@ templ UserSettings(user database.GetUserDetailsRow) {
 				toggleIcon.classList.add("fa-eye");
 			}
 		}
-
-		function toggleSection(sectionId, button) {
-			const sections = document.querySelectorAll('.user-settings-section');
-			const buttons = document.querySelectorAll('.bg-blue-500, .bg-gray-300');
-
-			buttons.forEach(btn => {
-				btn.classList.remove('bg-blue-500', 'hover:bg-blue-700', 'text-white');
-				btn.classList.add('bg-gray-300', 'hover:bg-gray-400', 'text-gray-700');
-			});
-
-			button.classList.remove('bg-gray-300', 'hover:bg-gray-400', 'text-gray-700');
-			button.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white');
-
-
-			if (sectionId === 'personal-details') {
-				sections.forEach(section => {
-					if (section.id === 'personal-details') {
-						section.classList.remove('hidden');
-					} else {
-						section.classList.add('hidden');
-					}
-				});
-			} else if (sectionId === 'password-section') {
-				sections.forEach(section => {
-					if (section.id === 'password-section') {
-						section.classList.remove('hidden');
-					} else {
-						section.classList.add('hidden');
-					}
-				});
-			} else if (sectionId === 'all') {
-				sections.forEach(section => {
-					section.classList.remove('hidden');
-				});
-			}
-		}
-
-		document.addEventListener('DOMContentLoaded', function() {
-			toggleSection('personal-details-toggle', document.getElementById('personal-details-toggle'));
-		});
 	</script>
 }
