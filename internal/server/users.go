@@ -297,10 +297,17 @@ func (s *Server) DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 // createUsersPdf helper function creates a pdf file a list of all available users
 func createUsersPdf(users []database.ListUsersRow) (string, *fpdf.Fpdf) {
-	pdf := fpdf.New("P", "mm", "A4", "")
+	pdf := fpdf.New(fpdf.OrientationPortrait, "mm", "A4", "")
 	userList := os.Getenv("PROJECT_NAME")
 
+	pdf.SetFooterFunc(func() {
+		pdf.SetY(-15)
+		pdf.SetFont("Arial", "I", 8)
+		pdf.CellFormat(0, 10, fmt.Sprintf("Page %d/{nb}", pdf.PageNo()), "", 0, "C", false, 0, "")
+	})
+	pdf.AliasNbPages("")
 	pdf.AddPage()
+
 	pdf.SetMargins(10, 10, 10)
 	pdf.SetFont("Arial", "B", 18)
 	pdf.CellFormat(190, 10, fmt.Sprintf("%s User List", userList), "", 0, "C", false, 0, "")

@@ -94,7 +94,7 @@ func (s *Server) ShowStudentsReports(w http.ResponseWriter, r *http.Request) {
 
 // createStudentReportPdf helper function creates a pdf file with student results, and teachers remarks
 func createStudentReportPdf(term database.GetCurrentAcademicYearAndTermRow, student database.GetStudentReportCardRow, studentSubjects []database.ListSubjectsRow) (string, *fpdf.Fpdf) {
-	pdf := fpdf.New("P", "mm", "A4", "")
+	pdf := fpdf.New(fpdf.OrientationPortrait, "mm", "A4", "")
 
 	pdf.AddPage()
 	pdf.SetFont("Arial", "B", 18)
