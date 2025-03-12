@@ -3,14 +3,17 @@ package server
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
 	"school_management_system/cmd/web/dashboard/students"
 	"school_management_system/internal/database"
 
+	"github.com/go-pdf/fpdf"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 	"golang.org/x/text/cases"
@@ -398,4 +401,80 @@ func (s *Server) DeleteStudent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.Redirect(w, r, "/students", http.StatusFound)
+}
+
+// createStudentsPdf helper function creates a pdf file a list of all available students
+func createStudentsPdf(students []database.ListStudentsRow) (string, *fpdf.Fpdf) {
+	pdf := fpdf.New(fpdf.OrientationPortrait, "mm", "A4", "")
+	studentList := os.Getenv("PROJECT_NAME")
+
+	pdf.SetFooterFunc(func() {
+		pdf.SetY(-15)
+		pdf.SetFont("Arial", "I", 8)
+		pdf.CellFormat(0, 10, fmt.Sprintf("Page %d/{nb}", pdf.PageNo()), "", 0, "C", false, 0, "")
+	})
+	pdf.AliasNbPages("")
+	pdf.AddPage()
+
+	pdf.SetMargins(10, 10, 10)
+	pdf.SetFont("Arial", "B", 18)
+	pdf.CellFormat(190, 10, fmt.Sprintf("%s Students List", studentList), "", 0, "C", false, 0, "")
+	pdf.Ln(15)
+
+	// Table Headers
+	pdf.SetFont("Arial", "B", 12)
+	pdf.SetFillColor(200, 200, 200)
+
+	headerWidths := map[string]float64{
+		"No.":         40,
+		"Last Name":   35,
+		"First Name":  35,
+		"Middle Name": 35,
+		"G":           10,
+		"Class":       35,
+	}
+
+	headers := []string{"No.", "Last Name", "First Name", "Middle Name", "G", "Class"}
+
+	for _, header := range headers {
+		pdf.CellFormat(headerWidths[header], 10, header, "1", 0, "C", true, 0, "")
+	}
+	pdf.Ln(-1)
+
+	// Table Content
+	pdf.SetFont("Arial", "", 12)
+	for _, student := range students {
+		pdf.CellFormat(headerWidths["No."], 10, student.StudentNo, "1", 0, "L", false, 0, "")
+		pdf.CellFormat(headerWidths["Last Name"], 10, student.LastName, "1", 0, "L", false, 0, "")
+		pdf.CellFormat(headerWidths["First Name"], 10, student.FirstName, "1", 0, "L", false, 0, "")
+		pdf.CellFormat(headerWidths["Middle Name"], 10, student.MiddleName.String, "1", 0, "L", false, 0, "")
+		pdf.CellFormat(headerWidths["G"], 10, student.Gender, "1", 0, "C", false, 0, "")
+		pdf.CellFormat(headerWidths["Class"], 10, student.Classname.String, "1", 0, "L", false, 0, "")
+		pdf.Ln(-1)
+	}
+
+	fileName := "students_list"
+
+	return fileName, pdf
+}
+
+// studentsDownload method is used to download available students into a pdf format
+func (s *Server) studentsDownload(w http.ResponseWriter, r *http.Request) {
+	students, err := s.queries.ListStudents(r.Context())
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to get students")
+		slog.Error("internal server error, failed to get students list", "error", err.Error())
+		return
+	}
+
+	fileName, studentsPDF := createStudentsPdf(students)
+
+	// Serve PDF as response
+	w.Header().Set("Content-Type", "application/pdf")
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s.pdf", fileName))
+	err = studentsPDF.Output(w)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "Failed to generate PDF")
+		slog.Error("PDF Generation Error:", "error", err.Error())
+	}
 }
