@@ -25,12 +25,14 @@ templ NavList(user DashboardUserRole, term DashboardTerm) {
 					<span class="nav-text text-sm">Dashboard</span>
 				</a>
 			</li>
-			<li>
-				<a href="/dashboard/calendar" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Calendar">
-					<i class="nav-icon fas fa-calendar-days fa-lg mr-3 text-blue-600"></i>
-					<span class="nav-text text-sm">Calendar</span>
-				</a>
-			</li>
+			if term.TermID != uuid.Nil {
+				<li>
+					<a href="/dashboard/calendar" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Calendar">
+						<i class="nav-icon fas fa-calendar-days fa-lg mr-3 text-blue-600"></i>
+						<span class="nav-text text-sm">Calendar</span>
+					</a>
+				</li>
+			}
 			if user.Role == "admin" {
 				<li class="px-4 py-1 text-xs font-bold text-gray-500 uppercase nav-text">User Management</li>
 				<li>
@@ -81,48 +83,54 @@ templ NavList(user DashboardUserRole, term DashboardTerm) {
 				}
 			}
 			<li class="px-4 py-1 text-xs font-bold text-gray-500 uppercase nav-text">Academic Records</li>
-			<li>
-				<a href="/grades/myclasses" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="My Classes">
-					<i class="nav-icon fas fa-chalkboard fa-lg mr-3 text-blue-600"></i>
-					<span class="nav-text text-sm">My Classes</span>
-				</a>
-			</li>
-			<li>
-				<a href="/grades" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Grades">
-					<i class="nav-icon fas fa-clipboard-list fa-lg mr-3 text-blue-600"></i>
-					<span class="nav-text text-sm">Grades</span>
-				</a>
-			</li>
-			<li>
-				<a href="/remarks" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Remarks">
-					<i class="nav-icon fas fa-comments fa-lg mr-3 text-blue-600"></i>
-					<span class="nav-text text-sm">Remarks</span>
-				</a>
-			</li>
-			<li>
-				<a href="/discipline" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Discipline">
-					<i class="nav-icon fas fa-bell fa-lg mr-3 text-blue-600"></i>
-					<span class="nav-text text-sm">Discipline</span>
-				</a>
-			</li>
-			<li>
-				<a href="/reports/reportcards" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Report Cards">
-					<i class="nav-icon fas fa-file-alt fa-lg mr-3 text-blue-600"></i>
-					<span class="nav-text text-sm">Report Cards</span>
-				</a>
-			</li>
+			if user.Role == "teacher" || user.Role == "classteacher" {
+				<li>
+					<a href="/grades/myclasses" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="My Classes">
+						<i class="nav-icon fas fa-chalkboard fa-lg mr-3 text-blue-600"></i>
+						<span class="nav-text text-sm">My Classes</span>
+					</a>
+				</li>
+				<li>
+					<a href="/grades" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Grades">
+						<i class="nav-icon fas fa-clipboard-list fa-lg mr-3 text-blue-600"></i>
+						<span class="nav-text text-sm">Grades</span>
+					</a>
+				</li>
+			}
+			if user.Role == "classteacher" || user.Role == "headteacher" {
+				<li>
+					<a href="/remarks" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Remarks">
+						<i class="nav-icon fas fa-comments fa-lg mr-3 text-blue-600"></i>
+						<span class="nav-text text-sm">Remarks</span>
+					</a>
+				</li>
+				<li>
+					<a href="/discipline" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Discipline">
+						<i class="nav-icon fas fa-bell fa-lg mr-3 text-blue-600"></i>
+						<span class="nav-text text-sm">Discipline</span>
+					</a>
+				</li>
+				<li>
+					<a href="/reports/reportcards" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Report Cards">
+						<i class="nav-icon fas fa-file-alt fa-lg mr-3 text-blue-600"></i>
+						<span class="nav-text text-sm">Report Cards</span>
+					</a>
+				</li>
+			}
 			<li>
 				<a href="/graduates" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Graduates">
 					<i class="nav-icon fas fa-graduation-cap fa-lg mr-3 text-blue-600"></i>
 					<span class="nav-text text-sm">Graduates</span>
 				</a>
 			</li>
-			<li>
-				<a href="/fees" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Fees Management">
-					<i class="nav-icon fas fa-money-bill-wave fa-lg mr-3 text-blue-600"></i>
-					<span class="nav-text text-sm">Fees Management</span>
-				</a>
-			</li>
+			if user.Role == "accountant" {
+				<li>
+					<a href="/fees" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Fees Management">
+						<i class="nav-icon fas fa-money-bill-wave fa-lg mr-3 text-blue-600"></i>
+						<span class="nav-text text-sm">Fees Management</span>
+					</a>
+				</li>
+			}
 		</ul>
 	</nav>
 }
