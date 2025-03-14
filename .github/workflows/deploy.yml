@@ -12,6 +12,7 @@ jobs:
       ENV: ${{ secrets.ENV }}
       DOMAIN: ${{ secrets.DOMAIN }}
       PROJECT_NAME: ${{ secrets.PROJECT_NAME }}
+      PORT: ${{ secrets.PORT }}
       RANDOM_HEX: ${{ secrets.RANDOM_HEX }}
       SUPERUSER_ROLE: ${{ secrets.SUPERUSER_ROLE }}
       SUPERUSER_EMAIL: ${{ secrets.SUPERUSER_EMAIL }}
@@ -35,6 +36,7 @@ jobs:
           echo "ENV=${{ secrets.ENV }}" > .env
           echo "DOMAIN=${{ secrets.DOMAIN }}" >> .env
           echo "PROJECT_NAME=${{ secrets.PROJECT_NAME }}" >> .env
+          echo "PORT=${{ secrets.PORT }}" >> .env
           echo "RANDOM_HEX=${{ secrets.RANDOM_HEX }}" >> .env
           echo "SUPERUSER_ROLE=${{ secrets.SUPERUSER_ROLE }}" >> .env
           echo "SUPERUSER_EMAIL=${{ secrets.SUPERUSER_EMAIL }}" >> .env
