@@ -1,10 +1,3 @@
-name: Deploy to Production
-
-on:
-  release:
-    types:
-      - published
-
 jobs:
   deploy:
     runs-on:
@@ -31,5 +24,24 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Create .env file
+        run: |
+          echo "ENV=${{ env.ENV }}" >> .env
+          echo "DOMAIN=${{ env.DOMAIN }}" >> .env
+          echo "PROJECT_NAME=${{ env.PROJECT_NAME }}" >> .env
+          echo "RANDOM_HEX=${{ env.RANDOM_HEX }}" >> .env
+          echo "SUPERUSER_ROLE=${{ env.SUPERUSER_ROLE }}" >> .env
+          echo "SUPERUSER_EMAIL=${{ env.SUPERUSER_EMAIL }}" >> .env
+          echo "SUPERUSER_PHONE=${{ env.SUPERUSER_PHONE }}" >> .env
+          echo "SUPERUSER_PASSWORD=${{ env.SUPERUSER_PASSWORD }}" >> .env
+          echo "DB_HOST=${{ env.DB_HOST }}" >> .env
+          echo "DB_NAME=${{ env.DB_NAME }}" >> .env
+          echo "DB_PASSWORD=${{ env.DB_PASSWORD }}" >> .env
+          echo "DB_SCHEMA=${{ env.DB_SCHEMA }}" >> .env
+          echo "DB_USERNAME=${{ env.DB_USERNAME }}" >> .env
+          echo "GOOSE_DRIVER=${{ env.GOOSE_DRIVER }}" >> .env
+          echo "GOOSE_MIGRATION_DIR=${{ env.GOOSE_MIGRATION_DIR }}" >> .env
+          echo "DOCKER_IMAGE=${{ env.DOCKER_IMAGE }}" >> .env
+          echo "TAG=${{ env.TAG }}" >> .env
       - run: docker compose -f docker-compose.yml build
       - run: docker compose -f docker-compose.yml up -d
