@@ -11,7 +11,7 @@ jobs:
       - self-hosted
       - production
     env:
-      ENV: production
+      ENV: ${{ secrets.ENV }}
       DOMAIN: ${{ secrets.DOMAIN }}
       PROJECT_NAME: ${{ secrets.PROJECT_NAME }}
       RANDOM_HEX: ${{ secrets.RANDOM_HEX }}

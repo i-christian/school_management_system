@@ -54,7 +54,7 @@ This can be reversed using:
   ```
 
 ## Secret key hash generation
-- Run the following command to generate the `SECRET_KEY`
+- Run the following command to generate the `RANDOM_HEX`
 ```
   openssl rand -hex 32
 ```
