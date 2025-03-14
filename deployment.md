@@ -139,6 +139,9 @@ The current Github Actions workflows expect these secrets:
 * `DB_NAME`
 * `DB_PASSWORD`
 * `DB_SCHEMA`
+* `TAG`
+* `GOOSE_DRIVER`
+* `GOOSE_MIGRATION_DIR`
 
 ## GitHub Action Deployment Workflows
 
