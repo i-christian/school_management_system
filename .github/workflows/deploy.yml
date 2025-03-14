@@ -23,6 +23,7 @@ jobs:
       DB_NAME: ${{ secrets.DB_NAME }}
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       DB_SCHEMA: ${{ secrets.DB_SCHEMA }}
+      DB_USERNAME: ${{ secrets.DB_USERNAME }}
       GOOSE_DRIVER: ${{ secrets.GOOSE_DRIVER }}
       GOOSE_MIGRATION_DIR: ${{ secrets.GOOSE_MIGRATION_DIR }}
       DOCKER_IMAGE: ${{ secrets.DOCKER_IMAGE }}
