@@ -22,6 +22,7 @@ Configure these environment variables first before deployment.
           openssl rand -hex 32
         ```
 * `PROJECT_NAME`: The name of the project.
+* `PORT`: application port
 * `DOMAIN`: The project domain record
 * `SUPERUSER_EMAIL`: The email of the superuser, this superuser will be the one that can create new users.
 * `SUPERUSER_PASSWORD`: The password of the first superuser.
@@ -130,6 +131,7 @@ The current Github Actions workflows expect these secrets:
 * `ENV`
 * `DOMAIN`
 * `PROJECT_NAME`
+* `PORT`
 * `RANDOM_HEX`
 * `SUPERUSER_ROLE`
 * `SUPERUSER_EMAIL`
