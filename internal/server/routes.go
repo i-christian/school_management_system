@@ -18,6 +18,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r := chi.NewRouter()
 
 	// Global middlewares
+	r.Use(middleware.SupressNotFound(r))
 	r.Use(middleware.CleanPath)
 	r.Use(middleware.RequestID)
 	r.Use(secureHeaders)
