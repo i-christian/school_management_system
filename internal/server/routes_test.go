@@ -40,7 +40,7 @@ func TestRoutes(t *testing.T) {
 			name:           "Homepage POST (method not allowed)",
 			method:         http.MethodPost,
 			target:         "/",
-			expectedStatus: http.StatusNotFound,
+			expectedStatus: http.StatusMethodNotAllowed,
 		},
 		{
 			name:           "Login GET (redirect if already authenticated)",
