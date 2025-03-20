@@ -32,22 +32,29 @@ templ FeesList(classRooms []ClassRoomData) {
 				</p>
 			</button>
 		</div>
-		<nav class="mb-6">
-			<ul class="flex space-x-2 overflow-x-auto">
-				for _, class := range classRooms {
-					<li>
-						<button
-							hx-get={ "/fees/class/" + class.ClassID.String() }
-							hx-target="#fees-container"
-							hx-swap="innerHTML"
-							class="bg-gray-200 px-2 py-1 font-semibold cursor-pointer hover:bg-gray-300 rounded-md transition border border-gray-300 shadow-xs"
-						>
-							{ class.ClassName }
-						</button>
-					</li>
-				}
-			</ul>
-		</nav>
+		if len(classRooms) == 0 {
+			<div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
+				<p class="font-bold">No fee structure found</p>
+				<p>No fee structure found for any class in the system, Set the fee structure first!</p>
+			</div>
+		} else {
+			<nav class="mb-6">
+				<ul class="flex space-x-2 overflow-x-auto">
+					for _, class := range classRooms {
+						<li>
+							<button
+								hx-get={ "/fees/class/" + class.ClassID.String() }
+								hx-target="#fees-container"
+								hx-swap="innerHTML"
+								class="bg-gray-200 px-2 py-1 font-semibold cursor-pointer hover:bg-gray-300 rounded-md transition border border-gray-300 shadow-xs"
+							>
+								{ class.ClassName }
+							</button>
+						</li>
+					}
+				</ul>
+			</nav>
+		}
 		<div id="fees-container">
 			{ children... }
 		</div>

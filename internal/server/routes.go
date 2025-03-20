@@ -217,7 +217,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	r.Route("/fees", func(r chi.Router) {
 		r.Use(s.AuthMiddleware)
-		r.Use(s.RequireRoles("accountant"))
+		r.Use(s.RequireRoles("accountant", "admin"))
 
 		r.Get("/structure", s.ShowSetTuition)
 		r.Post("/structure", s.SetFeesStructure)
