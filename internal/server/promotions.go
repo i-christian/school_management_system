@@ -184,7 +184,7 @@ func (s *Server) ShowPromotionPage(w http.ResponseWriter, r *http.Request) {
 
 // ShowResetPromotion confirmation modal
 func (s *Server) ShowResetPromotion(w http.ResponseWriter, r *http.Request) {
-	s.renderComponent(w, r, promotions.ConfirmationForm("Reset", ""))
+	s.renderComponent(w, r, promotions.ConfirmationForm("reset", ""))
 }
 
 // ResetPromotionRules clears all custom class promotion rules.
