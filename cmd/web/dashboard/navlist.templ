@@ -123,7 +123,7 @@ templ NavList(user DashboardUserRole, term DashboardTerm) {
 					<span class="nav-text text-sm">Graduates</span>
 				</a>
 			</li>
-			if user.Role == "accountant" || user.Role == "admin" {
+			if user.Role == "accountant" {
 				<li>
 					<a href="/fees" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Fees Management">
 						<i class="nav-icon fas fa-money-bill-wave fa-lg mr-3 text-blue-600"></i>
