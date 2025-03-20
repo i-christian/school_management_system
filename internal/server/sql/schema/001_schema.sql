@@ -220,7 +220,7 @@ CREATE TABLE fees (
   fees_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   fee_structure_id UUID NOT NULL,
   student_id UUID NOT NULL,
-  paid NUMERIC(10,2) NOT NULL CHECK (paid >= 0),
+  paid NUMERIC(10,2) NOT NULL,
   arrears NUMERIC(10,2) NOT NULL DEFAULT 0,
   status VARCHAR(20) NOT NULL DEFAULT 'OVERDUE',
   CONSTRAINT fk_fee_structure FOREIGN KEY (fee_structure_id)

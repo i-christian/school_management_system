@@ -292,7 +292,17 @@ func (s *Server) SaveFeesRecord(w http.ResponseWriter, r *http.Request) {
 		slog.Error("current term not found", "error", err.Error())
 		return
 	}
-	if currentTerm.PreviousTermID.Valid {
+
+	params := database.GetFeeStructurePerTermForStudentParams{
+		TermID:    currentTerm.PreviousTermID.Bytes,
+		StudentID: i.StudentID,
+	}
+	feeStructureCheck, err := qtx.GetFeeStructurePerTermForStudent(r.Context(), params)
+	if err != nil {
+		slog.Info("no fees structure found for student", "error", err.Error())
+	}
+
+	if currentTerm.PreviousTermID.Valid && feeStructureCheck.FeeStructureID != uuid.Nil {
 		previousTermID = currentTerm.PreviousTermID.Bytes
 
 		params := database.GetStudentPreviousFeeRecordParams{
@@ -303,16 +313,15 @@ func (s *Server) SaveFeesRecord(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			writeError(w, http.StatusInternalServerError, "failed to find student previous fees record")
 			slog.Error("failed to find student previous fees record", "error", err.Error())
+			return
 		}
 
 		float8Arrears, _ := lastFeeRecord.Arrears.Float64Value()
 		prevArrears := float8Arrears.Float64
 
 		paidArrears := 0.0
-		if prevArrears > 0 {
-			paidArrears = -prevArrears
-		} else {
-			paidArrears = prevArrears
+		if prevArrears > 0 || prevArrears < 0 {
+			paidArrears -= prevArrears
 		}
 
 		if paidArrears != 0.0 {

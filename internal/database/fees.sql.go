@@ -80,6 +80,42 @@ func (q *Queries) GetFeeStructureByTermAndClass(ctx context.Context, arg GetFeeS
 	return i, err
 }
 
+const getFeeStructurePerTermForStudent = `-- name: GetFeeStructurePerTermForStudent :one
+SELECT 
+    fs.fee_structure_id,
+    fs.term_id, 
+    fs.class_id
+FROM fee_structure fs
+INNER JOIN term t ON fs.term_id = t.term_id
+INNER JOIN classes c ON fs.class_id = c.class_id
+LEFT JOIN student_classes sc
+    ON fs.class_id = sc.class_id
+LEFT JOIN students s ON sc.student_id = s.student_id
+LEFT JOIN fees f
+    ON fs.fee_structure_id = f.fee_structure_id
+    AND s.student_id = f.student_id
+WHERE t.term_id = $1
+AND s.student_id = $2
+`
+
+type GetFeeStructurePerTermForStudentParams struct {
+	TermID    uuid.UUID `json:"term_id"`
+	StudentID uuid.UUID `json:"student_id"`
+}
+
+type GetFeeStructurePerTermForStudentRow struct {
+	FeeStructureID uuid.UUID `json:"fee_structure_id"`
+	TermID         uuid.UUID `json:"term_id"`
+	ClassID        uuid.UUID `json:"class_id"`
+}
+
+func (q *Queries) GetFeeStructurePerTermForStudent(ctx context.Context, arg GetFeeStructurePerTermForStudentParams) (GetFeeStructurePerTermForStudentRow, error) {
+	row := q.db.QueryRow(ctx, getFeeStructurePerTermForStudent, arg.TermID, arg.StudentID)
+	var i GetFeeStructurePerTermForStudentRow
+	err := row.Scan(&i.FeeStructureID, &i.TermID, &i.ClassID)
+	return i, err
+}
+
 const getFeesRecord = `-- name: GetFeesRecord :one
 SELECT
     fees.fees_id,
@@ -313,23 +349,6 @@ func (q *Queries) ListStudentsByClassForTerm(ctx context.Context, classID uuid.U
 		return nil, err
 	}
 	return items, nil
-}
-
-const transferAreas = `-- name: TransferAreas :exec
-INSERT INTO fees (fee_structure_id, student_id,  arrears)
-VALUES ($1, $2, $3)
-RETURNING fees_id, fee_structure_id, student_id, paid, arrears, status
-`
-
-type TransferAreasParams struct {
-	FeeStructureID uuid.UUID      `json:"fee_structure_id"`
-	StudentID      uuid.UUID      `json:"student_id"`
-	Arrears        pgtype.Numeric `json:"arrears"`
-}
-
-func (q *Queries) TransferAreas(ctx context.Context, arg TransferAreasParams) error {
-	_, err := q.db.Exec(ctx, transferAreas, arg.FeeStructureID, arg.StudentID, arg.Arrears)
-	return err
 }
 
 const upsertFeeStructure = `-- name: UpsertFeeStructure :one
