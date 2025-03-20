@@ -12,13 +12,15 @@ RETURNING *;
 
 -- name: TransferAreas :exec
 INSERT INTO fees (fee_structure_id, student_id, paid,  arrears)
-VALUES ('3c0883ff-6bd9-4269-b303-f5a495c8f661', '7eb587d5-3d80-4a5e-95c4-2b34c4f43317', 0, 100000)
+VALUES ($1, $2, $3, $4)
 RETURNING *;
 
 -- name: GetFeeStructureByTermAndClass :one
 SELECT fee_structure_id, term_id, class_id, required
 FROM fee_structure
-WHERE class_id = $1;
+WHERE class_id = $1
+AND 
+term_id = $2;
 
 -- name: ListStudentsByClassForTerm :many
 SELECT
@@ -79,7 +81,8 @@ LEFT JOIN student_classes sc
 LEFT JOIN students s ON sc.student_id = s.student_id
 LEFT JOIN fees f
     ON fs.fee_structure_id = f.fee_structure_id
-    AND s.student_id = f.student_id;
+    AND s.student_id = f.student_id
+WHERE t.term_id = $1;
     
 -- name: EditFeesRecord :exec
 UPDATE fees

@@ -59,10 +59,17 @@ const getFeeStructureByTermAndClass = `-- name: GetFeeStructureByTermAndClass :o
 SELECT fee_structure_id, term_id, class_id, required
 FROM fee_structure
 WHERE class_id = $1
+AND 
+term_id = $2
 `
 
-func (q *Queries) GetFeeStructureByTermAndClass(ctx context.Context, classID uuid.UUID) (FeeStructure, error) {
-	row := q.db.QueryRow(ctx, getFeeStructureByTermAndClass, classID)
+type GetFeeStructureByTermAndClassParams struct {
+	ClassID uuid.UUID `json:"class_id"`
+	TermID  uuid.UUID `json:"term_id"`
+}
+
+func (q *Queries) GetFeeStructureByTermAndClass(ctx context.Context, arg GetFeeStructureByTermAndClassParams) (FeeStructure, error) {
+	row := q.db.QueryRow(ctx, getFeeStructureByTermAndClass, arg.ClassID, arg.TermID)
 	var i FeeStructure
 	err := row.Scan(
 		&i.FeeStructureID,
@@ -160,6 +167,7 @@ LEFT JOIN students s ON sc.student_id = s.student_id
 LEFT JOIN fees f
     ON fs.fee_structure_id = f.fee_structure_id
     AND s.student_id = f.student_id
+WHERE t.term_id = $1
 `
 
 type ListStudentFeesRecordsRow struct {
@@ -180,8 +188,8 @@ type ListStudentFeesRecordsRow struct {
 	TermID         uuid.UUID      `json:"term_id"`
 }
 
-func (q *Queries) ListStudentFeesRecords(ctx context.Context) ([]ListStudentFeesRecordsRow, error) {
-	rows, err := q.db.Query(ctx, listStudentFeesRecords)
+func (q *Queries) ListStudentFeesRecords(ctx context.Context, termID uuid.UUID) ([]ListStudentFeesRecordsRow, error) {
+	rows, err := q.db.Query(ctx, listStudentFeesRecords, termID)
 	if err != nil {
 		return nil, err
 	}
@@ -261,12 +269,24 @@ func (q *Queries) ListStudentsByClassForTerm(ctx context.Context, classID uuid.U
 
 const transferAreas = `-- name: TransferAreas :exec
 INSERT INTO fees (fee_structure_id, student_id, paid,  arrears)
-VALUES ('3c0883ff-6bd9-4269-b303-f5a495c8f661', '7eb587d5-3d80-4a5e-95c4-2b34c4f43317', 0, 100000)
+VALUES ($1, $2, $3, $4)
 RETURNING fees_id, fee_structure_id, student_id, paid, arrears, status
 `
 
-func (q *Queries) TransferAreas(ctx context.Context) error {
-	_, err := q.db.Exec(ctx, transferAreas)
+type TransferAreasParams struct {
+	FeeStructureID uuid.UUID      `json:"fee_structure_id"`
+	StudentID      uuid.UUID      `json:"student_id"`
+	Paid           pgtype.Numeric `json:"paid"`
+	Arrears        pgtype.Numeric `json:"arrears"`
+}
+
+func (q *Queries) TransferAreas(ctx context.Context, arg TransferAreasParams) error {
+	_, err := q.db.Exec(ctx, transferAreas,
+		arg.FeeStructureID,
+		arg.StudentID,
+		arg.Paid,
+		arg.Arrears,
+	)
 	return err
 }
 

@@ -5,12 +5,35 @@ import (
 	"net/http"
 	"sort"
 	"strconv"
+	"strings"
 
 	"school_management_system/cmd/web/dashboard/fees"
 	"school_management_system/internal/database"
 
 	"github.com/google/uuid"
 )
+
+// selectFeeRecordsPerTerm method allows us to view fee records for a given term
+func (s *Server) selectFeeRecordsPerTerm(r *http.Request) (uuid.UUID, error) {
+	var selectedTermID uuid.UUID
+	if len(strings.TrimSpace(r.PathValue("termID"))) > 0 {
+		termID, err := uuid.Parse(r.PathValue("termID"))
+		if err != nil {
+			return uuid.Nil, err
+		} else {
+			selectedTermID = termID
+		}
+	} else {
+		currentTerm, err := s.queries.GetCurrentTerm(r.Context())
+		if err != nil {
+			return uuid.Nil, err
+		} else {
+			selectedTermID = currentTerm.TermID
+		}
+	}
+
+	return selectedTermID, nil
+}
 
 // getFeesData groups fee records by class.
 func getFeesData(records []database.ListStudentFeesRecordsRow) []fees.ClassRoomData {
@@ -45,11 +68,18 @@ func getFeesData(records []database.ListStudentFeesRecordsRow) []fees.ClassRoomD
 func (s *Server) ShowClassFees(w http.ResponseWriter, r *http.Request) {
 	classID, err := uuid.Parse(r.PathValue("classID"))
 	if err != nil {
-		http.Error(w, "Invalid class ID", http.StatusBadRequest)
+		writeError(w, http.StatusBadRequest, "invalid class")
 		return
 	}
 
-	records, err := s.queries.ListStudentFeesRecords(r.Context())
+	selectedTermID, err := s.selectFeeRecordsPerTerm(r)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to get term")
+		slog.Error("Failed to get term ", "error", err.Error())
+		return
+	}
+
+	records, err := s.queries.ListStudentFeesRecords(r.Context(), selectedTermID)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "failed to retrieve fees records")
 		slog.Error("failed to retrieve fee records", "error", err.Error())
@@ -69,7 +99,14 @@ func (s *Server) ShowClassFees(w http.ResponseWriter, r *http.Request) {
 
 // ShowFeesList renders fee records for all classes.
 func (s *Server) ShowFeesList(w http.ResponseWriter, r *http.Request) {
-	records, err := s.queries.ListStudentFeesRecords(r.Context())
+	selectedTermID, err := s.selectFeeRecordsPerTerm(r)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to get term")
+		slog.Error("Failed to get term ", "error", err.Error())
+		return
+	}
+
+	records, err := s.queries.ListStudentFeesRecords(r.Context(), selectedTermID)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "failed to retrieve fee records")
 		slog.Error("failed to retrieve fee records", "error", err.Error())
@@ -165,7 +202,19 @@ func (s *Server) ShowCreateFeesRecordForStudent(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	feeStructure, err := s.queries.GetFeeStructureByTermAndClass(r.Context(), classID)
+	currentTerm, err := s.queries.GetCurrentTerm(r.Context())
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to find active term")
+		slog.Error("current term not found", "error", err.Error())
+		return
+	}
+
+	params := database.GetFeeStructureByTermAndClassParams{
+		ClassID: classID,
+		TermID:  currentTerm.TermID,
+	}
+
+	feeStructure, err := s.queries.GetFeeStructureByTermAndClass(r.Context(), params)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "failed to find fee structure for this class")
 		slog.Error("failed to find fee structure for this class", "error", err.Error())
