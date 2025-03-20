@@ -11,8 +11,8 @@ VALUES ($1, $2, $3)
 RETURNING *;
 
 -- name: TransferAreas :exec
-INSERT INTO fees (fee_structure_id, student_id, paid,  arrears)
-VALUES ($1, $2, $3, $4)
+INSERT INTO fees (fee_structure_id, student_id,  arrears)
+VALUES ($1, $2, $3)
 RETURNING *;
 
 -- name: GetFeeStructureByTermAndClass :one
@@ -30,6 +30,25 @@ INNER JOIN student_classes sc ON s.student_id = sc.student_id
 INNER JOIN term t ON sc.term_id = t.term_id
 INNER JOIN classes c ON sc.class_id = c.class_id
 WHERE c.class_id = $1 AND t.active = TRUE;
+
+-- name: GetStudentPreviousFeeRecord :one
+SELECT
+    fees.fees_id,
+    students.student_id,
+    fees.paid,
+    fees.arrears,
+    fee_structure.required AS TuitionAmount,
+    fees.status
+FROM fees
+INNER JOIN students
+    ON fees.student_id = students.student_id
+INNER JOIN fee_structure 
+    ON fees.fee_structure_id = fee_structure.fee_structure_id
+INNER JOIN term
+    ON fee_structure.term_id = term.term_id
+WHERE term.term_id = $1
+AND
+students.student_id = $2;
 
 -- name: GetFeesRecord :one
 SELECT

@@ -257,12 +257,82 @@ func (s *Server) SaveFeesRecord(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	const query = `INSERT INTO fees (fee_structure_id, student_id, paid) VALUES ($1, $2, $3)`
+	ctx := r.Context()
+	tx, err := s.conn.Begin(ctx)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to start transaction")
+		return
+	}
+	defer tx.Rollback(ctx)
+	qtx := s.queries.WithTx(tx)
 
-	_, err = s.conn.Exec(r.Context(), query, parsedFeeStructureID, parsedStudentID, parsedPaid)
+	const query = `INSERT INTO fees (fee_structure_id, student_id, paid) VALUES ($1, $2, $3) RETURNING*`
+
+	row := tx.QueryRow(r.Context(), query, parsedFeeStructureID, parsedStudentID, parsedPaid)
+	var i database.Fee
+	err = row.Scan(
+		&i.FeesID,
+		&i.FeeStructureID,
+		&i.StudentID,
+		&i.Paid,
+		&i.Arrears,
+		&i.Status,
+	)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "failed to create fees record")
 		slog.Error("failed to create fees record", "parsedFeeStructureID", parsedFeeStructureID, "studentID", parsedStudentID, "paid", parsedPaid, "error", err.Error())
+		return
+	}
+
+	// Handle arrears
+	var previousTermID uuid.UUID
+	currentTerm, err := qtx.GetCurrentTerm(r.Context())
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to find active term")
+		slog.Error("current term not found", "error", err.Error())
+		return
+	}
+	if currentTerm.PreviousTermID.Valid {
+		previousTermID = currentTerm.PreviousTermID.Bytes
+
+		params := database.GetStudentPreviousFeeRecordParams{
+			TermID:    previousTermID,
+			StudentID: i.StudentID,
+		}
+		lastFeeRecord, err := qtx.GetStudentPreviousFeeRecord(r.Context(), params)
+		if err != nil {
+			writeError(w, http.StatusInternalServerError, "failed to find student previous fees record")
+			slog.Error("failed to find student previous fees record", "error", err.Error())
+		}
+
+		float8Arrears, _ := lastFeeRecord.Arrears.Float64Value()
+		prevArrears := float8Arrears.Float64
+
+		paidArrears := 0.0
+		if prevArrears > 0 {
+			paidArrears = -prevArrears
+		} else {
+			paidArrears = prevArrears
+		}
+
+		if paidArrears != 0.0 {
+			const updateQuery = `
+				UPDATE fees
+    				SET paid = paid + $1
+				WHERE fees_id = $2;
+			`
+			_, err = tx.Exec(r.Context(), updateQuery, paidArrears, i.FeesID)
+			if err != nil {
+				writeError(w, http.StatusInternalServerError, "failed to edit fees record")
+				slog.Error("failed to edit fees record", "Additional Amount", paidArrears, "feesID", i.FeesID, "error", err.Error())
+				return
+			}
+		}
+	}
+
+	err = tx.Commit(ctx)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to commit transaction")
 		return
 	}
 
