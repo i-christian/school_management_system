@@ -3,7 +3,6 @@ package tests
 import (
 	"context"
 	"net/http"
-	"net/http/cookiejar"
 	"net/http/httptest"
 	"net/url"
 	"os"
@@ -32,24 +31,14 @@ func TestRegisterUser(t *testing.T) {
 	defer ts.Close()
 
 	// Step 1: Log in as the superuser to get the session cookie
-	formData := url.Values{}
-	formData.Set("identifier", os.Getenv("SUPERUSER_PHONE"))
-	formData.Set("password", os.Getenv("SUPERUSER_PASSWORD"))
-
-	cookieJar, _ := cookiejar.New(nil)
-	client := &http.Client{Jar: cookieJar, CheckRedirect: func(req *http.Request, via []*http.Request) error {
-		return http.ErrUseLastResponse
-	}}
-
-	req, err := http.NewRequest(http.MethodPost, ts.URL+"/login", strings.NewReader(formData.Encode()))
-	require.NoError(t, err)
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	resp, err := client.Do(req)
+	loginReq, cookieJar, err := LoginHelper(t, ts, &LoginInfo{
+		Identifier: os.Getenv("SUPERUSER_PHONE"),
+		Password:   os.Getenv("SUPERUSER_PASSWORD"),
+	})
+	client := InitialiseClient(cookieJar)
+	resp, err := client.Do(loginReq)
 	require.NoError(t, err)
 	defer resp.Body.Close()
-
-	require.Equal(t, http.StatusFound, resp.StatusCode, "Expected 302 Found after login")
 
 	// Step 2: Register a new user
 	newUserData := url.Values{}
@@ -61,7 +50,7 @@ func TestRegisterUser(t *testing.T) {
 	newUserData.Set("role", "teacher")
 
 	// Send POST request to /users/ endpoint
-	req, err = http.NewRequest(http.MethodPost, ts.URL+"/users/", strings.NewReader(newUserData.Encode()))
+	req, err := http.NewRequest(http.MethodPost, ts.URL+"/users/", strings.NewReader(newUserData.Encode()))
 	require.NoError(t, err)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
