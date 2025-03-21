@@ -2,6 +2,7 @@ package tests
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -63,4 +64,10 @@ func TestRegisterUser(t *testing.T) {
 	defer resp.Body.Close()
 
 	require.Equal(t, http.StatusOK, resp.StatusCode, "Expected 200 OK after creating user")
+
+	// Send Get to /profile endpoint to get user details
+	req, err = http.NewRequest(http.MethodGet, ts.URL+"/profile", nil)
+	require.NoError(t, err)
+	resp, err = client.Do(req)
+	require.Equal(t, http.StatusOK, resp.StatusCode, "Expected 200 OK with user information")
 }
