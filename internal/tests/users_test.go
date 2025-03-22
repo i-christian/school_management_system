@@ -72,6 +72,7 @@ func TestUserActions(t *testing.T) {
 	}
 
 	resp, err = client.Do(req)
+	require.NoError(t, err)
 	defer resp.Body.Close()
 
 	require.Equal(t, http.StatusOK, resp.StatusCode, "Expected 200 OK with user information")
@@ -84,6 +85,7 @@ func TestUserActions(t *testing.T) {
 	}
 
 	resp, err = client.Do(req)
+	require.NoError(t, err)
 	defer resp.Body.Close()
 
 	require.Equal(t, http.StatusFound, resp.StatusCode, "Expected 302 Found after logout")
