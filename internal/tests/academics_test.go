@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestAcademicYears(t *testing.T) {
+func TestAcademics(t *testing.T) {
 	ts, postgresC := SetUpTestServer(t)
 	defer func() {
 		ts.Close()
@@ -28,42 +28,44 @@ func TestAcademicYears(t *testing.T) {
 	resp, err := client.Do(loginReq)
 	require.NoError(t, err)
 	defer resp.Body.Close()
-
-	// Create an academic year
-	currentTime := time.Now()
-	start := currentTime.Format(time.DateOnly)
-	end := currentTime.AddDate(0, 12, 0).Format(time.DateOnly)
-	newAcademicYear := url.Values{}
-	newAcademicYear.Set("name", "2025/26 Academic Year")
-	newAcademicYear.Set("start", start)
-	newAcademicYear.Set("end", end)
-
-	// Send a POST request to /academics/years endpoint
-	req, err := http.NewRequest(http.MethodPost, ts.URL+"/academics/years", strings.NewReader(newAcademicYear.Encode()))
-	require.NoError(t, err)
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	for _, cookie := range cookieJar.Cookies(req.URL) {
-		req.AddCookie(cookie)
-	}
-
-	resp, err = client.Do(req)
-	require.NoError(t, err)
-	defer resp.Body.Close()
-
-	require.Equal(t, http.StatusFound, resp.StatusCode, "Expected 302 Found after creating an academic year")
-
-	redirectURL, err := resp.Location()
-	require.NoError(t, err, "Expected Location header")
-
-	redirectReq, err := http.NewRequest(http.MethodGet, redirectURL.String(), nil)
-	require.NoError(t, err)
-	redirectResp, err := client.Do(redirectReq)
-	require.NoError(t, err)
-	defer redirectResp.Body.Close()
-	require.Equal(t, http.StatusOK, redirectResp.StatusCode, "Expected 200 OK after redirect")
-
 	var toggleURL string
+	var redirectResp *http.Response
+	var termRedirectResp *http.Response
+	currentTime := time.Now()
+
+	t.Run("Create an academic year", func(t *testing.T) {
+		start := currentTime.Format(time.DateOnly)
+		end := currentTime.AddDate(0, 12, 0).Format(time.DateOnly)
+		newAcademicYear := url.Values{}
+		newAcademicYear.Set("name", "2025/26 Academic Year")
+		newAcademicYear.Set("start", start)
+		newAcademicYear.Set("end", end)
+
+		// Send a POST request to /academics/years endpoint
+		req, err := http.NewRequest(http.MethodPost, ts.URL+"/academics/years", strings.NewReader(newAcademicYear.Encode()))
+		require.NoError(t, err)
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+		for _, cookie := range cookieJar.Cookies(req.URL) {
+			req.AddCookie(cookie)
+		}
+
+		resp, err = client.Do(req)
+		require.NoError(t, err)
+		defer resp.Body.Close()
+
+		require.Equal(t, http.StatusFound, resp.StatusCode, "Expected 302 Found after creating an academic year")
+
+		redirectURL, err := resp.Location()
+		require.NoError(t, err, "Expected Location header")
+
+		redirectReq, err := http.NewRequest(http.MethodGet, redirectURL.String(), nil)
+		require.NoError(t, err)
+		redirectResp, err = client.Do(redirectReq)
+		require.NoError(t, err)
+		require.Equal(t, http.StatusOK, redirectResp.StatusCode, "Expected 200 OK after redirect")
+	})
+
 	// Test toggle active academic year
 	t.Run("Toggle Active academic year", func(t *testing.T) {
 		doc, err := goquery.NewDocumentFromReader(redirectResp.Body)
@@ -91,12 +93,50 @@ func TestAcademicYears(t *testing.T) {
 		newAcademicTerm.Set("start", startTerm)
 		newAcademicTerm.Set("end", endTerm)
 
-		req, err := http.NewRequest(http.MethodPost, ts.URL+"/academics/terms/"+academicYearID, strings.NewReader(newAcademicYear.Encode()))
+		req, err := http.NewRequest(http.MethodPost, ts.URL+"/academics/terms/"+academicYearID, strings.NewReader(newAcademicTerm.Encode()))
 		require.NoError(t, err)
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 		resp, err = client.Do(req)
 		require.NoError(t, err)
 		defer resp.Body.Close()
+		require.Equal(t, http.StatusFound, resp.StatusCode, "Expected 302 Found after toggling an academic year")
+
+		redirectURL, err := resp.Location()
+		require.NoError(t, err, "Expected Location header")
+
+		redirectReq, err := http.NewRequest(http.MethodGet, redirectURL.String(), nil)
+		require.NoError(t, err)
+		termRedirectResp, err = client.Do(redirectReq)
+		require.NoError(t, err)
+		require.Equal(t, http.StatusOK, termRedirectResp.StatusCode, "Expected 200 OK after redirect")
+	})
+
+	// Test toggle active academic term
+	t.Run("Toggle active term year", func(t *testing.T) {
+		doc, err := goquery.NewDocumentFromReader(termRedirectResp.Body)
+		defer termRedirectResp.Body.Close()
+
+		require.NoError(t, err)
+		toggleURL, _ = doc.Find("#AcademicTermsList").Attr("hx-get")
+
+		getTermsReq, err := http.NewRequest(http.MethodGet, ts.URL+toggleURL, nil)
+		require.NoError(t, err)
+
+		getTermsResp, err := client.Do(getTermsReq)
+		require.NoError(t, err)
+
+		doc, err = goquery.NewDocumentFromReader(getTermsResp.Body)
+		defer getTermsResp.Body.Close()
+		require.NoError(t, err)
+		toggleURL, _ = doc.Find("#toggleTermID").Attr("hx-put")
+
+		toggleTermReq, err := http.NewRequest(http.MethodPut, ts.URL+toggleURL, nil)
+
+		require.NoError(t, err)
+		toggleTermResp, err := client.Do(toggleTermReq)
+		require.NoError(t, err)
+
+		require.Equal(t, http.StatusFound, toggleTermResp.StatusCode, "Expected 302 Found after toggling an academic term")
 	})
 }

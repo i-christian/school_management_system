@@ -75,6 +75,7 @@ templ AcademicYearsTermsList(years []database.AcademicYear) {
 									<ul id={ "terms-list-" + year.AcademicYearID.String() } class="space-y-2">
 										<li class="p-2 bg-gray-200 rounded text-center text-sm">
 											<div
+												id="AcademicTermsList"
 												hx-get={ "/academics/year/" + year.AcademicYearID.String() + "/terms" }
 												hx-target={ "#terms-list-" + year.AcademicYearID.String() }
 												hx-trigger="revealed"
@@ -116,6 +117,7 @@ templ TermsList(terms []database.ListTermsRow) {
 				</button>
 				<!-- Toggle Status Button -->
 				<button
+					id="toggleTermID"
 					class="flex items-center px-3 py-1 text-sm text-white bg-gray-500 rounded-md hover:bg-gray-600 hover:cursor-pointer"
 					hx-put={ "/academics/terms/" + term.TermID.String() + "/toggle" }
 					hx-target="#content-area"
