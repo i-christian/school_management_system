@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 	"os"
@@ -8,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/PuerkitoBio/goquery"
 	"github.com/stretchr/testify/require"
 )
 
@@ -58,8 +60,27 @@ func TestAcademicYears(t *testing.T) {
 	redirectReq, err := http.NewRequest(http.MethodGet, redirectURL.String(), nil)
 	require.NoError(t, err)
 	redirectResp, err := client.Do(redirectReq)
-	// require.NoError(t, err)
+	require.NoError(t, err)
 	defer redirectResp.Body.Close()
-
 	require.Equal(t, http.StatusOK, redirectResp.StatusCode, "Expected 200 OK after redirect")
+
+	// Test toggle active academic year
+	doc, err := goquery.NewDocumentFromReader(redirectResp.Body)
+	require.NoError(t, err)
+	var toggleURL string
+	toggleURL, _ = doc.Find("#toggleAcademicID").Attr("hx-put")
+
+	toggleYearReq, err := http.NewRequest(http.MethodPut, ts.URL+toggleURL, nil)
+
+	require.NoError(t, err)
+	toggleYearResp, err := client.Do(toggleYearReq)
+	require.NoError(t, err)
+	defer toggleYearResp.Body.Close()
+
+	require.Equal(t, http.StatusFound, toggleYearResp.StatusCode, "Expected 302 Found after toggling an academic year")
+
+	// doc.Find("button").Each(func(i int, s *goquery.Selection) {
+	// 	toggleURL, _ = s.Attr("hx-get")
+	fmt.Println(toggleURL)
+	// })
 }

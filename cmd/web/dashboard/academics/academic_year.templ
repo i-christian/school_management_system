@@ -46,6 +46,7 @@ templ AcademicYearsTermsList(years []database.AcademicYear) {
 											<i class="fas fa-edit mr-1"></i> Edit
 										</button>
 										<button
+											id="toggleAcademicID"
 											class="flex items-center px-3 py-1 text-sm text-white bg-gray-500 rounded-md hover:bg-gray-600 hover:cursor-pointer"
 											hx-put={ "/academics/years/" + year.AcademicYearID.String() + "/toggle" }
 											hx-target="#content-area"
