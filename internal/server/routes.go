@@ -50,7 +50,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Use(s.AuthMiddleware)
 
 		r.Get("/profile", s.userProfile)
-		r.Get("/logout/confirm", templ.Handler(web.LogoutConfirmHandler()).ServeHTTP)
+		r.Get("/logout/confirm", s.LogoutConfirmHandler)
 		r.Get("/logout/cancel", s.LogoutCancelHandler)
 		r.Post("/logout", s.LogoutHandler)
 	})

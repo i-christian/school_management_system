@@ -8,6 +8,7 @@ import (
 	"os"
 	"regexp"
 
+	"school_management_system/cmd/web"
 	"school_management_system/internal/cookies"
 	"school_management_system/internal/database"
 
@@ -150,6 +151,10 @@ func (s *Server) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	})
 
 	http.Redirect(w, r, "/", http.StatusFound)
+}
+
+func (s *Server) LogoutConfirmHandler(w http.ResponseWriter, r *http.Request) {
+	s.renderComponent(w, r, web.LogoutConfirmHandler())
 }
 
 func (s *Server) LogoutCancelHandler(w http.ResponseWriter, r *http.Request) {
