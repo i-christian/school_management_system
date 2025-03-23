@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"fmt"
 	"net/http"
 	"net/url"
 	"os"
@@ -64,23 +63,40 @@ func TestAcademicYears(t *testing.T) {
 	defer redirectResp.Body.Close()
 	require.Equal(t, http.StatusOK, redirectResp.StatusCode, "Expected 200 OK after redirect")
 
-	// Test toggle active academic year
-	doc, err := goquery.NewDocumentFromReader(redirectResp.Body)
-	require.NoError(t, err)
 	var toggleURL string
-	toggleURL, _ = doc.Find("#toggleAcademicID").Attr("hx-put")
+	// Test toggle active academic year
+	t.Run("Toggle Active academic year", func(t *testing.T) {
+		doc, err := goquery.NewDocumentFromReader(redirectResp.Body)
+		require.NoError(t, err)
+		toggleURL, _ = doc.Find("#toggleAcademicID").Attr("hx-put")
 
-	toggleYearReq, err := http.NewRequest(http.MethodPut, ts.URL+toggleURL, nil)
+		toggleYearReq, err := http.NewRequest(http.MethodPut, ts.URL+toggleURL, nil)
 
-	require.NoError(t, err)
-	toggleYearResp, err := client.Do(toggleYearReq)
-	require.NoError(t, err)
-	defer toggleYearResp.Body.Close()
+		require.NoError(t, err)
+		toggleYearResp, err := client.Do(toggleYearReq)
+		require.NoError(t, err)
+		defer toggleYearResp.Body.Close()
 
-	require.Equal(t, http.StatusFound, toggleYearResp.StatusCode, "Expected 302 Found after toggling an academic year")
+		require.Equal(t, http.StatusFound, toggleYearResp.StatusCode, "Expected 302 Found after toggling an academic year")
+	})
 
-	// doc.Find("button").Each(func(i int, s *goquery.Selection) {
-	// 	toggleURL, _ = s.Attr("hx-get")
-	fmt.Println(toggleURL)
-	// })
+	// Test Create academic Term for an active academic year from the above test
+	t.Run("Create a new academic term", func(t *testing.T) {
+		parts := strings.Split(toggleURL, "/")
+		newAcademicTerm := url.Values{}
+		academicYearID := parts[3]
+		startTerm := currentTime.Format(time.DateOnly)
+		endTerm := currentTime.AddDate(0, 2, 0).Format(time.DateOnly)
+		newAcademicTerm.Set("name", "First Term")
+		newAcademicTerm.Set("start", startTerm)
+		newAcademicTerm.Set("end", endTerm)
+
+		req, err := http.NewRequest(http.MethodPost, ts.URL+"/academics/terms/"+academicYearID, strings.NewReader(newAcademicYear.Encode()))
+		require.NoError(t, err)
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+		resp, err = client.Do(req)
+		require.NoError(t, err)
+		defer resp.Body.Close()
+	})
 }
