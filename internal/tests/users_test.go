@@ -1,34 +1,21 @@
 package tests
 
 import (
-	"context"
 	"net/http"
-	"net/http/httptest"
 	"net/url"
 	"os"
 	"strings"
 	"testing"
 
-	"school_management_system/internal/server"
-
 	"github.com/stretchr/testify/require"
 )
 
 func TestUserActions(t *testing.T) {
-	ctx := context.Background()
-
-	postgresC, dsn := setupPostgresContainer(t)
-	defer postgresC.Terminate(ctx)
-
-	setEnvVars(dsn)
-
-	// Initialize server
-	appServer, _ := server.NewServer()
-	router := appServer.RegisterRoutes()
-
-	// Start an HTTP test server using the server's router
-	ts := httptest.NewServer(router)
-	defer ts.Close()
+	ts, postgresC := SetUpTestServer(t)
+	defer func() {
+		ts.Close()
+		TestTeardown(t, postgresC)
+	}()
 
 	// Step 1: Log in as the superuser to get the session cookie
 	loginReq, cookieJar, err := LoginHelper(t, ts, &LoginInfo{

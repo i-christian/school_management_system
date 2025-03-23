@@ -2,25 +2,18 @@ package tests
 
 import (
 	"net/http"
-	"net/http/httptest"
 	"os"
 	"testing"
-
-	"school_management_system/internal/server"
 
 	"github.com/stretchr/testify/require"
 )
 
 func TestLoginIntegration(t *testing.T) {
-	// Setup common resources (e.g., Postgres container, environment variables)
-	postgresC := TestSetup(t)
-	defer TestTeardown(t, postgresC)
-
-	appServer, _ := server.NewServer()
-	router := appServer.RegisterRoutes()
-
-	ts := httptest.NewServer(router)
-	defer ts.Close()
+	ts, postgresC := SetUpTestServer(t)
+	defer func() {
+		ts.Close()
+		TestTeardown(t, postgresC)
+	}()
 
 	req, cookieJar, err := LoginHelper(t, ts, &LoginInfo{
 		Identifier: os.Getenv("SUPERUSER_PHONE"),

@@ -8,7 +8,10 @@ import (
 	"strings"
 	"testing"
 
+	"school_management_system/internal/server"
+
 	"github.com/stretchr/testify/require"
+	"github.com/testcontainers/testcontainers-go"
 )
 
 type LoginInfo struct {
@@ -27,6 +30,22 @@ func InitialiseClient(cookieJar *cookiejar.Jar) *http.Client {
 	}
 
 	return client
+}
+
+// SetUpTestServer function sets up the new test server for tests
+func SetUpTestServer(t *testing.T) (*httptest.Server, testcontainers.Container) {
+	t.Helper()
+
+	postgresC := TestSetup(t)
+
+	// Initialize server
+	appServer, _ := server.NewServer()
+	router := appServer.RegisterRoutes()
+
+	// Start an HTTP test server using the server's router
+	ts := httptest.NewServer(router)
+
+	return ts, postgresC
 }
 
 // LoginHelper function is a helper that performs user login
