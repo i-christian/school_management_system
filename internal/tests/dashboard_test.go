@@ -15,7 +15,7 @@ func TestAdminDashboard(t *testing.T) {
 		TestTeardown(t, postgresC)
 	}()
 
-	// Log in as the superuser to get the session cookie
+	// Log in as the superuser to get session cookie
 	loginReq, cookieJar, err := LoginHelper(t, ts, &LoginInfo{
 		Identifier: os.Getenv("SUPERUSER_PHONE"),
 		Password:   os.Getenv("SUPERUSER_PASSWORD"),
