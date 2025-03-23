@@ -139,4 +139,16 @@ func TestAcademics(t *testing.T) {
 
 		require.Equal(t, http.StatusFound, toggleTermResp.StatusCode, "Expected 302 Found after toggling an academic term")
 	})
+
+	// Test currrent academic year and term
+	t.Run("Get Current Academic Year and Term", func(t *testing.T) {
+		getAcademicsReq, err := http.NewRequest(http.MethodGet, ts.URL+"/dashboard/academics", nil)
+		require.NoError(t, err)
+
+		getAcademicsResp, err := client.Do(getAcademicsReq)
+		require.NoError(t, err)
+		defer getAcademicsResp.Body.Close()
+
+		require.Equal(t, http.StatusOK, getAcademicsResp.StatusCode, "Expect 200 OK after getting current year and term")
+	})
 }
