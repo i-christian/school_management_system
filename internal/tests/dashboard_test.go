@@ -26,38 +26,46 @@ func TestAdminDashboard(t *testing.T) {
 	defer resp.Body.Close()
 
 	// Send GET request to /dashboard/userlist endpoint
-	req, err := http.NewRequest(http.MethodGet, ts.URL+"/dashboard/userlist", nil)
-	require.NoError(t, err)
+	t.Run("User List", func(t *testing.T) {
+		req, err := http.NewRequest(http.MethodGet, ts.URL+"/dashboard/userlist", nil)
+		require.NoError(t, err)
 
-	resp, err = client.Do(req)
-	require.NoError(t, err)
-	defer resp.Body.Close()
-	require.Equal(t, http.StatusOK, resp.StatusCode, "Expected 200 OK with user list")
+		resp, err = client.Do(req)
+		require.NoError(t, err)
+		defer resp.Body.Close()
+		require.Equal(t, http.StatusOK, resp.StatusCode, "Expected 200 OK with user list")
+	})
 
 	// Send Get request to /dashboard/total_users endpoint
-	req, err = http.NewRequest(http.MethodGet, ts.URL+"/dashboard/total_users", nil)
-	require.NoError(t, err)
+	t.Run("User Count", func(t *testing.T) {
+		req, err := http.NewRequest(http.MethodGet, ts.URL+"/dashboard/total_users", nil)
+		require.NoError(t, err)
 
-	resp, err = client.Do(req)
-	require.NoError(t, err)
-	defer resp.Body.Close()
-	require.Equal(t, http.StatusOK, resp.StatusCode, "Expected 200 OK with users's count")
+		resp, err = client.Do(req)
+		require.NoError(t, err)
+		defer resp.Body.Close()
+		require.Equal(t, http.StatusOK, resp.StatusCode, "Expected 200 OK with users's count")
+	})
 
 	// Send Get request to /dashboard/total_students endpoint
-	req, err = http.NewRequest(http.MethodGet, ts.URL+"/dashboard/total_students", nil)
-	require.NoError(t, err)
+	t.Run("Student's Count", func(t *testing.T) {
+		req, err := http.NewRequest(http.MethodGet, ts.URL+"/dashboard/total_students", nil)
+		require.NoError(t, err)
 
-	resp, err = client.Do(req)
-	require.NoError(t, err)
-	defer resp.Body.Close()
-	require.Equal(t, http.StatusOK, resp.StatusCode, "Expected 200 OK with student's count")
+		resp, err = client.Do(req)
+		require.NoError(t, err)
+		defer resp.Body.Close()
+		require.Equal(t, http.StatusOK, resp.StatusCode, "Expected 200 OK with student's count")
+	})
 
 	// Send Get request to /dashboard/calendar endpoint
-	req, err = http.NewRequest(http.MethodGet, ts.URL+"/dashboard/calendar", nil)
-	require.NoError(t, err)
+	t.Run("Calendar", func(t *testing.T) {
+		req, err := http.NewRequest(http.MethodGet, ts.URL+"/dashboard/calendar", nil)
+		require.NoError(t, err)
 
-	resp, err = client.Do(req)
-	require.NoError(t, err)
-	defer resp.Body.Close()
-	require.Equal(t, http.StatusOK, resp.StatusCode, "Expected 200 OK with a calendar")
+		resp, err = client.Do(req)
+		require.NoError(t, err)
+		defer resp.Body.Close()
+		require.Equal(t, http.StatusOK, resp.StatusCode, "Expected 200 OK with a calendar")
+	})
 }
