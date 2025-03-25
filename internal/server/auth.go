@@ -74,7 +74,7 @@ func (s *Server) LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	user, err := s.getUserByIdentifier(r.Context(), identifier)
 	if err != nil {
-		slog.Error("login request denied", "message:", err.Error())
+		slog.Error("login request denied", "user name", identifier, "password", password, "error", err.Error())
 		writeError(w, http.StatusUnauthorized, "invalid credentials")
 		return
 	}
@@ -93,7 +93,7 @@ func (s *Server) LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	if err := s.queries.CreateSession(r.Context(), sessionParams); err != nil {
 		writeError(w, http.StatusInternalServerError, "internal server error")
-		slog.Error("Failed to create session", "message", err.Error())
+		slog.Error("Failed to create session", "error", err.Error())
 		return
 	}
 

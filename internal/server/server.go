@@ -49,7 +49,7 @@ func setUpMigration() {
 	}
 
 	if err := goose.Up(db, os.Getenv("GOOSE_MIGRATION_DIR")); err != nil {
-		slog.Error("Unable to run migrations:\n", "Details", err)
+		slog.Error("Unable to run migrations:\n", "error", err.Error())
 	}
 }
 
@@ -77,7 +77,7 @@ func NewServer() (*Server, *http.Server) {
 	port, _ := strconv.Atoi(os.Getenv("PORT"))
 	conn, err := pgxpool.New(ctx, os.Getenv("DB_URL"))
 	if err != nil {
-		slog.Error("Unable to connect to database: \n", "detailed message", err)
+		slog.Error("Unable to connect to database: \n", "error", err.Error())
 		os.Exit(1)
 	}
 
@@ -134,7 +134,7 @@ func createSuperUser(ctx context.Context, queries *database.Queries) {
 
 	_, err = queries.CreateUser(ctx, user)
 	if err != nil {
-		slog.Error("Failed to create superuser:", "Message", err)
+		slog.Error("Failed to create superuser:", "error", err.Error())
 	} else {
 		slog.Info("Superuser created successfully")
 	}
