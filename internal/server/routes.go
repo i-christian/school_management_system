@@ -39,7 +39,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	// PUBLIC ROUTES
 	r.Group(func(r chi.Router) {
 		r.Get("/", templ.Handler(web.Home()).ServeHTTP)
-		r.With(s.RedirectIfAuthenticated).Get("/login", s.showLoginPage)
+		r.With(s.RedirectIfAuthenticated).Get("/login", templ.Handler(web.Login()).ServeHTTP)
 		r.Post("/login", s.LoginHandler)
 	})
 
