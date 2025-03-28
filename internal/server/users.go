@@ -19,6 +19,11 @@ import (
 	"golang.org/x/text/language"
 )
 
+// showCreateUserPage renders the create user page
+func (s *Server) showCreateUserPage(w http.ResponseWriter, r *http.Request) {
+	s.renderComponent(w, r, userlist.CreateUserForm())
+}
+
 // hashPassword accepts a string and returns a hashed password
 func hashPassword(password string) ([]byte, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)

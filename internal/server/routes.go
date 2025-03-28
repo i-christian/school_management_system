@@ -5,8 +5,6 @@ import (
 	"os"
 
 	"school_management_system/cmd/web"
-	"school_management_system/cmd/web/dashboard/academics"
-	"school_management_system/cmd/web/dashboard/userlist"
 
 	"github.com/a-h/templ"
 	"github.com/go-chi/chi/v5"
@@ -41,7 +39,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	// PUBLIC ROUTES
 	r.Group(func(r chi.Router) {
 		r.Get("/", templ.Handler(web.Home()).ServeHTTP)
-		r.With(s.RedirectIfAuthenticated).Get("/login", templ.Handler(web.Login()).ServeHTTP)
+		r.With(s.RedirectIfAuthenticated).Get("/login", s.showLoginPage)
 		r.Post("/login", s.LoginHandler)
 	})
 
@@ -61,7 +59,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Use(s.RequireRoles("admin"))
 
 		// Registration routes
-		r.Get("/create", templ.Handler(userlist.CreateUserForm()).ServeHTTP)
+		r.Get("/create", s.showCreateUserPage)
 		r.Post("/", s.Register)
 
 		// Edit routes
@@ -97,7 +95,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Use(s.RequireRoles("admin"))
 
 		r.Get("/years", s.ListAcademicYears)
-		r.Get("/create", templ.Handler(academics.AcademicYearForm()).ServeHTTP)
+		r.Get("/create", s.ShowCreateAcademicYear)
 		r.Post("/years", s.CreateAcademicYear)
 		r.Get("/years/{id}/edit", s.ShowEditAcademicYear)
 		r.Put("/years/{id}", s.EditAcademicYear)

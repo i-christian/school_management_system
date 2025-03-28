@@ -15,6 +15,11 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+// ShowCreateAcademicYear page renders academic year creating form
+func (s *Server) ShowCreateAcademicYear(w http.ResponseWriter, r *http.Request) {
+	s.renderComponent(w, r, academics.AcademicYearForm())
+}
+
 // CreateAcademicYear handler method creates an academic year or school calender.
 func (s *Server) CreateAcademicYear(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {

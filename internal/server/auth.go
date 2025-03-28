@@ -22,6 +22,11 @@ type LoginUser struct {
 	UserID   uuid.UUID
 }
 
+// showLoginPage method renders the login page
+func (s *Server) showLoginPage(w http.ResponseWriter, r *http.Request) {
+	s.renderComponent(w, r, web.Login())
+}
+
 // getUserByIdentifier returns the LoginUser corresponding to the provided identifier.
 // It checks whether the identifier is a 12-digit phone number or a username formatted as "USR-yyyy-xxxxx".
 func (s *Server) getUserByIdentifier(ctx context.Context, identifier string) (LoginUser, error) {
