@@ -102,14 +102,9 @@ func (s *Server) AuthMiddleware(next http.Handler) http.Handler {
 			r = r.WithContext(context.WithValue(r.Context(), sessionIDKey, session.SessionID))
 		}
 
-		userRecord, err := s.queries.GetUserRole(r.Context(), session.UserID)
-		if err != nil {
-			http.Redirect(w, r, "/login", http.StatusFound)
-			return
-		}
 		user := User{
-			UserID: userRecord.UserID,
-			Role:   userRecord.Role,
+			UserID: session.UserID,
+			Role:   session.Role,
 		}
 
 		r = r.WithContext(context.WithValue(r.Context(), userContextKey, user))

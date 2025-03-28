@@ -41,22 +41,34 @@ func (q *Queries) DeleteSession(ctx context.Context, userID uuid.UUID) error {
 
 const getSession = `-- name: GetSession :one
 SELECT 
-  user_id,
-  session_id,
-  expires
-FROM sessions WHERE session_id = $1
+  sessions.user_id,
+  sessions.session_id,
+  roles.name AS role,
+  sessions.expires
+FROM sessions
+INNER JOIN users
+  ON sessions.user_id = users.user_id
+INNER JOIN roles 
+  ON users.role_id = roles.role_id
+WHERE session_id = $1
 `
 
 type GetSessionRow struct {
 	UserID    uuid.UUID          `json:"user_id"`
 	SessionID uuid.UUID          `json:"session_id"`
+	Role      string             `json:"role"`
 	Expires   pgtype.Timestamptz `json:"expires"`
 }
 
 func (q *Queries) GetSession(ctx context.Context, sessionID uuid.UUID) (GetSessionRow, error) {
 	row := q.db.QueryRow(ctx, getSession, sessionID)
 	var i GetSessionRow
-	err := row.Scan(&i.UserID, &i.SessionID, &i.Expires)
+	err := row.Scan(
+		&i.UserID,
+		&i.SessionID,
+		&i.Role,
+		&i.Expires,
+	)
 	return i, err
 }
 

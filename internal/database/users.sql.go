@@ -208,26 +208,6 @@ func (q *Queries) GetUserDetails(ctx context.Context, userID uuid.UUID) (GetUser
 	return i, err
 }
 
-const getUserRole = `-- name: GetUserRole :one
-SELECT roles.name AS role, users.user_id
-FROM users
-INNER JOIN roles 
-    ON users.role_id = roles.role_id
-WHERE users.user_id = $1
-`
-
-type GetUserRoleRow struct {
-	Role   string    `json:"role"`
-	UserID uuid.UUID `json:"user_id"`
-}
-
-func (q *Queries) GetUserRole(ctx context.Context, userID uuid.UUID) (GetUserRoleRow, error) {
-	row := q.db.QueryRow(ctx, getUserRole, userID)
-	var i GetUserRoleRow
-	err := row.Scan(&i.Role, &i.UserID)
-	return i, err
-}
-
 const listUsers = `-- name: ListUsers :many
 SELECT
     users.user_id,

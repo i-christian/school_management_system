@@ -6,10 +6,16 @@ DO UPDATE SET session_id = EXCLUDED.session_id;
 
 -- name: GetSession :one
 SELECT 
-  user_id,
-  session_id,
-  expires
-FROM sessions WHERE session_id = $1;
+  sessions.user_id,
+  sessions.session_id,
+  roles.name AS role,
+  sessions.expires
+FROM sessions
+INNER JOIN users
+  ON sessions.user_id = users.user_id
+INNER JOIN roles 
+  ON users.role_id = roles.role_id
+WHERE session_id = $1;
 
 -- name: RefreshSession :exec
 UPDATE sessions

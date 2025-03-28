@@ -12,13 +12,6 @@ VALUES (
 ON CONFLICT (phone_number) DO NOTHING
 RETURNING *;
 
--- name: GetUserRole :one
-SELECT roles.name AS role, users.user_id
-FROM users
-INNER JOIN roles 
-    ON users.role_id = roles.role_id
-WHERE users.user_id = $1;
-
 -- name: GetUserDetails :one
 SELECT 
     users.user_id,
