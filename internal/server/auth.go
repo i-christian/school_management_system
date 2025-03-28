@@ -59,11 +59,6 @@ func (s *Server) getUserByIdentifier(ctx context.Context, identifier string) (Lo
 
 // LoginHandler authenticates the user and creates a session.
 func (s *Server) LoginHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
-		return
-	}
-
 	if err := r.ParseForm(); err != nil {
 		writeError(w, http.StatusBadRequest, "bad request")
 		return
@@ -125,11 +120,6 @@ func (s *Server) LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 // LogoutHandler to log users out
 func (s *Server) LogoutHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
-		return
-	}
-
 	user, ok := r.Context().Value(userContextKey).(User)
 	if !ok {
 		writeError(w, http.StatusUnauthorized, "User not authenticated")
