@@ -1,6 +1,7 @@
 package server
 
 import (
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -111,10 +112,10 @@ func (s *Server) Register(w http.ResponseWriter, r *http.Request) {
 }
 
 // extract common user details retrieval logic
-func (s *Server) getUserDetails(w http.ResponseWriter, r *http.Request) (components.User, error) {
+func (s *Server) getUserDetails(r *http.Request) (components.User, error) {
 	user, ok := r.Context().Value(userContextKey).(User)
 	if !ok {
-		writeError(w, http.StatusUnauthorized, "user not authenticated")
+		return components.User{}, errors.New("unauthorized")
 	}
 
 	userInfo, err := s.queries.GetUserDetails(r.Context(), user.UserID)
@@ -134,19 +135,20 @@ func (s *Server) getUserDetails(w http.ResponseWriter, r *http.Request) (compone
 	}, nil
 }
 
-// userDetails handler function
+// userProfile handler method returns user current logged in user details
 func (s *Server) userProfile(w http.ResponseWriter, r *http.Request) {
-	user, err := s.getUserDetails(w, r)
+	user, err := s.getUserDetails(r)
 	if err != nil {
 		var status int
+		var errorMessage string
 		if strings.Contains(err.Error(), "unauthorized") {
 			status = http.StatusUnauthorized
-		} else if strings.Contains(err.Error(), "bad request") {
-			status = http.StatusBadRequest
+			errorMessage = "user not authorised"
 		} else {
 			status = http.StatusInternalServerError
+			errorMessage = "internal server error"
 		}
-		writeError(w, status, err.Error())
+		writeError(w, status, errorMessage)
 		return
 	}
 
