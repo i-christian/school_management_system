@@ -65,10 +65,11 @@ For a detailed overview of the database schema, please refer to the [Database De
 
 The application follows a modular, layered architecture:
 
-- **Backend API**: Written in Golang, exposing RESTful endpoints for all operations—from user authentication to recording student grades.
-- **Frontend**: Uses Go’s templating system alongside HTMX for dynamic content updates and TailwindCSS for responsive design.
+- **Backend API**: Written in Golang with chi router, exposing RESTful endpoints for all operations—from user authentication to recording student grades.
+- **Frontend**: Uses Go's `templ` alongside HTMX for dynamic content updates and TailwindCSS for responsive design.
 - **Database**: PostgreSQL serves as the backbone for all persistent data, with clear relationships between entities such as students, classes, and academic terms.
 - **Containerization**: Docker and Docker Compose streamline development, testing, and deployment.
+- **Reverse Proxy**: Caddy server acts as a reverse proxy for the application
 - **CI/CD Pipeline**: GitHub Actions automate testing and deployments, ensuring continuous integration and delivery.
 
 ## Development Workflow
@@ -93,4 +94,4 @@ I welcome contributions to improve this project. Here’s how you can get starte
 School Management System is licensed under the MIT License. See the [LICENSE](/LICENSE) file for details.
 
 ## Acknowledgements 🙌
-Special thanks to the developers of Golang, Templ, and HTMX & TailwindCSS for their excellent tools and libraries.
+Special thanks to the developers of Golang, Chi, Templ, and HTMX & TailwindCSS for their excellent tools and libraries.

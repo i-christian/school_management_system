@@ -8,10 +8,13 @@ But you have to configure a couple things first. 🤓
 
 ## Preparation
 
-* Have a remote server ready and available.
+* Have a remote server(vps) ready and available.
 * Configure the DNS records of your domain to point to the IP of the server you just created.
 * Configure a wildcard subdomain for your domain, so that you can have multiple subdomains for different services, e.g. `*.example.com`. This will be useful for accessing different components, like `adminer.example.com`, etc.
 * Install and configure [Docker](https://docs.docker.com/engine/install/) on the remote server (Docker Engine, not Docker Desktop).
+
+## Reverse Proxy
+This application uses `[Caddy](https://caddyserver.com/)` as a reverse proxy, you can configure it using the `Caddyfile` on the root of the project.
 
 ## Deploy the Project
 Configure these environment variables first before deployment.
