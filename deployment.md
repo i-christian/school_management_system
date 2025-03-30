@@ -14,7 +14,7 @@ But you have to configure a couple things first. 🤓
 * Install and configure [Docker](https://docs.docker.com/engine/install/) on the remote server (Docker Engine, not Docker Desktop).
 
 ## Reverse Proxy
-This application uses `[Caddy](https://caddyserver.com/)` as a reverse proxy, you can configure it using the `Caddyfile` on the root of the project.
+This application uses [Caddy](https://caddyserver.com/) as a reverse proxy, you can configure it using the `Caddyfile` on the root of the project.
 
 ## Deploy the Project
 Configure these environment variables first before deployment.
