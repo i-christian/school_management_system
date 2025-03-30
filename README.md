@@ -80,7 +80,7 @@ This documentation provides instructions on how to set up your environment and d
 
 ## Deployment Workflow
 
-For instructions on how to get help with deployment of the application, please refer to the [Deployment Documentation](/deployment.md).
+For instructions on how to deploy the application, please refer to the [Deployment Documentation](/deployment.md).
 
 This documentation provides instructions on how to set up your server and deploy the application.
 
