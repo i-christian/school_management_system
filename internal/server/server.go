@@ -38,14 +38,14 @@ var embedMigrations embed.FS
 func setUpMigration() {
 	db, err := sql.Open(os.Getenv("GOOSE_DRIVER"), os.Getenv("DB_URL"))
 	if err != nil {
-		slog.Error("Failed to open database for migration")
+		slog.Error("Failed to open database for migration", "msg", err.Error())
 		return
 	}
 
 	defer db.Close()
 	goose.SetBaseFS(embedMigrations)
 	if err := goose.SetDialect("postgres"); err != nil {
-		slog.Error("Failed to select postgres database")
+		slog.Error("Failed to select postgres database", "msg", err.Error())
 	}
 
 	if err := goose.Up(db, os.Getenv("GOOSE_MIGRATION_DIR")); err != nil {
