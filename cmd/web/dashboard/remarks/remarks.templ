@@ -87,13 +87,17 @@ templ DisciplinePage(records []database.ListDisciplinaryRecordsRow) {
 				hx-get="/discipline/new"
 				hx-target="#discipline-form-container"
 				hx-swap="outerHTML"
-				class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors"
+				class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors hover:cursor-pointer"
 			>
 				Add New Record
 			</button>
 		</div>
 		if len(records) == 0 {
-			<div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
+			<div
+				class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4"
+				id="discipline-form-container"
+				role="alert"
+			>
 				<p class="font-bold">No Records Found</p>
 				<p>No disciplinary records found in the system</p>
 			</div>
@@ -203,13 +207,13 @@ templ AddDisciplineRecordForm() {
 						hx-get="/discipline"
 						hx-target="#discipline-page"
 						hx-swap="innerHTML"
-						class="bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-gray-400"
+						class="bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-gray-400 hover:cursor-pointer"
 					>
 						Cancel
 					</button>
 					<button
 						type="submit"
-						class="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-red-500"
+						class="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-red-500 hover:cursor-pointer"
 					>
 						Save Record
 					</button>
