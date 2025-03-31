@@ -1,0 +1,430 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+### Added
+- Add a link to `deployment.md` in `README.md` by @i-christian
+- Add test for `/dashboard/academics` endpoint by @i-christian
+- Add toggle active term test by @i-christian
+- Add create new academic term test function by @i-christian
+- Add toggle active academic year endpoint test by @i-christian
+- Add test to validate academic year creation by @i-christian
+- Add integration tests for `/dashboard/userlist` &`/dashboard/calendar` endpoints by @i-christian
+- Add admin dashboard tests by @i-christian
+- Add `logout` endpoint test by @i-christian
+- Add a test for `/profile` endpoint by @i-christian
+- Add details/summary format to subjects list per class. by @i-christian
+- Add tests to verify all routes permissions by @i-christian
+- Add `SupressNotFound` middleware by @i-christian
+
+### Changed
+- Refactor server shutdown process
+- Improve `deployment.md` by @i-christian
+- Improve `userProfile` handler method error handling by @i-christian
+- Refactor authMiddleware to only use one sql query by @i-christian
+- Refactor `routes.go` by @i-christian
+- Upgrade templ module by @i-christian
+- Improve auth functions by @i-christian
+- Refactor auth.go error messages by @i-christian
+- Refactor logout functionality by @i-christian
+- Improve permission for fee management by @i-christian
+- Improve fees arrears handling by @i-christian
+- Improve student promotions page to only show promote students section if promotion rules are defined by @i-christian
+- Improve `CreateFeesRecord` to handle transfer of arrears from one term to another by @i-christian
+- Improve the fees management page by @i-christian
+
+### Fixed
+- Fix `htmx target error` on discplinary page
+- Fix `caddy docs` link in deployment.md by @i-christian
+- Fix typo in README.md by @i-christian
+- Fix `GET` login unauthorised error by @i-christian
+- Refactor user's test by @i-christian
+- Refactor dashboard tests by @i-christian
+- Fix go vet errors in test files by @i-christian
+- Create a `LoginHelper` function to be used for integration tests by @i-christian
+- Fee management backend by @i-christian
+- Fix `TestRoutes/Homepage_POST_(method_not_allowed)` to expect 405 error not 404 error. by @i-christian
+- Fix false 404 pages introduced by `SuppressNotFound` middleware by @i-christian
+
+## [0.1.0-alpha] - 2025-03-14
+
+### Added
+- Add `PORT` variable to deploy workflow by @i-christian
+- Add .env creation step to resolve missing file error by @i-christian
+- Add the missing `DB_USERNAME` to deploy workflow file by @i-christian
+- Add `deployment.md` file by @i-christian
+- Add deploy.yml git action file by @i-christian
+- Add a create footer function to generate userlist pdf functionality by @i-christian
+- Add new queries in `insights.sql` to get some data insights by @i-christian
+- Add cursor-pointer tailwind class on nav buttons in `myclasses` and `reportcards` pages by @i-christian
+- Add current academic term to the student report card by @i-christian
+- Add cursor pointer style on show button by @i-christian
+- Add popover for success and error messages in remarks submission by @i-christian
+- Add unique constraints for remarks and discipline_records by @i-christian
+- Add disciplinary record form with live student search by @i-christian
+- Add upsert queries for remarks and discipline_records by @i-christian
+- Add transactional handling and enhanced error logging to SubmitGrades by @i-christian
+- Add class navigation with dynamic form loading by @i-christian
+- Add student creation form with guardian details by @i-christian
+- Add student list page template by @i-christian
+- Add students report cards link by @i-christian
+- Add expandable details/summary view for assigned classes list by @i-christian
+- Add student promotions section and fix tooltip titles by @i-christian
+- Refactor (EditAssignmentForm): added dropdowns like Create form by @i-christian
+- Add teacher's assigned classes card to DashboardCards by @i-christian
+- Add missing `users/create` endpoint by @i-christian
+- Add `tests` directory to .air.toml ignore list by @i-christian
+- Add contributions section by @i-christian
+- Add comprehensive README.md by @i-christian
+- Add no browser caching control for pages that require auth by @i-christian
+- Add dashboard insight handlers for students and fees by @i-christian
+- Add insights queries for users, students, and fees by @i-christian
+- Add triggers to auto-generate user and student numbers by @i-christian
+- Add unit tests for cookies package by @i-christian
+- Add expanded tests for routes and security headers by @i-christian
+- Add wrong password error message on login form to give user feedback. by @i-christian
+- Add class icon for classes and subjects by @i-christian
+- Add .env to .gitignore file by @i-christian
+- Add middle name field to students table by @i-christian
+- Add userId fields to the User struct by @i-christian
+- Add a link route to user register on create user button by @i-christian
+- Add EditUser handler function by @i-christian
+- Add user_id to context alongside session_id by @i-christian
+- Add middleware to redirect authenticated users from login pages by @i-christian
+- Add unit tests for the homepage route by @i-christian
+- Add Docker Compose file to manage app, database, Caddy reverse proxy, and Adminer for database management by @i-christian
+- Add Caddyfile for reverse proxy configuration by @i-christian
+- Add Dockerfile to containerize the application by @i-christian
+- Add an href to homepage login button by @i-christian
+- Add a landing page route by @i-christian
+- Add a login button on landing page by @i-christian
+- Add queries for fetching student details and lists by @i-christian
+- Add sql statement to retrieve all terms in a given academic year. by @i-christian
+- Add remarks CRUD operations. by @i-christian
+- Add calculated 'status' column to fees table by @i-christian
+- Add database schema documentation by @i-christian
+- Add classes and subjects CRUD operations by @i-christian
+- Add a missing semicolon to the end of an sql statement by @i-christian
+- Add sessions CRUD operations by @i-christian
+- Add a full database initial schema for the app by @i-christian
+- Add compress middleware to compress responses by @i-christian
+- Add chi router library by @i-christian
+
+### Changed
+- Update deployment.md to include PORT variable by @i-christian
+- Update production deployment workflow by @i-christian
+- Update `deployment.md` to include missing secrets by @i-christian
+- Improve navlist sidebar links by @i-christian
+- Implement students list pdf download functionality by @i-christian
+- Enhance User Settings UX with password visibility toggle (removed section toggles) by @i-christian
+- Enhance User Settings UX with section toggles and password visibility by @i-christian
+- Implement `EditUserProfile` handler method by @i-christian
+- Implement `ShowUserSettings` handler method by @i-christian
+- Implement `user settings page` by @i-christian
+- Refactor sidebar expanded and collapsed configuration using JS. by @i-christian
+- Implement export user list to pdf functionality by @i-christian
+- Default to a collapsed sidebar in default mode by @i-christian
+- Revert to default day number rendering in calendar by @i-christian
+- Move calendar to dedicated page and add placeholder card by @i-christian
+- Render dynamic academic events on FullCalendar by @i-christian
+- Configure role based permissions on routes using middleware by @i-christian
+- Students report cards generation by @i-christian
+- Improve `reports.templ` component to render based on presence of students grades or display a `not found banner` by @i-christian
+- Implement `ListStudentReportCards` sql query from a particular class by @i-christian
+- Improve teacher assignments page to display a nothing found banner instead of an empty page by @i-christian
+- Implement `PromoteStudents` handler method by @i-christian
+- Implement class promotion UI by @i-christian
+- Implement and undo promotions form in student promotions page by @i-christian
+- Improve students list page by @i-christian
+- Implement undo promotions functionality by @i-christian
+- Improve academic years page to display a message indicating the absence of academic terms instead of an empty page by @i-christian
+- Implement `reset promotion rules` confirmation modal by @i-christian
+- Implement `resetPromotionRule` handler method and database query by @i-christian
+- Implement Create student promotions rules logic and validations by @i-christian
+- Implement student promotions page by @i-christian
+- Implement `ShowGraduatesList` handler method by @i-christian
+- Implement graduates Page by @i-christian
+- Implement Promotions Page UI with Templ by @i-christian
+- Implement term-based student promotion with academic year aware class updates by @i-christian
+- Use Bookworm base images for smaller Debian-based image by @i-christian
+- Implement edit fees record by @i-christian
+- Improve the `Add new fee` page by @i-christian
+- Implement Fees Record Creation and Improved Data Retrieval by @i-christian
+- Implement fees structuring for a given class and term by @i-christian
+- Improve `FeesList` page by @i-christian
+- Implement fee management UI and backend endpoints by @i-christian
+- Enhance student promotion query to handle graduation and prevent duplicate promotions by @i-christian
+- Correctly handle INSERT and UPDATE in fee status trigger by @i-christian
+- Fix runtime panic due to nil pointer dereference in toggleTerm function by @i-christian
+- Refactor `toggleTerm` function by @i-christian
+- Improve term and fee management logic, fix student promotions by @i-christian
+- Implement `createStudentReportPdf` helper function by @i-christian
+- Implement student report card generation and download by @i-christian
+- Implement student report card PDF generation by @i-christian
+- Refactor report handlers, improved class grouping, and fixed pgtype.UUID conversion by @i-christian
+- Group remarks data by class and update templ component by @i-christian
+- Improve displinary page to show the incident reporter fullname by @i-christian
+- Improve styling for remarks and discipline pages by @i-christian
+- Disable submit button during submission with cursor-progress style by @i-christian
+- Implement `remarks` page by @i-christian
+- Refactor grades page by @i-christian
+- Extract popover styling into a reusable global class by @i-christian
+- Add animated popover for grade submission feedback by @i-christian
+- Add documentation to grade handlers and helper functions by @i-christian
+- Prepopulate grade inputs and add component documentation by @i-christian
+- Replace HTMX form submission with JavaScript JSON request by @i-christian
+- Improve grade entry structure by @i-christian
+- Update "My Classes" icon by @i-christian
+- Improve EnterGradesForm UI for bulk grade entry by @i-christian
+- Implement `RetrieveClassRoom` which retrieves all classroom data from virtual classroom view by @i-christian
+- Upgrade to v4 by @i-christian
+- Implement a virtual_classroom view by @i-christian
+- Refactor ListGrades page by @i-christian
+- Redesign enter grades form to use a table format by @i-christian
+- Implement enter grades form with student, subject, and term selection by @i-christian
+- Enhance grades page styling for better readability and UX by @i-christian
+- Refactor grades rendering to show subjects per class by @i-christian
+- Structure grades data with new Grade and GradesMap types by @i-christian
+- Implement `ListGrades` handler method by @i-christian
+- Implement student grades listing functionality by @i-christian
+- Fix SQL queries for grade management: by @i-christian
+- Implement `ListStudentSubjects` query by @i-christian
+- Refactor permissions throughout the application by @i-christian
+- Implement search guardians using student first and last name by @i-christian
+- Implement `EditGuardian` handler method by @i-christian
+- Implement edit guardian form by @i-christian
+- Implement `getGuardianByID` query by @i-christian
+- Create `guardians page` by @i-christian
+- Refactor `DeleteStudent` handler method by @i-christian
+- Implement `DeleteStudent` endpoint by @i-christian
+- Implement edit student handler method by @i-christian
+- Refactor `editStudentClass` query by @i-christian
+- Refactor editStudentForm modal by @i-christian
+- Refactor upsertGuardian function to allow a single guardian to have multiple students by @i-christian
+- Implement edit and delete user templ components by @i-christian
+- Improve `Create Student Form` by adding placeholders in input fields by @i-christian
+- Implement `createStudentClass` function by @i-christian
+- Improve `CreateStudent` component by @i-christian
+- Implement `Create Student` functionality by @i-christian
+- Split complex student creation query into modular operations by @i-christian
+- Create helpers.go file by @i-christian
+- Track student promotions with class history by @i-christian
+- Create GetAssignedClasses SQL query to retrieve classes per user by @i-christian
+- Implement toggle active year & term backend logic by @i-christian
+- Improve academic year and terms UI by @i-christian
+- Implement current academic year and term dashboard card by @i-christian
+- Prevent date overlaps and enforce single active academic year and term by @i-christian
+- Update assignment create form to show the employee role at the school too. by @i-christian
+- Refactor Academic Years & Terms view to use expandable sections by @i-christian
+- Refactor Academic Years & Terms views to use collapsible sections by @i-christian
+- Refactor assignments list component to group by teacher and class by @i-christian
+- Refactor EditAssignmentForm to use appropriate current assignment values by @i-christian
+- Refactor assignments list to table format by @i-christian
+- Improve `Teacher Assignment` list UI by @i-christian
+- Implement create and list assignments by @i-christian
+- Chore: Update routing and error handling across new endpoints by @i-christian
+- Feat(classes): Add class creation, listing, edit, and deletion endpoints by @i-christian
+- Create cmd/web/dashboard/academics/academic_year by @i-christian
+- Refactor `term list` to load terms on page load event by @i-christian
+- Upgrade go version used in `test.yml` workflow by @i-christian
+- Improve forms to enable autocomplete by @i-christian
+- Implement `EditTerm` functionality by @i-christian
+- Implement `create term` endpont by @i-christian
+- Implement `EditYearModal` form by @i-christian
+- Implement `userlist` package by @i-christian
+- Upgrade golang from v1.23 to v1.24 by @i-christian
+- Implement `create` academic year modal by @i-christian
+- Implement academic years & terms management with HTMX by @i-christian
+- Update DashboardCards styling and role-based rendering by @i-christian
+- Decouple user role for role-based rendering by @i-christian
+- Refactor `renderComponent` method to support user roles by @i-christian
+- Update NavList component to use Tailwind CSS only by @i-christian
+- Refactor `renderComponent` helper function to check if a request needs partial page update or full page update by @i-christian
+- Refactor `EditUser` and `DeleteUser` handlers to now redirect to `dashboard/userlist` page by @i-christian
+- Update server handlers and routes for dashboard separation by @i-christian
+- Refactor dashboard layout and navigation by @i-christian
+- Improve success modal to handle deletion and updating users by @i-christian
+- Improve `EditComfirmation Modal` to have the same styling as `CreateUser Modal` by @i-christian
+- Implement dynamic edit and delete modals with error handling by @i-christian
+- Fix button alignment in UsersList table by wrapping in a flex container by @i-christian
+- UI: improve DashboardCards styling and sync by @i-christian
+- Replace inline SVG icons with FontAwesome and enhance UserProfile dropdown by @i-christian
+- Setup integration testing by @i-christian
+- Add environment-based configuration for Secure cookie flag by @i-christian
+- Extract identifier lookup logic to reduce repetition in login handler by @i-christian
+- Add docker compose up and down commands to Makefile by @i-christian
+- Move UserProfile and NavList components from `dashboard.templ` to `profile.templ` and `navlist.templ` by @i-christian
+- Refactor dashboard component by @i-christian
+- Update dashboard to initiate a get request to /profile not /details by @i-christian
+- Improve route structure and role-based access by @i-christian
+- Retrieve user role using user_id instead of session_id by @i-christian
+- Implement generic role-check middleware and optimize user loading by @i-christian
+- Refactor dashboard and home components by @i-christian
+- Prevent duplicate superuser creation in createSuperUser function by @i-christian
+- Implement `GetUserTotals` handler method by @i-christian
+- Replace generated status column with trigger in fees table by @i-christian
+- Replace sequence-based solution with transactional counter by @i-christian
+- Implement secureHeaders middleware for enhanced HTTP security by @i-christian
+- Refactor homepage role retrieval and remove redundant endpoint by @i-christian
+- Prevent login component swap on homepage login button when not authenticated by @i-christian
+- Refactor login template for improved maintainability and accessibility by @i-christian
+- Improve userDetails templ component to accept user data as json by @i-christian
+- Refactor `GetUserDetails` handler method by @i-christian
+- Improve create user to redirect back to userlist after successful creation by @i-christian
+- Update dashboard icon to chart SVG by @i-christian
+- Enhance calendar UI: Highlight current day & refine layout by @i-christian
+- Refactor dashboard layout: reposition calendar & add academic year card by @i-christian
+- Implement Grid Layout for Dashboard Cards by @i-christian
+- Implement `Create User` UI component by @i-christian
+- Refactor RegisterUser component to autogenerate a password for each new user by @i-christian
+- Improve login form UI/UX with SVG password toggle, better accessibility, and mobile responsiveness by @i-christian
+- Enhance Home template layout and responsiveness by @i-christian
+- Overhaul dashboard layout and UI components by @i-christian
+- Refactor auth.go and middleware.go to use writeError function by @i-christian
+- Create errors.go by @i-christian
+- Update students.sql.go to reflect the new queries by @i-christian
+- Improve and test SQL queries for student and guardian management by @i-christian
+- Implement and test "CreateStudent" query with student-guardian relationship by @i-christian
+- Refactor students table by @i-christian
+- Update deleteAssignment handler to return immediately after a database error by @i-christian
+- Implement `DeleteAssignment` handler method by @i-christian
+- Implement `EditAssignment` handler method by @i-christian
+- Implement `ListAssignments` handler method by @i-christian
+- Implement GetAssignment handler method by @i-christian
+- Implement teacher to class assignment functionality by @i-christian
+- Implement `DeleteSubject` handler method by @i-christian
+- Implement `EditSubject` handler method by @i-christian
+- Implement `ListSubjects` handler method by @i-christian
+- Implemet `CreateClass` method handler by @i-christian
+- Implement `deleteClass` handler method by @i-christian
+- Implement editclass handler method by @i-christian
+- Implement `ListClasses` handler method by @i-christian
+- Implement `CreateClass` handler method by @i-christian
+- Implement `DeleteTerm` handler method by @i-christian
+- Implement EditTerm handler method by @i-christian
+- Implement GetTerm handler method by @i-christian
+- Refactor ListTerms handler to list terms per given academic year by @i-christian
+- Implement ListTerms handler by @i-christian
+- Implement delete academic year handler by @i-christian
+- Create CreateTerm handler method by @i-christian
+- Implement edit academic year handler function by @i-christian
+- Implement CreateAcademicYear handler by @i-christian
+- Implement delete user endpoint by @i-christian
+- Update getUserDetails to include user_id in select statement by @i-christian
+- Improve docker-compose.yml to support using docker secrets by @i-christian
+- Improve sidebar responsiveness, styling, and accessibility by @i-christian
+- Refactor dashboard handlers and routes by @i-christian
+- Create users.templ by @i-christian
+- Refactor the dashboard component by @i-christian
+- Feat: create components.templ by @i-christian
+- Implement userRole handler by @i-christian
+- Implement a listUsers handler function by @i-christian
+- Update ListUsers database query to include password field by @i-christian
+- Modify RedirectIfAuthenticated middleware to redirect to dashboard if user is already authenticated by @i-christian
+- Create userDetails handler by @i-christian
+- Update MakeFile to run application by @i-christian
+- Rename api/main.go -> app/main.go by @i-christian
+- Re-run templ install and generate in test job to ensure generated files are available by @i-christian
+- Update testing workflow by @i-christian
+- Update workflow to include code linting by @i-christian
+- Create middleware.go by @i-christian
+- Refactor cookies package by @i-christian
+- Refactor AuthMiddleware by @i-christian
+- Implement login redirection to dashboard after successful login by @i-christian
+- Update dashboard.templ by @i-christian
+- Refactor AuthMiddleware by @i-christian
+- Implement session management for the application by @i-christian
+- Refactor refresh session query by @i-christian
+- Refactor templates and fix asset loading issues by @i-christian
+- Change dependancies by @i-christian
+- Improved docker-compose.yml by @i-christian
+- Rename .dockerignoree -> .dockerignore by @i-christian
+- Create homepage layout with sections for About, Achievements, and Contact by @i-christian
+- Center login form and improve error handling UI by @i-christian
+- Create sidebar with user section, settings, and logout functionality by @i-christian
+- Implement login UI form by @i-christian
+- Fix form field mismatch: Backend now correctly handles 'role' field from frontend form by @i-christian
+- Add password visibility toggle for registration form by @i-christian
+- Improve the success modal UI by @i-christian
+- Update the application background color by @i-christian
+- Restructure and restyle create account form by @i-christian
+- Improve the register user UI by @i-christian
+- Implement user registration endpoint by @i-christian
+- Implement session management for the application by @i-christian
+- Improve queries to fetch subjects (all subjects and by class name) by @i-christian
+- Improve student_classes querries by @i-christian
+- Improve remarks CRUD operations by @i-christian
+- Improve `grades` CRUD to give better data using joins by @i-christian
+- Improve `fees` table using join statements to return usable data by @i-christian
+- Add join statements in assignments.sql to get better formated results from multiple tables by @i-christian
+- Implement CRUD operations for discipline_records table by @i-christian
+- Implement CRUD operations for fees table by @i-christian
+- Implement CRUD operations on student_guardians table by @i-christian
+- Update `README.md` to include Database Design and Development Workflow sections by @i-christian
+- Refactor class promotion logic and schema to handle final-year students by @i-christian
+- Improve students management schemas by @i-christian
+- Implement grades CRUD operations by @i-christian
+- Implement `student_classes` CRUD operations by @i-christian
+- Implement guardians CRUD operations queries by @i-christian
+- Implement students CRUD operations by @i-christian
+- Implement teacher assignments CRUD operations by @i-christian
+- Implement academic year and terms CRUD operations by @i-christian
+- Implement all CRUD operations on users table by @i-christian
+- Implement an insert statement to create a new user by @i-christian
+- Initial project setup by @i-christian
+
+### Fixed
+- Fix invalid yaml syntax for shell variable expansion by @i-christian
+- Fix database migration issue from a wrong foreign key reference in promotion_history table by @i-christian
+- Update fee query to include fee structure data for students without fee records by @i-christian
+- Update fn_update_fee_status to fetch required amount from fee_structure by @i-christian
+- Enable student selection in search results by @i-christian
+- Separate change password from other user fields. by @i-christian
+- Include password hashing in `EditUser` handler method by @i-christian
+- Fix active search functionality on guardians page by @i-christian
+- Fix first and last name positioning by @i-christian
+- Fix `user_actions.templ` edit user component password field to be required by @i-christian
+- Ensure only one active academic year per update by @i-christian
+- Enable btree_gist for UUID support in exclusion constraint by @i-christian
+- Fix delete assignment route by @i-christian
+- Fix a `conn busy` database error during concurrent requests by @i-christian
+- Add integration test for user registration endpoint (POST /users/) by @i-christian
+- Refactor test initialization and cleanup code to avoid repetition by @i-christian
+- Set ENV to `development` in test setup by @i-christian
+- Set up PostgreSQL container for tests and create integration test for login functionality by @i-christian
+- Update login handler to accept phone number or username as identifier by @i-christian
+- Send 403 user forbidden error instead of 401 unauthorised by @i-christian
+- Fix toggle password logic to display correct icons by @i-christian
+- Implement authmiddleware tests by @i-christian
+- Fix middle_name constraint in students creation query by @i-christian
+- Modify `CreateAssignment` handler method to return correct error messages by @i-christian
+- Change the query condition to use academic year name instead of id in ListAcademicYear table by @i-christian
+- Update GetUserDetails endpoint by @i-christian
+- Update authmiddleware to set cookie expiry to two weeks by @i-christian
+- Fix a session id refresh bug by @i-christian
+- Update logout functionality to redirect to homepage after logout by @i-christian
+- A loginhandler bug which was causing the login handler to return 500 if a user_id and session_id are already present in the database by @i-christian
+- Update Makefile to remove integration testing by @i-christian
+
+### Removed
+- Remove the onload trigger event from active search bar by @i-christian
+- Remove docker commands by @i-christian
+- Remove CDN modules and update to local assets by @i-christian
+- Remove app.js by @i-christian
+- Remove admin option on user roles available by @i-christian
+- Remove header section from base.templ by @i-christian
+- Remove hardcoded project name and use an env variable instead by @i-christian
+- Remove all hardcoded values to instead use env vars. by @i-christian
+- Remove unnecessary index by @i-christian
+- Remove `promotion.sql.go` file to remove a redundant function by @i-christian
+
+## New Contributors
+* @i-christian made their first contribution
+[unreleased]: https://github.com/i-christian/school_management_system/compare/v0.1.0-alpha..HEAD
+
+<!-- generated by git-cliff -->

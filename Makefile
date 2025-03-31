@@ -50,12 +50,12 @@ watch:
 
 # Test the application
 test:
-	@echo "Testing..."
+	@echo "Running all tests..."
 	@go test ./... -v -cover
 
 itest:
 	@echo "Running all integration tests..."
-	@go test -v ./internal/tests
+	@go test -v ./internal/tests -cover
 
 # Clean the binary
 clean:
