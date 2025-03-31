@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file. See [conven
 - add a link to `deployment.md` in `README.md` - ([3e02d62](https://github.com/i-christian/school_management_system/commit/3e02d62c207f278bb1d5ed49dcbecf8a96c2a49b)) - christian
 - fix typo in README.md - ([4381f02](https://github.com/i-christian/school_management_system/commit/4381f0284e1e34c57bed2b885314cb3bbe6de2c6)) - christian
 - fix `caddy docs` link in deployment.md - ([9a70d8d](https://github.com/i-christian/school_management_system/commit/9a70d8dc0c6adace252123affda39bb7e9cc5653)) - christian
+- fix `CHANGELOG.md` github url - ([37be964](https://github.com/i-christian/school_management_system/commit/37be964827823a60d3f2348d90cd57e74acebd26)) - christian
 
 ### Features
 
@@ -28,7 +29,6 @@ All notable changes to this project will be documented in this file. See [conven
 
 ### Refactoring
 
-- add `SupressNotFound` middleware - ([105de31](https://github.com/i-christian/school_management_system/commit/105de3197d6ff2c4ec8c9797a23245fc402bcf45)) - christian
 - improve `userProfile` handler method error handling - ([131d123](https://github.com/i-christian/school_management_system/commit/131d12382bb2bd8988a8af92a2787db660cc5513)) - christian
 
 ### Tests
