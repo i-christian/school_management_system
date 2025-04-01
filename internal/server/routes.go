@@ -18,10 +18,10 @@ func (s *Server) RegisterRoutes() http.Handler {
 	// Global middlewares
 	r.Use(middleware.CleanPath)
 	r.Use(middleware.RequestID)
+	r.Use(middleware.Logger)
 	r.Use(secureHeaders)
 	r.Use(middleware.Compress(5, "text/html", "text/css"))
 	r.Use(middleware.Recoverer)
-	r.Use(middleware.Logger)
 
 	// CORS setup
 	r.Use(cors.Handler(cors.Options{
