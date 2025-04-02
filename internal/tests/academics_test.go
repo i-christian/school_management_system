@@ -151,4 +151,32 @@ func TestAcademics(t *testing.T) {
 
 		require.Equal(t, http.StatusOK, getAcademicsResp.StatusCode, "Expect 200 OK after getting current year and term")
 	})
+
+	t.Run("Create a class", func(t *testing.T) { // Send a POST request to /academics/classes endpoint
+		newClass := url.Values{}
+		newClass.Set("class_name", "Form 1")
+
+		req, err := http.NewRequest(http.MethodPost, ts.URL+"/academics/classes", strings.NewReader(newClass.Encode()))
+		require.NoError(t, err)
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+		for _, cookie := range cookieJar.Cookies(req.URL) {
+			req.AddCookie(cookie)
+		}
+
+		resp, err = client.Do(req)
+		require.NoError(t, err)
+		defer resp.Body.Close()
+
+		require.Equal(t, http.StatusFound, resp.StatusCode, "Expected 302 Found after creating a class")
+
+		redirectURL, err := resp.Location()
+		require.NoError(t, err, "Expected Location header")
+
+		redirectReq, err := http.NewRequest(http.MethodGet, redirectURL.String(), nil)
+		require.NoError(t, err)
+		redirectResp, err = client.Do(redirectReq)
+		require.NoError(t, err)
+		require.Equal(t, http.StatusOK, redirectResp.StatusCode, "Expected 200 OK after redirect")
+	})
 }
