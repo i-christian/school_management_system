@@ -11,8 +11,6 @@
   margin: 0;
 }
 
-@import "tailwindcss";
-
 .custom-popover {
   position: fixed;
   top: 20px;

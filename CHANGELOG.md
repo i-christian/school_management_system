@@ -26,10 +26,12 @@ All notable changes to this project will be documented in this file. See [conven
 
 - add CHANGELOG.md - ([a71791b](https://github.com/i-christian/school_management_system/commit/a71791b2c39198b202aa6284f0913008d6b2f34a)) - christian
 - improve `CHANGELOG.md` to use ` cocogitto's format`. - ([fe57e68](https://github.com/i-christian/school_management_system/commit/fe57e685aad68df8bc2391f1cd64fddb6577af7b)) - christian
+- add .cliggignore - ([7f33ab9](https://github.com/i-christian/school_management_system/commit/7f33ab974fea139015164f5c315063f8d0d25059)) - christian
 
 ### Refactoring
 
 - improve `userProfile` handler method error handling - ([131d123](https://github.com/i-christian/school_management_system/commit/131d12382bb2bd8988a8af92a2787db660cc5513)) - christian
+- rearrange the middleware stack - ([650cec5](https://github.com/i-christian/school_management_system/commit/650cec555ce9471ffa5f607d830828fe59a93438)) - christian
 
 ### Tests
 
@@ -47,6 +49,7 @@ All notable changes to this project will be documented in this file. See [conven
 - add `logout` endpoint test - ([7fceaa7](https://github.com/i-christian/school_management_system/commit/7fceaa738f93ff80399b6291d2fd76776333ca2d)) - christian
 - add admin dashboard tests - ([3a45124](https://github.com/i-christian/school_management_system/commit/3a45124694eea0b19cd5314affb805d318a268a0)) - christian
 - add integration tests for `/dashboard/userlist` &`/dashboard/calendar` endpoints - ([c7ef49f](https://github.com/i-christian/school_management_system/commit/c7ef49f4957d85bfc296366c850d2ab2bcde7fbe)) - christian
+- add an integration test `classes` creation endpoint - ([c5aa2c5](https://github.com/i-christian/school_management_system/commit/c5aa2c51eaea371599b28ecca75c1ac5a3ca6568)) - christian
 
 ### UI
 
