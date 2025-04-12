@@ -148,5 +148,5 @@ func (s *Server) LogoutConfirmHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) LogoutCancelHandler(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/dashboard", http.StatusFound)
+	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
