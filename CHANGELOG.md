@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 ---
-## [unreleased]
+## [0.2.0](https://github.com/i-christian/school_management_system/compare/v0.1.0-alpha..v0.2.0) - 2025-04-12
 
 ### Bug Fixes
 
@@ -32,6 +32,11 @@ All notable changes to this project will be documented in this file. See [conven
 
 - improve `userProfile` handler method error handling - ([131d123](https://github.com/i-christian/school_management_system/commit/131d12382bb2bd8988a8af92a2787db660cc5513)) - christian
 - rearrange the middleware stack - ([650cec5](https://github.com/i-christian/school_management_system/commit/650cec555ce9471ffa5f607d830828fe59a93438)) - christian
+- improve `LogoutCancelHandler` to redirect back to the previous page - ([03a64d1](https://github.com/i-christian/school_management_system/commit/03a64d175ce07103e83778c7ef13a9f947e55bce)) - christian
+
+### Style
+
+- remove duplicate `@tailwindcss` import statement - ([67c4e8a](https://github.com/i-christian/school_management_system/commit/67c4e8a99df2279126577cdc452fc6e81eb7b9e4)) - christian
 
 ### Tests
 
