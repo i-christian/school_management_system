@@ -22,6 +22,23 @@ type LoginUser struct {
 	UserID   uuid.UUID
 }
 
+// createSessionCookie function is a helper function that creates a session cookie
+func createSessionCookie(sessionID uuid.UUID) http.Cookie {
+	// Determine the 'Secure' flag based on the environment.
+	secureFlag := os.Getenv("ENV") == "production"
+	cookie := http.Cookie{
+		Name:     "sessionid",
+		Value:    sessionID.String(),
+		Path:     "/",
+		MaxAge:   3600 * 24 * 7 * 2, // 2 weeks
+		HttpOnly: true,
+		Secure:   secureFlag,
+		SameSite: http.SameSiteStrictMode,
+	}
+
+	return cookie
+}
+
 // getUserByIdentifier returns the LoginUser corresponding to the provided identifier.
 // It checks whether the identifier is a 12-digit phone number or a username formatted as "USR-yyyy-xxxxx".
 func (s *Server) getUserByIdentifier(ctx context.Context, identifier string) (LoginUser, error) {
@@ -92,17 +109,7 @@ func (s *Server) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Determine the 'Secure' flag based on the environment.
-	secureFlag := os.Getenv("ENV") == "production"
-	cookie := http.Cookie{
-		Name:     "sessionid",
-		Value:    sessionID.String(),
-		Path:     "/",
-		MaxAge:   3600 * 24 * 7 * 2, // 2 weeks
-		HttpOnly: true,
-		Secure:   secureFlag,
-		SameSite: http.SameSiteStrictMode,
-	}
+	cookie := createSessionCookie(sessionID)
 
 	if err := cookies.WriteEncrypted(w, cookie, s.SecretKey); err != nil {
 		writeError(w, http.StatusInternalServerError, "internal server error")
