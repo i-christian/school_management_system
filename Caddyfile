@@ -19,7 +19,7 @@
 		}
 
 		format filter {
-			request>headers>User-Agent delete
+			# request>headers>User-Agent delete
 			request>headers>Cookie cookie {
 				replace session REDACTED
 				delete secret

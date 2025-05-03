@@ -25,6 +25,7 @@ Configure these environment variables first before deployment.
           openssl rand -hex 32
         ```
 * `PROJECT_NAME`: The name of the project.
+* `EMAIL_FOR_CA`: Sets the email for https certificates
 * `PORT`: application port
 * `DOMAIN`: The project domain record
 * `SUPERUSER_EMAIL`: The email of the superuser, this superuser will be the one that can create new users.
