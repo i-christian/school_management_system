@@ -13,19 +13,23 @@ import (
 )
 
 const createSession = `-- name: CreateSession :exec
-INSERT INTO sessions (session_id, user_id) 
-VALUES ($1, $2)
-ON CONFLICT (user_id) 
-DO UPDATE SET session_id = EXCLUDED.session_id
+INSERT INTO sessions (session_id, user_id, expires) 
+  VALUES ($1, $2, $3)
+  ON CONFLICT (user_id) 
+DO UPDATE
+  SET
+    session_id = EXCLUDED.session_id,
+    expires = EXCLUDED.expires
 `
 
 type CreateSessionParams struct {
-	SessionID uuid.UUID `json:"session_id"`
-	UserID    uuid.UUID `json:"user_id"`
+	SessionID uuid.UUID          `json:"session_id"`
+	UserID    uuid.UUID          `json:"user_id"`
+	Expires   pgtype.Timestamptz `json:"expires"`
 }
 
 func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) error {
-	_, err := q.db.Exec(ctx, createSession, arg.SessionID, arg.UserID)
+	_, err := q.db.Exec(ctx, createSession, arg.SessionID, arg.UserID, arg.Expires)
 	return err
 }
 

@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"time"
 
 	"school_management_system/cmd/web"
 	"school_management_system/internal/cookies"
@@ -96,11 +97,14 @@ func (s *Server) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create a new session.
+	// Create a new sessionID and expiry.
 	sessionID := uuid.New()
+	expiry := pgtype.Timestamptz{Time: time.Now().Add(2 * 7 * 24 * time.Hour), Valid: true}
+
 	sessionParams := database.CreateSessionParams{
 		SessionID: sessionID,
 		UserID:    user.UserID,
+		Expires:   expiry,
 	}
 
 	if err := s.queries.CreateSession(r.Context(), sessionParams); err != nil {
