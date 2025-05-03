@@ -72,6 +72,7 @@ services:
       - caddy_config:/config
     environment:
       DOMAIN: ${DOMAIN}
+      PORT: ${PORT}
     depends_on:
       - app
     networks:
