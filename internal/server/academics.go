@@ -104,8 +104,7 @@ func (s *Server) CreateAcademicYear(w http.ResponseWriter, r *http.Request) {
 func (s *Server) ListAcademicYears(w http.ResponseWriter, r *http.Request) {
 	AcademicYears, err := s.queries.ListAcademicYear(r.Context())
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "could not fetch academic year list")
-		return
+		slog.Warn("no academic year record found")
 	}
 
 	component := academics.AcademicYearsTermsList(AcademicYears)

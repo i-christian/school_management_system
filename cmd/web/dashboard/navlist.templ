@@ -117,12 +117,14 @@ templ NavList(user DashboardUserRole, term DashboardTerm) {
 					</a>
 				</li>
 			}
-			<li>
-				<a href="/graduates" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Graduates">
-					<i class="nav-icon fas fa-graduation-cap fa-lg mr-3 text-blue-600"></i>
-					<span class="nav-text text-sm">Graduates</span>
-				</a>
-			</li>
+			if term.TermID != uuid.Nil {
+				<li>
+					<a href="/graduates" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Graduates">
+						<i class="nav-icon fas fa-graduation-cap fa-lg mr-3 text-blue-600"></i>
+						<span class="nav-text text-sm">Graduates</span>
+					</a>
+				</li>
+			}
 			if user.Role == "accountant" {
 				<li>
 					<a href="/fees" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Fees Management">
