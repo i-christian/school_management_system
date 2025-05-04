@@ -135,6 +135,7 @@ The current Github Actions workflows expect these secrets:
 * `ENV`
 * `DOMAIN`
 * `PROJECT_NAME`
+* `EMAIL_FOR_CA`
 * `PORT`
 * `RANDOM_HEX`
 * `SUPERUSER_ROLE`

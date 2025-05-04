@@ -31,7 +31,6 @@
 # Main site definition
 {$DOMAIN:localhost} {
 
-	# Import reusable snippets
 	import logging
 
 	# Enable response compression

@@ -3,6 +3,31 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 ---
+## [unreleased]
+
+### Bug Fixes
+
+- **(bug)** update user login bug - ([1f602cb](https://github.com/i-christian/school_management_system/commit/1f602cbb4c48c02b1092cf0dcd9f27987f69d633)) - christian
+- **(bug)** fix the academic years page. - ([3a008d9](https://github.com/i-christian/school_management_system/commit/3a008d9066e95313460859f9fdb15f3cc11a4aa7)) - christian
+
+### Documentation
+
+- update CHANGELOG.md - ([f072a4d](https://github.com/i-christian/school_management_system/commit/f072a4dfabdcdd897c0488c38bb76d820aa09aeb)) - christian
+- improve deployment.md - ([d9f8d5c](https://github.com/i-christian/school_management_system/commit/d9f8d5c1d181676f53648f6fa93613a80ec2cb0a)) - christian
+
+### Features
+
+- improve Caddy reverse proxy configuration - ([a5937f6](https://github.com/i-christian/school_management_system/commit/a5937f67bcd6cea5a0aa3723428cb5971cedbfef)) - christian
+
+### Refactoring
+
+- update login handler and authmiddleware session management - ([2668c26](https://github.com/i-christian/school_management_system/commit/2668c2643e32d90627826d0c442280760e3bd4bd)) - christian
+
+### Style
+
+- minor styling changes - ([dcac807](https://github.com/i-christian/school_management_system/commit/dcac807eec59aa88b29dc49c7cd1007358bc205e)) - christian
+
+---
 ## [0.2.0](https://github.com/i-christian/school_management_system/compare/v0.1.0-alpha..v0.2.0) - 2025-04-12
 
 ### Bug Fixes
