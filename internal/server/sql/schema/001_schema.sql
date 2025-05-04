@@ -31,8 +31,7 @@ CREATE INDEX idx_users_phone_number ON users(phone_number);
 
 -- SESSIONS TABLE
 CREATE TABLE IF NOT EXISTS sessions (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    session_id UUID NOT NULL UNIQUE,
+    session_id UUID PRIMARY KEY,
     user_id UUID NOT NULL UNIQUE,
     expires TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP + INTERVAL '2 week',
     CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE

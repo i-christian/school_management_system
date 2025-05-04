@@ -111,7 +111,6 @@ type Role struct {
 }
 
 type Session struct {
-	ID        uuid.UUID          `json:"id"`
 	SessionID uuid.UUID          `json:"session_id"`
 	UserID    uuid.UUID          `json:"user_id"`
 	Expires   pgtype.Timestamptz `json:"expires"`
