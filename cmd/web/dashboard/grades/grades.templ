@@ -126,6 +126,7 @@ type Student struct {
 // templ EnterGradesForm renders a table-based form for bulk grade entry.
 templ EnterGradesForm(classRoom []GradeEntryData) {
 	<div class="mx-auto p-6">
+		<header class="text-2xl font-bold text-gray-800 py-1">My Classes </header>
 		<nav class="mb-6 bg-gray-100 p-4 rounded-lg shadow">
 			<ul class="flex space-x-4 overflow-x-auto">
 				for _, class := range classRoom {

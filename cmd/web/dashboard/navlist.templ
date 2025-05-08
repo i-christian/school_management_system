@@ -60,20 +60,28 @@ templ NavList(user DashboardUserRole, term DashboardTerm) {
 						<span class="nav-text text-sm">Teacher Assignments</span>
 					</a>
 				</li>
-				if term.TermID != uuid.Nil {
+			}
+			if term.TermID != uuid.Nil {
+				if user.Role == "classteacher" || user.Role == "headteacher" || user.Role == "admin" {
 					<li class="px-4 py-1 text-xs font-bold text-gray-500 uppercase nav-text">Student Management</li>
+				}
+				if user.Role == "admin" {
 					<li>
 						<a href="/students" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Students">
 							<i class="nav-icon fas fa-user-graduate fa-lg mr-3 text-blue-600"></i>
 							<span class="nav-text text-sm">Students</span>
 						</a>
 					</li>
+				}
+				if user.Role == "classteacher" || user.Role == "headteacher" || user.Role == "admin" {
 					<li>
-						<a href="/students/guardians" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Guardians">
+						<a href="/guardians" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Guardians">
 							<i class="nav-icon fas fa-users-cog fa-lg mr-3 text-blue-600"></i>
 							<span class="nav-text text-sm">Guardians</span>
 						</a>
 					</li>
+				}
+				if user.Role == "admin" {
 					<li>
 						<a href="/promotions" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Class Promotions">
 							<i class="nav-icon fas fa-level-up-alt fa-lg mr-3 text-blue-600"></i>

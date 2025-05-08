@@ -13,7 +13,7 @@ templ GuardiansList(guardianList []database.GetAllStudentGuardianLinksRow) {
 					type="search"
 					name="search"
 					placeholder="Search by Student..."
-					hx-post="/students/search"
+					hx-post="/guardians/search"
 					hx-trigger="input changed delay:500ms, keyup[key=='Enter']"
 					hx-target="#student-table-body"
 					hx-swap="outerHTML"
@@ -50,7 +50,7 @@ templ GuardiansList(guardianList []database.GetAllStudentGuardianLinksRow) {
 								<div class="flex space-x-2">
 									<button
 										class="flex items-center px-2 py-1 text-sm text-white bg-yellow-500 rounded-md hover:bg-yellow-600 focus:outline-none"
-										hx-get={ "/students/guardians/" + guardian.GuardianID.String() + "/edit" }
+										hx-get={ "/guardians/" + guardian.GuardianID.String() + "/edit" }
 										hx-target="#content-area"
 										hx-swap="innerHTML"
 									>
@@ -82,7 +82,7 @@ templ GuardianSearch(guardianList []database.SearchStudentGuardianRow) {
 					<div class="flex space-x-2">
 						<button
 							class="flex items-center px-2 py-1 text-sm text-white bg-yellow-500 rounded-md hover:bg-yellow-600 focus:outline-none"
-							hx-get={ "/students/guardians/" + guardian.GuardianID.String() + "/edit" }
+							hx-get={ "/guardians/" + guardian.GuardianID.String() + "/edit" }
 							hx-target="#content-area"
 							hx-swap="innerHTML"
 						>
@@ -103,7 +103,7 @@ templ EditGuardianForm(guardian database.Guardian) {
 				<h2 class="text-white text-xl font-bold">Edit Guardian</h2>
 			</div>
 			<form
-				hx-put={ "/students/guardians/" + guardian.GuardianID.String() }
+				hx-put={ "/guardians/" + guardian.GuardianID.String() }
 				hx-target="#content-area"
 				hx-swap="innerHTML"
 				class="px-6 py-6"
@@ -181,7 +181,7 @@ templ EditGuardianForm(guardian database.Guardian) {
 				<section class="flex justify-end mt-8 space-x-4">
 					<button
 						type="button"
-						hx-get="/students/guardians"
+						hx-get="/guardians"
 						hx-target="#content-area"
 						hx-swap="innerHTML"
 						class="bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-gray-400"

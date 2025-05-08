@@ -143,18 +143,23 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Put("/{id}", s.EditStudent)
 		r.Get("/{id}/delete", s.ShowDeleteStudent)
 		r.Delete("/{id}", s.DeleteStudent)
-
-		r.Post("/search", s.SearchGuardian)
-		r.Get("/guardians", s.ListGuardians)
-		r.Get("/guardians/{id}/edit", s.ShowEditGuardian)
-		r.Put("/guardians/{id}", s.EditGuardian)
 		r.Get("/download", s.studentsDownload)
+	})
+
+	// STUDENT'S GUARDIAN(ADMIN, CLASS TEACHER, HEADTEACHER)
+	r.Route("/guardians", func(r chi.Router) {
+		r.Use(s.AuthMiddleware)
+		r.Use(s.RequireRoles("admin", "classteacher", "headteacher"))
+		r.Post("/search", s.SearchGuardian)
+		r.Get("/", s.ListGuardians)
+		r.Get("/{id}/edit", s.ShowEditGuardian)
+		r.Put("/{id}", s.EditGuardian)
 	})
 
 	// ACADEMIC RECORDS
 	r.Route("/grades", func(r chi.Router) {
 		r.Use(s.AuthMiddleware)
-		r.Use(s.RequireRoles("teacher", "classteacher", "headteacher", "admin"))
+		r.Use(s.RequireRoles("teacher", "classteacher"))
 		r.Get("/myclasses", s.MyClasses)
 		r.Get("/form/{classID}", s.GetClassForm)
 		r.Post("/submit", s.SubmitGrades)
