@@ -58,7 +58,7 @@ templ AssignedClasses(classes []database.GetAssignedClassesRow) {
 }
 
 templ SucessModal(message string, user User) {
-	<section class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+	<section class="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50">
 		<div class="bg-white w-full max-w-md rounded-md shadow-lg p-6 text-gray-800">
 			<h2 class="text-center text-2xl font-semibold text-green-600 mb-4">
 				{ message }
@@ -77,9 +77,12 @@ templ SucessModal(message string, user User) {
 					<p class="mb-2">
 						<strong>Role:</strong> { user.Role }
 					</p>
-					<p class="mb-2">
-						<strong>Role:</strong> { user.Password }
-					</p>
+					<div class="mb-2">
+						<p class="italic text-xs mx-auto py-1">Please Save the Password for this user as you will not be able to find it again after you leave this page. Or Just reset it in User List later</p>
+						<p>
+							<strong>Password:</strong> { user.Password }
+						</p>
+					</div>
 				</div>
 			} else {
 				<p></p>
