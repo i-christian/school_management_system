@@ -1,19 +1,20 @@
-# {
-# 	email {$EMAIL_FOR_CA}
-# }
+{
+	debug
+	#email {$EMAIL_FOR_CA} #production: uncomment this line during production deployment.
+}
 
 (logging) {
 	log {
 		output file /var/log/caddy/access.log {
-			roll_size     100mb
-			roll_keep     10
+			roll_size 100mb
+			roll_keep 10
 			roll_keep_for 720h
 		}
 
 		format json {
-		 	time_format iso8601
+			time_format iso8601
 		}
-		
+
 		format console {
 			time_format wall
 		}
@@ -23,14 +24,14 @@
 			request>headers>Cookie cookie {
 				replace session REDACTED
 				delete secret
-			}		
+			}
 		}
 	}
 }
 
 # Main site definition
-{$DOMAIN:localhost} {
-
+# In production deployment remove the port :80 as doing so automatically opts into caddy https.
+{$DOMAIN}:80 {
 	import logging
 
 	# Enable response compression
@@ -40,7 +41,5 @@
 	reverse_proxy app:{$PORT} {
 		header_up Host {http.request.host}
 		header_up X-Real-IP {http.request.remote.host}
-		header_up X-Forwarded-Proto {http.request.scheme}
 	}
-
 }
