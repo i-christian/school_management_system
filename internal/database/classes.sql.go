@@ -59,29 +59,6 @@ func (q *Queries) GetClass(ctx context.Context, classID uuid.UUID) (Class, error
 	return i, err
 }
 
-const getCurrentGraduateClass = `-- name: GetCurrentGraduateClass :one
-SELECT 
-    c.class_id, c.name,
-    ay.name AS AcademicYear
-FROM classes c
-INNER JOIN academic_year ay
-    ON c.class_id = ay.graduate_class_id
-WHERE ay.academic_year_id = $1
-`
-
-type GetCurrentGraduateClassRow struct {
-	ClassID      uuid.UUID `json:"class_id"`
-	Name         string    `json:"name"`
-	Academicyear string    `json:"academicyear"`
-}
-
-func (q *Queries) GetCurrentGraduateClass(ctx context.Context, academicYearID uuid.UUID) (GetCurrentGraduateClassRow, error) {
-	row := q.db.QueryRow(ctx, getCurrentGraduateClass, academicYearID)
-	var i GetCurrentGraduateClassRow
-	err := row.Scan(&i.ClassID, &i.Name, &i.Academicyear)
-	return i, err
-}
-
 const listClasses = `-- name: ListClasses :many
 SELECT class_id, name FROM classes
 WHERE name NOT ILIKE 'Graduates - %'
@@ -90,6 +67,45 @@ ORDER BY name
 
 func (q *Queries) ListClasses(ctx context.Context) ([]Class, error) {
 	rows, err := q.db.Query(ctx, listClasses)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Class{}
+	for rows.Next() {
+		var i Class
+		if err := rows.Scan(&i.ClassID, &i.Name); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const setUpClassPromotions = `-- name: SetUpClassPromotions :many
+select 
+    c.class_id,
+    c.name
+from classes c
+inner join academic_year ay
+on c.class_id = ay.graduate_class_id
+and ay.active = true
+
+union 
+
+select
+    class_id,
+    name
+from classes
+where name not ilike 'Graduates - %'
+order by name
+`
+
+func (q *Queries) SetUpClassPromotions(ctx context.Context) ([]Class, error) {
+	rows, err := q.db.Query(ctx, setUpClassPromotions)
 	if err != nil {
 		return nil, err
 	}

@@ -101,7 +101,7 @@ templ PromotionsTableRow(promotion database.ListClassPromotionsRow) {
 }
 
 // CreatePromotionForm renders a form to create a new class promotion rule.
-templ CreatePromotionForm(classes []database.Class, graduateClass database.GetCurrentGraduateClassRow) {
+templ CreatePromotionForm(classes []database.Class) {
 	<div class="max-w-3xl mx-auto p-6">
 		<div class="bg-white rounded-lg shadow-lg overflow-hidden">
 			<header class="bg-blue-600 px-6 py-4">
@@ -126,9 +126,11 @@ templ CreatePromotionForm(classes []database.Class, graduateClass database.GetCu
 						>
 							<option value="">Select Current Class</option>
 							for _, class := range classes {
-								<option value={ class.ClassID.String() }>
-									{ class.Name }
-								</option>
+								if !strings.HasPrefix(class.Name, "Graduates") {
+									<option value={ class.ClassID.String() }>
+										{ class.Name }
+									</option>
+								}
 							}
 						</select>
 					</section>
@@ -140,13 +142,16 @@ templ CreatePromotionForm(classes []database.Class, graduateClass database.GetCu
 							class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-green-500"
 						>
 							<option value="">Select Next Class</option>
-							<option value={ graduateClass.ClassID.String() }>
-								{ graduateClass.Name + "(Last Selection)" }
-							</option>
 							for _, class := range classes {
-								<option value={ class.ClassID.String() }>
-									{ class.Name }
-								</option>
+								if strings.HasPrefix(class.Name, "Graduates") {
+									<option value={ class.ClassID.String() }>
+										{ class.Name + "(Last Selection)" }
+									</option>
+								} else {
+									<option value={ class.ClassID.String() }>
+										{ class.Name }
+									</option>
+								}
 							}
 						</select>
 					</section>

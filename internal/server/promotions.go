@@ -13,28 +13,14 @@ import (
 
 // ShowSetupPromotionPage renders student's class promotion setup templ component
 func (s *Server) ShowSetupPromotionPage(w http.ResponseWriter, r *http.Request) {
-	currentTerm, err := s.queries.GetCurrentTerm(r.Context())
-	if err != nil {
-		writeError(w, http.StatusInternalServerError, "failed to find the current term")
-		slog.Error("failed to find current academic term", "error", err.Error())
-		return
-	}
-
-	schoolClasses, err := s.queries.ListClasses(r.Context())
+	schoolClasses, err := s.queries.SetUpClassPromotions(r.Context())
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "failed to get classes")
 		slog.Error("failed to retrieve classes", "error", err.Error())
 		return
 	}
 
-	graduatingClass, err := s.queries.GetCurrentGraduateClass(r.Context(), currentTerm.AcademicYearID)
-	if err != nil {
-		writeError(w, http.StatusInternalServerError, "failed to get graduating class")
-		slog.Error("failed to retrieve class", "error", err.Error())
-		return
-	}
-
-	s.renderComponent(w, r, promotions.CreatePromotionForm(schoolClasses, graduatingClass))
+	s.renderComponent(w, r, promotions.CreatePromotionForm(schoolClasses))
 }
 
 // SubmitPromotion processes the form submission from the remarks page.

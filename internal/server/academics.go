@@ -58,11 +58,12 @@ func (s *Server) CreateAcademicYear(w http.ResponseWriter, r *http.Request) {
 
 	qtx := s.queries.WithTx(tx)
 
-	graduateClassName := fmt.Sprintf("Graduates - %d", startDate.Year())
+	graduateClassName := fmt.Sprintf("Graduates - %d", endDate.Year())
 
 	graduateClass, err := qtx.CreateGraduateClass(ctx, graduateClassName)
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "failed to create graduate class and rollback academic year creation")
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		slog.Error("failed to create graduate class", "error", err.Error())
 		return
 	}
 
