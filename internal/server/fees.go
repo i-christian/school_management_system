@@ -24,7 +24,7 @@ func (s *Server) selectFeeRecordsPerTerm(r *http.Request) (uuid.UUID, error) {
 			selectedTermID = termID
 		}
 	} else {
-		currentTerm, err := s.queries.GetCurrentTerm(r.Context())
+		currentTerm, err := s.getCachedTerm()
 		if err != nil {
 			return uuid.Nil, err
 		} else {
@@ -154,10 +154,10 @@ func (s *Server) SetFeesStructure(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	term, err := s.queries.GetCurrentTerm(r.Context())
+	term, err := s.getCachedTerm()
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "active current term not set")
-		slog.Error("failed to find current term", "error", err.Error())
+		slog.Error(err.Error())
 		return
 	}
 
@@ -202,10 +202,10 @@ func (s *Server) ShowCreateFeesRecordForStudent(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	currentTerm, err := s.queries.GetCurrentTerm(r.Context())
+	currentTerm, err := s.getCachedTerm()
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "failed to find active term")
-		slog.Error("current term not found", "error", err.Error())
+		slog.Error(err.Error())
 		return
 	}
 
@@ -286,10 +286,10 @@ func (s *Server) SaveFeesRecord(w http.ResponseWriter, r *http.Request) {
 
 	// Handle arrears
 	var previousTermID uuid.UUID
-	currentTerm, err := qtx.GetCurrentTerm(r.Context())
+	currentTerm, err := s.getCachedTerm()
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "failed to find active term")
-		slog.Error("current term not found", "error", err.Error())
+		slog.Error(err.Error())
 		return
 	}
 

@@ -15,13 +15,6 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-type cacheKey string
-
-const (
-	academicYearKey cacheKey = "currentAcademicYear"
-	academicTermKey cacheKey = "currentAcademicTerm"
-)
-
 // ShowCreateAcademicYear page renders academic year creating form
 func (s *Server) ShowCreateAcademicYear(w http.ResponseWriter, r *http.Request) {
 	s.renderComponent(w, r, academics.AcademicYearForm())

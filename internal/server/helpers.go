@@ -16,21 +16,28 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type cacheKey string
+
+const (
+	academicYearKey cacheKey = "currentAcademicYear"
+	academicTermKey cacheKey = "currentAcademicTerm"
+)
+
 type CachedTerm struct {
-	TermID         uuid.UUID
-	PreviousTermID pgtype.UUID
-	AcademicTerm   string
 	OpeningDate    pgtype.Date
 	ClosingDate    pgtype.Date
+	AcademicTerm   string
+	PreviousTermID pgtype.UUID
+	TermID         uuid.UUID
 	Active         bool
 }
 
 type CachedAcademicYear struct {
-	AcademicYearID  uuid.UUID
-	GraduateClassID pgtype.UUID
-	Name            string
 	StartDate       pgtype.Date
 	EndDate         pgtype.Date
+	Name            string
+	GraduateClassID pgtype.UUID
+	AcademicYearID  uuid.UUID
 	Active          bool
 }
 
