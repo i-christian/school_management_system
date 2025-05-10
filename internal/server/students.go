@@ -22,10 +22,17 @@ import (
 
 // ShowCreateStudent renders the create student form
 func (s *Server) ShowCreateStudent(w http.ResponseWriter, r *http.Request) {
-	academicYear, err := s.queries.GetCurrentAcademicYearAndTerm(r.Context())
+	term, err := s.getCachedTerm()
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "internal server error")
-		slog.Error("internal server error", "message:", err.Error())
+		slog.Error("Failed to retrive current academic term", "error", err.Error())
+		return
+	}
+
+	academicYear, err := s.getCachedYear()
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		slog.Error("Failed to retrive current academic year", "error", err.Error())
 		return
 	}
 
@@ -36,7 +43,13 @@ func (s *Server) ShowCreateStudent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	component := students.CreateStudentForm(academicYear, classes)
+	component := students.CreateStudentForm(students.CreateStudentAcademic{
+		CurrentYearID: academicYear.AcademicYearID.String(),
+		CurrentTermID: term.TermID.String(),
+		CurrentYear:   academicYear.Name,
+		CurrentTerm:   term.AcademicTerm,
+	}, classes)
+
 	s.renderComponent(w, r, component)
 }
 

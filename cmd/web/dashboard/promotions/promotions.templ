@@ -5,10 +5,29 @@ import (
 	"time"
 	"github.com/google/uuid"
 	"strings"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type PromotionAcademicYear struct {
+	AcademicYearID  uuid.UUID   `json:"academic_year_id"`
+	GraduateClassID pgtype.UUID `json:"graduate_class_id"`
+	Name            string      `json:"name"`
+	StartDate       pgtype.Date `json:"start_date"`
+	EndDate         pgtype.Date `json:"end_date"`
+	Active          bool        `json:"active"`
+}
+
+type PromotionTerm struct {
+	TermID         uuid.UUID   `json:"term_id"`
+	PreviousTermID pgtype.UUID `json:"previous_term_id"`
+	AcademicTerm   string      `json:"academic_term"`
+	OpeningDate    pgtype.Date `json:"opening_date"`
+	ClosingDate    pgtype.Date `json:"closing_date"`
+	Active         bool        `json:"active"`
+}
+
 // PromotionsPage renders the main promotions page.
-templ PromotionsPage(classPromotions []database.ListClassPromotionsRow, classes []database.Class, term database.GetCurrentTermRow, history database.ShowLastPromotionRow) {
+templ PromotionsPage(classPromotions []database.ListClassPromotionsRow, classes []database.Class, term PromotionTerm, academicYear PromotionAcademicYear, history database.ShowLastPromotionRow) {
 	<!-- Popover container -->
 	<div id="popover-container"></div>
 	<section id="promotions-page" class="mx-auto p-6">
@@ -46,7 +65,7 @@ templ PromotionsPage(classPromotions []database.ListClassPromotionsRow, classes 
 			if len(classPromotions) != 0 {
 				<div class="mt-8 border-t pt-6">
 					<h3 class="text-lg font-semibold text-gray-800 mb-4">Promote Students</h3>
-					@PromoteStudentsSection(term, history)
+					@PromoteStudentsSection(term, academicYear, history)
 				</div>
 			}
 		</section>
@@ -179,7 +198,7 @@ templ CreatePromotionForm(classes []database.Class) {
 }
 
 // PromoteStudentsSection renders a section to trigger student promotions.
-templ PromoteStudentsSection(term database.GetCurrentTermRow, history database.ShowLastPromotionRow) {
+templ PromoteStudentsSection(term PromotionTerm, academicYear PromotionAcademicYear, history database.ShowLastPromotionRow) {
 	<div class="bg-white rounded-lg shadow-lg overflow-hidden p-6">
 		<h4 class="text-lg font-semibold text-gray-800 mb-4">Initiate Student Promotion</h4>
 		if term.PreviousTermID.Valid && history.StoredTermID != term.PreviousTermID.Bytes {
@@ -201,7 +220,7 @@ templ PromoteStudentsSection(term database.GetCurrentTermRow, history database.S
 					>
 						<option value="">Select New Term</option>
 						<option value={ term.TermID.String() }>
-							{ term.AcademicTerm } - { term.AcademicYear } - Starting Date: ({ term.OpeningDate.Time.Format(time.DateOnly) })
+							{ term.AcademicTerm } - { academicYear.Name } - Starting Date: ({ term.OpeningDate.Time.Format(time.DateOnly) })
 						</option>
 					</select>
 				</section>

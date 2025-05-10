@@ -66,6 +66,7 @@ func validateEnvVars() {
 	}
 }
 
+// NewServer function initialises a new server
 func NewServer() (*Server, *http.Server) {
 	validateEnvVars()
 	setUpMigration()
@@ -88,7 +89,7 @@ func NewServer() (*Server, *http.Server) {
 
 	appCache := cache.New[string, any]()
 
-	AppServer := &Server{
+	appServer := &Server{
 		port:      port,
 		conn:      conn,
 		queries:   generatedQeries,
@@ -96,16 +97,19 @@ func NewServer() (*Server, *http.Server) {
 		SecretKey: SecretKey,
 	}
 
+	// set up cache
+	appServer.setUpCache(ctx)
+
 	// Declare Server config
 	httpserver := &http.Server{
-		Addr:         fmt.Sprintf(":%d", AppServer.port),
-		Handler:      AppServer.RegisterRoutes(),
+		Addr:         fmt.Sprintf(":%d", appServer.port),
+		Handler:      appServer.RegisterRoutes(),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
 	}
 
-	return AppServer, httpserver
+	return appServer, httpserver
 }
 
 func createSuperUser(ctx context.Context, queries *database.Queries) {
@@ -142,5 +146,40 @@ func createSuperUser(ctx context.Context, queries *database.Queries) {
 		slog.Error("Failed to create superuser:", "error", err.Error())
 	} else {
 		slog.Info("Superuser created successfully")
+	}
+}
+
+// setUpCache on server restart
+func (s *Server) setUpCache(ctx context.Context) {
+	activeTerm, err := s.queries.GetCurrentTerm(ctx)
+	if err != nil {
+		slog.Error("no set active term", "error", err.Error())
+	}
+
+	if activeTerm.TermID != uuid.Nil {
+		s.cache.Set(string(academicTermKey), CachedTerm{
+			TermID:         activeTerm.TermID,
+			PreviousTermID: activeTerm.PreviousTermID,
+			AcademicTerm:   activeTerm.AcademicTerm,
+			OpeningDate:    activeTerm.OpeningDate,
+			ClosingDate:    activeTerm.ClosingDate,
+			Active:         activeTerm.Active,
+		})
+	}
+
+	activeYear, err := s.queries.GetCurrentAcademicYear(ctx)
+	if err != nil {
+		slog.Error("no set active academic year", "error", err.Error())
+	}
+
+	if activeYear.AcademicYearID != uuid.Nil {
+		s.cache.Set(string(academicYearKey), CachedAcademicYear{
+			AcademicYearID:  activeYear.AcademicYearID,
+			GraduateClassID: activeYear.GraduateClassID,
+			Name:            activeYear.Name,
+			StartDate:       activeYear.StartDate,
+			EndDate:         activeYear.EndDate,
+			Active:          activeYear.Active,
+		})
 	}
 }

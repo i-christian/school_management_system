@@ -3,6 +3,13 @@ package students
 import "school_management_system/internal/database"
 import "strings"
 
+type CreateStudentAcademic struct {
+	CurrentYearID string
+	CurrentTermID string
+	CurrentYear   string
+	CurrentTerm   string
+}
+
 templ StudentsList(studentList []database.ListStudentsRow) {
 	<section id="student-list" class="container mx-auto p-4">
 		<div class="flex items-center justify-between mb-4">
@@ -88,7 +95,7 @@ templ StudentsList(studentList []database.ListStudentsRow) {
 
 // templ CreateStudentForm renders a form for creating a new student along with guardian information.
 // The academicYearID is pre-rendered.
-templ CreateStudentForm(academicYear database.GetCurrentAcademicYearAndTermRow, classes []database.Class) {
+templ CreateStudentForm(academic CreateStudentAcademic, classes []database.Class) {
 	<div class="max-w-3xl mx-auto p-6">
 		<div class="bg-white rounded-lg shadow-lg overflow-hidden">
 			<div class="bg-green-600 px-6 py-4">
@@ -106,8 +113,8 @@ templ CreateStudentForm(academicYear database.GetCurrentAcademicYearAndTermRow, 
 						class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
 						name="year_term_id"
 					>
-						<option value={ academicYear.AcademicYearID.String() + "=" + academicYear.TermID.String() }>
-							{ academicYear.AcademicYear } - { academicYear.AcademicTerm.String }
+						<option value={ academic.CurrentYearID + "=" + academic.CurrentTermID }>
+							{ academic.CurrentYear } - { academic.CurrentTerm }
 						</option>
 					</select>
 					<select

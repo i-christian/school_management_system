@@ -399,7 +399,14 @@ func (s *Server) toggleAcademicYear(ctx context.Context, academicID uuid.UUID) e
 	if err != nil {
 		return err
 	} else {
-		s.cache.Set(string(academicYearKey), activeYear)
+		s.cache.Set(string(academicYearKey), CachedAcademicYear{
+			AcademicYearID:  activeYear.AcademicYearID,
+			GraduateClassID: activeYear.GraduateClassID,
+			Name:            activeYear.Name,
+			StartDate:       activeYear.StartDate,
+			EndDate:         activeYear.EndDate,
+			Active:          activeYear.Active,
+		})
 	}
 
 	return tx.Commit(ctx)
@@ -460,7 +467,14 @@ func (s *Server) toggleTerm(ctx context.Context, termID uuid.UUID) error {
 	if err != nil {
 		return err
 	} else {
-		s.cache.Set(string(academicTermKey), active)
+		s.cache.Set(string(academicTermKey), CachedTerm{
+			TermID:         active.TermID,
+			PreviousTermID: active.PreviousTermID,
+			AcademicTerm:   active.AcademicTerm,
+			OpeningDate:    active.OpeningDate,
+			ClosingDate:    active.ClosingDate,
+			Active:         active.Active,
+		})
 	}
 
 	return tx.Commit(ctx)
@@ -490,13 +504,20 @@ func (s *Server) setActiveTerm(w http.ResponseWriter, r *http.Request) {
 // GetAcademicsDetails method handler gets the current
 // academic year and academic term
 func (s *Server) GetAcademicsDetails(w http.ResponseWriter, r *http.Request) {
-	details, err := s.queries.GetCurrentAcademicYearAndTerm(r.Context())
+	term, err := s.getCachedTerm()
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "internal server error")
-		slog.Error("Failed to retrive current academic year and term", "Message:", err.Error())
+		slog.Error("Failed to retrive current academic term", "error", err.Error())
 		return
 	}
 
-	component := components.AcademicsDetails(details)
+	academicYear, err := s.getCachedYear()
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		slog.Error("Failed to retrive current academic year", "error", err.Error())
+		return
+	}
+
+	component := components.AcademicsDetails(term.AcademicTerm, academicYear.Name)
 	s.renderComponent(w, r, component)
 }

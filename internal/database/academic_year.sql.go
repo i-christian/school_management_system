@@ -179,15 +179,30 @@ func (q *Queries) GetAcademicYear(ctx context.Context, academicYearID uuid.UUID)
 }
 
 const getCurrentAcademicYear = `-- name: GetCurrentAcademicYear :one
-SELECT academic_year_id, graduate_class_id, name, start_date, end_date, active, period
+SELECT 
+    academic_year_id,
+    graduate_class_id,
+    name,
+    start_date,
+    end_date,
+    active
 FROM academic_year
 WHERE active = TRUE
 LIMIT 1
 `
 
-func (q *Queries) GetCurrentAcademicYear(ctx context.Context) (AcademicYear, error) {
+type GetCurrentAcademicYearRow struct {
+	AcademicYearID  uuid.UUID   `json:"academic_year_id"`
+	GraduateClassID pgtype.UUID `json:"graduate_class_id"`
+	Name            string      `json:"name"`
+	StartDate       pgtype.Date `json:"start_date"`
+	EndDate         pgtype.Date `json:"end_date"`
+	Active          bool        `json:"active"`
+}
+
+func (q *Queries) GetCurrentAcademicYear(ctx context.Context) (GetCurrentAcademicYearRow, error) {
 	row := q.db.QueryRow(ctx, getCurrentAcademicYear)
-	var i AcademicYear
+	var i GetCurrentAcademicYearRow
 	err := row.Scan(
 		&i.AcademicYearID,
 		&i.GraduateClassID,
@@ -195,52 +210,6 @@ func (q *Queries) GetCurrentAcademicYear(ctx context.Context) (AcademicYear, err
 		&i.StartDate,
 		&i.EndDate,
 		&i.Active,
-		&i.Period,
-	)
-	return i, err
-}
-
-const getCurrentAcademicYearAndTerm = `-- name: GetCurrentAcademicYearAndTerm :one
-SELECT
-    ay.academic_year_id,
-    ay.name AS Academic_Year,
-    ay.start_date,
-    ay.end_date,
-    t.term_id,
-    t.name AS Academic_Term,
-    t.start_date AS Term_Opening_date,
-    t.end_date AS Term_Closing_date
-FROM academic_year ay
-LEFT JOIN term t
-    ON ay.academic_year_id = t.academic_year_id
-    AND t.active = TRUE
-WHERE ay.active = TRUE
-LIMIT 1
-`
-
-type GetCurrentAcademicYearAndTermRow struct {
-	AcademicYearID  uuid.UUID   `json:"academic_year_id"`
-	AcademicYear    string      `json:"academic_year"`
-	StartDate       pgtype.Date `json:"start_date"`
-	EndDate         pgtype.Date `json:"end_date"`
-	TermID          pgtype.UUID `json:"term_id"`
-	AcademicTerm    pgtype.Text `json:"academic_term"`
-	TermOpeningDate pgtype.Date `json:"term_opening_date"`
-	TermClosingDate pgtype.Date `json:"term_closing_date"`
-}
-
-func (q *Queries) GetCurrentAcademicYearAndTerm(ctx context.Context) (GetCurrentAcademicYearAndTermRow, error) {
-	row := q.db.QueryRow(ctx, getCurrentAcademicYearAndTerm)
-	var i GetCurrentAcademicYearAndTermRow
-	err := row.Scan(
-		&i.AcademicYearID,
-		&i.AcademicYear,
-		&i.StartDate,
-		&i.EndDate,
-		&i.TermID,
-		&i.AcademicTerm,
-		&i.TermOpeningDate,
-		&i.TermClosingDate,
 	)
 	return i, err
 }
@@ -249,14 +218,11 @@ const getCurrentTerm = `-- name: GetCurrentTerm :one
 SELECT
     t.term_id,
     t.previous_term_id,
-    ay.academic_year_id,
-    ay.name AS Academic_Year,
     t.name AS Academic_Term,
     t.start_date AS Opening_date,
-    t.end_date AS Closing_date
+    t.end_date AS Closing_date,
+    t.active
 FROM term t
-INNER JOIN academic_year ay
-    ON t.academic_year_id = ay.academic_year_id
 WHERE t.active = TRUE
 LIMIT 1
 `
@@ -264,11 +230,10 @@ LIMIT 1
 type GetCurrentTermRow struct {
 	TermID         uuid.UUID   `json:"term_id"`
 	PreviousTermID pgtype.UUID `json:"previous_term_id"`
-	AcademicYearID uuid.UUID   `json:"academic_year_id"`
-	AcademicYear   string      `json:"academic_year"`
 	AcademicTerm   string      `json:"academic_term"`
 	OpeningDate    pgtype.Date `json:"opening_date"`
 	ClosingDate    pgtype.Date `json:"closing_date"`
+	Active         bool        `json:"active"`
 }
 
 func (q *Queries) GetCurrentTerm(ctx context.Context) (GetCurrentTermRow, error) {
@@ -277,11 +242,10 @@ func (q *Queries) GetCurrentTerm(ctx context.Context) (GetCurrentTermRow, error)
 	err := row.Scan(
 		&i.TermID,
 		&i.PreviousTermID,
-		&i.AcademicYearID,
-		&i.AcademicYear,
 		&i.AcademicTerm,
 		&i.OpeningDate,
 		&i.ClosingDate,
+		&i.Active,
 	)
 	return i, err
 }
@@ -419,12 +383,27 @@ const setCurrentAcademicYear = `-- name: SetCurrentAcademicYear :one
 UPDATE academic_year
 SET active = TRUE
 WHERE academic_year_id = $1
-RETURNING academic_year_id, graduate_class_id, name, start_date, end_date, active, period
+RETURNING
+    academic_year_id,
+    graduate_class_id,
+    name,
+    start_date,
+    end_date,
+    active
 `
 
-func (q *Queries) SetCurrentAcademicYear(ctx context.Context, academicYearID uuid.UUID) (AcademicYear, error) {
+type SetCurrentAcademicYearRow struct {
+	AcademicYearID  uuid.UUID   `json:"academic_year_id"`
+	GraduateClassID pgtype.UUID `json:"graduate_class_id"`
+	Name            string      `json:"name"`
+	StartDate       pgtype.Date `json:"start_date"`
+	EndDate         pgtype.Date `json:"end_date"`
+	Active          bool        `json:"active"`
+}
+
+func (q *Queries) SetCurrentAcademicYear(ctx context.Context, academicYearID uuid.UUID) (SetCurrentAcademicYearRow, error) {
 	row := q.db.QueryRow(ctx, setCurrentAcademicYear, academicYearID)
-	var i AcademicYear
+	var i SetCurrentAcademicYearRow
 	err := row.Scan(
 		&i.AcademicYearID,
 		&i.GraduateClassID,
@@ -432,7 +411,6 @@ func (q *Queries) SetCurrentAcademicYear(ctx context.Context, academicYearID uui
 		&i.StartDate,
 		&i.EndDate,
 		&i.Active,
-		&i.Period,
 	)
 	return i, err
 }
@@ -441,7 +419,13 @@ const setCurrentTerm = `-- name: SetCurrentTerm :one
 UPDATE term
 SET active = TRUE, previous_term_id = $2
 WHERE term_id = $1
-RETURNING term_id, academic_year_id, previous_term_id, name, start_date, end_date, active, period
+RETURNING 
+    term_id,
+    previous_term_id,
+    name AS Academic_Term,
+    start_date AS Opening_date,
+    end_date AS Closing_date,
+    active
 `
 
 type SetCurrentTermParams struct {
@@ -449,18 +433,25 @@ type SetCurrentTermParams struct {
 	PreviousTermID pgtype.UUID `json:"previous_term_id"`
 }
 
-func (q *Queries) SetCurrentTerm(ctx context.Context, arg SetCurrentTermParams) (Term, error) {
+type SetCurrentTermRow struct {
+	TermID         uuid.UUID   `json:"term_id"`
+	PreviousTermID pgtype.UUID `json:"previous_term_id"`
+	AcademicTerm   string      `json:"academic_term"`
+	OpeningDate    pgtype.Date `json:"opening_date"`
+	ClosingDate    pgtype.Date `json:"closing_date"`
+	Active         bool        `json:"active"`
+}
+
+func (q *Queries) SetCurrentTerm(ctx context.Context, arg SetCurrentTermParams) (SetCurrentTermRow, error) {
 	row := q.db.QueryRow(ctx, setCurrentTerm, arg.TermID, arg.PreviousTermID)
-	var i Term
+	var i SetCurrentTermRow
 	err := row.Scan(
 		&i.TermID,
-		&i.AcademicYearID,
 		&i.PreviousTermID,
-		&i.Name,
-		&i.StartDate,
-		&i.EndDate,
+		&i.AcademicTerm,
+		&i.OpeningDate,
+		&i.ClosingDate,
 		&i.Active,
-		&i.Period,
 	)
 	return i, err
 }

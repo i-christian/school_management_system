@@ -68,15 +68,23 @@ func (s *Server) showCalendarPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) academicEvents(w http.ResponseWriter, r *http.Request) {
-	currentYear, err := s.queries.GetCurrentAcademicYearAndTerm(r.Context())
+	currentYear, err := s.getCachedYear()
 	if err != nil {
-		slog.Error("current academic year not set")
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		slog.Error("Failed to retrive current academic year", "error", err.Error())
+	}
+
+	term, err := s.getCachedTerm()
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		slog.Error("Failed to retrive current academic term", "error", err.Error())
+		return
 	}
 
 	s.renderComponent(w, r, components.AcademicEventsDetails(components.AcademicEvents{
 		AcademicYearStart: currentYear.StartDate.Time.Format(time.DateOnly),
 		AcademicYearEnd:   currentYear.EndDate.Time.Format(time.DateOnly),
-		TermStart:         currentYear.TermOpeningDate.Time.Format(time.DateOnly),
-		TermEnd:           currentYear.TermClosingDate.Time.Format(time.DateOnly),
+		TermStart:         term.OpeningDate.Time.Format(time.DateOnly),
+		TermEnd:           term.ClosingDate.Time.Format(time.DateOnly),
 	}))
 }

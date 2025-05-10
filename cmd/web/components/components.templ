@@ -24,10 +24,10 @@ templ UserDetails(user User) {
 	</script>
 }
 
-templ AcademicsDetails(details database.GetCurrentAcademicYearAndTermRow) {
+templ AcademicsDetails(academicYear, academicTerm string) {
 	<section>
-		<span>{ details.AcademicYear }</span>, 
-		<span>{ details.AcademicTerm.String }</span>
+		<span>{ academicYear }</span>, 
+		<span>{ academicTerm }</span>
 	</section>
 }
 

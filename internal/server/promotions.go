@@ -140,10 +140,17 @@ func (s *Server) SubmitPromotions(w http.ResponseWriter, r *http.Request) {
 
 // ShowPromotionPage renders students promotion templ component
 func (s *Server) ShowPromotionPage(w http.ResponseWriter, r *http.Request) {
-	currentTerm, err := s.queries.GetCurrentTerm(r.Context())
+	term, err := s.getCachedTerm()
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "failed to find the current term")
-		slog.Error("failed to find current academic term", "error", err.Error())
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		slog.Error("Failed to retrive current academic term", "error", err.Error())
+		return
+	}
+
+	academicYear, err := s.getCachedYear()
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		slog.Error("Failed to retrive current academic year", "error", err.Error())
 		return
 	}
 
@@ -165,7 +172,25 @@ func (s *Server) ShowPromotionPage(w http.ResponseWriter, r *http.Request) {
 		slog.Error("failed to find previous promotion events", "error", err.Error())
 	}
 
-	s.renderComponent(w, r, promotions.PromotionsPage(promotionClasses, schoolClasses, currentTerm, history))
+	pTerm := promotions.PromotionTerm{
+		TermID:         term.TermID,
+		PreviousTermID: term.PreviousTermID,
+		AcademicTerm:   term.AcademicTerm,
+		OpeningDate:    term.OpeningDate,
+		ClosingDate:    term.ClosingDate,
+		Active:         term.Active,
+	}
+
+	pYear := promotions.PromotionAcademicYear{
+		AcademicYearID:  academicYear.AcademicYearID,
+		GraduateClassID: academicYear.GraduateClassID,
+		Name:            academicYear.Name,
+		StartDate:       academicYear.StartDate,
+		EndDate:         academicYear.EndDate,
+		Active:          academicYear.Active,
+	}
+
+	s.renderComponent(w, r, promotions.PromotionsPage(promotionClasses, schoolClasses, pTerm, pYear, history))
 }
 
 // ShowResetPromotion confirmation modal

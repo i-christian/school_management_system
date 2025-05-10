@@ -93,7 +93,7 @@ func (s *Server) ShowStudentsReports(w http.ResponseWriter, r *http.Request) {
 }
 
 // createStudentReportPdf helper function creates a pdf file with student results, and teachers remarks
-func createStudentReportPdf(term database.GetCurrentAcademicYearAndTermRow, student database.GetStudentReportCardRow, studentSubjects []database.ListSubjectsRow) (string, *fpdf.Fpdf) {
+func createStudentReportPdf(term CachedTerm, student database.GetStudentReportCardRow, studentSubjects []database.ListSubjectsRow) (string, *fpdf.Fpdf) {
 	pdf := fpdf.New(fpdf.OrientationPortrait, "mm", "A4", "")
 
 	pdf.AddPage()
@@ -107,7 +107,7 @@ func createStudentReportPdf(term database.GetCurrentAcademicYearAndTermRow, stud
 	pdf.Ln(8)
 	pdf.Cell(190, 10, fmt.Sprintf("Name: %s %s %s", student.FirstName, student.MiddleName.String, student.LastName))
 	pdf.Ln(8)
-	pdf.Cell(190, 10, fmt.Sprintf("Class: %s (%s)", student.ClassName, term.AcademicTerm.String))
+	pdf.Cell(190, 10, fmt.Sprintf("Class: %s (%s)", student.ClassName, term.AcademicTerm))
 	pdf.Ln(12)
 
 	// Table Headers
@@ -181,10 +181,10 @@ func (s *Server) GenerateStudentReportCard(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	term, err := s.queries.GetCurrentAcademicYearAndTerm(r.Context())
+	term, err := s.getCachedTerm()
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "failed to get the current term")
-		slog.Error("failed to get current academic term", "error", err.Error())
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		slog.Error("Failed to retrive current academic term", "error", err.Error())
 		return
 	}
 

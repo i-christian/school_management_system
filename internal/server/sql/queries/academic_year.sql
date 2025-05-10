@@ -79,7 +79,14 @@ WHERE active = TRUE;
 UPDATE academic_year
 SET active = TRUE
 WHERE academic_year_id = $1
-RETURNING *;
+RETURNING
+    academic_year_id,
+    graduate_class_id,
+    name,
+    start_date,
+    end_date,
+    active
+;
 
 -- name: DeactivateTerm :one
 UPDATE term
@@ -91,10 +98,22 @@ RETURNING term_id;
 UPDATE term
 SET active = TRUE, previous_term_id = $2
 WHERE term_id = $1
-RETURNING *;
+RETURNING 
+    term_id,
+    previous_term_id,
+    name AS Academic_Term,
+    start_date AS Opening_date,
+    end_date AS Closing_date,
+    active;
 
 -- name: GetCurrentAcademicYear :one
-SELECT *
+SELECT 
+    academic_year_id,
+    graduate_class_id,
+    name,
+    start_date,
+    end_date,
+    active
 FROM academic_year
 WHERE active = TRUE
 LIMIT 1;
@@ -103,31 +122,10 @@ LIMIT 1;
 SELECT
     t.term_id,
     t.previous_term_id,
-    ay.academic_year_id,
-    ay.name AS Academic_Year,
     t.name AS Academic_Term,
     t.start_date AS Opening_date,
-    t.end_date AS Closing_date
+    t.end_date AS Closing_date,
+    t.active
 FROM term t
-INNER JOIN academic_year ay
-    ON t.academic_year_id = ay.academic_year_id
 WHERE t.active = TRUE
-LIMIT 1;
-
-
--- name: GetCurrentAcademicYearAndTerm :one
-SELECT
-    ay.academic_year_id,
-    ay.name AS Academic_Year,
-    ay.start_date,
-    ay.end_date,
-    t.term_id,
-    t.name AS Academic_Term,
-    t.start_date AS Term_Opening_date,
-    t.end_date AS Term_Closing_date
-FROM academic_year ay
-LEFT JOIN term t
-    ON ay.academic_year_id = t.academic_year_id
-    AND t.active = TRUE
-WHERE ay.active = TRUE
 LIMIT 1;

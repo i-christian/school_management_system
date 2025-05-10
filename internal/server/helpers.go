@@ -10,25 +10,58 @@ import (
 
 	"school_management_system/cmd/web"
 	"school_management_system/cmd/web/dashboard"
-	"school_management_system/internal/database"
 
 	"github.com/a-h/templ"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type CachedTerm struct {
+	TermID         uuid.UUID
+	PreviousTermID pgtype.UUID
+	AcademicTerm   string
+	OpeningDate    pgtype.Date
+	ClosingDate    pgtype.Date
+	Active         bool
+}
+
+type CachedAcademicYear struct {
+	AcademicYearID  uuid.UUID
+	GraduateClassID pgtype.UUID
+	Name            string
+	StartDate       pgtype.Date
+	EndDate         pgtype.Date
+	Active          bool
+}
+
 // getCachedYear returns the cached academic year
-func (s *Server) getCachedYear() (database.AcademicYear, error) {
+func (s *Server) getCachedYear() (CachedAcademicYear, error) {
 	cachedAY, ok := s.cache.Get(string(academicYearKey))
 	if !ok {
-		return database.AcademicYear{}, errors.New("Active year not found in cache")
+		return CachedAcademicYear{}, errors.New("active year not found in cache")
 	}
 
-	currentAcademicYear, ok := cachedAY.(database.AcademicYear)
+	currentAcademicYear, ok := cachedAY.(CachedAcademicYear)
 	if !ok {
-		return database.AcademicYear{}, errors.New("Active year not found in cache")
+		return CachedAcademicYear{}, errors.New("active year not available")
 	}
 
 	return currentAcademicYear, nil
+}
+
+// getCachedTerm returns the cached academic term
+func (s *Server) getCachedTerm() (CachedTerm, error) {
+	cachedTerm, ok := s.cache.Get(string(academicTermKey))
+	if !ok {
+		return CachedTerm{}, errors.New("active term not found in cache")
+	}
+
+	currentTerm, ok := cachedTerm.(CachedTerm)
+	if !ok {
+		return CachedTerm{}, errors.New("active term not available")
+	}
+
+	return currentTerm, nil
 }
 
 // renderDashboardComponent renders a component either as a full dashboard page
@@ -49,7 +82,7 @@ func (s *Server) renderComponent(w http.ResponseWriter, r *http.Request, childre
 			Role: userRole.Role,
 		}
 
-		term, _ := s.queries.GetCurrentTerm(r.Context())
+		term, _ := s.getCachedTerm()
 
 		termArg := dashboard.DashboardTerm{
 			TermID: term.TermID,
