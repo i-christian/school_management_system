@@ -11,13 +11,6 @@ import (
 
 // ShowGraduatePage renders the graduates list templ component
 func (s *Server) ShowGraduatePage(w http.ResponseWriter, r *http.Request) {
-	current, err := s.queries.GetCurrentAcademicYear(r.Context())
-	if err != nil {
-		writeError(w, http.StatusInternalServerError, "failed to find that academic year")
-		slog.Error("failed to find current academic year", "error", err.Error())
-		return
-	}
-
 	academicYears, err := s.queries.ListAcademicYear(r.Context())
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "failed to retrieve academic years")
@@ -25,7 +18,7 @@ func (s *Server) ShowGraduatePage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.renderComponent(w, r, graduates.GraduatesPage(academicYears, current.AcademicYearID.String()))
+	s.renderComponent(w, r, graduates.GraduatesPage(academicYears))
 }
 
 // ShowGraduatesList renders the graduates list templ component

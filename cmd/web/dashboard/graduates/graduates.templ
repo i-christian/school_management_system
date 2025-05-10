@@ -5,20 +5,20 @@ import (
 )
 
 // GraduatesPage renders the main graduates page.
-templ GraduatesPage(academicYears []database.AcademicYear, selectedAcademicYearID string) {
+templ GraduatesPage(academicYears []database.AcademicYear) {
 	<section id="graduates-page" class="mx-auto p-6">
 		<div class="flex items-center justify-between mb-6">
 			<h2 class="text-xl font-bold text-gray-800">Graduates List</h2>
 		</div>
 		<div class="mb-4">
-			@AcademicYearDropdown(academicYears, selectedAcademicYearID)
+			@AcademicYearDropdown(academicYears)
 		</div>
 		<div id="graduates-list-container"></div>
 	</section>
 }
 
 // AcademicYearDropdown renders a dropdown to select the academic year.
-templ AcademicYearDropdown(academicYears []database.AcademicYear, selectedAcademicYearID string) {
+templ AcademicYearDropdown(academicYears []database.AcademicYear) {
 	<form
 		hx-post="/graduates"
 		hx-target="#graduates-list-container"
@@ -38,7 +38,7 @@ templ AcademicYearDropdown(academicYears []database.AcademicYear, selectedAcadem
 				for _, ay := range academicYears {
 					<option
 						value={ ay.AcademicYearID.String() }
-						if ay.AcademicYearID.String() == selectedAcademicYearID {
+						if ay.Active {
 							selected={ ay.AcademicYearID.String() }
 						}
 					>

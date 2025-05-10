@@ -17,11 +17,6 @@ func (s *Server) ShowCreateClassForm(w http.ResponseWriter, r *http.Request) {
 
 // CreateClass creates a new class.
 func (s *Server) CreateClass(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
-		return
-	}
-
 	if err := r.ParseForm(); err != nil {
 		writeError(w, http.StatusUnprocessableEntity, "wrong parameters")
 		return
@@ -148,11 +143,6 @@ func (s *Server) ShowCreateSubjectForm(w http.ResponseWriter, r *http.Request) {
 
 // CreateSubject creates a new subject for a given class.
 func (s *Server) CreateSubject(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
-		return
-	}
-
 	if err := r.ParseForm(); err != nil {
 		writeError(w, http.StatusUnprocessableEntity, "wrong parameters")
 		return
