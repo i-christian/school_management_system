@@ -75,10 +75,11 @@ UPDATE academic_year
 SET active = FALSE
 WHERE active = TRUE;
 
--- name: SetCurrentAcademicYear :exec
+-- name: SetCurrentAcademicYear :one
 UPDATE academic_year
 SET active = TRUE
-WHERE academic_year_id = $1;
+WHERE academic_year_id = $1
+RETURNING *;
 
 -- name: DeactivateTerm :one
 UPDATE term
@@ -86,10 +87,11 @@ SET active = FALSE
 WHERE active = TRUE
 RETURNING term_id;
 
--- name: SetCurrentTerm :exec
+-- name: SetCurrentTerm :one
 UPDATE term
 SET active = TRUE, previous_term_id = $2
-WHERE term_id = $1;
+WHERE term_id = $1
+RETURNING *;
 
 -- name: GetCurrentAcademicYear :one
 SELECT *

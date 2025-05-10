@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"time"
 
+	"school_management_system/internal/cache"
 	"school_management_system/internal/database"
 
 	"github.com/google/uuid"
@@ -27,6 +28,7 @@ import (
 type Server struct {
 	queries   *database.Queries
 	conn      *pgxpool.Pool
+	cache     *cache.Cache[string, any]
 	SecretKey []byte
 	port      int
 }
@@ -84,10 +86,13 @@ func NewServer() (*Server, *http.Server) {
 	generatedQeries := database.New(conn)
 	createSuperUser(ctx, generatedQeries)
 
+	appCache := cache.New[string, any]()
+
 	AppServer := &Server{
 		port:      port,
 		conn:      conn,
 		queries:   generatedQeries,
+		cache:     appCache,
 		SecretKey: SecretKey,
 	}
 

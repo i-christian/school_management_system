@@ -415,21 +415,33 @@ func (q *Queries) ListTerms(ctx context.Context, academicYearID uuid.UUID) ([]Li
 	return items, nil
 }
 
-const setCurrentAcademicYear = `-- name: SetCurrentAcademicYear :exec
+const setCurrentAcademicYear = `-- name: SetCurrentAcademicYear :one
 UPDATE academic_year
 SET active = TRUE
 WHERE academic_year_id = $1
+RETURNING academic_year_id, graduate_class_id, name, start_date, end_date, active, period
 `
 
-func (q *Queries) SetCurrentAcademicYear(ctx context.Context, academicYearID uuid.UUID) error {
-	_, err := q.db.Exec(ctx, setCurrentAcademicYear, academicYearID)
-	return err
+func (q *Queries) SetCurrentAcademicYear(ctx context.Context, academicYearID uuid.UUID) (AcademicYear, error) {
+	row := q.db.QueryRow(ctx, setCurrentAcademicYear, academicYearID)
+	var i AcademicYear
+	err := row.Scan(
+		&i.AcademicYearID,
+		&i.GraduateClassID,
+		&i.Name,
+		&i.StartDate,
+		&i.EndDate,
+		&i.Active,
+		&i.Period,
+	)
+	return i, err
 }
 
-const setCurrentTerm = `-- name: SetCurrentTerm :exec
+const setCurrentTerm = `-- name: SetCurrentTerm :one
 UPDATE term
 SET active = TRUE, previous_term_id = $2
 WHERE term_id = $1
+RETURNING term_id, academic_year_id, previous_term_id, name, start_date, end_date, active, period
 `
 
 type SetCurrentTermParams struct {
@@ -437,7 +449,18 @@ type SetCurrentTermParams struct {
 	PreviousTermID pgtype.UUID `json:"previous_term_id"`
 }
 
-func (q *Queries) SetCurrentTerm(ctx context.Context, arg SetCurrentTermParams) error {
-	_, err := q.db.Exec(ctx, setCurrentTerm, arg.TermID, arg.PreviousTermID)
-	return err
+func (q *Queries) SetCurrentTerm(ctx context.Context, arg SetCurrentTermParams) (Term, error) {
+	row := q.db.QueryRow(ctx, setCurrentTerm, arg.TermID, arg.PreviousTermID)
+	var i Term
+	err := row.Scan(
+		&i.TermID,
+		&i.AcademicYearID,
+		&i.PreviousTermID,
+		&i.Name,
+		&i.StartDate,
+		&i.EndDate,
+		&i.Active,
+		&i.Period,
+	)
+	return i, err
 }

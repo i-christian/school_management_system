@@ -15,6 +15,13 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type cacheKey string
+
+const (
+	academicYearKey cacheKey = "currentAcademicYear"
+	academicTermKey cacheKey = "currentAcademicTerm"
+)
+
 // ShowCreateAcademicYear page renders academic year creating form
 func (s *Server) ShowCreateAcademicYear(w http.ResponseWriter, r *http.Request) {
 	s.renderComponent(w, r, academics.AcademicYearForm())
@@ -195,11 +202,6 @@ func (s *Server) CreateTermForm(w http.ResponseWriter, r *http.Request) {
 
 // CreateTerm handler function
 func (s *Server) CreateTerm(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
-		return
-	}
-
 	if err := r.ParseForm(); err != nil {
 		writeError(w, http.StatusUnprocessableEntity, "failed to parse form")
 		return
@@ -393,8 +395,11 @@ func (s *Server) toggleAcademicYear(ctx context.Context, academicID uuid.UUID) e
 	if err != nil {
 		return err
 	}
-	if err := qtx.SetCurrentAcademicYear(ctx, academicID); err != nil {
+	activeYear, err := qtx.SetCurrentAcademicYear(ctx, academicID)
+	if err != nil {
 		return err
+	} else {
+		s.cache.Set(string(academicYearKey), activeYear)
 	}
 
 	return tx.Commit(ctx)
@@ -451,8 +456,11 @@ func (s *Server) toggleTerm(ctx context.Context, termID uuid.UUID) error {
 		}
 	}
 
-	if err := qtx.SetCurrentTerm(ctx, params); err != nil {
+	active, err := qtx.SetCurrentTerm(ctx, params)
+	if err != nil {
 		return err
+	} else {
+		s.cache.Set(string(academicTermKey), active)
 	}
 
 	return tx.Commit(ctx)

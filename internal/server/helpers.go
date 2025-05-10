@@ -10,10 +10,26 @@ import (
 
 	"school_management_system/cmd/web"
 	"school_management_system/cmd/web/dashboard"
+	"school_management_system/internal/database"
 
 	"github.com/a-h/templ"
 	"github.com/google/uuid"
 )
+
+// getCachedYear returns the cached academic year
+func (s *Server) getCachedYear() (database.AcademicYear, error) {
+	cachedAY, ok := s.cache.Get(string(academicYearKey))
+	if !ok {
+		return database.AcademicYear{}, errors.New("Active year not found in cache")
+	}
+
+	currentAcademicYear, ok := cachedAY.(database.AcademicYear)
+	if !ok {
+		return database.AcademicYear{}, errors.New("Active year not found in cache")
+	}
+
+	return currentAcademicYear, nil
+}
 
 // renderDashboardComponent renders a component either as a full dashboard page
 // (when not an HTMX request) or just the component (when it's an HTMX request).
