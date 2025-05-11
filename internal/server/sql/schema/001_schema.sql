@@ -55,8 +55,7 @@ CREATE TABLE IF NOT EXISTS academic_year (
     end_date DATE NOT NULL CHECK (end_date > start_date),
     active BOOLEAN NOT NULL DEFAULT FALSE,
     period DATERANGE GENERATED ALWAYS AS (daterange(start_date, end_date, '[]')) STORED,
-    CONSTRAINT academic_year_no_overlap EXCLUDE USING gist (period WITH &&),
-    CONSTRAINT chk_academic_year_not_in_past CHECK (start_date >= CURRENT_DATE)
+    CONSTRAINT academic_year_no_overlap EXCLUDE USING gist (period WITH &&)
 );
 
 -- Partial unique index to ensure only one active academic year exists.
@@ -82,7 +81,6 @@ CREATE TABLE IF NOT EXISTS term (
         academic_year_id WITH =,
         period WITH &&
     ),
-    CONSTRAINT chk_active_term_not_expired CHECK (NOT active OR end_date >= CURRENT_DATE),
     CONSTRAINT fk_previous_term FOREIGN KEY (previous_term_id) REFERENCES term(term_id) ON DELETE SET NULL
 );
 

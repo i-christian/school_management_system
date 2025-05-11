@@ -6,7 +6,8 @@ RETURNING academic_year_id;
 
 -- name: ListAcademicYear :many
 SELECT * FROM academic_year
-ORDER BY active DESC;
+ORDER BY active DESC
+LIMIT 3;
 
 -- name: GetAcademicYear :one
 SELECT * FROM academic_year WHERE academic_year_id = $1;

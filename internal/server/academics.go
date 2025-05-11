@@ -48,6 +48,13 @@ func (s *Server) CreateAcademicYear(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Restrict creating academic year in the past
+	if endDate.Before(time.Now()) {
+		writeError(w, http.StatusBadRequest, "can not create an academic year that far in the past")
+		slog.Error("academic year can not be in the past")
+		return
+	}
+
 	ctx := r.Context()
 	tx, err := s.conn.Begin(ctx)
 	if err != nil {
@@ -115,9 +122,7 @@ func (s *Server) ListAcademicYears(w http.ResponseWriter, r *http.Request) {
 
 	term, err := s.getCachedTerm()
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "internal server error")
 		slog.Error("Failed to retrive current academic term", "error", err.Error())
-		return
 	}
 
 	component := academics.AcademicYearsTermsList(AcademicYears, studentsTerm.Term, studentsTerm.AcademicYear, term.AcademicTerm)
@@ -428,6 +433,9 @@ func (s *Server) setActiveYear(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = s.toggleAcademicYear(r.Context(), yearID)
+	if err != nil {
+		slog.Error("failed to change current academic year", "error", err.Error())
+	}
 
 	if r.Header.Get("HX-Request") != "" {
 		w.Header().Set("HX-Redirect", "/academics/years")

@@ -294,6 +294,7 @@ func (q *Queries) GetTerm(ctx context.Context, termID uuid.UUID) (GetTermRow, er
 const listAcademicYear = `-- name: ListAcademicYear :many
 SELECT academic_year_id, graduate_class_id, name, start_date, end_date, active, period FROM academic_year
 ORDER BY active DESC
+LIMIT 3
 `
 
 func (q *Queries) ListAcademicYear(ctx context.Context) ([]AcademicYear, error) {

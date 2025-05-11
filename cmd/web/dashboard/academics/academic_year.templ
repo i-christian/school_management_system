@@ -8,7 +8,16 @@ templ AcademicYearsTermsList(years []database.AcademicYear, studentsTerm string,
 	<div class="container mx-auto p-6">
 		<div class="flex items-center justify-between mb-4">
 			<h2 class="text-xl font-bold">Academic Years &amp; Terms</h2>
-			<p class="font-semibold hidden sm:block">Current Term: <span class="text-green-900">{ activeTerm }</span></p>
+			<p class="font-semibold hidden sm:block">
+				Current Term: 
+				<span class="text-green-900">
+					if len(activeTerm) > 0 {
+						{ activeTerm }
+					} else {
+						Not Set
+					}
+				</span>
+			</p>
 			<button
 				class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 hover: cursor-pointer focus:outline-none"
 				hx-get="/academics/create"
