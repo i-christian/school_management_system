@@ -108,7 +108,19 @@ func (s *Server) ListAcademicYears(w http.ResponseWriter, r *http.Request) {
 		slog.Warn("no academic year record found")
 	}
 
-	component := academics.AcademicYearsTermsList(AcademicYears)
+	studentsTerm, err := s.queries.GetStudentsTerm(r.Context())
+	if err != nil {
+		slog.Warn("no student's term record available")
+	}
+
+	term, err := s.getCachedTerm()
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal server error")
+		slog.Error("Failed to retrive current academic term", "error", err.Error())
+		return
+	}
+
+	component := academics.AcademicYearsTermsList(AcademicYears, studentsTerm.Term, studentsTerm.AcademicYear, term.AcademicTerm)
 	s.renderComponent(w, r, component)
 }
 

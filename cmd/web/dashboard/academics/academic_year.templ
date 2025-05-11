@@ -4,19 +4,28 @@ import "school_management_system/internal/database"
 import "time"
 
 // templ AcademicYearsTermsList renders a list of academic years with collapsible terms.
-templ AcademicYearsTermsList(years []database.AcademicYear) {
+templ AcademicYearsTermsList(years []database.AcademicYear, studentsTerm string, studentsAY string, activeTerm string) {
 	<div class="container mx-auto p-6">
 		<div class="flex items-center justify-between mb-4">
 			<h2 class="text-xl font-bold">Academic Years &amp; Terms</h2>
+			<p class="font-semibold hidden sm:block">Current Term: <span class="text-green-900">{ activeTerm }</span></p>
 			<button
 				class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 hover: cursor-pointer focus:outline-none"
 				hx-get="/academics/create"
 				hx-target="#content-area"
 				hx-swap="innerHTML"
 			>
-				<i class="fas fa-plus mr-2"></i> Create Academic Year
+				<i class="fas fa-plus mr-2" title="Create Academic Year"></i> <span class="hidden md:inline-block">Create Academic Year</span>
 			</button>
 		</div>
+		if len(studentsTerm) > 0 && len(studentsAY) > 0 {
+			<section class="mx-auto text-center">
+				<span>
+					Students are in:
+					<span>{ studentsAY } ({ studentsTerm })</span>
+				</span>
+			</section>
+		}
 		if len(years) == 0 {
 			<div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
 				<p class="font-bold">Nothing Found</p>

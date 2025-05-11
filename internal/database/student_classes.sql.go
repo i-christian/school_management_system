@@ -59,3 +59,25 @@ func (q *Queries) EditStudentClasses(ctx context.Context, arg EditStudentClasses
 	_, err := q.db.Exec(ctx, editStudentClasses, arg.StudentID, arg.ClassID)
 	return err
 }
+
+const getStudentsTerm = `-- name: GetStudentsTerm :one
+SELECT DISTINCT
+    t.name as term,
+    ay.name as academic_year
+FROM term t
+JOIN student_classes sc ON t.term_id = sc.term_id
+JOIN academic_year ay ON t.academic_year_id = ay.academic_year_id
+LIMIT 1
+`
+
+type GetStudentsTermRow struct {
+	Term         string `json:"term"`
+	AcademicYear string `json:"academic_year"`
+}
+
+func (q *Queries) GetStudentsTerm(ctx context.Context) (GetStudentsTermRow, error) {
+	row := q.db.QueryRow(ctx, getStudentsTerm)
+	var i GetStudentsTermRow
+	err := row.Scan(&i.Term, &i.AcademicYear)
+	return i, err
+}
