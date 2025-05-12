@@ -5,6 +5,7 @@ import "time"
 
 // templ AcademicYearsTermsList renders a list of academic years with collapsible terms.
 templ AcademicYearsTermsList(years []database.AcademicYear, studentsTerm string, studentsAY string, activeTerm string) {
+	<div id="popover-container"></div>
 	<div class="container mx-auto p-6">
 		<div class="flex items-center justify-between mb-4">
 			<h2 class="text-xl font-bold">Academic Years &amp; Terms</h2>
@@ -21,7 +22,7 @@ templ AcademicYearsTermsList(years []database.AcademicYear, studentsTerm string,
 			<button
 				class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 hover: cursor-pointer focus:outline-none"
 				hx-get="/academics/create"
-				hx-target="#content-area"
+				hx-target="#academic-years-list"
 				hx-swap="innerHTML"
 			>
 				<i class="fas fa-plus mr-2" title="Create Academic Year"></i> <span class="hidden md:inline-block">Create Academic Year</span>
@@ -36,10 +37,15 @@ templ AcademicYearsTermsList(years []database.AcademicYear, studentsTerm string,
 			</section>
 		}
 		if len(years) == 0 {
-			<div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
-				<p class="font-bold">Nothing Found</p>
-				<p>No academic years records found in the system</p>
-			</div>
+			<section id="academic-years-list">
+				<div
+					class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4"
+					role="alert"
+				>
+					<p class="font-bold">Nothing Found</p>
+					<p>No academic years records found in the system</p>
+				</div>
+			</section>
 		} else {
 			<section>
 				<ul id="academic-years-list" class="space-y-4">
@@ -77,15 +83,17 @@ templ AcademicYearsTermsList(years []database.AcademicYear, studentsTerm string,
 												<i class="fas fa-toggle-off mr-1"></i> Inactive
 											}
 										</button>
-										<button
-											class="flex items-center px-3 py-1 text-sm text-white bg-green-500 rounded-md hover:bg-green-600 hover:cursor-pointer"
-											hx-get={ "/academics/terms/" + year.AcademicYearID.String() + "/create" }
-											hx-target="#content-area"
-											hx-swap="innerHTML"
-											onclick="event.stopPropagation()"
-										>
-											<i class="fas fa-plus mr-1"></i> Add Term
-										</button>
+										if year.Active == true {
+											<button
+												class="flex items-center px-3 py-1 text-sm text-white bg-green-500 rounded-md hover:bg-green-600 hover:cursor-pointer"
+												hx-get={ "/academics/terms/" + year.AcademicYearID.String() + "/create" }
+												hx-target="#content-area"
+												hx-swap="innerHTML"
+												onclick="event.stopPropagation()"
+											>
+												<i class="fas fa-plus mr-1"></i> Add Term
+											</button>
+										}
 									</div>
 								</summary>
 								<div class="mt-4">
@@ -160,7 +168,7 @@ templ AcademicYearForm() {
 			</header>
 			<form
 				hx-post="/academics/years"
-				hx-target="#content-area"
+				hx-target="#popover-container"
 				hx-swap="innerHTML"
 				class="px-6 py-6"
 			>

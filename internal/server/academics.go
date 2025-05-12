@@ -50,7 +50,21 @@ func (s *Server) CreateAcademicYear(w http.ResponseWriter, r *http.Request) {
 
 	// Restrict creating academic year in the past
 	if endDate.Before(time.Now()) {
-		writeError(w, http.StatusBadRequest, "can not create an academic year that far in the past")
+		if r.Header.Get("HX-Request") != "" {
+			w.Header().Set("Content-Type", "text/html")
+			_, _ = w.Write([]byte(`
+					<div id="popover" class="custom-popover show" style="background-color: #dc2626;">
+						<span>❌ Can not create an academic year in the past</span>
+					</div>
+					<script>
+						setTimeout(() => {
+							document.getElementById('popover').classList.add('hide');
+							setTimeout(() => document.getElementById('popover').remove(), 500);
+						}, 3000);
+					</script>
+				`))
+			return
+		}
 		slog.Error("academic year can not be in the past")
 		return
 	}
@@ -69,14 +83,31 @@ func (s *Server) CreateAcademicYear(w http.ResponseWriter, r *http.Request) {
 
 	graduateClass, err := qtx.CreateGraduateClass(ctx, graduateClassName)
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "internal server error")
+		if r.Header.Get("HX-Request") != "" {
+			w.Header().Set("Content-Type", "text/html")
+			_, _ = w.Write([]byte(`
+					<div id="popover" class="custom-popover show" style="background-color: #dc2626;">
+						<span>
+							❌ Can not create academic year graduate's class.
+							Please Check that the end year of the academic year does not overlap with any available academic year.
+							</span>
+					</div>
+					<script>
+						setTimeout(() => {
+							document.getElementById('popover').classList.add('hide');
+							setTimeout(() => document.getElementById('popover').remove(), 500);
+						}, 3000);
+					</script>
+				`))
+			return
+		}
 		slog.Error("failed to create graduate class", "error", err.Error())
 		return
 	}
 
 	graduateClassBytes, err := graduateClass.ClassID.MarshalBinary()
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "failed to marshal graduate class UUID to bytes")
+		slog.Error("failed to marshal graduate class bytes", "error", err.Error())
 		return
 	}
 
@@ -100,8 +131,20 @@ func (s *Server) CreateAcademicYear(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Header.Get("HX-Request") != "" {
-		w.Header().Set("HX-Redirect", "/academics/years")
+		w.Header().Set("Content-Type", "text/html")
 		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`
+			<div id="popover" class="custom-popover show" style="background-color: #16a34a;">
+				<span>✅ Academic year created successfully</span>
+			</div>
+			<script>
+				setTimeout(() => {
+					document.getElementById('popover').classList.add('hide');
+					setTimeout(() => document.getElementById('popover').remove(), 500);
+				}, 3000);
+				window.location.reload()
+			</script>
+		`))
 		return
 	}
 
