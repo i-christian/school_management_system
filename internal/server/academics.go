@@ -120,13 +120,28 @@ func (s *Server) CreateAcademicYear(w http.ResponseWriter, r *http.Request) {
 
 	_, err = qtx.CreateAcademicYear(ctx, params)
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "failed to create academic year")
-		return
+		if r.Header.Get("HX-Request") != "" {
+			w.Header().Set("Content-Type", "text/html")
+			_, _ = w.Write([]byte(`
+					<div id="popover" class="custom-popover show" style="background-color: #dc2626;">
+						<p> ❌ Failed to create a new academic year. 
+						</p>
+						<p> HINT: Make sure the Start and End period of an academic year does not overlap with any other</p>
+					</div>
+					<script>
+						setTimeout(() => {
+							document.getElementById('popover').classList.add('hide');
+							setTimeout(() => document.getElementById('popover').remove(), 500);
+						}, 3000);
+					</script>
+				`))
+			return
+		}
 	}
 
 	err = tx.Commit(ctx)
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "failed to commit transaction")
+		slog.Error("failed to commit transaction", "error", err.Error())
 		return
 	}
 
@@ -273,7 +288,6 @@ func (s *Server) CreateTerm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !academicYear.Active {
-		writeError(w, http.StatusBadRequest, "can not create a new term on an inactive academic year")
 		slog.Error("failed to create term, academic year is marked as inactive")
 		return
 	}
@@ -444,6 +458,14 @@ func (s *Server) toggleAcademicYear(ctx context.Context, academicID uuid.UUID) e
 	}
 	defer tx.Rollback(ctx)
 	qtx := s.queries.WithTx(tx)
+
+	// first deactive the active term before deactivating its academic year.
+	if _, err = qtx.DeactivateTerm(ctx); err != nil {
+		if err.Error() != "no rows in result set" {
+			return err
+		}
+	}
+
 	err = qtx.DeactivateAcademicYear(ctx)
 	if err != nil {
 		return err
@@ -477,6 +499,22 @@ func (s *Server) setActiveYear(w http.ResponseWriter, r *http.Request) {
 
 	err = s.toggleAcademicYear(r.Context(), yearID)
 	if err != nil {
+		if r.Header.Get("HX-Request") != "" {
+			w.Header().Set("Content-Type", "text/html")
+			_, _ = w.Write([]byte(`
+					<div id="popover" class="custom-popover show" style="background-color: #dc2626;">
+						<p> ❌ Failed to activate academic year. 
+						</p>
+					</div>
+					<script>
+						setTimeout(() => {
+							document.getElementById('popover').classList.add('hide');
+							setTimeout(() => document.getElementById('popover').remove(), 500);
+						}, 3000);
+					</script>
+			`))
+		}
+
 		slog.Error("failed to change current academic year", "error", err.Error())
 	}
 
