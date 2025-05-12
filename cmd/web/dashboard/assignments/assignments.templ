@@ -107,7 +107,7 @@ templ AssignmentForm(teachers []database.ListUsersRow, subjects []database.ListA
 							class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
 						>
 							for _, teacher := range teachers {
-								if teacher.Role != "admin" && teacher.Role != "accountant" {
+								if teacher.Role != "admin" && teacher.Role != "accountant" && teacher.Role != "headteacher" {
 									<option value={ teacher.UserID.String() }>
 										{ teacher.FirstName } { teacher.LastName } ({ teacher.Role })
 									</option>

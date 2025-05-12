@@ -85,7 +85,6 @@ func NewServer() (*Server, *http.Server) {
 	}
 
 	generatedQeries := database.New(conn)
-	createSuperUser(ctx, generatedQeries)
 
 	appCache := cache.New[string, any]()
 
@@ -97,8 +96,8 @@ func NewServer() (*Server, *http.Server) {
 		SecretKey: SecretKey,
 	}
 
-	// set up cache
 	appServer.setUpCache(ctx)
+	appServer.createSuperUser(ctx)
 
 	// Declare Server config
 	httpserver := &http.Server{
@@ -112,7 +111,7 @@ func NewServer() (*Server, *http.Server) {
 	return appServer, httpserver
 }
 
-func createSuperUser(ctx context.Context, queries *database.Queries) {
+func (s *Server) createSuperUser(ctx context.Context) {
 	role := os.Getenv("SUPERUSER_ROLE")
 	email := os.Getenv("SUPERUSER_EMAIL")
 	phone := os.Getenv("SUPERUSER_PHONE")
@@ -124,7 +123,7 @@ func createSuperUser(ctx context.Context, queries *database.Queries) {
 		os.Exit(1)
 	}
 
-	adminUser, err := queries.GetUserByPhone(ctx, pgtype.Text{String: phone, Valid: true})
+	adminUser, err := s.queries.GetUserByPhone(ctx, pgtype.Text{String: phone, Valid: true})
 
 	if adminUser.UserID != uuid.Nil {
 		slog.Info("Superuser already exists")
@@ -141,7 +140,7 @@ func createSuperUser(ctx context.Context, queries *database.Queries) {
 		Name:        role,
 	}
 
-	_, err = queries.CreateUser(ctx, user)
+	_, err = s.queries.CreateUser(ctx, user)
 	if err != nil {
 		slog.Error("Failed to create superuser:", "error", err.Error())
 	} else {

@@ -3,7 +3,26 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 ---
-## [unreleased]
+## [0.4.0](https://github.com/i-christian/school_management_system/compare/v0.3.0..v0.4.0) - 2025-05-11
+
+### Features
+
+- implement a simple in-memory cache for the server - ([2b1230b](https://github.com/i-christian/school_management_system/commit/2b1230be5012a59971dc9927c31aa7efe453eff0)) - christian
+
+### Performance
+
+- implement `setUpClassPromotions` query - ([35b92ef](https://github.com/i-christian/school_management_system/commit/35b92eff1349ff2d272604cbe890e61b676cc468)) - christian
+- use the memory cache to reduce database bound operations - ([9c26c32](https://github.com/i-christian/school_management_system/commit/9c26c321fcb5d7705f15fe8c4bcacd4461a45bae)) - christian
+
+### Refactoring
+
+- restructure graduate code and optimise it - ([d090046](https://github.com/i-christian/school_management_system/commit/d090046aca67c6664abb5eeccb3d033f8749c568)) - christian
+- improve fees functionality to use the in-memory cache - ([5d92ed7](https://github.com/i-christian/school_management_system/commit/5d92ed719b74c4375e4c10ebbf429aa7e842b258)) - christian
+- improve academic year page UI - ([3e202f5](https://github.com/i-christian/school_management_system/commit/3e202f546a28a38252e60105cca1a30a04a204b9)) - christian
+- improve academic year UI and database tables constraints - ([4a7d78b](https://github.com/i-christian/school_management_system/commit/4a7d78b39fe38bcd7667e1ef1019376d58a19dba)) - christian
+
+---
+## [0.3.0](https://github.com/i-christian/school_management_system/compare/v0.2.0..v0.3.0) - 2025-05-09
 
 ### Bug Fixes
 
@@ -19,13 +38,32 @@ All notable changes to this project will be documented in this file. See [conven
 
 - improve Caddy reverse proxy configuration - ([a5937f6](https://github.com/i-christian/school_management_system/commit/a5937f67bcd6cea5a0aa3723428cb5971cedbfef)) - christian
 
+### Miscellaneous Chores
+
+- improve github deploy workflow file - ([ddda90b](https://github.com/i-christian/school_management_system/commit/ddda90b4f80d81efccea0409c1705e6e4ecb4741)) - christian
+- fix Caddyfile https configuration and file formatting - ([2eed6c1](https://github.com/i-christian/school_management_system/commit/2eed6c17c2117a34555aa597812cf0d385d3a89b)) - christian
+
+### Performance
+
+- redefine sessions table to omit unnecessary fields - ([9cbeb2f](https://github.com/i-christian/school_management_system/commit/9cbeb2f816deefe4abb5230a7ce782c8089472a7)) - christian
+
 ### Refactoring
 
 - update login handler and authmiddleware session management - ([2668c26](https://github.com/i-christian/school_management_system/commit/2668c2643e32d90627826d0c442280760e3bd4bd)) - christian
+- improve student's guardian management - ([19f4a00](https://github.com/i-christian/school_management_system/commit/19f4a002c3e38b2f124f7d58b3c77e78e5a2e97f)) - christian
 
 ### Style
 
 - minor styling changes - ([dcac807](https://github.com/i-christian/school_management_system/commit/dcac807eec59aa88b29dc49c7cd1007358bc205e)) - christian
+- rename settings to my profile on top right drop down menu - ([c012820](https://github.com/i-christian/school_management_system/commit/c01282085615be79692564a84d6f4524f034ee2a)) - christian
+- improve the logout modal background - ([d64fdd5](https://github.com/i-christian/school_management_system/commit/d64fdd55adefcbcc8332271f6ef8dfb7e3978332)) - christian
+
+### UI
+
+- replace calendar icons with hourglass icon for academic year navlink - ([0a208b6](https://github.com/i-christian/school_management_system/commit/0a208b6756c9a3c4b04c43a6a2887307ca97a2a7)) - christian
+- improve styling for the user creation modal - ([4761f2a](https://github.com/i-christian/school_management_system/commit/4761f2a037358d7becf260e230d3fb3d920d3ac1)) - christian
+- add a placeholder in create user form for the phone section - ([e3ae5ef](https://github.com/i-christian/school_management_system/commit/e3ae5ef082ee02f8f89d9a1cb1ea49a935828fc0)) - christian
+- rename student promotions to class promotions - ([7217ef8](https://github.com/i-christian/school_management_system/commit/7217ef8ca6ac27b803a9175eb587cf756d13639f)) - christian
 
 ---
 ## [0.2.0](https://github.com/i-christian/school_management_system/compare/v0.1.0-alpha..v0.2.0) - 2025-04-12
