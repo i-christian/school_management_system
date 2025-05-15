@@ -330,6 +330,7 @@ SELECT
 term.term_id,
 academic_year.academic_year_id,
 academic_year.name AS Academic_Year,
+academic_year.active AS status,
 term.name AS Academic_Term,
 term.start_date AS Opening_date,
 term.end_date AS Closing_date,
@@ -346,6 +347,7 @@ type ListTermsRow struct {
 	TermID         uuid.UUID   `json:"term_id"`
 	AcademicYearID uuid.UUID   `json:"academic_year_id"`
 	AcademicYear   string      `json:"academic_year"`
+	Status         bool        `json:"status"`
 	AcademicTerm   string      `json:"academic_term"`
 	OpeningDate    pgtype.Date `json:"opening_date"`
 	ClosingDate    pgtype.Date `json:"closing_date"`
@@ -365,6 +367,7 @@ func (q *Queries) ListTerms(ctx context.Context, academicYearID uuid.UUID) ([]Li
 			&i.TermID,
 			&i.AcademicYearID,
 			&i.AcademicYear,
+			&i.Status,
 			&i.AcademicTerm,
 			&i.OpeningDate,
 			&i.ClosingDate,

@@ -34,6 +34,7 @@ SELECT
 term.term_id,
 academic_year.academic_year_id,
 academic_year.name AS Academic_Year,
+academic_year.active AS status,
 term.name AS Academic_Term,
 term.start_date AS Opening_date,
 term.end_date AS Closing_date,

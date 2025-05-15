@@ -277,7 +277,7 @@ func (s *Server) CreateTerm(w http.ResponseWriter, r *http.Request) {
 
 	academicYearID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		writeError(w, http.StatusUnprocessableEntity, "invalid user id")
+		writeError(w, http.StatusUnprocessableEntity, "invalid academic year id")
 		return
 	}
 
@@ -463,6 +463,8 @@ func (s *Server) toggleAcademicYear(ctx context.Context, academicID uuid.UUID) e
 	if _, err = qtx.DeactivateTerm(ctx); err != nil {
 		if err.Error() != "no rows in result set" {
 			return err
+		} else {
+			s.cache.Remove(string(academicTermKey))
 		}
 	}
 
@@ -470,6 +472,7 @@ func (s *Server) toggleAcademicYear(ctx context.Context, academicID uuid.UUID) e
 	if err != nil {
 		return err
 	}
+
 	activeYear, err := qtx.SetCurrentAcademicYear(ctx, academicID)
 	if err != nil {
 		return err
@@ -574,13 +577,19 @@ func (s *Server) toggleTerm(ctx context.Context, termID uuid.UUID) error {
 	return tx.Commit(ctx)
 }
 
-// setActiveYear handler method is used to switch
+// setActiveTerm handler method is used to switch
 // current active academic year
 func (s *Server) setActiveTerm(w http.ResponseWriter, r *http.Request) {
 	termID, err := convertStringToUUID(r.PathValue("id"))
 	if err != nil {
 		writeError(w, http.StatusUnprocessableEntity, "wrong academic year")
 		slog.Error("Failed to parse academic year", "details:", err.Error())
+		return
+	}
+
+	academicYearStatus := r.PathValue("academicYearStatus")
+	if academicYearStatus != "true" {
+		slog.Warn("Can not activate a term on an inactive academic year")
 		return
 	}
 
