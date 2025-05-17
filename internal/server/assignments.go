@@ -30,10 +30,6 @@ func (s *Server) ShowCreateAssignmentForm(w http.ResponseWriter, r *http.Request
 // CreateAssignment handles POST requests to create an assignment.
 // It reads form values for teacher_id, class_id, and subject_id.
 func (s *Server) CreateAssignment(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
-		return
-	}
 	if err := r.ParseForm(); err != nil {
 		writeError(w, http.StatusUnprocessableEntity, "failed to parse form")
 		return

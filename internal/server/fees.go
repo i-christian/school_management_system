@@ -165,7 +165,8 @@ func (s *Server) SetFeesStructure(w http.ResponseWriter, r *http.Request) {
 		INSERT INTO fee_structure (term_id, class_id, required)
 			VALUES ($1, $2, $3)
 		ON CONFLICT (term_id, class_id)
-  			DO UPDATE SET required = EXCLUDED.required`
+  			DO UPDATE SET required = EXCLUDED.required
+  	`
 
 	_, err = s.conn.Exec(r.Context(), query, term.TermID, parsedClassID, parsedRequired)
 	if err != nil {
