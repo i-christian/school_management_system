@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 
-	"school_management_system/cmd/web/dashboard/grades"
+	"school_management_system/cmd/web/dashboard/myclasses"
 	"school_management_system/internal/database"
 
 	"github.com/google/uuid"
@@ -14,13 +14,13 @@ import (
 // PivotClassRoom pivots classroom data from the database into a slice of GradeEntryData.
 // It aggregates subjects and students per class from the given rows, ensuring no duplicates in the lists.
 // This transformed data is then used to render the grade entry form.
-func PivotClassRoom(rows []database.RetrieveClassRoomRow) []grades.GradeEntryData {
-	classMap := make(map[uuid.UUID]*grades.GradeEntryData)
+func PivotClassRoom(rows []database.RetrieveClassRoomRow) []myclasses.GradeEntryData {
+	classMap := make(map[uuid.UUID]*myclasses.GradeEntryData)
 
 	for _, row := range rows {
 		entry, exists := classMap[row.ClassID]
 		if !exists {
-			entry = &grades.GradeEntryData{
+			entry = &myclasses.GradeEntryData{
 				ClassID:        row.ClassID,
 				ClassName:      row.ClassName,
 				TermID:         row.TermID,
@@ -28,8 +28,8 @@ func PivotClassRoom(rows []database.RetrieveClassRoomRow) []grades.GradeEntryDat
 				AcademicYearID: row.AcademicYearID,
 				TeacherID:      row.TeacherID,
 				TeacherName:    fmt.Sprintf("%v", row.TeacherName),
-				Subjects:       []grades.Subject{},
-				Students:       []grades.Student{},
+				Subjects:       []myclasses.Subject{},
+				Students:       []myclasses.Student{},
 			}
 			classMap[row.ClassID] = entry
 		}
@@ -43,7 +43,7 @@ func PivotClassRoom(rows []database.RetrieveClassRoomRow) []grades.GradeEntryDat
 			}
 		}
 		if !subjectExists {
-			entry.Subjects = append(entry.Subjects, grades.Subject{
+			entry.Subjects = append(entry.Subjects, myclasses.Subject{
 				SubjectID:   row.SubjectID,
 				SubjectName: row.SubjectName,
 			})
@@ -57,7 +57,7 @@ func PivotClassRoom(rows []database.RetrieveClassRoomRow) []grades.GradeEntryDat
 			}
 		}
 		if !studentExists {
-			entry.Students = append(entry.Students, grades.Student{
+			entry.Students = append(entry.Students, myclasses.Student{
 				StudentID:   row.StudentID,
 				StudentNo:   row.StudentNo,
 				StudentName: fmt.Sprintf("%v", row.StudentName),
@@ -65,7 +65,7 @@ func PivotClassRoom(rows []database.RetrieveClassRoomRow) []grades.GradeEntryDat
 		}
 	}
 
-	results := make([]grades.GradeEntryData, 0, len(classMap))
+	results := make([]myclasses.GradeEntryData, 0, len(classMap))
 	for _, v := range classMap {
 		results = append(results, *v)
 	}
@@ -92,11 +92,12 @@ func (s *Server) MyClasses(w http.ResponseWriter, r *http.Request) {
 	}
 
 	GradeEntryData := PivotClassRoom(classRoom)
-	s.renderComponent(w, r, grades.EnterGradesForm(GradeEntryData))
+
+	s.renderComponent(w, r, myclasses.MyClassesGradesForm(GradeEntryData))
 }
 
 // GetClassForm serves the grade entry form for a specific class.
-// It parses the classID from the URL, validates the teacher's context, and retrieves both classroom data and the current grades for the class.
+// It parses the classID from the URL, validates the teacher's context, and retrieves both classroom data and the current myclasses for the class.
 // If a matching class is found, it renders the grade entry form pre-populated with existing grade data; otherwise, it returns a 404 error.
 func (s *Server) GetClassForm(w http.ResponseWriter, r *http.Request) {
 	classID, err := uuid.Parse(r.PathValue("classID"))
@@ -124,17 +125,17 @@ func (s *Server) GetClassForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	currentGrades, err := s.queries.ListGradesForClass(r.Context(), classID)
+	currentmyclasses, err := s.queries.ListGradesForClass(r.Context(), classID)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "internal server error")
-		slog.Error("failed to get grades", "error", err.Error())
+		slog.Error("failed to get myclasses", "error", err.Error())
 		return
 	}
 
 	gradeEntryData := PivotClassRoom(classRoom)
 	for _, class := range gradeEntryData {
 		if class.ClassID == classID {
-			s.renderComponent(w, r, grades.EnterGradesFormSingle(class, currentGrades))
+			s.renderComponent(w, r, myclasses.MyClassesGradesFormSingle(class, currentmyclasses))
 			return
 		}
 	}
