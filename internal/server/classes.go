@@ -112,7 +112,7 @@ func (s *Server) GetClassForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if teacher.Role == "admin" {
+	if teacher.Role == "admin" || teacher.Role == "accountant" || teacher.Role == "headteacher" {
 		writeError(w, http.StatusForbidden, "user does not teach any class")
 		return
 	}

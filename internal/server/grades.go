@@ -2,14 +2,11 @@ package server
 
 import (
 	"encoding/json"
-	"fmt"
 	"log/slog"
 	"net/http"
 
 	"school_management_system/cmd/web/dashboard/grades"
 	"school_management_system/internal/database"
-
-	"github.com/google/uuid"
 )
 
 type GradeEntry struct {
