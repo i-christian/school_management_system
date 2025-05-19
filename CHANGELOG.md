@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 ---
+## [0.4.1](https://github.com/i-christian/school_management_system/compare/v0.4.0..v0.4.1) - 2025-05-17
+
+### Refactoring
+
+- improve assignment page UI - ([fcb954b](https://github.com/i-christian/school_management_system/commit/fcb954bb24b45bfc4ba266d7e9c8a1b0049e6dcc)) - christian
+- improve set active academic year bug - ([c7088c2](https://github.com/i-christian/school_management_system/commit/c7088c28a1e186e72b9dd8f2089d6c3aa06c359a)) - christian
+- improve toggle academic term logic - ([dafa193](https://github.com/i-christian/school_management_system/commit/dafa1934a61180bfa1e723aa841a6f9fdefda3de)) - christian
+- improve assignments page buttons - ([8bcc485](https://github.com/i-christian/school_management_system/commit/8bcc4858514cae455f9365870b3b9816b2c82878)) - christian
+- move teacher's classes function from grades.go to classes.go - ([2790d51](https://github.com/i-christian/school_management_system/commit/2790d516d8a4a0f38c352262d10b2cac6689b2f8)) - christian
+- improve student's remarks page - ([8722f60](https://github.com/i-christian/school_management_system/commit/8722f60a7cccb63db94909eea96bdf535a36297e)) - christian
+- improve the student reportcards page - ([cb152ce](https://github.com/i-christian/school_management_system/commit/cb152ce6f2835e76648ae3363b7fcc50c964ad4c)) - christian
+- create myclasses.templ file - ([4c16893](https://github.com/i-christian/school_management_system/commit/4c168931d452bfb7eab8fd0daebb161fe8e0ad6b)) - christian
+
+### UI
+
+- add popover messages for academic years page - ([d2c12b3](https://github.com/i-christian/school_management_system/commit/d2c12b34611bc0506db631cc0724763730a0abec)) - christian
+
+---
 ## [0.4.0](https://github.com/i-christian/school_management_system/compare/v0.3.0..v0.4.0) - 2025-05-11
 
 ### Features
