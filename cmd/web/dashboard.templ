@@ -59,27 +59,25 @@ templ Dashboard(user dashboard.DashboardUserRole, term dashboard.DashboardTerm) 
         }
 
         let isDesktop = window.innerWidth >= 1024;
-        let expanded = false;
+        let expanded = true;
 
         function applyLayout() {
           if (isDesktop) {
             sidebar.classList.remove('-translate-x-full');
             sidebar.classList.add('top-16');
             if (expanded) {
-              sidebar.classList.remove('w-20');
-              sidebar.classList.add('w-64');
-              setSidebarWidth(256);
-              document.querySelectorAll('.nav-icon').forEach(el => {
-                el.classList.remove('w-6','h-6');
-                el.classList.add('w-5','h-5');
-              });
-            } else {
-              sidebar.classList.remove('w-64');
-              sidebar.classList.add('w-20');
-              setSidebarWidth(80);
+              sidebar.classList.remove('w-16');
+              sidebar.classList.add('w-52');
+              setSidebarWidth(200);
               document.querySelectorAll('.nav-icon').forEach(el => {
                 el.classList.remove('w-5','h-5');
-                el.classList.add('w-6','h-6');
+              });
+            } else {
+              sidebar.classList.remove('w-52');
+              sidebar.classList.add('w-16');
+              setSidebarWidth(58);
+              document.querySelectorAll('.nav-icon').forEach(el => {
+                el.classList.add('w-5','h-5');
               });
             }
             contentArea.style.marginLeft = getComputedStyle(document.documentElement).getPropertyValue('--sidebar-width');
@@ -88,11 +86,11 @@ templ Dashboard(user dashboard.DashboardUserRole, term dashboard.DashboardTerm) 
             sidebar.classList.remove('top-16');
             sidebar.classList.add('top-16');
             if (expanded) {
-              sidebar.classList.remove('-translate-x-full', 'w-20');
-              sidebar.classList.add('w-64');
+              sidebar.classList.remove('-translate-x-full', 'w-16');
+              sidebar.classList.add('w-52');
             } else {
-              sidebar.classList.remove('w-64');
-              sidebar.classList.add('w-20', '-translate-x-full');
+              sidebar.classList.remove('w-52');
+              sidebar.classList.add('w-16', '-translate-x-full');
             }
           }
           updateNavText(expanded);

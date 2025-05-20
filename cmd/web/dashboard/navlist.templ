@@ -15,21 +15,21 @@ templ NavList(user DashboardUserRole, term DashboardTerm) {
 		<ul class="space-y-1">
 			<li>
 				<a href="/" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Home">
-					<i class="nav-icon fas fa-home fa-lg mr-3 text-blue-600"></i>
-					<span class="nav-text text-sm">Home</span>
+					<i class="nav-icon fas fa-home fa-sm mr-3 text-blue-600"></i>
+					<span class="nav-text text-xs">Home</span>
 				</a>
 			</li>
 			<li>
 				<a href="/dashboard" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Dashboard">
-					<i class="nav-icon fas fa-tachometer-alt fa-lg mr-3 text-blue-600"></i>
-					<span class="nav-text text-sm">Dashboard</span>
+					<i class="nav-icon fas fa-tachometer-alt fa-sm mr-3 text-blue-600"></i>
+					<span class="nav-text text-xs">Dashboard</span>
 				</a>
 			</li>
 			if term.TermID != uuid.Nil {
 				<li>
 					<a href="/dashboard/calendar" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Calendar">
-						<i class="nav-icon fas fa-calendar-days fa-lg mr-3 text-blue-600"></i>
-						<span class="nav-text text-sm">Calendar</span>
+						<i class="nav-icon fas fa-calendar-days fa-sm mr-3 text-blue-600"></i>
+						<span class="nav-text text-xs">Calendar</span>
 					</a>
 				</li>
 			}
@@ -37,27 +37,27 @@ templ NavList(user DashboardUserRole, term DashboardTerm) {
 				<li class="px-4 py-1 text-xs font-bold text-gray-500 uppercase nav-text">User Management</li>
 				<li>
 					<a href="/dashboard/userlist" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="User List">
-						<i class="nav-icon fas fa-users fa-lg mr-3 text-blue-600"></i>
-						<span class="nav-text text-sm">User List</span>
+						<i class="nav-icon fas fa-users fa-sm mr-3 text-blue-600"></i>
+						<span class="nav-text text-xs">User List</span>
 					</a>
 				</li>
 				<li class="px-4 py-1 text-xs font-bold text-gray-500 uppercase nav-text">Academic Administration</li>
 				<li>
 					<a href="/academics/years" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Academic Years & Terms">
-						<i class="nav-icon fas fa-hourglass-half fa-lg mr-3 text-blue-600"></i>
-						<span class="nav-text text-sm">Academic Years &amp; Terms</span>
+						<i class="nav-icon fas fa-hourglass-half fa-sm mr-3 text-blue-600"></i>
+						<span class="nav-text text-xs">Academic Years &amp; Terms</span>
 					</a>
 				</li>
 				<li>
 					<a href="/academics/classes" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Classes & Subjects">
-						<i class="nav-icon fas fa-chalkboard-teacher fa-lg mr-3 text-blue-600"></i>
-						<span class="nav-text text-sm">Classes &amp; Subjects</span>
+						<i class="nav-icon fas fa-chalkboard-teacher fa-sm mr-3 text-blue-600"></i>
+						<span class="nav-text text-xs">Classes &amp; Subjects</span>
 					</a>
 				</li>
 				<li>
 					<a href="/academics/assignments" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Teacher Assignments">
-						<i class="nav-icon fas fa-book fa-lg mr-3 text-blue-600"></i>
-						<span class="nav-text text-sm">Teacher Assignments</span>
+						<i class="nav-icon fas fa-book fa-sm mr-3 text-blue-600"></i>
+						<span class="nav-text text-xs">Teacher Assignments</span>
 					</a>
 				</li>
 			}
@@ -68,24 +68,24 @@ templ NavList(user DashboardUserRole, term DashboardTerm) {
 				if user.Role == "admin" {
 					<li>
 						<a href="/students" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Students">
-							<i class="nav-icon fas fa-user-graduate fa-lg mr-3 text-blue-600"></i>
-							<span class="nav-text text-sm">Students</span>
+							<i class="nav-icon fas fa-user-graduate fa-sm mr-3 text-blue-600"></i>
+							<span class="nav-text text-xs">Students</span>
 						</a>
 					</li>
 				}
 				if user.Role == "classteacher" || user.Role == "headteacher" || user.Role == "admin" {
 					<li>
 						<a href="/guardians" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Guardians">
-							<i class="nav-icon fas fa-users-cog fa-lg mr-3 text-blue-600"></i>
-							<span class="nav-text text-sm">Guardians</span>
+							<i class="nav-icon fas fa-users-cog fa-sm mr-3 text-blue-600"></i>
+							<span class="nav-text text-xs">Guardians</span>
 						</a>
 					</li>
 				}
 				if user.Role == "admin" {
 					<li>
 						<a href="/promotions" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Class Promotions">
-							<i class="nav-icon fas fa-level-up-alt fa-lg mr-3 text-blue-600"></i>
-							<span class="nav-text text-sm">Class Promotions</span>
+							<i class="nav-icon fas fa-level-up-alt fa-sm mr-3 text-blue-600"></i>
+							<span class="nav-text text-xs">Class Promotions</span>
 						</a>
 					</li>
 				}
@@ -94,50 +94,50 @@ templ NavList(user DashboardUserRole, term DashboardTerm) {
 			if user.Role == "teacher" || user.Role == "classteacher" {
 				<li>
 					<a href="/grades/myclasses" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="My Classes">
-						<i class="nav-icon fas fa-chalkboard fa-lg mr-3 text-blue-600"></i>
-						<span class="nav-text text-sm">My Classes</span>
+						<i class="nav-icon fas fa-chalkboard fa-sm mr-3 text-blue-600"></i>
+						<span class="nav-text text-xs">My Classes</span>
 					</a>
 				</li>
 				<li>
 					<a href="/grades" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Grades">
-						<i class="nav-icon fas fa-clipboard-list fa-lg mr-3 text-blue-600"></i>
-						<span class="nav-text text-sm">Grades</span>
+						<i class="nav-icon fas fa-clipboard-list fa-sm mr-3 text-blue-600"></i>
+						<span class="nav-text text-xs">Grades</span>
 					</a>
 				</li>
 			}
 			if user.Role == "classteacher" || user.Role == "headteacher" {
 				<li>
 					<a href="/remarks" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Remarks">
-						<i class="nav-icon fas fa-comments fa-lg mr-3 text-blue-600"></i>
-						<span class="nav-text text-sm">Remarks</span>
+						<i class="nav-icon fas fa-comments fa-sm mr-3 text-blue-600"></i>
+						<span class="nav-text text-xs">Remarks</span>
 					</a>
 				</li>
 				<li>
 					<a href="/discipline" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Discipline">
-						<i class="nav-icon fas fa-bell fa-lg mr-3 text-blue-600"></i>
-						<span class="nav-text text-sm">Discipline</span>
+						<i class="nav-icon fas fa-bell fa-sm mr-3 text-blue-600"></i>
+						<span class="nav-text text-xs">Discipline</span>
 					</a>
 				</li>
 				<li>
 					<a href="/reports/reportcards" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Report Cards">
-						<i class="nav-icon fas fa-file-alt fa-lg mr-3 text-blue-600"></i>
-						<span class="nav-text text-sm">Report Cards</span>
+						<i class="nav-icon fas fa-file-alt fa-sm mr-3 text-blue-600"></i>
+						<span class="nav-text text-xs">Report Cards</span>
 					</a>
 				</li>
 			}
 			if term.TermID != uuid.Nil {
 				<li>
 					<a href="/graduates" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Graduates">
-						<i class="nav-icon fas fa-graduation-cap fa-lg mr-3 text-blue-600"></i>
-						<span class="nav-text text-sm">Graduates</span>
+						<i class="nav-icon fas fa-graduation-cap fa-sm mr-3 text-blue-600"></i>
+						<span class="nav-text text-xs">Graduates</span>
 					</a>
 				</li>
 			}
 			if user.Role == "accountant" {
 				<li>
 					<a href="/fees" class="flex items-center px-4 py-2 rounded-md hover:bg-blue-200 transition" title="Fees Management">
-						<i class="nav-icon fas fa-money-bill-wave fa-lg mr-3 text-blue-600"></i>
-						<span class="nav-text text-sm">Fees Management</span>
+						<i class="nav-icon fas fa-money-bill-wave fa-sm mr-3 text-blue-600"></i>
+						<span class="nav-text text-xs">Fees Management</span>
 					</a>
 				</li>
 			}
