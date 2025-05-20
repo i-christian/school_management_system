@@ -13,20 +13,25 @@ templ AssignmentsList(groupedAssignments map[string]map[string][]database.ListAs
 			<button
 				class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none hover:cursor-pointer"
 				hx-get="/academics/assignments/create"
-				hx-target="#content-area"
+				hx-target="#assignments-list"
 				hx-swap="innerHTML"
 			>
 				<i class="fas fa-plus mr-2"></i> Create Assignment
 			</button>
 		</div>
 		if len(groupedAssignments) == 0 {
-			<div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
-				<p class="font-bold">Nothing Found</p>
-				<p>No Teacher assignments found in the system</p>
-			</div>
+			<section id="assignments-list">
+				<div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
+					<p class="font-bold">Nothing Found</p>
+					<p>No Teacher assignments found in the system</p>
+				</div>
+			</section>
 		} else {
 			for teacher, classMap := range groupedAssignments {
-				<div class="mb-8 border rounded-lg shadow-xs p-4">
+				<div
+					class="mb-8 border rounded-lg shadow-xs p-4"
+					id="assignments-list"
+				>
 					<h3 class="text-xl font-semibold mb-4">{ teacher }</h3>
 					for class, assignments := range classMap {
 						<details class="mb-4 border rounded-md">
@@ -58,7 +63,7 @@ templ AssignmentsList(groupedAssignments map[string]map[string][]database.ListAs
 													<button
 														class="px-3 py-1 text-sm text-white bg-yellow-500 rounded-md hover:bg-yellow-600 hover:cursor-pointer"
 														hx-get={ "/academics/assignments/" + assignment.ID.String() + "/edit" }
-														hx-target="#content-area"
+														hx-target="#assignments-list"
 														hx-swap="innerHTML"
 													>
 														<i class="fas fa-edit mr-1"></i> Edit
@@ -66,7 +71,7 @@ templ AssignmentsList(groupedAssignments map[string]map[string][]database.ListAs
 													<button
 														class="px-3 py-1 text-sm text-white bg-red-500 rounded-md hover:bg-red-600 hover:cursor-pointer"
 														hx-delete={ "/academics/assignments/" + assignment.ID.String() }
-														hx-target="#content-area"
+														hx-target="#assignments-list"
 														hx-swap="outerHTML"
 													>
 														<i class="fas fa-trash mr-1"></i> Delete
@@ -175,7 +180,7 @@ templ EditAssignmentForm(assignment database.GetAssignmentRow, teachers []databa
 							class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
 						>
 							for _, teacher := range teachers {
-								if teacher.Role != "admin" && teacher.Role != "accountant" {
+								if teacher.Role != "admin" && teacher.Role != "accountant" && teacher.Role != "headteacher" {
 									<option value={ teacher.UserID.String() } selected={ assignment.TeacherID.String() }>
 										{ assignment.TeacherFirstname } { assignment.TeacherLastname }
 									</option>
@@ -191,9 +196,11 @@ templ EditAssignmentForm(assignment database.GetAssignmentRow, teachers []databa
 							class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
 						>
 							for _, subject := range subjects {
-								selected := (subject.Subjectid == assignment.SubjectID) && (subject.Classid == assignment.ClassID)
-								<option value={ subject.Subjectid.String() + "=" + subject.Classid.String() } selected={ assignment.SubjectID.String() }>
-									{ assignment.Classroom } - { assignment.Subject }
+								<option
+									value={ subject.Subjectid.String() + "=" + subject.Classid.String() }
+									selected={ assignment.SubjectID.String() + "=" + assignment.ClassID.String() }
+								>
+									{ subject.Classname } - { subject.Subjectname }
 								</option>
 							}
 						</select>
@@ -206,13 +213,13 @@ templ EditAssignmentForm(assignment database.GetAssignmentRow, teachers []databa
 						hx-push-url="true"
 						hx-target="#content-area"
 						hx-swap="innerHTML"
-						class="bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-gray-400"
+						class="bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-gray-400 hover:cursor-pointer"
 					>
 						Cancel
 					</button>
 					<button
 						type="submit"
-						class="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+						class="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:cursor-pointer"
 					>
 						Save
 					</button>
