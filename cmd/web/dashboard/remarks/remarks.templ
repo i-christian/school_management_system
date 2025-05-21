@@ -10,8 +10,8 @@ type GroupedRemarks struct {
 }
 
 templ RemarksPage(GroupedData []GroupedRemarks) {
-	<section id="remarks-page" class="max-w-7xl mx-auto p-6 space-y-8 relative">
-		<header>
+	<section id="remarks-page" class="mx-auto p-1">
+		<header class="pb-2">
 			<h2 class="text-2xl font-bold text-gray-800">Student's Remarks</h2>
 		</header>
 		<!-- Popover container -->
@@ -27,8 +27,8 @@ templ RemarksPage(GroupedData []GroupedRemarks) {
 			</div>
 		} else {
 			for _, group := range GroupedData {
-				<header class="mb-4">
-					<h2 class="text-2xl font-bold text-gray-800">
+				<header class="mb-2">
+					<h2 class="text-center mx-auto font-semibold text-gray-800">
 						Remarks for { group.ClassName } <span class="text-base font-normal text-gray-600">(Term: { group.AcademicTerm })</span>
 					</h2>
 				</header>
@@ -94,8 +94,8 @@ templ RemarksPage(GroupedData []GroupedRemarks) {
 }
 
 templ DisciplinePage(records []database.ListDisciplinaryRecordsRow) {
-	<section id="discipline-page" class="max-w-7xl mx-auto p-1 space-y-6">
-		<div class="flex items-center justify-between">
+	<section id="discipline-page" class="mx-auto p-1">
+		<div class="flex items-center justify-between pb-2">
 			<h2 class="text-2xl font-bold text-gray-800">Disciplinary Records</h2>
 			<button
 				hx-get="/discipline/new"

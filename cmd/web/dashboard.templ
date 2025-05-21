@@ -102,19 +102,18 @@ templ Dashboard(user dashboard.DashboardUserRole, term dashboard.DashboardTerm) 
           applyLayout();
         });
 
-        document.addEventListener('click', (e) => {
+        sidebar.addEventListener('click', (e) => {
           if (window.innerWidth < 1024) {
             if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
-              if (expanded) {
-                expanded = false;
+				expanded = false;
                 applyLayout();
-              }
             }
           }
         });
 
         window.addEventListener('resize', () => {
           isDesktop = window.innerWidth >= 1024;
+		  expanded = isDesktop ? true : false;
           applyLayout();
         });
 
