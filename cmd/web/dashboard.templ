@@ -18,7 +18,7 @@ templ Dashboard(user dashboard.DashboardUserRole, term dashboard.DashboardTerm) 
 		>
 			<header
 				id="header"
-				class="fixed top-0 left-0 right-0 z-50 flex items-center justify-between bg-white shadow p-4 transition-all duration-300"
+				class="fixed top-0 left-0 right-0 z-50 flex items-center justify-between bg-white shadow p-3 transition-all duration-300"
 			>
 				<button id="toggle-sidebar" class="text-2xl hover:cursor-pointer">
 					<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -29,11 +29,11 @@ templ Dashboard(user dashboard.DashboardUserRole, term dashboard.DashboardTerm) 
 				@dashboard.UserProfile()
 			</header>
 			<aside id="sidebar" class="fixed z-40 h-full bg-white shadow transition-all duration-300 overflow-hidden" data-expanded="true">
-				<div class="pt-5 h-full flex flex-col">
+				<div class="pt-[4rem] h-full flex flex-col">
 					@dashboard.NavList(user, term)
 				</div>
 			</aside>
-			<main class="pt-[4rem] transition-all mx-5 my-6 duration-300">
+			<main class="pt-[4rem] transition-all mx-5 duration-300">
 				<div id="content-area">
 					{ children... }
 				</div>
@@ -64,7 +64,6 @@ templ Dashboard(user dashboard.DashboardUserRole, term dashboard.DashboardTerm) 
         function applyLayout() {
           if (isDesktop) {
             sidebar.classList.remove('-translate-x-full');
-            sidebar.classList.add('top-16');
             if (expanded) {
               sidebar.classList.remove('w-16');
               sidebar.classList.add('w-52');
@@ -83,8 +82,6 @@ templ Dashboard(user dashboard.DashboardUserRole, term dashboard.DashboardTerm) 
             contentArea.style.marginLeft = getComputedStyle(document.documentElement).getPropertyValue('--sidebar-width');
           } else {
             contentArea.style.marginLeft = '0px';
-            sidebar.classList.remove('top-16');
-            sidebar.classList.add('top-16');
             if (expanded) {
               sidebar.classList.remove('-translate-x-full', 'w-16');
               sidebar.classList.add('w-52');
@@ -121,7 +118,7 @@ templ Dashboard(user dashboard.DashboardUserRole, term dashboard.DashboardTerm) 
           applyLayout();
         });
 
-		  document.body.addEventListener('htmx:afterSwap', function(evt) {
+		document.body.addEventListener('htmx:afterSwap', function(evt) {
     			if (evt.detail.target.id === 'content-area') {
       			document.getElementById('modal').innerHTML = '';
     			}
