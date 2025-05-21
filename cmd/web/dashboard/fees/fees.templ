@@ -18,12 +18,12 @@ type ClassRoomData struct {
 
 // FeesList renders a list of classes with their respective fee records.
 templ FeesList(classRooms []ClassRoomData) {
-	<section id="fees-list" class="mx-auto p-6">
+	<section id="fees-list" class="mx-auto p-1">
 		<div class="flex items-center justify-between mb-6">
 			<h2 class="text-xl font-bold text-gray-800">Tuition Fees</h2>
 			<button
 				hx-get="/fees/structure"
-				hx-target="#content-area"
+				hx-target="#set-tuition"
 				class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded hover:cursor-pointer text-sm"
 				title="Set tuition"
 			>
@@ -33,13 +33,18 @@ templ FeesList(classRooms []ClassRoomData) {
 			</button>
 		</div>
 		if len(classRooms) == 0 {
-			<div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
-				<p class="font-bold">No fee structure found</p>
-				<p>No fee structure found for any class in the system, Set the fee structure first!</p>
-			</div>
+			<section id="set-tuition">
+				<div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
+					<p class="font-bold">No fee structure found</p>
+					<p>No fee structure found for any class in the system, Set the fee structure first!</p>
+				</div>
+			</section>
 		} else {
 			<nav class="mb-6">
-				<ul class="flex space-x-2 overflow-x-auto">
+				<ul
+					class="flex space-x-2 overflow-x-auto"
+					id="set-tuition"
+				>
 					for _, class := range classRooms {
 						<li>
 							<button
