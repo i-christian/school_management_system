@@ -16,7 +16,7 @@ templ UsersList(userList []database.ListUsersRow) {
 				</a>
 			</section>
 			<button
-				class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none"
+				class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none hover:cursor-pointer"
 				hx-get="/users/create"
 				hx-target="#content-area"
 				hx-swap="innerHTML"
@@ -65,7 +65,7 @@ templ UsersList(userList []database.ListUsersRow) {
 										</button>
 									} else {
 										<button
-											class="flex items-center px-2 py-1 text-sm text-white bg-yellow-500 rounded-md hover:bg-yellow-600 focus:outline-none"
+											class="flex items-center px-2 py-1 text-sm text-white bg-yellow-500 rounded-md hover:bg-yellow-600 focus:outline-none hover:cursor-pointer"
 											hx-get={ "/users/" + user.UserID.String() + "/edit" }
 											hx-target="#content-area"
 											hx-swap="innerHTML"
@@ -73,7 +73,7 @@ templ UsersList(userList []database.ListUsersRow) {
 											<i class="fas fa-edit mr-1"></i> Edit
 										</button>
 										<button
-											class="flex items-center px-2 py-1 text-sm text-white bg-red-500 rounded-md hover:bg-red-600 focus:outline-none"
+											class="flex items-center px-2 py-1 text-sm text-white bg-red-500 rounded-md hover:bg-red-600 focus:outline-none hover:cursor-pointer"
 											hx-get={ "/users/" + user.UserID.String() + "/delete" }
 											hx-target="#modal"
 											hx-swap="innerHTML"
