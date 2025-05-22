@@ -3,6 +3,7 @@ package classes
 import "school_management_system/internal/database"
 import "strconv"
 import "strings"
+import "school_management_system/cmd/web/dashboard/classteachers"
 
 templ ClassesSubjectsPage(classes []database.Class, classTeachers []database.ListCLassTeachersRow, teachers []database.GetAllDBClassTeachersRow) {
 	<div class="container mx-auto p-6">
@@ -64,9 +65,11 @@ templ ClassesSubjectsPage(classes []database.Class, classTeachers []database.Lis
 										</button>
 									</div>
 								</section>
-								if len(teachers) != 0 {
-									@ClassTeachers(classTeachers, teachers, class.ClassID.String())
-								}
+								<section class="px-3 py-1">
+									if len(teachers) != 0 {
+										@classteachers.ClassTeachers(classTeachers, teachers, class.ClassID.String())
+									}
+								</section>
 								<section class="mt-4">
 									<h4 class="text-md font-medium">Subjects</h4>
 									<ul id={ "subjects-list-" + class.ClassID.String() } class="space-y-2">
@@ -89,37 +92,6 @@ templ ClassesSubjectsPage(classes []database.Class, classTeachers []database.Lis
 			}
 		</section>
 	</div>
-}
-
-templ ClassTeachers(classTeachers []database.ListCLassTeachersRow, teachers []database.GetAllDBClassTeachersRow, classID string) {
-	if len(classTeachers) == 0 {
-		<button
-			class="flex items-center px-3 py-1 text-sm text-white bg-green-500 rounded-md hover:bg-green-600 hover:cursor-pointer"
-			hx-get={ "/academics/classteacher/" + classID + "/create" }
-			hx-target="#classes-list"
-			hx-swap="innerHTML"
-		>
-			<i class="fas fa-plus mr-1"></i> Set ClassTeacher
-		</button>
-	} else {
-		for _, classTeacher := range classTeachers {
-			<section>
-				<div>
-					<h3 class="text-lg font-semibold">Class Teacher: { classTeacher.FirstName + " " + classTeacher.LastName }</h3>
-				</div>
-				<div class="flex space-x-2">
-					<button
-						class="flex items-center px-3 py-1 text-sm text-white bg-yellow-500 rounded-md hover:bg-yellow-600 hover:cursor-pointer"
-						hx-get={ "/academics/classteacher/" + classID + "/edit" }
-						hx-target="#classes-list"
-						hx-swap="innerHTML"
-					>
-						<i class="fas fa-edit mr-1"></i> Edit
-					</button>
-				</div>
-			</section>
-		}
-	}
 }
 
 templ SubjectsList(subjects []database.ListSubjectsRow) {
