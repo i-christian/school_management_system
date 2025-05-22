@@ -20,6 +20,7 @@ select
 from users u
 join roles r on u.role_id = r.role_id
 and r.name = 'classteacher'
+order by u.last_name
 `
 
 type GetAllDBClassTeachersRow struct {
@@ -133,6 +134,28 @@ func (q *Queries) ListCLassTeachers(ctx context.Context) ([]ListCLassTeachersRow
 		return nil, err
 	}
 	return items, nil
+}
+
+const removeClassTeacher = `-- name: RemoveClassTeacher :exec
+WITH updated_user AS (
+    select
+        roles.name,
+        roles.role_id,
+        case when roles.name <> 'classteacher'
+            then users.user_id
+        end user_id
+    from roles
+    join users using (role_id)
+    where users.user_id = $1
+)
+delete
+    from class_teachers
+where teacher_id = (select user_id from updated_user)
+`
+
+func (q *Queries) RemoveClassTeacher(ctx context.Context, userID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, removeClassTeacher, userID)
+	return err
 }
 
 const upSertClassTeacher = `-- name: UpSertClassTeacher :one

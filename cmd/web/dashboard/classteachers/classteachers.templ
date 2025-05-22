@@ -60,6 +60,10 @@ templ ClassTeacherForm(teachers []database.GetAllDBClassTeachersRow, classID str
 							required
 							class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
 						>
+							<option
+								selected=""
+								value=""
+							>Select</option>
 							for _, teacher := range teachers {
 								<option value={ teacher.TeacherID.String() }>
 									{ teacher.FirstName } { teacher.LastName } ({ teacher.Role })

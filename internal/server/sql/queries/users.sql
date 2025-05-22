@@ -55,7 +55,7 @@ FROM users
 INNER JOIN roles ON users.role_id = roles.role_id
 ORDER BY last_name;
 
--- name: EditUser :exec
+-- name: EditUser :one
 UPDATE users
     set first_name = COALESCE($2, first_name),
     last_name = COALESCE($3, last_name),
@@ -63,7 +63,8 @@ UPDATE users
     phone_number = COALESCE($5, phone_number),
     email = COALESCE($6, email),
     role_id = COALESCE((SELECT role_id FROM roles WHERE name = $7), role_id)
-WHERE user_id = $1;
+WHERE user_id = $1
+RETURNING user_id;
 
 -- name: EditPassword :exec
 UPDATE users

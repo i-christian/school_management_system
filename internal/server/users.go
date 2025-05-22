@@ -234,10 +234,15 @@ func (s *Server) EditUser(w http.ResponseWriter, r *http.Request) {
 		Name:        role,
 	}
 
-	err = qtx.EditUser(r.Context(), updateInfo)
+	editedUserID, err := qtx.EditUser(r.Context(), updateInfo)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "internal server error")
 		return
+	} else {
+		err = qtx.RemoveClassTeacher(r.Context(), editedUserID)
+		if err != nil {
+			slog.Warn("failed to remove classteacher assignment", "error", err.Error())
+		}
 	}
 
 	if len(strings.TrimSpace(password)) > 0 {

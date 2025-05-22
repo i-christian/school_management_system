@@ -90,7 +90,7 @@ func (q *Queries) EditPassword(ctx context.Context, arg EditPasswordParams) erro
 	return err
 }
 
-const editUser = `-- name: EditUser :exec
+const editUser = `-- name: EditUser :one
 UPDATE users
     set first_name = COALESCE($2, first_name),
     last_name = COALESCE($3, last_name),
@@ -99,6 +99,7 @@ UPDATE users
     email = COALESCE($6, email),
     role_id = COALESCE((SELECT role_id FROM roles WHERE name = $7), role_id)
 WHERE user_id = $1
+RETURNING user_id
 `
 
 type EditUserParams struct {
@@ -111,8 +112,8 @@ type EditUserParams struct {
 	Name        string      `json:"name"`
 }
 
-func (q *Queries) EditUser(ctx context.Context, arg EditUserParams) error {
-	_, err := q.db.Exec(ctx, editUser,
+func (q *Queries) EditUser(ctx context.Context, arg EditUserParams) (uuid.UUID, error) {
+	row := q.db.QueryRow(ctx, editUser,
 		arg.UserID,
 		arg.FirstName,
 		arg.LastName,
@@ -121,7 +122,9 @@ func (q *Queries) EditUser(ctx context.Context, arg EditUserParams) error {
 		arg.Email,
 		arg.Name,
 	)
-	return err
+	var user_id uuid.UUID
+	err := row.Scan(&user_id)
+	return user_id, err
 }
 
 const getUserByPhone = `-- name: GetUserByPhone :one
