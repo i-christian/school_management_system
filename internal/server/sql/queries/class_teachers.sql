@@ -1,4 +1,4 @@
--- name: getAllDBClassTeachers :many
+-- name: GetAllDBClassTeachers :many
 select
     u.user_id as teacher_id,
     u.first_name,

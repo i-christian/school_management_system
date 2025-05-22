@@ -4,7 +4,7 @@ import "school_management_system/internal/database"
 import "strconv"
 import "strings"
 
-templ ClassesSubjectsPage(classes []database.Class, classTeachers []database.ListCLassTeachersRow, teachers) {
+templ ClassesSubjectsPage(classes []database.Class, classTeachers []database.ListCLassTeachersRow, teachers []database.getAll) {
 	<div class="container mx-auto p-6">
 		<div class="flex items-center justify-between mb-4">
 			<h2 class="text-xl font-bold">Classes & Subjects</h2>

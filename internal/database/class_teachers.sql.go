@@ -11,6 +11,49 @@ import (
 	"github.com/google/uuid"
 )
 
+const getAllDBClassTeachers = `-- name: GetAllDBClassTeachers :many
+select
+    u.user_id as teacher_id,
+    u.first_name,
+    u.last_name,
+    r.name as role
+from users u
+join roles r on u.role_id = r.role_id
+and r.name = 'classteacher'
+`
+
+type GetAllDBClassTeachersRow struct {
+	TeacherID uuid.UUID `json:"teacher_id"`
+	FirstName string    `json:"first_name"`
+	LastName  string    `json:"last_name"`
+	Role      string    `json:"role"`
+}
+
+func (q *Queries) GetAllDBClassTeachers(ctx context.Context) ([]GetAllDBClassTeachersRow, error) {
+	rows, err := q.db.Query(ctx, getAllDBClassTeachers)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetAllDBClassTeachersRow{}
+	for rows.Next() {
+		var i GetAllDBClassTeachersRow
+		if err := rows.Scan(
+			&i.TeacherID,
+			&i.FirstName,
+			&i.LastName,
+			&i.Role,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getClassTeacher = `-- name: GetClassTeacher :one
 select
     ct.id,
@@ -107,47 +150,4 @@ func (q *Queries) UpSertClassTeacher(ctx context.Context, arg UpSertClassTeacher
 	var id uuid.UUID
 	err := row.Scan(&id)
 	return id, err
-}
-
-const getAllDBClassTeachers = `-- name: getAllDBClassTeachers :many
-select
-    u.user_id as teacher_id,
-    u.first_name,
-    u.last_name,
-    r.name as role
-from users u
-join roles r on u.role_id = r.role_id
-and r.name = 'classteacher'
-`
-
-type getAllDBClassTeachersRow struct {
-	TeacherID uuid.UUID `json:"teacher_id"`
-	FirstName string    `json:"first_name"`
-	LastName  string    `json:"last_name"`
-	Role      string    `json:"role"`
-}
-
-func (q *Queries) getAllDBClassTeachers(ctx context.Context) ([]getAllDBClassTeachersRow, error) {
-	rows, err := q.db.Query(ctx, getAllDBClassTeachers)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []getAllDBClassTeachersRow{}
-	for rows.Next() {
-		var i getAllDBClassTeachersRow
-		if err := rows.Scan(
-			&i.TeacherID,
-			&i.FirstName,
-			&i.LastName,
-			&i.Role,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
 }
