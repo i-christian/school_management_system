@@ -6,7 +6,7 @@ import "strings"
 import "school_management_system/cmd/web/dashboard/classteachers"
 
 templ ClassesSubjectsPage(classes []database.Class, classTeachers []database.ListCLassTeachersRow, teachers []database.GetAllDBClassTeachersRow) {
-	<div class="container mx-auto p-6">
+	<div class="container mx-auto p-1">
 		<div class="flex items-center justify-between mb-4">
 			<h2 class="text-xl font-bold">Classes & Subjects</h2>
 			<button
@@ -33,7 +33,7 @@ templ ClassesSubjectsPage(classes []database.Class, classTeachers []database.Lis
 				<ul id="classes-list" class="space-y-4">
 					for _, class := range classes {
 						if !strings.HasPrefix(class.Name, "Graduates - ") {
-							<li class="p-4 bg-gray-100 rounded shadow">
+							<li class="p-4 bg-white rounded shadow">
 								<section class="flex items-center justify-between">
 									<div>
 										<h3 class="text-lg font-semibold">{ class.Name }</h3>
@@ -65,7 +65,7 @@ templ ClassesSubjectsPage(classes []database.Class, classTeachers []database.Lis
 										</button>
 									</div>
 								</section>
-								<section class="px-3 py-1">
+								<section class="py-2">
 									if len(teachers) != 0 {
 										@classteachers.ClassTeachers(classTeachers, class.ClassID.String())
 									}

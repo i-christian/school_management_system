@@ -127,6 +127,9 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 		// classteacher routes
 		r.Get("/classteacher/{class_id}/create", s.showCreateClassTeacher)
+		r.Post("/classteacher/{class_id}", s.assignClassTeacher)
+		r.Get("/classteacher/{class_id}/edit", s.showEditClassTeacher)
+		r.Put("/classteacher/{class_id}", s.editClassTeacher)
 
 		r.Get("/assignments", s.ListAssignments)
 		r.Get("/assignments/create", s.ShowCreateAssignmentForm)

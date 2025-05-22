@@ -35,6 +35,7 @@ select
     ct.id,
     u.first_name,
     u.last_name,
+    c.class_id,
     c.name as class
 from class_teachers ct
 join users u on ct.teacher_id = u.user_id
