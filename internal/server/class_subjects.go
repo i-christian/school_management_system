@@ -51,17 +51,12 @@ func (s *Server) ListClasses(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	classTeachers, err := s.queries.ListCLassTeachers(r.Context())
-	if err != nil {
-		slog.Warn("no teachers have been set as class teachers")
-	}
-
 	teachers, err := s.queries.GetAllDBClassTeachers(r.Context())
 	if err != nil {
 		slog.Warn("no class teacher in the database", "error", err.Error())
 	}
 
-	component := classes.ClassesSubjectsPage(classesList, classTeachers, teachers)
+	component := classes.ClassesSubjectsPage(classesList, teachers)
 	s.renderComponent(w, r, component)
 }
 

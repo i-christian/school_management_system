@@ -126,6 +126,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Delete("/subjects/{id}", s.DeleteSubject)
 
 		// classteacher routes
+		r.Get("/classteacher/{class_id}", s.showClassTeachers)
 		r.Get("/classteacher/{class_id}/create", s.showCreateClassTeacher)
 		r.Post("/classteacher/{class_id}", s.assignClassTeacher)
 		r.Get("/classteacher/{class_id}/edit", s.showEditClassTeacher)

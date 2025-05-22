@@ -2,8 +2,9 @@ package classteachers
 
 import "school_management_system/internal/database"
 
-templ ClassTeachers(classTeachers []database.ListCLassTeachersRow, classID string) {
-	if len(classTeachers) == 0 {
+templ ClassTeachers(classTeacher database.GetClassTeacherRow, classID string) {
+	{{ result := classTeacher == database.GetClassTeacherRow{} }}
+	if result {
 		<button
 			class="flex items-center px-1 py-1 text-xs text-white bg-green-500 rounded-md hover:bg-green-600 hover:cursor-pointer"
 			hx-get={ "/academics/classteacher/" + classID + "/create" }
@@ -14,27 +15,23 @@ templ ClassTeachers(classTeachers []database.ListCLassTeachersRow, classID strin
 			</p>
 		</button>
 	} else {
-		for _, classTeacher := range classTeachers {
-			if classTeacher.ClassID.String() == classID {
-				<section class="">
-					<div>
-						<h3 class="text-lg font-semibold">Class Teacher: { classTeacher.FirstName + " " + classTeacher.LastName }</h3>
-					</div>
-					<div class="flex space-x-2">
-						<button
-							class="flex items-center px-3 py-1 text-sm text-white bg-yellow-500 rounded-md hover:bg-yellow-600 hover:cursor-pointer"
-							hx-get={ "/academics/classteacher/" + classTeacher.ClassID.String() + "/edit" }
-							hx-target="#classes-list"
-							hx-swap="innerHTML"
-						>
-							<p class="flex gap-1 items-center justify-center" title="edit classteacher">
-								<i class="fas fa-edit mr-1"></i> <span class="md:block hidden p-1">Edit Classteacher</span>
-							</p>
-						</button>
-					</div>
-				</section>
-			}
-		}
+		<section>
+			<div>
+				<h3 class="text-lg font-semibold">Class Teacher: { classTeacher.FirstName + " " + classTeacher.LastName }</h3>
+			</div>
+			<div class="flex space-x-2">
+				<button
+					class="flex items-center px-3 py-1 text-sm text-white bg-yellow-500 rounded-md hover:bg-yellow-600 hover:cursor-pointer"
+					hx-get={ "/academics/classteacher/" + classTeacher.ClassID.String() + "/edit" }
+					hx-target="#classes-list"
+					hx-swap="innerHTML"
+				>
+					<p class="flex gap-1 items-center justify-center" title="edit classteacher">
+						<i class="fas fa-edit mr-1"></i> <span class="md:block hidden p-1">Edit Classteacher</span>
+					</p>
+				</button>
+			</div>
+		</section>
 	}
 }
 

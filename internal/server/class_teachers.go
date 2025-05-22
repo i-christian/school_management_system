@@ -10,6 +10,23 @@ import (
 	"github.com/google/uuid"
 )
 
+// showClassTeachers method renders ClassTeachers Component
+func (s *Server) showClassTeachers(w http.ResponseWriter, r *http.Request) {
+	classID := r.PathValue("class_id")
+	parsedClassID, err := uuid.Parse(classID)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "bad request")
+		return
+	}
+
+	classTeacher, err := s.queries.GetClassTeacher(r.Context(), parsedClassID)
+	if err != nil {
+		slog.Warn("no teachers have been set as class teachers")
+	}
+
+	s.renderComponent(w, r, classteachers.ClassTeachers(classTeacher, (classID)))
+}
+
 // showCreateClassTeacher method links a classteacher to a class
 func (s *Server) showCreateClassTeacher(w http.ResponseWriter, r *http.Request) {
 	classID := r.PathValue("class_id")

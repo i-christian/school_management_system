@@ -3,9 +3,8 @@ package classes
 import "school_management_system/internal/database"
 import "strconv"
 import "strings"
-import "school_management_system/cmd/web/dashboard/classteachers"
 
-templ ClassesSubjectsPage(classes []database.Class, classTeachers []database.ListCLassTeachersRow, teachers []database.GetAllDBClassTeachersRow) {
+templ ClassesSubjectsPage(classes []database.Class, teachers []database.GetAllDBClassTeachersRow) {
 	<div class="container mx-auto p-1">
 		<div class="flex items-center justify-between mb-4">
 			<h2 class="text-xl font-bold">Classes & Subjects</h2>
@@ -67,7 +66,10 @@ templ ClassesSubjectsPage(classes []database.Class, classTeachers []database.Lis
 								</section>
 								<section class="py-2">
 									if len(teachers) != 0 {
-										@classteachers.ClassTeachers(classTeachers, class.ClassID.String())
+										<div
+											hx-get={ "/academics/classteacher/" + class.ClassID.String() }
+											hx-trigger="load"
+										></div>
 									}
 								</section>
 								<section class="mt-4">

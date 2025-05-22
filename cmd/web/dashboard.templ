@@ -102,7 +102,7 @@ templ Dashboard(user dashboard.DashboardUserRole, term dashboard.DashboardTerm) 
           applyLayout();
         });
 
-        sidebar.addEventListener('click', (e) => {
+        document.addEventListener('click', (e) => {
           if (window.innerWidth < 1024) {
             if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
 				expanded = false;
