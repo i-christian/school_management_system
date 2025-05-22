@@ -1,3 +1,13 @@
+-- name: getAllDBClassTeachers :many
+select
+    u.user_id as teacher_id,
+    u.first_name,
+    u.last_name,
+    r.name as role
+from users u
+join roles r on u.role_id = r.role_id
+and r.name = 'classteacher';
+
 -- name: UpSertClassTeacher :one
 insert into class_teachers (teacher_id, class_id)
     values ($1, $2)

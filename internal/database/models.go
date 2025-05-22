@@ -37,6 +37,12 @@ type ClassPromotion struct {
 	NextClassID pgtype.UUID `json:"next_class_id"`
 }
 
+type ClassTeacher struct {
+	ID        uuid.UUID `json:"id"`
+	TeacherID uuid.UUID `json:"teacher_id"`
+	ClassID   uuid.UUID `json:"class_id"`
+}
+
 type DisciplineRecord struct {
 	DisciplineID uuid.UUID   `json:"discipline_id"`
 	StudentID    uuid.UUID   `json:"student_id"`

@@ -4,7 +4,7 @@ import "school_management_system/internal/database"
 import "strconv"
 import "strings"
 
-templ ClassesSubjectsList(classes []database.Class) {
+templ ClassesSubjectsPage(classes []database.Class, classTeachers []database.ListCLassTeachersRow, teachers) {
 	<div class="container mx-auto p-6">
 		<div class="flex items-center justify-between mb-4">
 			<h2 class="text-xl font-bold">Classes & Subjects</h2>
@@ -33,7 +33,7 @@ templ ClassesSubjectsList(classes []database.Class) {
 					for _, class := range classes {
 						if !strings.HasPrefix(class.Name, "Graduates - ") {
 							<li class="p-4 bg-gray-100 rounded shadow">
-								<div class="flex items-center justify-between">
+								<section class="flex items-center justify-between">
 									<div>
 										<h3 class="text-lg font-semibold">{ class.Name }</h3>
 									</div>
@@ -63,7 +63,8 @@ templ ClassesSubjectsList(classes []database.Class) {
 											<i class="fas fa-plus mr-1"></i> Add Subject
 										</button>
 									</div>
-								</div>
+								</section>
+								{ ClassTeachers(classTeachers) }
 								<section class="mt-4">
 									<h4 class="text-md font-medium">Subjects</h4>
 									<ul id={ "subjects-list-" + class.ClassID.String() } class="space-y-2">
@@ -86,6 +87,53 @@ templ ClassesSubjectsList(classes []database.Class) {
 			}
 		</section>
 	</div>
+}
+
+templ ClassTeachers(classTeachers []database.ListCLassTeachersRow) {
+	if len(classTeachers) == 0 {
+		<button
+			class="flex items-center px-3 py-1 text-sm text-white bg-green-500 rounded-md hover:bg-green-600 hover:cursor-pointer"
+			hx-get={ "/academics/classteacher/" + class.ClassID.String() + "/create" }
+			hx-target="#classes-list"
+			hx-swap="innerHTML"
+		>
+			<i class="fas fa-plus mr-1"></i> Add Subject
+		</button>
+	} else {
+		for classTeacher := range classTeachers {
+			<section>
+				<div>
+					<h3 class="text-lg font-semibold">Class Teacher: { classTeacher }</h3>
+				</div>
+				<div class="flex space-x-2">
+					<button
+						class="flex items-center px-3 py-1 text-sm text-white bg-yellow-500 rounded-md hover:bg-yellow-600 hover:cursor-pointer"
+						hx-get={ "/academics/classes/" + class.ClassID.String() + "/edit" }
+						hx-target="#classes-list"
+						hx-swap="innerHTML"
+					>
+						<i class="fas fa-edit mr-1"></i> Edit
+					</button>
+					<button
+						class="flex items-center px-3 py-1 text-sm text-white bg-red-500 rounded-md hover:bg-red-600 hover:cursor-pointer"
+						hx-delete={ "/academics/classes/" + class.ClassID.String() }
+						hx-target="#classes-list"
+						hx-swap="outerHTML"
+					>
+						<i class="fas fa-trash mr-1"></i> Delete
+					</button>
+					<button
+						class="flex items-center px-3 py-1 text-sm text-white bg-green-500 rounded-md hover:bg-green-600 hover:cursor-pointer"
+						hx-get={ "/academics/subjects/" + class.ClassID.String() + "/create" }
+						hx-target="#classes-list"
+						hx-swap="innerHTML"
+					>
+						<i class="fas fa-plus mr-1"></i> Add Subject
+					</button>
+				</div>
+			</section>
+		}
+	}
 }
 
 templ SubjectsList(subjects []database.ListSubjectsRow) {
