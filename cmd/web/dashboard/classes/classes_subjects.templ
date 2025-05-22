@@ -67,7 +67,7 @@ templ ClassesSubjectsPage(classes []database.Class, classTeachers []database.Lis
 								</section>
 								<section class="px-3 py-1">
 									if len(teachers) != 0 {
-										@classteachers.ClassTeachers(classTeachers, teachers, class.ClassID.String())
+										@classteachers.ClassTeachers(classTeachers, class.ClassID.String())
 									}
 								</section>
 								<section class="mt-4">
@@ -239,7 +239,7 @@ templ CreateSubjectForm(classID string) {
 			</header>
 			<form
 				hx-post={ "/academics/subjects/" + classID }
-				hx-target="#content-area"
+				hx-target="#classes-list"
 				hx-swap="innerHTML"
 				class="px-6 py-6"
 			>

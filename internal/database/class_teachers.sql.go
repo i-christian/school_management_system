@@ -90,6 +90,7 @@ select
     ct.id,
     u.first_name,
     u.last_name,
+    c.class_id,
     c.name as class
 from class_teachers ct
 join users u on ct.teacher_id = u.user_id
@@ -101,6 +102,7 @@ type ListCLassTeachersRow struct {
 	ID        uuid.UUID `json:"id"`
 	FirstName string    `json:"first_name"`
 	LastName  string    `json:"last_name"`
+	ClassID   uuid.UUID `json:"class_id"`
 	Class     string    `json:"class"`
 }
 
@@ -117,6 +119,7 @@ func (q *Queries) ListCLassTeachers(ctx context.Context) ([]ListCLassTeachersRow
 			&i.ID,
 			&i.FirstName,
 			&i.LastName,
+			&i.ClassID,
 			&i.Class,
 		); err != nil {
 			return nil, err

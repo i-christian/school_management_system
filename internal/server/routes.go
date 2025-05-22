@@ -109,6 +109,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Put("/years/{id}/toggle", s.setActiveYear)
 		r.Put("/terms/{id}/toggle/{academicYearStatus}", s.setActiveTerm)
 
+		// classes routes
 		r.Get("/classes/create", s.ShowCreateClassForm)
 		r.Post("/classes", s.CreateClass)
 		r.Get("/classes", s.ListClasses)
@@ -117,11 +118,15 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Delete("/classes/{id}", s.DeleteClass)
 		r.Get("/classes/{id}/subjects", s.ListSubjects)
 
+		// subjects routes
 		r.Get("/subjects/{id}/create", s.ShowCreateSubjectForm)
 		r.Post("/subjects/{id}", s.CreateSubject)
 		r.Get("/subjects/{id}/edit", s.ShowEditSubject)
 		r.Put("/subjects/{id}", s.EditSubject)
 		r.Delete("/subjects/{id}", s.DeleteSubject)
+
+		// classteacher routes
+		r.Get("/classteacher/{class_id}/create", s.showCreateClassTeacher)
 
 		r.Get("/assignments", s.ListAssignments)
 		r.Get("/assignments/create", s.ShowCreateAssignmentForm)
