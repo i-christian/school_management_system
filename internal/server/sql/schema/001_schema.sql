@@ -44,6 +44,13 @@ CREATE TABLE IF NOT EXISTS classes (
     name VARCHAR(20) NOT NULL UNIQUE
 );
 
+-- CLASS TEACHERS TABLE
+CREATE TABLE IF NOT EXISTS class_teachers (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    teacher_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    class_id UUID NOT NULL REFERENCES classes(class_id) ON DELETE CASCADE,
+    UNIQUE(teacher_id, class_id)
+);
 
 CREATE EXTENSION IF NOT EXISTS btree_gist;
 -- ACADEMIC_YEAR TABLE
