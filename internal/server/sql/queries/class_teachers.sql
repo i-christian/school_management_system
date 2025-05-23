@@ -46,8 +46,6 @@ where c.class_id = $1;
 -- name: RemoveClassTeacher :exec
 WITH updated_user AS (
     select
-        roles.name,
-        roles.role_id,
         case when roles.name <> 'classteacher'
             then users.user_id
         end user_id
