@@ -40,7 +40,25 @@ func GroupRemarksByClass(rows []database.ListRemarksByClassRow) []remarks.Groupe
 
 // StudentsRemarks handler method renders RemarksPage component
 func (s *Server) StudentsRemarks(w http.ResponseWriter, r *http.Request) {
-	remarksData, err := s.queries.ListRemarksByClass(r.Context())
+	user, ok := r.Context().Value(userContextKey).(User)
+	if !ok {
+		writeError(w, http.StatusUnauthorized, "user not authenticated")
+		return
+	}
+
+	term, err := s.getCachedTerm()
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "active current term not set")
+		slog.Error(err.Error())
+		return
+	}
+
+	params := database.ListRemarksByClassParams{
+		UserID: user.UserID,
+		TermID: term.TermID,
+	}
+
+	remarksData, err := s.queries.ListRemarksByClass(r.Context(), params)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "failed to get remarks")
 		slog.Error("failed to get remarks data", "error", err.Error())
@@ -48,6 +66,7 @@ func (s *Server) StudentsRemarks(w http.ResponseWriter, r *http.Request) {
 	}
 
 	groupedData := GroupRemarksByClass(remarksData)
+
 	s.renderComponent(w, r, remarks.RemarksPage(groupedData))
 }
 
@@ -55,13 +74,12 @@ func (s *Server) StudentsRemarks(w http.ResponseWriter, r *http.Request) {
 // It expects form fields: student_ids[], class_teacher_remarks[], head_teacher_remarks[].
 // The active termID is looked up within the handler.
 func (s *Server) SubmitRemarks(w http.ResponseWriter, r *http.Request) {
-	activeTerm, err := s.queries.GetCurrentTerm(r.Context())
+	term, err := s.getCachedTerm()
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "unable to retrieve active term")
-		slog.Error("unable to retrieve active term", "error", err.Error())
+		writeError(w, http.StatusInternalServerError, "active current term not set")
+		slog.Error(err.Error())
 		return
 	}
-	termID := activeTerm.TermID
 
 	if err := r.ParseForm(); err != nil {
 		writeError(w, http.StatusBadRequest, "invalid form submission")
@@ -86,7 +104,7 @@ func (s *Server) SubmitRemarks(w http.ResponseWriter, r *http.Request) {
 
 		params := database.UpsertRemarkParams{
 			StudentID: studentID,
-			TermID:    termID,
+			TermID:    term.TermID,
 			ContentClassTeacher: pgtype.Text{
 				String: classTeacherRemarks[i],
 				Valid:  true,

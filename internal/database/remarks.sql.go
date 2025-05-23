@@ -30,13 +30,23 @@ INNER JOIN students s
     ON sc.student_id = s.student_id
 INNER JOIN classes c 
     ON sc.class_id = c.class_id
+INNER JOIN class_teachers ct
+    ON c.class_id = ct.class_id
+INNER JOIN users u
+    ON ct.teacher_id = u.user_id
+    AND u.user_id = $1
 INNER JOIN term t 
     ON sc.term_id = t.term_id
 LEFT JOIN remarks r 
     ON s.student_id = r.student_id 
-   AND sc.term_id = r.term_id
+   AND sc.term_id = $2
 ORDER BY c.name, s.last_name, s.first_name
 `
+
+type ListRemarksByClassParams struct {
+	UserID uuid.UUID `json:"user_id"`
+	TermID uuid.UUID `json:"term_id"`
+}
 
 type ListRemarksByClassRow struct {
 	ClassName           string             `json:"class_name"`
@@ -52,8 +62,8 @@ type ListRemarksByClassRow struct {
 	UpdatedAt           pgtype.Timestamptz `json:"updated_at"`
 }
 
-func (q *Queries) ListRemarksByClass(ctx context.Context) ([]ListRemarksByClassRow, error) {
-	rows, err := q.db.Query(ctx, listRemarksByClass)
+func (q *Queries) ListRemarksByClass(ctx context.Context, arg ListRemarksByClassParams) ([]ListRemarksByClassRow, error) {
+	rows, err := q.db.Query(ctx, listRemarksByClass, arg.UserID, arg.TermID)
 	if err != nil {
 		return nil, err
 	}
