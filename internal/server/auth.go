@@ -29,6 +29,7 @@ func createSessionCookie(sessionID uuid.UUID) http.Cookie {
 	secureFlag := os.Getenv("ENV") == "production"
 	cookie := http.Cookie{
 		Name:     "sessionid",
+		Domain:   os.Getenv("DOMAIN"),
 		Value:    sessionID.String(),
 		Path:     "/",
 		MaxAge:   3600 * 24 * 7 * 2, // 2 weeks
