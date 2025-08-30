@@ -27,18 +27,22 @@ type LoginUser struct {
 func createSessionCookie(sessionID uuid.UUID) http.Cookie {
 	// Determine the 'Secure' flag based on the environment.
 	secureFlag := os.Getenv("ENV") == "production"
-	cookie := http.Cookie{
+	domain := os.Getenv("DOMAIN")
+	domainVal := ""
+	if os.Getenv("ENV") == "production" {
+		domainVal = domain
+	}
+
+	return http.Cookie{
 		Name:     "sessionid",
-		Domain:   os.Getenv("DOMAIN"),
+		Domain:   domainVal,
 		Value:    sessionID.String(),
 		Path:     "/",
-		MaxAge:   3600 * 24 * 7 * 2, // 2 weeks
+		MaxAge:   3600 * 24 * 7 * 2,
 		HttpOnly: true,
 		Secure:   secureFlag,
 		SameSite: http.SameSiteStrictMode,
 	}
-
-	return cookie
 }
 
 // getUserByIdentifier returns the LoginUser corresponding to the provided identifier.
