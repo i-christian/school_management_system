@@ -8,7 +8,7 @@ This diagram outlines the major containers and their communication channels.
 C4Container
     title School Management System Architecture
     
-    Container(Client, "Web Browser/Client", "HTML/CSS/JS/HTMX/Templ", "User Interface")
+    Container(Client, "Web Browser/Client", "HTMX/Templ/TailwindCSS", "User Interface")
     
     Container_Boundary(SMSServer, "School Management System (Go Monorepo)") {
         Container(GoApp, "Go Backend Service", "Golang, HTTP Server", "API Endpoints (REST/HTMX) and Business Logic.")
@@ -27,10 +27,7 @@ C4Container
     Rel(GoApp, AsynqWorker, "Queues Tasks (via Redis)")
     Rel(PaymentAPI, GoApp, "Sends Payment Confirmation Webhook (Async)")
     Rel(AsynqWorker, Postgres, "Updates Ledger (Transaction Status)")
-    Rel(AsynqWorker, Redis, "Manages Job Queue")
-    
-    UpdateLayoutStyle(GoApp, $width=200, $height=150)
-    UpdateLayoutStyle(AsynqWorker, $width=200, $height=150)
+    Rel(AsynqWorker, Redis, "Manages Job Queue")    
 ````
 
 -----
@@ -52,15 +49,15 @@ graph TD
         end
         
         subgraph Finance Context
-            E --> E1[Payment Service: API Integrator]
-            E1 --> E2[Transaction Repository (Immutable Ledger)]
+            E  --> E1[Payment Service: API Integrator]
+            E1 --> E2[Transaction Repository]
             E1 --> E3[Asynq Worker: Process Webhooks]
         end
         
         subgraph IAM Context
             B --> B1[Auth Service]
-            B1 --> B2(Redis Session Store)
-            B --> B3[User Repository (Postgres)]
+            B1 --> B2[Redis Session Store]
+            B --> B3[User Repository]
         end
     end
 ```
